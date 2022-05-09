@@ -1,10 +1,11 @@
 #pragma once
 
-namespace LR35902
-{
+#include "../config.h"
 
-class n8
-{
+namespace LR35902 {
+
+struct n8 {
+  byte m_data;
 };
 
-}
+} // namespace LR35902
