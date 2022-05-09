@@ -1,10 +1,11 @@
 #pragma once
 
-namespace LR35902
-{
+#include <cstdint>
 
-class u3
-{
+namespace LR35902 {
+
+struct u3 {
+  std::size_t m_data : 3;
 };
 
-}
+} // namespace LR35902
