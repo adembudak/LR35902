@@ -20,4 +20,6 @@ public:
   //  }
 };
 
+static_assert(sizeof(r16) == (sizeof(byte *) + sizeof(byte *)));
+
 } // namespace LR35902
