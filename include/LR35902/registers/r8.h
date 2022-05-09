@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../config.h"
+#include "../immediate/n8.h"
 
 namespace LR35902 {
 
@@ -11,6 +12,11 @@ private:
 public:
   r8 &operator=(const byte b) noexcept {
     m_data = b;
+    return *this;
+  }
+
+  r8 &operator=(const n8 n) noexcept {
+    m_data = n.m_data;
     return *this;
   }
 
@@ -41,4 +47,5 @@ public:
   //
 };
 
+static_assert(sizeof(r8) == sizeof(byte));
 } // namespace LR35902
