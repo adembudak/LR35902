@@ -1,11 +1,11 @@
 #pragma once
 
-#include "../config.h"
+#include <cstdint>
 
 namespace LR35902 {
 
 struct n8 {
-  byte m_data;
+  std::uint8_t m_data{};
 };
 
 } // namespace LR35902
