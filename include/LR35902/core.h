@@ -43,8 +43,10 @@ private:
   struct C_register_tag {};
   struct HLi_tag {};
   struct HLd_tag {};
+
   struct load_from_A_tag {};
   struct load_to_A_tag {};
+  struct tag {};
 
 public:
   void run();
@@ -134,26 +136,30 @@ private:
   void srl(byte &b); // srl [HL]
 
   // Load Instructions
-  void ld(r8 &r, const r8 r2);    // ld r8,r8
-  void ld(r8 &r, const n8 n);     // ld r8,n8
-  void ld(r16 &rr, const n16 nn); // ld r16,n16
-  void ld(byte &b, const r8 r);   // ld [HL],r8
-  void ld(byte &b, const n8 n);   // ld [HL],n8
-  void ld(r8 &r, const byte b);   // ld r8,[HL]
-                                  //
-                                  // ld [r16],A
-                                  // ld [n16],A
-                                  //
-                                  // ldh [n16],A
-                                  // ldh [C],A
-                                  // ld A,[r16]
-                                  // ld A,[n16]
-                                  // ldh A,[n16]
-                                  // ldh A,[C]
-                                  // ld [HLI],A
-                                  // ld [HLD],A
-                                  // ld A,[HLI]
-                                  // ld A,[HLD]
+  void ld(r8 &r, const r8 r2);                        // ld r8,r8
+  void ld(r8 &r, const n8 n);                         // ld r8,n8
+  void ld(r16 &rr, const n16 nn);                     // ld r16,n16
+  void ld(byte &b, const r8 r);                       // ld [HL],r8
+  void ld(byte &b, const n8 n);                       // ld [HL],n8
+  void ld(r8 &r, const byte b);                       // ld r8,[HL]
+                                                      //
+  void ld(byte &b, load_from_A_tag);                  // ld [r16],A
+  void ld(byte &b, load_from_A_tag, tag);             // ld [n16],A
+                                                      //
+  void ldh(byte &b, load_from_A_tag);                 // ldh [n16],A
+  void ldh(byte &b, load_from_A_tag, C_register_tag); // ldh [C],A
+                                                      //
+  void ld(const byte b);                              // ld A,[r16]
+  void ld(const byte b, tag);                         // ld A,[n16]
+                                                      //
+  void ldh(const byte b);                             // ldh A,[n16]
+  void ldh(C_register_tag);                           // ldh A,[C]
+                                                      //
+  void ld(HLi_tag, byte &b);                          // ld [HLI],A
+  void ld(HLd_tag, byte &b);                          // ld [HLD],A
+                                                      //
+  void ld(const byte b, HLi_tag);                     // ld A,[HLI]
+  void ld(const byte b, HLd_tag);                     // ld A,[HLD]
 
   // // Jumps and Subroutines
   void call(const n16 nn);                // call n16
@@ -169,14 +175,16 @@ private:
   void rst(const std::size_t v);          // rst vec
 
   // // Stack Operations Instructions
-  void add();           // add HL,SP
-  void add(const e8 e); // add SP,e8
-  void dec();           // dec SP
-  void inc();           // inc SP
-  // ld SP,n16
-  // ld [n16],SP
-  // ld HL,SP+e8
-  // ld SP,HL
+  void add();                                            // add HL,SP
+  void add(const e8 e);                                  // add SP,e8
+  void dec();                                            // dec SP
+  void inc();                                            // inc SP
+                                                         //
+  void ld(SP_register_tag, const n16 nn);                // ld SP,n16
+  void ld(byte &b, SP_register_tag);                     // ld [n16],SP
+  void ld(HL_register_tag, SP_register_tag, const e8 e); // ld HL,SP+e8
+  void ld(SP_register_tag, HL_register_tag);             // ld SP,HL
+
   void pop(AF_register_tag);  // pop AF
   void pop(r16 &rr);          // pop r16
   void push(AF_register_tag); // push AF
