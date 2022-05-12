@@ -13,9 +13,11 @@ private:
 public:
   r16(r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {}
 
-  std::uint16_t data() const noexcept { return m_hi.data() << 8 | m_lo.data(); }
+  std::uint16_t data() const noexcept {
+    return std::uint16_t(m_hi.data() << 8 | m_lo.data());
+  }
 
-  //  std::uint16_t operator*(const r16 &rr) const {
+  //  byte operator*(const r16 &rr) const {
   //    return readbus(rr.value());
   //  }
 };

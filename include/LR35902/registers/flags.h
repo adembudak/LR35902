@@ -13,7 +13,7 @@ struct flags {
   bool c = false;
 
   byte data() const noexcept { // 0bZNHC'0000
-    return (z << 7 | n << 6 | h << 5 | c << 4);
+    return byte(z << 7 | n << 6 | h << 5 | c << 4);
   }
 };
 

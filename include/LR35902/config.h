@@ -16,7 +16,7 @@ inline unsigned long long operator"" _KiB(const unsigned long long l) {
 }
 
 inline unsigned long long operator"" _MiB(const unsigned long long l) {
-  return 1024_KiB;
+  return 1024_KiB * l;
 }
 
 } // namespace LR35902
