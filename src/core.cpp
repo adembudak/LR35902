@@ -3,22 +3,24 @@
 #include <cstdint>
 #include <vector>
 
-#ifdef WITH_DEBUGGER
-#endif
-
 namespace LR35902 {
 
-using byte = std::uint8_t;
 std::vector<byte> bus(1024);
 
 void core::run() {
-  /*
-auto fetch = [this] { return bus[PC]; };
 
-switch (fetch()) {
-// generate this
-}
-*/
+  /*
+  #ifdef WITH_DEBUGGER
+    print with imgui
+  #endif
+
+  auto fetchByte = [this] { return bus[PC]; };
+  auto fetchWord = [this] { fetchByte() << 8 | fetchByte(); }
+
+  switch (fetch()) {
+  // generate body from: https://github.com/izik1/gbops/blob/master/dmgops.json
+  }
+  */
 }
 
 } // namespace LR35902
