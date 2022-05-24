@@ -189,15 +189,15 @@ void core::run () {
   case 0x8e: adc (*HL); break;
   case 0x8f: adc (A); break;
 
-  // case 0x90: sub (A, B); break;
-  // case 0x91: sub (A, C); break;
-  // case 0x92: sub (A, D); break;
-  // case 0x93: sub (A, E); break;
-  // case 0x94: sub (A, H); break;
-  // case 0x95: sub (A, L); break;
-  // case 0x96: sub (A, (HL)); break;
-  // case 0x97: sub (A, A); break;
-  //
+  case 0x90: sub (B); break;
+  case 0x91: sub (C); break;
+  case 0x92: sub (D); break;
+  case 0x93: sub (E); break;
+  case 0x94: sub (H); break;
+  case 0x95: sub (L); break;
+  case 0x96: sub (*HL); break;
+  case 0x97: sub (A); break;
+
   case 0x98: sbc (B); break;
   case 0x99: sbc (C); break;
   case 0x9a: sbc (D); break;
@@ -528,7 +528,9 @@ void core::run () {
     // case 0xd3: unused (); break;
     // case 0xd4: call (NC, n16{fetchWord ()}); break;
     // case 0xd5: push (DE); break;
-    // case 0xd6: sub (A, n8{fetchByte ()}); break;
+  case 0xd6:
+    sub (n8{fetchByte ()});
+    break;
     // case 0xd7: rst (10h); break;
     // case 0xd8: ret (C); break;
     // case 0xd9: reti (); break;
