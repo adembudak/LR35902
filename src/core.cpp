@@ -214,17 +214,16 @@ void core::run () {
   case 0xa4: and_ (H); break;
   case 0xa5: and_ (L); break;
   case 0xa6: and_ (*HL); break;
-  case 0xa7:
-    and_ (A);
-    break;
-    // case 0xa8: xor_ (A, B); break;
-    // case 0xa9: xor_ (A, C); break;
-    // case 0xaa: xor_ (A, D); break;
-    // case 0xab: xor_ (A, E); break;
-    // case 0xac: xor_ (A, H); break;
-    // case 0xad: xor_ (A, L); break;
-    // case 0xae: xor_ (A, (HL)); break;
-    // case 0xaf: xor_ (A, A); break;
+  case 0xa7: and_ (A); break;
+
+  case 0xa8: xor_ (B); break;
+  case 0xa9: xor_ (C); break;
+  case 0xaa: xor_ (D); break;
+  case 0xab: xor_ (E); break;
+  case 0xac: xor_ (H); break;
+  case 0xad: xor_ (L); break;
+  case 0xae: xor_ (*HL); break;
+  case 0xaf: xor_ (A); break;
 
   case 0xb0: or_ (B); break;
   case 0xb1: or_ (C); break;
@@ -559,7 +558,9 @@ void core::run () {
     //   case 0xeb: unused (); break;
     //   case 0xec: unused (); break;
     //   case 0xed: unused (); break;
-    //   case 0xee: xor(A, n8{fetchByte ()}); break;
+  case 0xee:
+    xor_ (n8{fetchByte ()});
+    break;
     //   case 0xef: rst (28h); break;
     //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
     //   case 0xf1: pop (AF); break;
