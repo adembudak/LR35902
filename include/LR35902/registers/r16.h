@@ -3,6 +3,8 @@
 #include "flags.h"
 #include "r8.h"
 
+#include <vector>
+
 namespace LR35902 {
 
 class r16 {
@@ -11,17 +13,22 @@ private:
   r8 &m_lo;
 
 public:
-  r16(r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {}
-
-  std::uint16_t data() const noexcept {
-    return std::uint16_t(m_hi.data() << 8 | m_lo.data());
+  r16 (r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {
   }
 
-  //  byte operator*(const r16 &rr) const {
-  //    return readbus(rr.value());
-  //  }
+  std::uint16_t data () const noexcept {
+    return std::uint16_t (m_hi.data () << 8 | m_lo.data ());
+  }
 };
 
-static_assert(sizeof(r16) == (sizeof(byte *) + sizeof(byte *)));
+std::vector<byte> b (1000);
+
+byte &operator* (const r16 rr) {
+  // return readbus(rr.value());
+
+  return b[rr.data ()];
+}
+
+// static_assert (sizeof (r16) == (sizeof (byte *) + sizeof (byte *)));
 
 } // namespace LR35902
