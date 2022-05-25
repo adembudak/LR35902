@@ -26,7 +26,9 @@ void core::run () {
     // switch body generated from:
     // https://github.com/izik1/gbops/blob/master/dmgops.json
 
-    // case 0x00: nop (); break;
+  case 0x00:
+    nop ();
+    break;
     // case 0x01: ld (BC, n16{fetchWord ()}); break;
     // case 0x02: ld ((BC), A); break;
     // case 0x03: inc (BC); break;
@@ -47,10 +49,10 @@ void core::run () {
     dec (C);
     break;
     // case 0x0e: ld (C, n8{fetchByte ()}); break;
-  case 0x0f:
-    rrca ();
+  case 0x0f: rrca (); break;
+  case 0x10:
+    stop ();
     break;
-    // case 0x10: stop (); break;
     // case 0x11: ld (DE, n16{fetchWord ()}); break;
     // case 0x12: ld ((DE), A); break;
     // case 0x13: inc (DE); break;
@@ -172,7 +174,9 @@ void core::run () {
     // case 0x73: ld ((HL), E); break;
     // case 0x74: ld ((HL), H); break;
     // case 0x75: ld ((HL), L); break;
-    // case 0x76: halt (); break;
+  case 0x76:
+    halt ();
+    break;
     // case 0x77: ld ((HL), A); break;
     // case 0x78: ld (A, B); break;
     // case 0x79: ld (A, C); break;
