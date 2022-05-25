@@ -279,7 +279,7 @@ void core::run() {
     // case 0xc2: jp (NZ, n16{fetchWord ()}); break;
     // case 0xc3: jp (n16{fetchWord ()}); break;
     // case 0xc4: call (NZ, n16{fetchWord ()}); break;
-    // case 0xc5: push (BC); break;
+  case 0xc5: push(BC); break;
   case 0xc6: add(n8{fetchByte()}); break;
   case 0xc7: rst(0x00); break;
   case 0xc8: ret(cc::z); break;
@@ -562,14 +562,12 @@ void core::run() {
   // case 0xcd: call (n16{fetchWord ()}); break;
   // case 0xce: adc (n8{fetchByte ()}); break;
   case 0xcf: rst(0x08); break;
-  case 0xd0:
-    ret(cc::nc);
-    break;
-    // case 0xd1: pop (DE); break;
-    // case 0xd2: jp (NC, n16{fetchWord ()}); break;
-    // case 0xd3: unused (); break;
-    // case 0xd4: call (NC, n16{fetchWord ()}); break;
-    // case 0xd5: push (DE); break;
+  case 0xd0: ret(cc::nc); break;
+  // case 0xd1: pop (DE); break;
+  // case 0xd2: jp (NC, n16{fetchWord ()}); break;
+  // case 0xd3: unused (); break;
+  // case 0xd4: call (NC, n16{fetchWord ()}); break;
+  case 0xd5: push(DE); break;
   case 0xd6: sub(n8{fetchByte()}); break;
   case 0xd7: rst(0x10); break;
   case 0xd8: ret(cc::c); break;
@@ -581,15 +579,15 @@ void core::run() {
     // case 0xdc: call (C, n16{fetchWord ()}); break;
     // case 0xdd: unused (); break;
   case 0xde: sbc(n8{fetchByte()}); break;
-  case 0xdf:
-    rst(0x18);
+  case 0xdf: rst(0x18); break;
+  // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
+  // case 0xe1: pop (HL); break;
+  // case 0xe2: ld ((FF00 + C), A); break;
+  // case 0xe3: unused (); break;
+  // case 0xe4: unused (); break;
+  case 0xe5:
+    push(HL);
     break;
-    // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
-    // case 0xe1: pop (HL); break;
-    // case 0xe2: ld ((FF00 + C), A); break;
-    // case 0xe3: unused (); break;
-    // case 0xe4: unused (); break;
-    // case 0xe5: push (HL); break;
     //
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7:
@@ -612,7 +610,7 @@ void core::run() {
     di();
     break;
     //   case 0xf4: unused (); break;
-    //   case 0xf5: push (AF); break;
+  case 0xf5: push(AF_register_tag{}); break;
   case 0xf6: or_(n8{fetchByte()}); break;
   case 0xf7:
     rst(0x30);
