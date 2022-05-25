@@ -55,7 +55,9 @@ void core::run () {
     dec (D);
     break;
     // case 0x16: ld (D, n8{fetchByte ()}); break;
-    // case 0x17: rla (); break;
+  case 0x17:
+    rla ();
+    break;
     // case 0x18: jr (e8); break;
     // case 0x19: add (HL, DE); break;
     // case 0x1a: ld (A, (DE)); break;
