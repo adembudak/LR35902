@@ -1,0 +1,6 @@
+build/
+debug/
+release/
+./3rdparty/imgui-1.87/*
+.cache/
+*.swp
