@@ -272,10 +272,10 @@ void core::run() {
   case 0xbd: cp(L); break;
   case 0xbe: cp(*HL); break;
   case 0xbf: cp(A); break;
-  case 0xc0:
-    ret(cc::nz);
+  case 0xc0: ret(cc::nz); break;
+  case 0xc1:
+    pop(BC);
     break;
-    // case 0xc1: pop (BC); break;
     // case 0xc2: jp (NZ, n16{fetchWord ()}); break;
     // case 0xc3: jp (n16{fetchWord ()}); break;
     // case 0xc4: call (NZ, n16{fetchWord ()}); break;
@@ -563,7 +563,7 @@ void core::run() {
   // case 0xce: adc (n8{fetchByte ()}); break;
   case 0xcf: rst(0x08); break;
   case 0xd0: ret(cc::nc); break;
-  // case 0xd1: pop (DE); break;
+  case 0xd1: pop(DE); break;
   // case 0xd2: jp (NC, n16{fetchWord ()}); break;
   // case 0xd3: unused (); break;
   // case 0xd4: call (NC, n16{fetchWord ()}); break;
@@ -579,9 +579,11 @@ void core::run() {
     // case 0xdc: call (C, n16{fetchWord ()}); break;
     // case 0xdd: unused (); break;
   case 0xde: sbc(n8{fetchByte()}); break;
-  case 0xdf: rst(0x18); break;
-  // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
-  // case 0xe1: pop (HL); break;
+  case 0xdf:
+    rst(0x18);
+    break;
+    // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
+  case 0xe1: pop(HL); break;
   // case 0xe2: ld ((FF00 + C), A); break;
   // case 0xe3: unused (); break;
   // case 0xe4: unused (); break;
@@ -604,7 +606,9 @@ void core::run() {
     rst(0x28);
     break;
     //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
-    //   case 0xf1: pop (AF); break;
+  case 0xf1:
+    pop(AF_register_tag{});
+    break;
     //   case 0xf2: ld (A, (FF00 + C)); break;
   case 0xf3:
     di();
