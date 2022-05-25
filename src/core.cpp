@@ -93,7 +93,9 @@ void core::run () {
     dec (L);
     break;
     // case 0x2e: ld (L, n8{fetchByte ()}); break;
-    // case 0x2f: cpl (); break;
+  case 0x2f:
+    cpl ();
+    break;
     // case 0x30: jr (NC, e8); break;
     // case 0x31: ld (SP, n16{fetchWord ()}); break;
     // case 0x32: ld ((HL -), A); break;
