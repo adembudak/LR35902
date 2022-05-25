@@ -3,7 +3,7 @@
 namespace LR35902 {
 
 // clang-format off
-enum class cc_t {
+enum class cc {
   z  = 1 << 0,  // Execute if z is set.
   nz = 1 << 1,  // Execute if z is not set.
   c  = 1 << 2,  // Execute if c is set.

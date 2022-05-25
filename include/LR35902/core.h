@@ -34,7 +34,7 @@ private:
   n16 SP;
   n16 PC;
 
-  cc_t cc;
+  cc cc;
   std::array<byte, 8> reset_vector{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
 
   struct AF_register_tag {};
@@ -162,16 +162,16 @@ private:
   // ld A,[HLD]
 
   // revisit // Jumps and Subroutines
-  void call(const n16 nn);                // call n16
-  void call(const cc_t cc, const n16 nn); // call cc,n16
+  void call(const n16 nn);              // call n16
+  void call(const cc cc, const n16 nn); // call cc,n16
 
-  void jp();                            // jp HL
-  void jp(const n16 nn);                // jp n16
-  void jp(const cc_t cc, const n16 nn); // jp cc,n16
-  void jr(const e8 e);                  // jr e8
-  void jr(const cc_t cc, const e8 e);   // jr cc,e8
+  void jp();                          // jp HL
+  void jp(const n16 nn);              // jp n16
+  void jp(const cc cc, const n16 nn); // jp cc,n16
+  void jr(const e8 e);                // jr e8
+  void jr(const cc cc, const e8 e);   // jr cc,e8
 
-  void ret(const cc_t cc);       // ret cc
+  void ret(const cc cc);         // ret cc
   void ret();                    // ret
   void reti();                   // reti
   void rst(const std::size_t v); // rst vec
