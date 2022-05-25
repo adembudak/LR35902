@@ -280,10 +280,8 @@ void core::run() {
     // case 0xc3: jp (n16{fetchWord ()}); break;
     // case 0xc4: call (NZ, n16{fetchWord ()}); break;
     // case 0xc5: push (BC); break;
-  case 0xc6:
-    add(n8{fetchByte()});
-    break;
-    // case 0xc7: rst (00h); break;
+  case 0xc6: add(n8{fetchByte()}); break;
+  case 0xc7: rst(0x00); break;
   case 0xc8: ret(cc::z); break;
   case 0xc9:
     ret();
@@ -560,10 +558,10 @@ void core::run() {
     }
     break;
 
-    // case 0xcc: call (Z, n16{fetchWord ()}); break;
-    // case 0xcd: call (n16{fetchWord ()}); break;
-    // case 0xce: adc (n8{fetchByte ()}); break;
-    // case 0xcf: rst (08h); break;
+  // case 0xcc: call (Z, n16{fetchWord ()}); break;
+  // case 0xcd: call (n16{fetchWord ()}); break;
+  // case 0xce: adc (n8{fetchByte ()}); break;
+  case 0xcf: rst(0x08); break;
   case 0xd0:
     ret(cc::nc);
     break;
@@ -572,10 +570,8 @@ void core::run() {
     // case 0xd3: unused (); break;
     // case 0xd4: call (NC, n16{fetchWord ()}); break;
     // case 0xd5: push (DE); break;
-  case 0xd6:
-    sub(n8{fetchByte()});
-    break;
-    // case 0xd7: rst (10h); break;
+  case 0xd6: sub(n8{fetchByte()}); break;
+  case 0xd7: rst(0x10); break;
   case 0xd8: ret(cc::c); break;
   case 0xd9:
     reti();
@@ -584,10 +580,10 @@ void core::run() {
     // case 0xdb: unused (); break;
     // case 0xdc: call (C, n16{fetchWord ()}); break;
     // case 0xdd: unused (); break;
-  case 0xde:
-    sbc(n8{fetchByte()});
+  case 0xde: sbc(n8{fetchByte()}); break;
+  case 0xdf:
+    rst(0x18);
     break;
-    // case 0xdf: rst (18h); break;
     // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
     // case 0xe1: pop (HL); break;
     // case 0xe2: ld ((FF00 + C), A); break;
@@ -595,20 +591,20 @@ void core::run() {
     // case 0xe4: unused (); break;
     // case 0xe5: push (HL); break;
     //
-  case 0xe6:
-    and_(n8{fetchByte()});
+  case 0xe6: and_(n8{fetchByte()}); break;
+  case 0xe7:
+    rst(0x20);
     break;
-    //   case 0xe7: rst (20h); break;
     //   case 0xe8: add (SP, e8); break;
     //   case 0xe9: jp (HL); break;
     //   case 0xea: ld ((n16{fetchWord ()}), A); break;
     //   case 0xeb: unused (); break;
     //   case 0xec: unused (); break;
     //   case 0xed: unused (); break;
-  case 0xee:
-    xor_(n8{fetchByte()});
+  case 0xee: xor_(n8{fetchByte()}); break;
+  case 0xef:
+    rst(0x28);
     break;
-    //   case 0xef: rst (28h); break;
     //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
     //   case 0xf1: pop (AF); break;
     //   case 0xf2: ld (A, (FF00 + C)); break;
@@ -617,10 +613,10 @@ void core::run() {
     break;
     //   case 0xf4: unused (); break;
     //   case 0xf5: push (AF); break;
-  case 0xf6:
-    or_(n8{fetchByte()});
+  case 0xf6: or_(n8{fetchByte()}); break;
+  case 0xf7:
+    rst(0x30);
     break;
-    //   case 0xf7: rst (30h); break;
     //   case 0xf8: ld (HL, SP + e8); break;
     //   case 0xf9: ld (SP, HL); break;
     //   case 0xfa: ld (A, (n16{fetchWord ()})); break;
@@ -630,10 +626,8 @@ void core::run() {
     // case 0xfc: unused (); break;
     // case 0xfd: unused (); break;
     //
-  case 0xfe:
-    cp(n8{fetchByte()});
-    break;
-    // case 0xff: rst (38h); break;
+  case 0xfe: cp(n8{fetchByte()}); break;
+  case 0xff: rst(0x38); break;
   }
 }
 } // namespace LR35902
