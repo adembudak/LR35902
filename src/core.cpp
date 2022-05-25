@@ -272,18 +272,16 @@ void core::run () {
     case 0x4: rlc (H); break;
     case 0x5: rlc (L); break;
     case 0x6: rlc (*HL); break;
-    case 0x7:
-      rlc (A);
-      break;
+    case 0x7: rlc (A); break;
 
-      // case 0x8: rrc (B); break;
-      // case 0x9: rrc (C); break;
-      // case 0xa: rrc (D); break;
-      // case 0xb: rrc (E); break;
-      // case 0xc: rrc (H); break;
-      // case 0xd: rrc (L); break;
-      // case 0xe: rrc ((HL)); break;
-      // case 0xf: rrc (A); break;
+    case 0x8: rrc (B); break;
+    case 0x9: rrc (C); break;
+    case 0xa: rrc (D); break;
+    case 0xb: rrc (E); break;
+    case 0xc: rrc (H); break;
+    case 0xd: rrc (L); break;
+    case 0xe: rrc (*HL); break;
+    case 0xf: rrc (A); break;
 
     case 0x10: rl (B); break;
     case 0x11: rl (C); break;
