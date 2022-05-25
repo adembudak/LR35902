@@ -69,7 +69,9 @@ void core::run () {
     dec (E);
     break;
     // case 0x1e: ld (E, n8{fetchByte ()}); break;
-    // case 0x1f: rra (); break;
+  case 0x1f:
+    rra ();
+    break;
     // case 0x20: jr (NZ, e8); break;
     // case 0x21: ld (HL, n16{fetchWord ()}); break;
     // case 0x22: ld ((HL +), A); break;
