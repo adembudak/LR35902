@@ -310,18 +310,16 @@ void core::run () {
     case 0x24: sla (H); break;
     case 0x25: sla (L); break;
     case 0x26: sla (*HL); break;
-    case 0x27:
-      sla (A);
-      break;
+    case 0x27: sla (A); break;
 
-      // case 0x28: sra (B); break;
-      // case 0x29: sra (C); break;
-      // case 0x2a: sra (D); break;
-      // case 0x2b: sra (E); break;
-      // case 0x2c: sra (H); break;
-      // case 0x2d: sra (L); break;
-      // case 0x2e: sra ((HL)); break;
-      // case 0x2f: sra (A); break;
+    case 0x28: sra (B); break;
+    case 0x29: sra (C); break;
+    case 0x2a: sra (D); break;
+    case 0x2b: sra (E); break;
+    case 0x2c: sra (H); break;
+    case 0x2d: sra (L); break;
+    case 0x2e: sra (*HL); break;
+    case 0x2f: sra (A); break;
 
     case 0x30: swap (B); break;
     case 0x31: swap (C); break;
