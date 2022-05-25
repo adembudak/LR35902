@@ -328,18 +328,16 @@ void core::run () {
     case 0x34: swap (H); break;
     case 0x35: swap (L); break;
     case 0x36: swap (*HL); break;
-    case 0x37:
-      swap (A);
-      break;
+    case 0x37: swap (A); break;
 
-      // case 0x38: srl (B); break;
-      // case 0x39: srl (C); break;
-      // case 0x3a: srl (D); break;
-      // case 0x3b: srl (E); break;
-      // case 0x3c: srl (H); break;
-      // case 0x3d: srl (L); break;
-      // case 0x3e: srl ((HL)); break;
-      // case 0x3f: srl (A); break;
+    case 0x38: srl (B); break;
+    case 0x39: srl (C); break;
+    case 0x3a: srl (D); break;
+    case 0x3b: srl (E); break;
+    case 0x3c: srl (H); break;
+    case 0x3d: srl (L); break;
+    case 0x3e: srl (*HL); break;
+    case 0x3f: srl (A); break;
 
     case 0x40: bit (u3{0}, B); break;
     case 0x41: bit (u3{0}, C); break;
