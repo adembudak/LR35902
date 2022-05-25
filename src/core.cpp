@@ -83,7 +83,9 @@ void core::run () {
     dec (H);
     break;
     // case 0x26: ld (H, n8{fetchByte ()}); break;
-    // case 0x27: daa (); break;
+  case 0x27:
+    daa ();
+    break;
     // case 0x28: jr (Z, e8); break;
     // case 0x29: add (HL, HL); break;
     // case 0x2a: ld (A, (HL +)); break;
