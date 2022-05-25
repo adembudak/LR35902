@@ -47,7 +47,9 @@ void core::run () {
     dec (C);
     break;
     // case 0x0e: ld (C, n8{fetchByte ()}); break;
-    // case 0x0f: rrca (); break;
+  case 0x0f:
+    rrca ();
+    break;
     // case 0x10: stop (); break;
     // case 0x11: ld (DE, n16{fetchWord ()}); break;
     // case 0x12: ld ((DE), A); break;
