@@ -109,11 +109,11 @@ void core::run () {
     // case 0x3a: ld (A, (HL -)); break;
     // case 0x3b: dec (SP); break;
   case 0x3c: inc (A); break;
-  case 0x3d:
-    dec (A);
+  case 0x3d: dec (A); break;
+  // case 0x3e: ld (A, n8{fetchByte ()}); break;
+  case 0x3f:
+    ccf ();
     break;
-    // case 0x3e: ld (A, n8{fetchByte ()}); break;
-    // case 0x3f: ccf (); break;
     // case 0x40: ld (B, B); break;
     // case 0x41: ld (B, C); break;
     // case 0x42: ld (B, D); break;
