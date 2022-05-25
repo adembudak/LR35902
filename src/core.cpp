@@ -275,14 +275,18 @@ void core::run () {
       // case 0xd: rrc (L); break;
       // case 0xe: rrc ((HL)); break;
       // case 0xf: rrc (A); break;
-      // case 0x10: rl (B); break;
-      // case 0x11: rl (C); break;
-      // case 0x12: rl (D); break;
-      // case 0x13: rl (E); break;
-      // case 0x14: rl (H); break;
-      // case 0x15: rl (L); break;
-      // case 0x16: rl ((HL)); break;
-      // case 0x17: rl (A); break;
+
+    case 0x10: rl (B); break;
+    case 0x11: rl (C); break;
+    case 0x12: rl (D); break;
+    case 0x13: rl (E); break;
+    case 0x14: rl (H); break;
+    case 0x15: rl (L); break;
+    case 0x16: rl (*HL); break;
+    case 0x17:
+      rl (A);
+      break;
+
       // case 0x18: rr (B); break;
       // case 0x19: rr (C); break;
       // case 0x1a: rr (D); break;
