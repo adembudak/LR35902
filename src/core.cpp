@@ -290,18 +290,19 @@ void core::run () {
     case 0x14: rl (H); break;
     case 0x15: rl (L); break;
     case 0x16: rl (*HL); break;
-    case 0x17:
-      rl (A);
+    case 0x17: rl (A); break;
+
+    case 0x18: rr (B); break;
+    case 0x19: rr (C); break;
+    case 0x1a: rr (D); break;
+    case 0x1b: rr (E); break;
+    case 0x1c: rr (H); break;
+    case 0x1d: rr (L); break;
+    case 0x1e: rr (*HL); break;
+    case 0x1f:
+      rr (A);
       break;
 
-      // case 0x18: rr (B); break;
-      // case 0x19: rr (C); break;
-      // case 0x1a: rr (D); break;
-      // case 0x1b: rr (E); break;
-      // case 0x1c: rr (H); break;
-      // case 0x1d: rr (L); break;
-      // case 0x1e: rr ((HL)); break;
-      // case 0x1f: rr (A); break;
       // case 0x20: sla (B); break;
       // case 0x21: sla (C); break;
       // case 0x22: sla (D); break;
