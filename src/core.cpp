@@ -301,18 +301,19 @@ void core::run () {
     case 0x1c: rr (H); break;
     case 0x1d: rr (L); break;
     case 0x1e: rr (*HL); break;
-    case 0x1f:
-      rr (A);
+    case 0x1f: rr (A); break;
+
+    case 0x20: sla (B); break;
+    case 0x21: sla (C); break;
+    case 0x22: sla (D); break;
+    case 0x23: sla (E); break;
+    case 0x24: sla (H); break;
+    case 0x25: sla (L); break;
+    case 0x26: sla (*HL); break;
+    case 0x27:
+      sla (A);
       break;
 
-      // case 0x20: sla (B); break;
-      // case 0x21: sla (C); break;
-      // case 0x22: sla (D); break;
-      // case 0x23: sla (E); break;
-      // case 0x24: sla (H); break;
-      // case 0x25: sla (L); break;
-      // case 0x26: sla ((HL)); break;
-      // case 0x27: sla (A); break;
       // case 0x28: sra (B); break;
       // case 0x29: sra (C); break;
       // case 0x2a: sra (D); break;
