@@ -588,7 +588,9 @@ void core::run () {
     //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
     //   case 0xf1: pop (AF); break;
     //   case 0xf2: ld (A, (FF00 + C)); break;
-    //   case 0xf3: di (); break;
+  case 0xf3:
+    di ();
+    break;
     //   case 0xf4: unused (); break;
     //   case 0xf5: push (AF); break;
   case 0xf6:
@@ -598,7 +600,9 @@ void core::run () {
     //   case 0xf8: ld (HL, SP + e8); break;
     //   case 0xf9: ld (SP, HL); break;
     //   case 0xfa: ld (A, (n16{fetchWord ()})); break;
-    //  case 0xfb: ei (); break;
+  case 0xfb:
+    ei ();
+    break;
     // case 0xfc: unused (); break;
     // case 0xfd: unused (); break;
     //
