@@ -261,14 +261,17 @@ void core::run () {
     // case 0xca: jp (Z, n16{fetchWord ()}); break;
     // case 0xcb:
     switch (fetchByte ()) {
-      // case 0: rlc (B); break;
-      // case 0x1: rlc (C); break;
-      // case 0x2: rlc (D); break;
-      // case 0x3: rlc (E); break;
-      // case 0x4: rlc (H); break;
-      // case 0x5: rlc (L); break;
-      // case 0x6: rlc ((HL)); break;
-      // case 0x7: rlc (A); break;
+    case 0x0: rlc (B); break;
+    case 0x1: rlc (C); break;
+    case 0x2: rlc (D); break;
+    case 0x3: rlc (E); break;
+    case 0x4: rlc (H); break;
+    case 0x5: rlc (L); break;
+    case 0x6: rlc (*HL); break;
+    case 0x7:
+      rlc (A);
+      break;
+
       // case 0x8: rrc (B); break;
       // case 0x9: rrc (C); break;
       // case 0xa: rrc (D); break;
