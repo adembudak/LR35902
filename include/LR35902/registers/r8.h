@@ -20,7 +20,15 @@ public:
     return *this;
   }
 
-  uint8_t data() const noexcept { return m_data; }
+  /*
+  byte operator*(const r8 r) {
+    return m_bus[r.data()];
+  }
+  */
+
+  uint8_t data() const noexcept {
+    return m_data;
+  }
 
   r8 &operator++(int) noexcept {
     ++m_data;
@@ -43,8 +51,6 @@ public:
     --m_data;
     return temp;
   }
-
-  //
 };
 
 static_assert(sizeof(r8) == sizeof(byte));

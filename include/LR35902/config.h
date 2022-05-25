@@ -8,15 +8,15 @@ namespace LR35902 {
 using byte = std::uint8_t;
 using word = std::uint16_t;
 
-consteval unsigned long long operator"" _B (const unsigned long long l) { //
+consteval unsigned long long operator"" _B(const unsigned long long l) { //
   return l;
 }
 
-consteval unsigned long long operator"" _KiB (const unsigned long long l) {
+consteval unsigned long long operator"" _KiB(const unsigned long long l) {
   return 1024 * l;
 }
 
-consteval unsigned long long operator"" _MiB (const unsigned long long l) {
+consteval unsigned long long operator"" _MiB(const unsigned long long l) {
   return 1024_KiB * l;
 }
 

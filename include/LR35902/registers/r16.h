@@ -13,20 +13,20 @@ private:
   r8 &m_lo;
 
 public:
-  r16 (r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {
+  r16(r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {
   }
 
-  std::uint16_t data () const noexcept {
-    return std::uint16_t (m_hi.data () << 8 | m_lo.data ());
+  std::uint16_t data() const noexcept {
+    return std::uint16_t(m_hi.data() << 8 | m_lo.data());
   }
 };
 
-std::vector<byte> b (1000);
+std::vector<byte> b(1000);
 
-byte &operator* (const r16 rr) {
+byte &operator*(const r16 rr) {
   // return readbus(rr.value());
 
-  return b[rr.data ()];
+  return b[rr.data()];
 }
 
 // static_assert (sizeof (r16) == (sizeof (byte *) + sizeof (byte *)));
