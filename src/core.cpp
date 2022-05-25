@@ -307,14 +307,18 @@ void core::run () {
       // case 0x2d: sra (L); break;
       // case 0x2e: sra ((HL)); break;
       // case 0x2f: sra (A); break;
-      // case 0x30: swap (B); break;
-      // case 0x31: swap (C); break;
-      // case 0x32: swap (D); break;
-      // case 0x33: swap (E); break;
-      // case 0x34: swap (H); break;
-      // case 0x35: swap (L); break;
-      // case 0x36: swap ((HL)); break;
-      // case 0x37: swap (A); break;
+
+    case 0x30: swap (B); break;
+    case 0x31: swap (C); break;
+    case 0x32: swap (D); break;
+    case 0x33: swap (E); break;
+    case 0x34: swap (H); break;
+    case 0x35: swap (L); break;
+    case 0x36: swap (*HL); break;
+    case 0x37:
+      swap (A);
+      break;
+
       // case 0x38: srl (B); break;
       // case 0x39: srl (C); break;
       // case 0x3a: srl (D); break;
@@ -520,6 +524,7 @@ void core::run () {
     case 0xff: set (u3{7}, A); break;
     }
     break;
+
     // case 0xcc: call (Z, n16{fetchWord ()}); break;
     // case 0xcd: call (n16{fetchWord ()}); break;
     // case 0xce: adc (n8{fetchByte ()}); break;
