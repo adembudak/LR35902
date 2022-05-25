@@ -35,7 +35,9 @@ void core::run () {
     dec (B);
     break;
     // case 0x06: ld (B, n8{fetchByte ()}); break;
-    // case 0x07: rlca (); break;
+  case 0x07:
+    rlca ();
+    break;
     // case 0x08: ld ((n16{fetchWord ()}), SP); break;
     // case 0x09: add (HL, BC); break;
     // case 0x0a: ld (A, (BC)); break;
