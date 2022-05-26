@@ -275,7 +275,7 @@ void core::run() {
   case 0xc0: ret(cc::nz); break;
   case 0xc1: pop(BC); break;
   case 0xc2: jp(cc::nz, n16{fetchWord()}); break;
-  // case 0xc3: jp (n16{fetchWord ()}); break;
+  case 0xc3: jp(n16{fetchWord()}); break;
   case 0xc4: call(cc::nz, n16{fetchWord()}); break;
   case 0xc5: push(BC); break;
   case 0xc6: add(n8{fetchByte()}); break;
