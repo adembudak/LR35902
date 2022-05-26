@@ -180,7 +180,7 @@ private:
   void dec(SP_register_tag);                  // dec SP
   void inc(SP_register_tag);                  // inc SP
 
-  // ld SP,n16
+  void ld(SP_register_tag, const n16 nn); // ld SP,n16
   // ld [n16],SP
   // ld HL,SP+e8
   // ld SP,HL

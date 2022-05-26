@@ -84,10 +84,10 @@ void core::run() {
   case 0x2d: dec(L); break;
   case 0x2e: ld(L, n8{fetchByte()}); break;
   case 0x2f: cpl(); break;
-  case 0x30:
-    jr(cc::nc, e8{static_cast<int8_t>(fetchByte())});
+  case 0x30: jr(cc::nc, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x31:
+    ld(SP_register_tag{}, n16{fetchWord()});
     break;
-    // case 0x31: ld (SP, n16{fetchWord ()}); break;
     // case 0x32: ld ((HL -), A); break;
   case 0x33: inc(SP_register_tag{}); break;
   case 0x34: inc(*HL); break;
