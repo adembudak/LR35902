@@ -73,10 +73,10 @@ void core::run() {
     dec(E);
     break;
     // case 0x1e: ld (E, n8{fetchByte ()}); break;
-  case 0x1f:
-    rra();
+  case 0x1f: rra(); break;
+  case 0x20:
+    jr(cc::nz, e8{static_cast<int8_t>(fetchByte())});
     break;
-    // case 0x20: jr (NZ, e8); break;
     // case 0x21: ld (HL, n16{fetchWord ()}); break;
     // case 0x22: ld ((HL +), A); break;
     // case 0x23: inc (HL); break;
@@ -85,10 +85,10 @@ void core::run() {
     dec(H);
     break;
     // case 0x26: ld (H, n8{fetchByte ()}); break;
-  case 0x27:
-    daa();
+  case 0x27: daa(); break;
+  case 0x28:
+    jr(cc::z, e8{static_cast<int8_t>(fetchByte())});
     break;
-    // case 0x28: jr (Z, e8); break;
     // case 0x29: add (HL, HL); break;
     // case 0x2a: ld (A, (HL +)); break;
     // case 0x2b: dec (HL); break;
@@ -97,10 +97,10 @@ void core::run() {
     dec(L);
     break;
     // case 0x2e: ld (L, n8{fetchByte ()}); break;
-  case 0x2f:
-    cpl();
+  case 0x2f: cpl(); break;
+  case 0x30:
+    jr(cc::nc, e8{static_cast<int8_t>(fetchByte())});
     break;
-    // case 0x30: jr (NC, e8); break;
     // case 0x31: ld (SP, n16{fetchWord ()}); break;
     // case 0x32: ld ((HL -), A); break;
     // case 0x33: inc (SP); break;
@@ -109,10 +109,10 @@ void core::run() {
     dec(*HL);
     break;
     // case 0x36: ld ((HL), n8{fetchByte ()}); break;
-  case 0x37:
-    scf();
+  case 0x37: scf(); break;
+  case 0x38:
+    jr(cc::c, e8{static_cast<int8_t>(fetchByte())});
     break;
-    // case 0x38: jr (C, e8); break;
     // case 0x39: add (HL, SP); break;
     // case 0x3a: ld (A, (HL -)); break;
     // case 0x3b: dec (SP); break;
