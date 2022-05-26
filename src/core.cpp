@@ -41,7 +41,9 @@ void core::run() {
     rlca();
     break;
     // case 0x08: ld ((n16{fetchWord ()}), SP); break;
-    // case 0x09: add (HL, BC); break;
+  case 0x09:
+    add(HL_register_tag{}, BC);
+    break;
     // case 0x0a: ld (A, (BC)); break;
   case 0x0b: dec(BC); break;
   case 0x0c: inc(C); break;
@@ -60,10 +62,10 @@ void core::run() {
     break;
     // case 0x16: ld (D, n8{fetchByte ()}); break;
   case 0x17: rla(); break;
-  case 0x18:
-    jr(e8{static_cast<int8_t>(fetchByte())});
+  case 0x18: jr(e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x19:
+    add(HL_register_tag{}, DE);
     break;
-    // case 0x19: add (HL, DE); break;
     // case 0x1a: ld (A, (DE)); break;
   case 0x1b: dec(DE); break;
   case 0x1c: inc(E); break;
@@ -85,7 +87,7 @@ void core::run() {
     // case 0x26: ld (H, n8{fetchByte ()}); break;
   case 0x27: daa(); break;
   case 0x28: jr(cc::z, e8{static_cast<int8_t>(fetchByte())}); break;
-  // case 0x29: add (HL, HL); break;
+  case 0x29: add(HL_register_tag{}, HL); break;
   // case 0x2a: ld (A, (HL +)); break;
   case 0x2b: dec(HL); break;
   case 0x2c: inc(L); break;
