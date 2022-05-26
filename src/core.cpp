@@ -596,7 +596,9 @@ void core::run() {
     rst(0x20);
     break;
     //   case 0xe8: add (SP, e8); break;
-    //   case 0xe9: jp (HL); break;
+  case 0xe9:
+    jp(HL_register_tag{});
+    break;
     //   case 0xea: ld ((n16{fetchWord ()}), A); break;
     //   case 0xeb: unused (); break;
     //   case 0xec: unused (); break;
