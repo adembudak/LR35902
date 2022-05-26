@@ -183,7 +183,7 @@ private:
   void ld(SP_register_tag, const n16 nn); // ld SP,n16
   // ld [n16],SP
   // ld HL,SP+e8
-  // ld SP,HL
+  void ld(SP_register_tag, HL_register_tag); // ld SP,HL
 
   void pop(AF_register_tag);  // pop AF
   void pop(r16 &rr);          // pop r16

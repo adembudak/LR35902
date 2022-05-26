@@ -602,7 +602,9 @@ void core::run() {
     rst(0x30);
     break;
     //   case 0xf8: ld (HL, SP + e8); break;
-    //   case 0xf9: ld (SP, HL); break;
+  case 0xf9:
+    ld(SP_register_tag{}, HL_register_tag{});
+    break;
     //   case 0xfa: ld (A, (n16{fetchWord ()})); break;
   case 0xfb: ei(); break;
   case 0xfc: /* unused */ break;
