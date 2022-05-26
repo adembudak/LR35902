@@ -31,7 +31,7 @@ void core::run() {
     break;
     // case 0x01: ld (BC, n16{fetchWord ()}); break;
     // case 0x02: ld ((BC), A); break;
-    // case 0x03: inc (BC); break;
+  case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
   case 0x05:
     dec(B);
@@ -50,12 +50,10 @@ void core::run() {
     break;
     // case 0x0e: ld (C, n8{fetchByte ()}); break;
   case 0x0f: rrca(); break;
-  case 0x10:
-    stop();
-    break;
-    // case 0x11: ld (DE, n16{fetchWord ()}); break;
-    // case 0x12: ld ((DE), A); break;
-    // case 0x13: inc (DE); break;
+  case 0x10: stop(); break;
+  // case 0x11: ld (DE, n16{fetchWord ()}); break;
+  // case 0x12: ld ((DE), A); break;
+  case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
   case 0x15:
     dec(D);
@@ -79,7 +77,7 @@ void core::run() {
     break;
     // case 0x21: ld (HL, n16{fetchWord ()}); break;
     // case 0x22: ld ((HL +), A); break;
-    // case 0x23: inc (HL); break;
+  case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
   case 0x25:
     dec(H);
