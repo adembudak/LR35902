@@ -93,6 +93,7 @@ private:
 
   // revisit  // 16-bit Arithmetic Instructions
   void add(HL_register_tag, const r16 rr); // add HL,r16
+                                           //
   void dec(r16 &rr);                       // dec r16
   void inc(r16 &rr);                       // inc r16
 
@@ -175,10 +176,11 @@ private:
   void rst(const std::size_t v);        // rst vec
 
   // revisit // Stack Operations Instructions
-  void add();                // add HL,SP
-  void add(const e8 e);      // add SP,e8
-  void dec(SP_register_tag); // dec SP
-  void inc(SP_register_tag); // inc SP
+  void add();                            // add HL,SP
+  void add(SP_register_tag, const e8 e); // add SP,e8
+                                         //
+  void dec(SP_register_tag);             // dec SP
+  void inc(SP_register_tag);             // inc SP
 
   // ld SP,n16
   // ld [n16],SP

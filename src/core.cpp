@@ -586,10 +586,8 @@ void core::run() {
     break;
     //
   case 0xe6: and_(n8{fetchByte()}); break;
-  case 0xe7:
-    rst(0x20);
-    break;
-    //   case 0xe8: add (SP, e8); break;
+  case 0xe7: rst(0x20); break;
+  case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xe9:
     jp(HL_register_tag{});
     break;
