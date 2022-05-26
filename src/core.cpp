@@ -558,8 +558,8 @@ void core::run() {
     }
     break;
 
-  // case 0xcc: call (Z, n16{fetchWord ()}); break;
-  // case 0xcd: call (n16{fetchWord ()}); break;
+    // case 0xcc: call (Z, n16{fetchWord ()}); break;
+  case 0xcd: call(n16{fetchWord()}); break;
   // case 0xce: adc (n8{fetchByte ()}); break;
   case 0xcf: rst(0x08); break;
   case 0xd0: ret(cc::nc); break;
