@@ -161,27 +161,24 @@ private:
   // ld A,[HLI]
   // ld A,[HLD]
 
-  // revisit // Jumps and Subroutines
+  // // Jumps and Subroutines
   void call(const n16 nn);              // call n16
   void call(const cc cc, const n16 nn); // call cc,n16
-
-  void jp();                          // jp HL
-  void jp(const n16 nn);              // jp n16
-  void jp(const cc cc, const n16 nn); // jp cc,n16
-  void jr(const e8 e);                // jr e8
-  void jr(const cc cc, const e8 e);   // jr cc,e8
-
-  void ret(const cc cc);         // ret cc
-  void ret();                    // ret
-  void reti();                   // reti
-                                 //
-  void rst(const std::size_t v); // rst vec
+  void jp(HL_register_tag);             // jp HL
+  void jp(const n16 nn);                // jp n16
+  void jp(const cc cc, const n16 nn);   // jp cc,n16
+  void jr(const e8 e);                  // jr e8
+  void jr(const cc cc, const e8 e);     // jr cc,e8
+  void ret(const cc cc);                // ret cc
+  void ret();                           // ret
+  void reti();                          // reti
+  void rst(const std::size_t v);        // rst vec
 
   // revisit // Stack Operations Instructions
-  void add();           // add HL,SP
-  void add(const e8 e); // add SP,e8
-  void dec();           // dec SP
-  void inc();           // inc SP
+  void add();                // add HL,SP
+  void add(const e8 e);      // add SP,e8
+  void dec(SP_register_tag); // dec SP
+  void inc(SP_register_tag); // inc SP
 
   // ld SP,n16
   // ld [n16],SP

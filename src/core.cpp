@@ -103,7 +103,7 @@ void core::run() {
     break;
     // case 0x31: ld (SP, n16{fetchWord ()}); break;
     // case 0x32: ld ((HL -), A); break;
-    // case 0x33: inc (SP); break;
+  case 0x33: inc(SP_register_tag{}); break;
   case 0x34: inc(*HL); break;
   case 0x35:
     dec(*HL);
@@ -115,7 +115,7 @@ void core::run() {
     break;
     // case 0x39: add (HL, SP); break;
     // case 0x3a: ld (A, (HL -)); break;
-    // case 0x3b: dec (SP); break;
+  case 0x3b: dec(SP_register_tag{}); break;
   case 0x3c: inc(A); break;
   case 0x3d: dec(A); break;
   // case 0x3e: ld (A, n8{fetchByte ()}); break;
