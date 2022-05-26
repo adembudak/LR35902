@@ -106,10 +106,10 @@ void core::run() {
     break;
     // case 0x36: ld ((HL), n8{fetchByte ()}); break;
   case 0x37: scf(); break;
-  case 0x38:
-    jr(cc::c, e8{static_cast<int8_t>(fetchByte())});
+  case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x39:
+    add(HL_register_tag{}, SP_register_tag{});
     break;
-    // case 0x39: add (HL, SP); break;
     // case 0x3a: ld (A, (HL -)); break;
   case 0x3b: dec(SP_register_tag{}); break;
   case 0x3c: inc(A); break;
