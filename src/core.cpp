@@ -26,10 +26,10 @@ void core::run() {
     // switch body generated from:
     // https://github.com/izik1/gbops/blob/master/dmgops.json
 
-  case 0x00:
-    nop();
+  case 0x00: nop(); break;
+  case 0x01:
+    ld(BC, n16{fetchWord()});
     break;
-    // case 0x01: ld (BC, n16{fetchWord ()}); break;
     // case 0x02: ld ((BC), A); break;
   case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
@@ -49,7 +49,7 @@ void core::run() {
   case 0x0e: ld(C, n8{fetchByte()}); break;
   case 0x0f: rrca(); break;
   case 0x10: stop(); break;
-  // case 0x11: ld (DE, n16{fetchWord ()}); break;
+  case 0x11: ld(DE, n16{fetchWord()}); break;
   // case 0x12: ld ((DE), A); break;
   case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
@@ -66,10 +66,10 @@ void core::run() {
   case 0x1d: dec(E); break;
   case 0x1e: ld(E, n8{fetchByte()}); break;
   case 0x1f: rra(); break;
-  case 0x20:
-    jr(cc::nz, e8{static_cast<int8_t>(fetchByte())});
+  case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x21:
+    ld(HL, n16{fetchWord()});
     break;
-    // case 0x21: ld (HL, n16{fetchWord ()}); break;
     // case 0x22: ld ((HL +), A); break;
   case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
