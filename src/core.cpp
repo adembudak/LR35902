@@ -274,17 +274,17 @@ void core::run() {
   case 0xbf: cp(A); break;
   case 0xc0: ret(cc::nz); break;
   case 0xc1: pop(BC); break;
-  // case 0xc2: jp (NZ, n16{fetchWord ()}); break;
+  case 0xc2: jp(cc::nz, n16{fetchWord()}); break;
   // case 0xc3: jp (n16{fetchWord ()}); break;
   case 0xc4: call(cc::nz, n16{fetchWord()}); break;
   case 0xc5: push(BC); break;
   case 0xc6: add(n8{fetchByte()}); break;
   case 0xc7: rst(0x00); break;
   case 0xc8: ret(cc::z); break;
-  case 0xc9:
-    ret();
+  case 0xc9: ret(); break;
+  case 0xca:
+    jp(cc::z, n16{fetchWord()});
     break;
-    // case 0xca: jp (Z, n16{fetchWord ()}); break;
     // case 0xcb:
     switch(fetchByte()) {
     case 0x0: rlc(B); break;
@@ -562,17 +562,17 @@ void core::run() {
   case 0xcf: rst(0x08); break;
   case 0xd0: ret(cc::nc); break;
   case 0xd1: pop(DE); break;
-  // case 0xd2: jp (NC, n16{fetchWord ()}); break;
+  case 0xd2: jp(cc::nc, n16{fetchWord()}); break;
   // case 0xd3: unused (); break;
   case 0xd4: call(cc::nc, n16{fetchWord()}); break;
   case 0xd5: push(DE); break;
   case 0xd6: sub(n8{fetchByte()}); break;
   case 0xd7: rst(0x10); break;
   case 0xd8: ret(cc::c); break;
-  case 0xd9:
-    reti();
+  case 0xd9: reti(); break;
+  case 0xda:
+    jp(cc::c, n16{fetchWord()});
     break;
-    // case 0xda: jp (C, n16{fetchWord ()}); break;
     // case 0xdb: unused (); break;
   case 0xdc:
     call(cc::c, n16{fetchWord()});
