@@ -91,7 +91,7 @@ private:
   void xor_(const byte b); // xor A,[HL]
   void xor_(const n8 n);   // xor A,n8
 
-  // revisit  // 16-bit Arithmetic Instructions
+  // // 16-bit Arithmetic Instructions
   void add(HL_register_tag, const r16 rr); // add HL,r16
   void dec(r16 &rr);                       // dec r16
   void inc(r16 &rr);                       // inc r16
@@ -146,11 +146,11 @@ private:
   // ld [r16],A
   // ld [n16],A
   //
-  // ldh [n16],A
-  // ldh [C],A
-  //
   // ld A,[r16]
   // ld A,[n16]
+  //
+  // ldh [n16],A
+  // ldh [C],A
   //
   // ldh A,[n16]
   // ldh A,[C]
