@@ -174,10 +174,8 @@ void core::run() {
   case 0x7a: ld(A, D); break;
   case 0x7b: ld(A, E); break;
   case 0x7c: ld(A, H); break;
-  case 0x7d:
-    ld(A, L);
-    break;
-    // case 0x7e: ld (A, (HL)); break;
+  case 0x7d: ld(A, L); break;
+  case 0x7e: ld(A, *HL); break;
   case 0x7f: ld(A, A); break;
 
   case 0x80: add(B); break;

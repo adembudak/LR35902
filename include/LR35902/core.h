@@ -141,7 +141,7 @@ private:
   void ld(r16 &rr, const n16 nn); // ld r16,n16
   void ld(byte &b, const r8 r);   // ld [HL],r8
   void ld(byte &b, const n8 n);   // ld [HL],n8
-  // ld r8,[HL]
+  void ld(r8 &r, const byte b);   // ld r8,[HL]
   //
   // ld [r16],A
   // ld [n16],A
