@@ -162,18 +162,15 @@ void core::run() {
     ld(L, L);
     break;
     //  case 0x6e: ld(L, (HL)); break;
-  case 0x6f:
-    ld(L, A);
-    break;
-
-    // case 0x70: ld ((HL), B); break;
-    // case 0x71: ld ((HL), C); break;
-    // case 0x72: ld ((HL), D); break;
-    // case 0x73: ld ((HL), E); break;
-    // case 0x74: ld ((HL), H); break;
-    // case 0x75: ld ((HL), L); break;
+  case 0x6f: ld(L, A); break;
+  case 0x70: ld(*HL, B); break;
+  case 0x71: ld(*HL, C); break;
+  case 0x72: ld(*HL, D); break;
+  case 0x73: ld(*HL, E); break;
+  case 0x74: ld(*HL, H); break;
+  case 0x75: ld(*HL, L); break;
   case 0x76: halt(); break;
-  // case 0x77: ld ((HL), A); break;
+  case 0x77: ld(*HL, A); break;
   case 0x78: ld(A, B); break;
   case 0x79: ld(A, C); break;
   case 0x7a: ld(A, D); break;

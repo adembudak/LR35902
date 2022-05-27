@@ -139,7 +139,7 @@ private:
   void ld(r8 &to, const r8 from); // ld r8,r8
   void ld(r8 &r, const n8 n);     // ld r8,n8
   void ld(r16 &rr, const n16 nn); // ld r16,n16
-  // ld [HL],r8
+  void ld(byte &b, const r8 r);   // ld [HL],r8
   // ld [HL],n8
   // ld r8,[HL]
   //
