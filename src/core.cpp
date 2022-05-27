@@ -567,10 +567,8 @@ void core::run() {
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7: rst(0x20); break;
   case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0xe9:
-    jp(HL_register_tag{});
-    break;
-    //   case 0xea: ld ((n16{fetchWord ()}), A); break;
+  case 0xe9: jp(HL_register_tag{}); break;
+  case 0xea: ld(*n16{fetchWord()}, load_from_A_tag{}, tag{}); break;
   case 0xeb: /* unused */ break;
   case 0xec: /* unused */ break;
   case 0xed: /* unused */ break;
