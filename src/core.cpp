@@ -89,10 +89,8 @@ void core::run() {
     // case 0x32: ld ((HL -), A); break;
   case 0x33: inc(SP_register_tag{}); break;
   case 0x34: inc(*HL); break;
-  case 0x35:
-    dec(*HL);
-    break;
-    // case 0x36: ld ((HL), n8{fetchByte ()}); break;
+  case 0x35: dec(*HL); break;
+  case 0x36: ld(*HL, n8{fetchByte()}); break;
   case 0x37: scf(); break;
   case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x39:
