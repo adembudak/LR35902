@@ -27,10 +27,8 @@ void core::run() {
     // https://github.com/izik1/gbops/blob/master/dmgops.json
 
   case 0x00: nop(); break;
-  case 0x01:
-    ld(BC, n16{fetchWord()});
-    break;
-    // case 0x02: ld ((BC), A); break;
+  case 0x01: ld(BC, n16{fetchWord()}); break;
+  case 0x02: ld(*BC, load_from_A_tag{}); break;
   case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
   case 0x05: dec(B); break;
@@ -48,7 +46,7 @@ void core::run() {
   case 0x0f: rrca(); break;
   case 0x10: stop(); break;
   case 0x11: ld(DE, n16{fetchWord()}); break;
-  // case 0x12: ld ((DE), A); break;
+  case 0x12: ld(*DE, load_from_A_tag{}); break;
   case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
   case 0x15: dec(D); break;
@@ -168,7 +166,7 @@ void core::run() {
   case 0x74: ld(*HL, H); break;
   case 0x75: ld(*HL, L); break;
   case 0x76: halt(); break;
-  case 0x77: ld(*HL, A); break;
+  case 0x77: ld(*HL, load_from_A_tag{}); break;
   case 0x78: ld(A, B); break;
   case 0x79: ld(A, C); break;
   case 0x7a: ld(A, D); break;
