@@ -181,7 +181,7 @@ private:
   void inc(SP_register_tag);                  // inc SP
 
   void ld(SP_register_tag, const n16 nn); // ld SP,n16
-  // ld [n16],SP
+  void ld(byte &b, SP_register_tag);      // ld [n16],SP
   // ld HL,SP+e8
   void ld(SP_register_tag, HL_register_tag); // ld SP,HL
 

@@ -35,10 +35,8 @@ void core::run() {
   case 0x04: inc(B); break;
   case 0x05: dec(B); break;
   case 0x06: ld(B, n8{fetchByte()}); break;
-  case 0x07:
-    rlca();
-    break;
-    // case 0x08: ld ((n16{fetchWord ()}), SP); break;
+  case 0x07: rlca(); break;
+  case 0x08: ld(*n16{fetchWord()}, SP_register_tag{}); break;
   case 0x09:
     add(HL_register_tag{}, BC);
     break;
