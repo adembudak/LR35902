@@ -35,10 +35,8 @@ void core::run() {
   case 0x06: ld(B, n8{fetchByte()}); break;
   case 0x07: rlca(); break;
   case 0x08: ld(*n16{fetchWord()}, SP_register_tag{}); break;
-  case 0x09:
-    add(HL_register_tag{}, BC);
-    break;
-    // case 0x0a: ld (A, (BC)); break;
+  case 0x09: add(HL_register_tag{}, BC); break;
+  case 0x0a: ld(load_to_A_tag{}, *BC); break;
   case 0x0b: dec(BC); break;
   case 0x0c: inc(C); break;
   case 0x0d: dec(C); break;
@@ -53,10 +51,8 @@ void core::run() {
   case 0x16: ld(D, n8{fetchByte()}); break;
   case 0x17: rla(); break;
   case 0x18: jr(e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0x19:
-    add(HL_register_tag{}, DE);
-    break;
-    // case 0x1a: ld (A, (DE)); break;
+  case 0x19: add(HL_register_tag{}, DE); break;
+  case 0x1a: ld(load_to_A_tag{}, *DE); break;
   case 0x1b: dec(DE); break;
   case 0x1c: inc(E); break;
   case 0x1d: dec(E); break;
