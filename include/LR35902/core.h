@@ -152,7 +152,7 @@ private:
   void ldh(byte &b, load_from_A_tag);                 // ldh [n16],A
   void ldh(byte &b, load_from_A_tag, C_register_tag); // ldh [C],A
   //
-  // ldh A,[n16]
+  void ldh(load_to_A_tag, const byte b); // ldh A,[n16]
   // ldh A,[C]
   //
   // ld [HLI],A

@@ -549,7 +549,6 @@ void core::run() {
   case 0xdf: rst(0x18); break;
   case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
   case 0xe1: pop(HL); break;
-  case 0xe3: /* unused  */ break;
   case 0xe2: ldh(*n16{static_cast<uint16_t>(0xFF00 + C.data())}, load_from_A_tag{}, C_register_tag{}); break;
   case 0xe3: /* unused */ break;
   case 0xe4: /* unused */ break;
@@ -563,10 +562,8 @@ void core::run() {
   case 0xec: /* unused */ break;
   case 0xed: /* unused */ break;
   case 0xee: xor_(n8{fetchByte()}); break;
-  case 0xef:
-    rst(0x28);
-    break;
-    //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
+  case 0xef: rst(0x28); break;
+  case 0xf0: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + fetchByte())}); break;
   case 0xf1:
     pop(AF_register_tag{});
     break;
