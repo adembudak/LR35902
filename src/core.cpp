@@ -9,11 +9,6 @@ namespace LR35902 {
 std::vector<byte> bus(1024);
 
 void core::run() {
-
-#ifdef WITH_DEBUGGER
-  //  print with imgui
-#endif
-
   auto fetchByte = [&]() -> byte { //
     return bus[PC.m_data];
   };
@@ -23,9 +18,7 @@ void core::run() {
   };
 
   switch(const byte opcode = fetchByte(); opcode) {
-    // switch body generated from:
-    // https://github.com/izik1/gbops/blob/master/dmgops.json
-
+  // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
   case 0x00: nop(); break;
   case 0x01: ld(BC, n16{fetchWord()}); break;
   case 0x02: ld(*BC, load_from_A_tag{}); break;
@@ -556,10 +549,8 @@ void core::run() {
   case 0xf4: /* unused */ break;
   case 0xf5: push(AF_register_tag{}); break;
   case 0xf6: or_(n8{fetchByte()}); break;
-  case 0xf7:
-    rst(0x30);
-    break;
-    //   case 0xf8: ld (HL, SP + e8); break;
+  case 0xf7: rst(0x30); break;
+  case 0xf8: ld(HL_register_tag{}, SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xf9: ld(SP_register_tag{}, HL_register_tag{}); break;
   case 0xfa: ld(load_to_A_tag{}, *n16{fetchWord()}, tag{}); break;
   case 0xfb: ei(); break;
