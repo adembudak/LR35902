@@ -3,6 +3,8 @@
 #include "../config.h"
 #include "../immediate/n8.h"
 
+#include <vector>
+
 namespace LR35902 {
 
 class r8 {
@@ -51,6 +53,11 @@ public:
     --m_data;
     return temp;
   }
+};
+
+std::vector<byte> bbb;
+byte &operator*(const r8 r) {
+  return bbb[r.data()];
 };
 
 static_assert(sizeof(r8) == sizeof(byte));

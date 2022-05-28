@@ -548,16 +548,11 @@ void core::run() {
   case 0xde: sbc(n8{fetchByte()}); break;
   case 0xdf: rst(0x18); break;
   case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
-  case 0xe1:
-    pop(HL);
-    break;
-    // case 0xe2: ld ((FF00 + C), A); break;
+  case 0xe1: pop(HL); break;
+  case 0xe2: ldh(*n16{static_cast<uint16_t>(0xFF00 + *C)}, load_from_A_tag{}, C_register_tag{}); break;
   case 0xe3: /* unused  */ break;
   case 0xe4: /* unused */ break;
-  case 0xe5:
-    push(HL);
-    break;
-    //
+  case 0xe5: push(HL); break;
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7: rst(0x20); break;
   case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
