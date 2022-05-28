@@ -159,7 +159,7 @@ private:
   void ld(HLd_tag, load_from_A_tag); // ld [HLD],A
 
   void ld(load_to_A_tag, HLi_tag); // ld A,[HLI]
-  // ld A,[HLD]
+  void ld(load_to_A_tag, HLd_tag); // ld A,[HLD]
 
   // // Jumps and Subroutines
   void call(const n16 nn);              // call n16
