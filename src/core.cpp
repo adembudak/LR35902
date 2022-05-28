@@ -9,11 +9,6 @@ namespace LR35902 {
 std::vector<byte> bus(1024);
 
 void core::run() {
-
-#ifdef WITH_DEBUGGER
-  //  print with imgui
-#endif
-
   auto fetchByte = [&]() -> byte { //
     return bus[PC.m_data];
   };
@@ -23,100 +18,70 @@ void core::run() {
   };
 
   switch(const byte opcode = fetchByte(); opcode) {
-    // switch body generated from:
-    // https://github.com/izik1/gbops/blob/master/dmgops.json
-
-  case 0x00:
-    nop();
-    break;
-    // case 0x01: ld (BC, n16{fetchWord ()}); break;
-    // case 0x02: ld ((BC), A); break;
+  // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
+  case 0x00: nop(); break;
+  case 0x01: ld(BC, n16{fetchWord()}); break;
+  case 0x02: ld(*BC, load_from_A_tag{}); break;
   case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
-  case 0x05:
-    dec(B);
-    break;
-    // case 0x06: ld (B, n8{fetchByte ()}); break;
-  case 0x07:
-    rlca();
-    break;
-    // case 0x08: ld ((n16{fetchWord ()}), SP); break;
-  case 0x09:
-    add(HL_register_tag{}, BC);
-    break;
-    // case 0x0a: ld (A, (BC)); break;
+  case 0x05: dec(B); break;
+  case 0x06: ld(B, n8{fetchByte()}); break;
+  case 0x07: rlca(); break;
+  case 0x08: ld(*n16{fetchWord()}, SP_register_tag{}); break;
+  case 0x09: add(HL_register_tag{}, BC); break;
+  case 0x0a: ld(load_to_A_tag{}, *BC); break;
   case 0x0b: dec(BC); break;
   case 0x0c: inc(C); break;
-  case 0x0d:
-    dec(C);
-    break;
-    // case 0x0e: ld (C, n8{fetchByte ()}); break;
+  case 0x0d: dec(C); break;
+  case 0x0e: ld(C, n8{fetchByte()}); break;
   case 0x0f: rrca(); break;
   case 0x10: stop(); break;
-  // case 0x11: ld (DE, n16{fetchWord ()}); break;
-  // case 0x12: ld ((DE), A); break;
+  case 0x11: ld(DE, n16{fetchWord()}); break;
+  case 0x12: ld(*DE, load_from_A_tag{}); break;
   case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
-  case 0x15:
-    dec(D);
-    break;
-    // case 0x16: ld (D, n8{fetchByte ()}); break;
+  case 0x15: dec(D); break;
+  case 0x16: ld(D, n8{fetchByte()}); break;
   case 0x17: rla(); break;
   case 0x18: jr(e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0x19:
-    add(HL_register_tag{}, DE);
-    break;
-    // case 0x1a: ld (A, (DE)); break;
+  case 0x19: add(HL_register_tag{}, DE); break;
+  case 0x1a: ld(load_to_A_tag{}, *DE); break;
   case 0x1b: dec(DE); break;
   case 0x1c: inc(E); break;
-  case 0x1d:
-    dec(E);
-    break;
-    // case 0x1e: ld (E, n8{fetchByte ()}); break;
+  case 0x1d: dec(E); break;
+  case 0x1e: ld(E, n8{fetchByte()}); break;
   case 0x1f: rra(); break;
-  case 0x20:
-    jr(cc::nz, e8{static_cast<int8_t>(fetchByte())});
-    break;
-    // case 0x21: ld (HL, n16{fetchWord ()}); break;
-    // case 0x22: ld ((HL +), A); break;
+  case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x21: ld(HL, n16{fetchWord()}); break;
+  case 0x22: ld(HLi_tag{}, load_from_A_tag{}); break;
   case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
-  case 0x25:
-    dec(H);
-    break;
-    // case 0x26: ld (H, n8{fetchByte ()}); break;
+  case 0x25: dec(H); break;
+  case 0x26: ld(H, n8{fetchByte()}); break;
   case 0x27: daa(); break;
   case 0x28: jr(cc::z, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x29: add(HL_register_tag{}, HL); break;
-  // case 0x2a: ld (A, (HL +)); break;
+  case 0x2a: ld(load_to_A_tag{}, HLi_tag{}); break;
   case 0x2b: dec(HL); break;
   case 0x2c: inc(L); break;
-  case 0x2d:
-    dec(L);
-    break;
-    // case 0x2e: ld (L, n8{fetchByte ()}); break;
+  case 0x2d: dec(L); break;
+  case 0x2e: ld(L, n8{fetchByte()}); break;
   case 0x2f: cpl(); break;
-  case 0x30:
-    jr(cc::nc, e8{static_cast<int8_t>(fetchByte())});
-    break;
-    // case 0x31: ld (SP, n16{fetchWord ()}); break;
-    // case 0x32: ld ((HL -), A); break;
+  case 0x30: jr(cc::nc, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x31: ld(SP_register_tag{}, n16{fetchWord()}); break;
+  case 0x32: ld(HLd_tag{}, load_from_A_tag{}); break;
   case 0x33: inc(SP_register_tag{}); break;
   case 0x34: inc(*HL); break;
-  case 0x35:
-    dec(*HL);
-    break;
-    // case 0x36: ld ((HL), n8{fetchByte ()}); break;
+  case 0x35: dec(*HL); break;
+  case 0x36: ld(*HL, n8{fetchByte()}); break;
   case 0x37: scf(); break;
   case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0x39:
-    add(HL_register_tag{}, SP_register_tag{});
-    break;
-    // case 0x3a: ld (A, (HL -)); break;
+  case 0x39: add(HL_register_tag{}, SP_register_tag{}); break;
+  case 0x3a: ld(load_to_A_tag{}, HLd_tag{}); break;
   case 0x3b: dec(SP_register_tag{}); break;
   case 0x3c: inc(A); break;
   case 0x3d: dec(A); break;
-  // case 0x3e: ld (A, n8{fetchByte ()}); break;
+  case 0x3e: ld(A, n8{fetchByte()}); break;
   case 0x3f: ccf(); break;
 
   case 0x40: ld(B, B); break;
@@ -125,7 +90,7 @@ void core::run() {
   case 0x43: ld(B, E); break;
   case 0x44: ld(B, H); break;
   case 0x45: ld(B, L); break;
-  // case 0x46: ld(B, (HL)); break;
+  case 0x46: ld(B, *HL); break;
   case 0x47: ld(B, A); break;
 
   case 0x48: ld(C, B); break;
@@ -134,7 +99,7 @@ void core::run() {
   case 0x4b: ld(C, E); break;
   case 0x4c: ld(C, H); break;
   case 0x4d: ld(C, L); break;
-  // case 0x4e: ld(C, (HL)); break;
+  case 0x4e: ld(C, *HL); break;
   case 0x4f: ld(C, A); break;
 
   case 0x50: ld(D, B); break;
@@ -143,7 +108,7 @@ void core::run() {
   case 0x53: ld(D, E); break;
   case 0x54: ld(D, H); break;
   case 0x55: ld(D, L); break;
-  // case 0x56: ld(D, (HL)); break;
+  case 0x56: ld(D, *HL); break;
   case 0x57: ld(D, A); break;
 
   case 0x58: ld(E, B); break;
@@ -151,10 +116,8 @@ void core::run() {
   case 0x5a: ld(E, D); break;
   case 0x5b: ld(E, E); break;
   case 0x5c: ld(E, H); break;
-  case 0x5d:
-    ld(E, L);
-    break;
-    // case 0x5e: ld(E, (HL)); break;
+  case 0x5d: ld(E, L); break;
+  case 0x5e: ld(E, *HL); break;
   case 0x5f: ld(E, A); break;
 
   case 0x60: ld(H, B); break;
@@ -162,41 +125,32 @@ void core::run() {
   case 0x62: ld(H, D); break;
   case 0x63: ld(H, E); break;
   case 0x64: ld(H, H); break;
-  case 0x65:
-    ld(H, L);
-    break;
-    // case 0x66: ld(H, (HL)); break;
+  case 0x65: ld(H, L); break;
+  case 0x66: ld(H, *HL); break;
   case 0x67: ld(H, A); break;
   case 0x68: ld(L, B); break;
   case 0x69: ld(L, C); break;
   case 0x6a: ld(L, D); break;
   case 0x6b: ld(L, E); break;
   case 0x6c: ld(L, H); break;
-  case 0x6d:
-    ld(L, L);
-    break;
-    //  case 0x6e: ld(L, (HL)); break;
-  case 0x6f:
-    ld(L, A);
-    break;
-
-    // case 0x70: ld ((HL), B); break;
-    // case 0x71: ld ((HL), C); break;
-    // case 0x72: ld ((HL), D); break;
-    // case 0x73: ld ((HL), E); break;
-    // case 0x74: ld ((HL), H); break;
-    // case 0x75: ld ((HL), L); break;
+  case 0x6d: ld(L, L); break;
+  case 0x6e: ld(L, *HL); break;
+  case 0x6f: ld(L, A); break;
+  case 0x70: ld(*HL, B); break;
+  case 0x71: ld(*HL, C); break;
+  case 0x72: ld(*HL, D); break;
+  case 0x73: ld(*HL, E); break;
+  case 0x74: ld(*HL, H); break;
+  case 0x75: ld(*HL, L); break;
   case 0x76: halt(); break;
-  // case 0x77: ld ((HL), A); break;
+  case 0x77: ld(*HL, load_from_A_tag{}); break;
   case 0x78: ld(A, B); break;
   case 0x79: ld(A, C); break;
   case 0x7a: ld(A, D); break;
   case 0x7b: ld(A, E); break;
   case 0x7c: ld(A, H); break;
-  case 0x7d:
-    ld(A, L);
-    break;
-    // case 0x7e: ld (A, (HL)); break;
+  case 0x7d: ld(A, L); break;
+  case 0x7e: ld(A, *HL); break;
   case 0x7f: ld(A, A); break;
 
   case 0x80: add(B); break;
@@ -280,10 +234,8 @@ void core::run() {
   case 0xc7: rst(0x00); break;
   case 0xc8: ret(cc::z); break;
   case 0xc9: ret(); break;
-  case 0xca:
-    jp(cc::z, n16{fetchWord()});
-    break;
-    // case 0xcb:
+  case 0xca: jp(cc::z, n16{fetchWord()}); break;
+  case 0xcb:
     switch(fetchByte()) {
     case 0x0: rlc(B); break;
     case 0x1: rlc(C); break;
@@ -556,7 +508,7 @@ void core::run() {
 
   case 0xcc: call(cc::z, n16{fetchWord()}); break;
   case 0xcd: call(n16{fetchWord()}); break;
-  // case 0xce: adc (n8{fetchByte ()}); break;
+  case 0xce: adc(n8{fetchByte()}); break;
   case 0xcf: rst(0x08); break;
   case 0xd0: ret(cc::nc); break;
   case 0xd1: pop(DE); break;
@@ -573,49 +525,34 @@ void core::run() {
   case 0xdc: call(cc::c, n16{fetchWord()}); break;
   case 0xdd: /* unused */ break;
   case 0xde: sbc(n8{fetchByte()}); break;
-  case 0xdf:
-    rst(0x18);
-    break;
-    // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
-  case 0xe1:
-    pop(HL);
-    break;
-    // case 0xe2: ld ((FF00 + C), A); break;
-  case 0xe3: /* unused  */ break;
+  case 0xdf: rst(0x18); break;
+  case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
+  case 0xe1: pop(HL); break;
+  case 0xe2: ldh(*n16{static_cast<uint16_t>(0xFF00 + C.data())}, load_from_A_tag{}, C_register_tag{}); break;
+  case 0xe3: /* unused */ break;
   case 0xe4: /* unused */ break;
-  case 0xe5:
-    push(HL);
-    break;
-    //
+  case 0xe5: push(HL); break;
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7: rst(0x20); break;
   case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0xe9:
-    jp(HL_register_tag{});
-    break;
-    //   case 0xea: ld ((n16{fetchWord ()}), A); break;
+  case 0xe9: jp(HL_register_tag{}); break;
+  case 0xea: ld(*n16{fetchWord()}, load_from_A_tag{}, tag{}); break;
   case 0xeb: /* unused */ break;
   case 0xec: /* unused */ break;
   case 0xed: /* unused */ break;
   case 0xee: xor_(n8{fetchByte()}); break;
-  case 0xef:
-    rst(0x28);
-    break;
-    //   case 0xf0: ld (A, (FF00 + n8{fetchByte ()})); break;
-  case 0xf1:
-    pop(AF_register_tag{});
-    break;
-    //   case 0xf2: ld (A, (FF00 + C)); break;
+  case 0xef: rst(0x28); break;
+  case 0xf0: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + fetchByte())}); break;
+  case 0xf1: pop(AF_register_tag{}); break;
+  case 0xf2: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + C.data())}, C_register_tag{}); break;
   case 0xf3: di(); break;
   case 0xf4: /* unused */ break;
   case 0xf5: push(AF_register_tag{}); break;
   case 0xf6: or_(n8{fetchByte()}); break;
-  case 0xf7:
-    rst(0x30);
-    break;
-    //   case 0xf8: ld (HL, SP + e8); break;
-    //   case 0xf9: ld (SP, HL); break;
-    //   case 0xfa: ld (A, (n16{fetchWord ()})); break;
+  case 0xf7: rst(0x30); break;
+  case 0xf8: ld(HL_register_tag{}, SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0xf9: ld(SP_register_tag{}, HL_register_tag{}); break;
+  case 0xfa: ld(load_to_A_tag{}, *n16{fetchWord()}, tag{}); break;
   case 0xfb: ei(); break;
   case 0xfc: /* unused */ break;
   case 0xfd: /* unused */ break;

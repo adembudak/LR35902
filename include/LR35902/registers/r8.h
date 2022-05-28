@@ -3,6 +3,8 @@
 #include "../config.h"
 #include "../immediate/n8.h"
 
+#include <vector>
+
 namespace LR35902 {
 
 class r8 {

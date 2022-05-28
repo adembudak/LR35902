@@ -91,7 +91,7 @@ private:
   void xor_(const byte b); // xor A,[HL]
   void xor_(const n8 n);   // xor A,n8
 
-  // revisit  // 16-bit Arithmetic Instructions
+  // // 16-bit Arithmetic Instructions
   void add(HL_register_tag, const r16 rr); // add HL,r16
   void dec(r16 &rr);                       // dec r16
   void inc(r16 &rr);                       // inc r16
@@ -139,27 +139,27 @@ private:
   void ld(r8 &to, const r8 from); // ld r8,r8
   void ld(r8 &r, const n8 n);     // ld r8,n8
   void ld(r16 &rr, const n16 nn); // ld r16,n16
-  // ld [HL],r8
-  // ld [HL],n8
-  // ld r8,[HL]
+  void ld(byte &b, const r8 r);   // ld [HL],r8
+  void ld(byte &b, const n8 n);   // ld [HL],n8
+  void ld(r8 &r, const byte b);   // ld r8,[HL]
   //
-  // ld [r16],A
-  // ld [n16],A
+  void ld(byte &b, load_from_A_tag);      // ld [r16],A
+  void ld(byte &b, load_from_A_tag, tag); // ld [n16],A
   //
-  // ldh [n16],A
-  // ldh [C],A
+  void ld(load_to_A_tag, const byte b);      // ld A,[r16]
+  void ld(load_to_A_tag, const byte b, tag); // ld A,[n16]
   //
-  // ld A,[r16]
-  // ld A,[n16]
+  void ldh(byte &b, load_from_A_tag);                 // ldh [n16],A
+  void ldh(byte &b, load_from_A_tag, C_register_tag); // ldh [C],A
   //
-  // ldh A,[n16]
-  // ldh A,[C]
+  void ldh(load_to_A_tag, const byte b);                 // ldh A,[n16]
+  void ldh(load_to_A_tag, const byte b, C_register_tag); // ldh A,[C]
   //
-  // ld [HLI],A
-  // ld [HLD],A
-  //
-  // ld A,[HLI]
-  // ld A,[HLD]
+  void ld(HLi_tag, load_from_A_tag); // ld [HLI],A
+  void ld(HLd_tag, load_from_A_tag); // ld [HLD],A
+
+  void ld(load_to_A_tag, HLi_tag); // ld A,[HLI]
+  void ld(load_to_A_tag, HLd_tag); // ld A,[HLD]
 
   // // Jumps and Subroutines
   void call(const n16 nn);              // call n16
@@ -180,10 +180,10 @@ private:
   void dec(SP_register_tag);                  // dec SP
   void inc(SP_register_tag);                  // inc SP
 
-  // ld SP,n16
-  // ld [n16],SP
-  // ld HL,SP+e8
-  // ld SP,HL
+  void ld(SP_register_tag, const n16 nn);                // ld SP,n16
+  void ld(byte &b, SP_register_tag);                     // ld [n16],SP
+  void ld(HL_register_tag, SP_register_tag, const e8 e); // ld HL,SP+e8
+  void ld(SP_register_tag, HL_register_tag);             // ld SP,HL
 
   void pop(AF_register_tag);  // pop AF
   void pop(r16 &rr);          // pop r16

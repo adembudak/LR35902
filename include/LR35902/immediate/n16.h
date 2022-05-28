@@ -1,6 +1,8 @@
 #pragma once
 
+#include "../config.h"
 #include <cstdint>
+#include <vector>
 
 namespace LR35902 {
 
@@ -29,5 +31,12 @@ struct n16 {
     return temp;
   }
 };
+
+std::vector<byte> bb(1000);
+
+byte &operator*(const n16 nn) {
+  // return readbus(rr.value());
+  return bb[nn.m_data];
+}
 
 } // namespace LR35902
