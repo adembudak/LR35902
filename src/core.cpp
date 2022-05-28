@@ -253,10 +253,8 @@ void core::run() {
   case 0xc7: rst(0x00); break;
   case 0xc8: ret(cc::z); break;
   case 0xc9: ret(); break;
-  case 0xca:
-    jp(cc::z, n16{fetchWord()});
-    break;
-    // case 0xcb:
+  case 0xca: jp(cc::z, n16{fetchWord()}); break;
+  case 0xcb:
     switch(fetchByte()) {
     case 0x0: rlc(B); break;
     case 0x1: rlc(C); break;
