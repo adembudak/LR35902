@@ -55,10 +55,5 @@ public:
   }
 };
 
-std::vector<byte> bbb;
-byte &operator*(const r8 r) {
-  return bbb[r.data()];
-};
-
 static_assert(sizeof(r8) == sizeof(byte));
 } // namespace LR35902
