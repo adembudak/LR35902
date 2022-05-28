@@ -68,7 +68,7 @@ void core::run() {
   case 0x27: daa(); break;
   case 0x28: jr(cc::z, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x29: add(HL_register_tag{}, HL); break;
-  // case 0x2a: ld (A, (HL +)); break;
+  case 0x2a: ld(load_to_A_tag{}, HLi_tag{}); break;
   case 0x2b: dec(HL); break;
   case 0x2c: inc(L); break;
   case 0x2d: dec(L); break;

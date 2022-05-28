@@ -158,7 +158,7 @@ private:
   void ld(HLi_tag, load_from_A_tag); // ld [HLI],A
   void ld(HLd_tag, load_from_A_tag); // ld [HLD],A
 
-  // ld A,[HLI]
+  void ld(load_to_A_tag, HLi_tag); // ld A,[HLI]
   // ld A,[HLD]
 
   // // Jumps and Subroutines
