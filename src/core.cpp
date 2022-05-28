@@ -59,10 +59,8 @@ void core::run() {
   case 0x1e: ld(E, n8{fetchByte()}); break;
   case 0x1f: rra(); break;
   case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
-  case 0x21:
-    ld(HL, n16{fetchWord()});
-    break;
-    // case 0x22: ld ((HL +), A); break;
+  case 0x21: ld(HL, n16{fetchWord()}); break;
+  case 0x22: ld(HLi_tag{}, load_from_A_tag{}); break;
   case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
   case 0x25: dec(H); break;

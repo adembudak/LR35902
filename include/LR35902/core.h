@@ -155,9 +155,9 @@ private:
   void ldh(load_to_A_tag, const byte b);                 // ldh A,[n16]
   void ldh(load_to_A_tag, const byte b, C_register_tag); // ldh A,[C]
   //
-  // ld [HLI],A
+  void ld(HLi_tag, load_from_A_tag); // ld [HLI],A
   // ld [HLD],A
-  //
+
   // ld A,[HLI]
   // ld A,[HLD]
 
