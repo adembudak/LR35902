@@ -8,7 +8,7 @@ namespace LR35902 {
 
 std::vector<byte> bus(1024);
 
-void core::run() {
+void core::run() noexcept {
   auto fetchByte = [&]() -> byte { //
     return bus[PC.m_data];
   };
