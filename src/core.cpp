@@ -103,7 +103,7 @@ void core::run() {
   case 0x43: ld(B, E); break;
   case 0x44: ld(B, H); break;
   case 0x45: ld(B, L); break;
-  // case 0x46: ld(B, (HL)); break;
+  case 0x46: ld(B, *HL); break;
   case 0x47: ld(B, A); break;
 
   case 0x48: ld(C, B); break;
@@ -112,7 +112,7 @@ void core::run() {
   case 0x4b: ld(C, E); break;
   case 0x4c: ld(C, H); break;
   case 0x4d: ld(C, L); break;
-  // case 0x4e: ld(C, (HL)); break;
+  case 0x4e: ld(C, *HL); break;
   case 0x4f: ld(C, A); break;
 
   case 0x50: ld(D, B); break;
@@ -121,7 +121,7 @@ void core::run() {
   case 0x53: ld(D, E); break;
   case 0x54: ld(D, H); break;
   case 0x55: ld(D, L); break;
-  // case 0x56: ld(D, (HL)); break;
+  case 0x56: ld(D, *HL); break;
   case 0x57: ld(D, A); break;
 
   case 0x58: ld(E, B); break;
@@ -129,10 +129,8 @@ void core::run() {
   case 0x5a: ld(E, D); break;
   case 0x5b: ld(E, E); break;
   case 0x5c: ld(E, H); break;
-  case 0x5d:
-    ld(E, L);
-    break;
-    // case 0x5e: ld(E, (HL)); break;
+  case 0x5d: ld(E, L); break;
+  case 0x5e: ld(E, *HL); break;
   case 0x5f: ld(E, A); break;
 
   case 0x60: ld(H, B); break;
@@ -140,20 +138,16 @@ void core::run() {
   case 0x62: ld(H, D); break;
   case 0x63: ld(H, E); break;
   case 0x64: ld(H, H); break;
-  case 0x65:
-    ld(H, L);
-    break;
-    // case 0x66: ld(H, (HL)); break;
+  case 0x65: ld(H, L); break;
+  case 0x66: ld(H, *HL); break;
   case 0x67: ld(H, A); break;
   case 0x68: ld(L, B); break;
   case 0x69: ld(L, C); break;
   case 0x6a: ld(L, D); break;
   case 0x6b: ld(L, E); break;
   case 0x6c: ld(L, H); break;
-  case 0x6d:
-    ld(L, L);
-    break;
-    //  case 0x6e: ld(L, (HL)); break;
+  case 0x6d: ld(L, L); break;
+  case 0x6e: ld(L, *HL); break;
   case 0x6f: ld(L, A); break;
   case 0x70: ld(*HL, B); break;
   case 0x71: ld(*HL, C); break;
