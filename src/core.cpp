@@ -546,10 +546,8 @@ void core::run() {
   case 0xdc: call(cc::c, n16{fetchWord()}); break;
   case 0xdd: /* unused */ break;
   case 0xde: sbc(n8{fetchByte()}); break;
-  case 0xdf:
-    rst(0x18);
-    break;
-    // case 0xe0: ld ((FF00 + n8{fetchByte ()}), A); break;
+  case 0xdf: rst(0x18); break;
+  case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
   case 0xe1:
     pop(HL);
     break;
