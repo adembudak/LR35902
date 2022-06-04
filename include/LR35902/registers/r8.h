@@ -22,12 +22,6 @@ public:
     return *this;
   }
 
-  /*
-  byte operator*(const r8 r) {
-    return m_bus[r.data()];
-  }
-  */
-
   uint8_t data() const noexcept {
     return m_data;
   }
