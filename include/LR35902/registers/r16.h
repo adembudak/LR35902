@@ -16,7 +16,7 @@ public:
   r16() = delete;
   r16(r8 &hi, r8 &lo);
 
-  std::uint16_t data() const noexcept;
+  [[nodiscard]] std::uint16_t data() const noexcept;
 };
 
 byte &operator*(const r16 rr) noexcept;
