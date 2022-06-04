@@ -8,6 +8,10 @@ option(WITH_DEBUGGER "" OFF)
 
 add_library(core src/core.cpp)
 
+add_library(bus src/stubs/bus/bus.cpp)
+target_include_directories(bus PRIVATE include)
+target_link_libraries(core PRIVATE bus)
+
 target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty/imgui-1.87)
 target_link_libraries(core PUBLIC imgui)
 target_compile_options(core PRIVATE 
