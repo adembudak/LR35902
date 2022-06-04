@@ -1,8 +1,9 @@
 #pragma once
 
 #include "../config.h"
+#include "../stubs/bus/bus.h"
+
 #include <cstdint>
-#include <vector>
 
 namespace LR35902 {
 
@@ -32,11 +33,8 @@ struct n16 {
   }
 };
 
-std::vector<byte> bb(1000);
-
-byte &operator*(const n16 nn) {
-  // return readbus(rr.value());
-  return bb[nn.m_data];
+byte &operator*(const n16 nn) noexcept {
+  return Bus::reach()[nn.m_data];
 }
 
 } // namespace LR35902

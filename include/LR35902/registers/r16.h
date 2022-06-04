@@ -1,9 +1,8 @@
 #pragma once
 
+#include "../stubs/bus/bus.h"
 #include "flags.h"
 #include "r8.h"
-
-#include <vector>
 
 namespace LR35902 {
 
@@ -21,14 +20,10 @@ public:
   }
 };
 
-std::vector<byte> b(1000);
+static_assert(sizeof(r16) == (sizeof(byte *) + sizeof(byte *)));
 
-byte &operator*(const r16 rr) {
-  // return readbus(rr.value());
-
-  return b[rr.data()];
+byte &operator*(const r16 rr) noexcept {
+  return Bus::reach()[rr.data()];
 }
-
-// static_assert (sizeof (r16) == (sizeof (byte *) + sizeof (byte *)));
 
 } // namespace LR35902
