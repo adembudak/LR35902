@@ -1,21 +1,19 @@
 #include <LR35902/core.h>
+#include <LR35902/stubs/bus/bus.h>
 
 #include <cstdint>
-#include <tuple> // for std::ignore
-#include <vector>
 
 namespace LR35902 {
 
-std::vector<byte> bus(1024);
+auto core::fetchByte() noexcept -> byte {
+  return Bus::reach()[PC.m_data++];
+};
+
+auto core::fetchWord() noexcept -> word {
+  return word(fetchByte() << 8 | fetchByte());
+};
 
 void core::run() noexcept {
-  auto fetchByte = [&]() -> byte { //
-    return bus[PC.m_data];
-  };
-
-  auto fetchWord = [&]() -> word { //
-    return word(fetchByte() << 8 | fetchByte());
-  };
 
   switch(const byte opcode = fetchByte(); opcode) {
   // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json

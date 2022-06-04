@@ -48,6 +48,9 @@ private:
   struct load_to_A_tag {};
   struct tag {};
 
+  auto fetchByte() noexcept -> byte;
+  auto fetchWord() noexcept -> word;
+
 public:
   void run() noexcept;
 
