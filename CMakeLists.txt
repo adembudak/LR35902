@@ -39,7 +39,7 @@ target_compile_options(core PRIVATE
 if (WITH_DEBUGGER)
   add_subdirectory(3rdparty)
   add_executable(test tests/main.cpp)
+  target_link_libraries(test PUBLIC core imgui)
   target_include_directories(test PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty/imgui-1.87)
-  target_link_libraries(test PUBLIC core)
 endif()
 
