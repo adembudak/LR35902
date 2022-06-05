@@ -18,23 +18,23 @@ std::uint8_t r8::data() const noexcept {
   return m_data;
 }
 
-r8 &r8::operator++(int) noexcept {
+r8 &r8::operator++() noexcept {
   ++m_data;
   return *this;
 }
 
-const r8 r8::operator++() noexcept {
+r8 r8::operator++(int) noexcept {
   const auto temp = *this;
   ++m_data;
   return temp;
 }
 
-r8 &r8::operator--(int) noexcept {
+r8 &r8::operator--() noexcept {
   --m_data;
   return *this;
 }
 
-const r8 r8::operator--() noexcept {
+r8 r8::operator--(int) noexcept {
   const auto temp = *this;
   --m_data;
   return temp;

@@ -7,9 +7,6 @@ set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 option(WITH_DEBUGGER "" OFF)
 
 add_library(core src/core.cpp 
-        src/immediate/e8.cpp
-        src/immediate/n8.cpp
-        src/immediate/n16.cpp
         src/registers/r16.cpp
         src/registers/r8.cpp
         )

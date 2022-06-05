@@ -14,7 +14,8 @@ private:
 
 public:
   r16() = delete;
-  r16(r8 &hi, r8 &lo);
+  r16(r8 &hi, r8 &lo) : m_hi{hi}, m_lo{lo} {
+  }
 
   [[nodiscard]] std::uint16_t data() const noexcept;
 };
