@@ -1,6 +1,6 @@
 #pragma once
 
-#include "immediate//e8.h"
+#include "immediate/e8.h"
 #include "immediate/n16.h"
 #include "immediate/n8.h"
 #include "immediate/u3.h"
@@ -11,12 +11,10 @@
 
 #include <array>
 
-// note:  *() should return byte&
 namespace LR35902 {
 
 // instruction names and behaviors taken from:
 // https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7
-
 class core {
 private:
   r8 A;
@@ -54,11 +52,13 @@ private:
 public:
   void run() noexcept;
 
+  friend class debugView;
+
 private:
   // 8-bit Arithmetic and Logic Instructions
   void adc(const r8 r) noexcept;   // adc A,r8
   void adc(const byte b) noexcept; // adc A,[HL]
-  void adc(const n8 n);            // adc A,n8
+  void adc(const n8 n) noexcept;   // adc A,n8
 
   void add(const r8 r) noexcept;   // add A,r8
   void add(const byte b) noexcept; // add A,[HL]
@@ -138,7 +138,7 @@ private:
   void srl(r8 &r) noexcept;   // srl r8
   void srl(byte &b) noexcept; // srl [HL]
 
-  // revisit Load Instructions
+  // Load Instructions
   void ld(r8 &to, const r8 from) noexcept; // ld r8,r8
   void ld(r8 &r, const n8 n) noexcept;     // ld r8,n8
   void ld(r16 &rr, const n16 nn) noexcept; // ld r16,n16
@@ -177,7 +177,7 @@ private:
   void reti() noexcept;                          // reti
   void rst(const std::size_t v) noexcept;        // rst vec
 
-  // revisit // Stack Operations Instructions
+  // // Stack Operations Instructions
   void add(HL_register_tag, SP_register_tag) noexcept; // add HL,SP
   void add(SP_register_tag, const e8 e) noexcept;      // add SP,e8
   void dec(SP_register_tag) noexcept;                  // dec SP
