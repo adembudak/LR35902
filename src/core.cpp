@@ -6,7 +6,7 @@
 namespace LR35902 {
 
 auto core::fetchByte() noexcept -> byte {
-  return Bus::reach()[PC.m_data++];
+  return Bus::reach()[PC++];
 };
 
 auto core::fetchWord() noexcept -> word {

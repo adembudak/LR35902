@@ -9,6 +9,12 @@ namespace LR35902 {
 
 struct n16 {
   std::uint16_t m_data{};
+
+  inline std::uint16_t operator++(int) noexcept {
+    auto temp = m_data;
+    ++m_data;
+    return temp;
+  }
 };
 
 byte &operator*(const n16 nn) noexcept;
