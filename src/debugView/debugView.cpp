@@ -36,26 +36,8 @@ debugView::~debugView() {
   SDL_Quit();
 }
 
-void debugView::run(core &c) {
-  bool done = false;
-
-  while(!done) {
-    c.run();
-
-    SDL_Event event;
-    while(SDL_PollEvent(&event)) { // Poll events
-      ImGui_ImplSDL2_ProcessEvent(&event);
-
-      if(event.type == SDL_QUIT) done = true;
-
-      if(event.type == SDL_WINDOWEVENT &&               //
-         event.window.event == SDL_WINDOWEVENT_CLOSE && //
-         event.window.windowID == SDL_GetWindowID(m_window))
-        done = true;
-    }
-
-    registerStatus(c);
-  }
+void debugView::show(core &c) {
+  registerStatus(c);
 }
 
 void debugView::registerStatus(core &m_core) {

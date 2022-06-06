@@ -6,17 +6,13 @@
 #include <string_view>
 #include <vector>
 
+#include <SDL2/SDL.h>
+#include <imgui_impl_sdl.h>
+
 namespace LR35902 {
 
 class cartridge {
 public:
-  /*
-[[nodiscard]] cartridge(const char *rom) {
-    std::fstream f{rom};                                  //
-    m_data.assign(std::istreambuf_iterator<char>{f}, {}); //
-}
-*/
-
   [[nodiscard]] cartridge(const std::filesystem::path p) {
     std::fstream f{p};                                    //
     m_data.assign(std::istreambuf_iterator<char>{f}, {}); //
@@ -28,17 +24,24 @@ private:
 
 }
 
-int main(int argc, char **argv) {
+int main(/*int argc, char **argv*/) {
   using namespace LR35902;
 
-  if(argc > 1) {
-    cartridge cart{argv[1]};
+  core cpu;
+  debugView debugger;
 
-    core cpu;
-    debugView debugger;
+  bool done = false;
 
-    debugger.run(cpu);
+  while(!done) {
+    cpu.run();
+
+    SDL_Event event;
+    while(SDL_PollEvent(&event)) {
+      ImGui_ImplSDL2_ProcessEvent(&event);
+
+      if(event.type == SDL_QUIT) done = true;
+    }
+
+    debugger.show(cpu);
   }
-
-  return 0;
 }

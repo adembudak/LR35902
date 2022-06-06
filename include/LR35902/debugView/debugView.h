@@ -16,7 +16,7 @@ public:
   debugView();
   ~debugView();
 
-  void run(core &c);
+  void show(core &c);
 
 private:
   void registerStatus(core &m_core);
