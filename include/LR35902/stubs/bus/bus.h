@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../config.h"
+#include "../cartridge/cartridge.h"
 
 #include <array>
 
@@ -19,6 +20,6 @@ public:
 
 private:
   Bus() = default;
-  std::array<byte, 32_KiB> m_data{};
+  Cartridge m_cart;
 };
 }

@@ -8,7 +8,7 @@ Bus &Bus::reach() noexcept {
 }
 
 byte &Bus::operator[](const std::size_t i) noexcept {
-  return m_data[i];
+  return m_cart[i];
 }
 
 }

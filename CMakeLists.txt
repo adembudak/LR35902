@@ -10,8 +10,14 @@ add_library(core src/core.cpp
         src/registers/r8.cpp
         )
 
+
+add_library(cartridge src/stubs/cartridge/cartridge.cpp)
+target_include_directories(cartridge PRIVATE include)
+
 add_library(bus src/stubs/bus/bus.cpp)
 target_include_directories(bus PRIVATE include)
+
+target_link_libraries(bus PRIVATE cartridge)
 
 target_link_libraries(core PRIVATE bus)
 target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR})
