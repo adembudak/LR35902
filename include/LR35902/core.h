@@ -15,7 +15,7 @@ namespace LR35902 {
 
 // instruction names and behaviors taken from:
 // https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7
-class core {
+class Core {
 private:
   r8 A;
   flags F;
@@ -52,7 +52,7 @@ private:
 public:
   void run() noexcept;
 
-  friend class debugView;
+  friend class DebugView;
 
 private:
   // 8-bit Arithmetic and Logic Instructions

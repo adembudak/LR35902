@@ -16,9 +16,9 @@ int main(int argc, char **argv) {
     Cartridge cart;
     cart.load(argv[1]);
 
-    core cpu;
+    Core cpu;
 
-    debugView debugger;
+    DebugView debugger;
 
     bool done = false;
 

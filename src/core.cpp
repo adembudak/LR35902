@@ -5,15 +5,15 @@
 
 namespace LR35902 {
 
-auto core::fetchByte() noexcept -> byte {
+auto Core::fetchByte() noexcept -> byte {
   return Bus::reach()[PC++];
 };
 
-auto core::fetchWord() noexcept -> word {
+auto Core::fetchWord() noexcept -> word {
   return word(fetchByte() << 8 | fetchByte());
 };
 
-void core::run() noexcept {
+void Core::run() noexcept {
 
   switch(const byte opcode = fetchByte(); opcode) {
     // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
@@ -546,7 +546,7 @@ void core::run() noexcept {
   }
 }
 
-void core::nop() noexcept {
+void Core::nop() noexcept {
   //
 }
 

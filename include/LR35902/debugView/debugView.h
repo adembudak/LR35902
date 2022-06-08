@@ -5,22 +5,22 @@
 
 namespace LR35902 {
 
-class core;
+class Core;
 
-class debugView {
+class DebugView {
 private:
   SDL_Window *m_window;
   SDL_Renderer *m_renderer;
 
 public:
-  debugView();
-  ~debugView();
+  DebugView();
+  ~DebugView();
 
-  void show(core &c);
+  void show(const Core &c) const noexcept;
 
 private:
-  void registerStatus(core &m_core);
-  void romDump(core &m_core);
+  void registerStatus(const Core &m_core) const noexcept;
+  void romDump(const Core &m_core) const noexcept;
 };
 
 }

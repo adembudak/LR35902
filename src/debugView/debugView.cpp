@@ -13,7 +13,7 @@
 
 namespace LR35902 {
 
-debugView::debugView() :
+DebugView::DebugView() :
     m_window{SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)},
     m_renderer{SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED)} {
@@ -26,7 +26,7 @@ debugView::debugView() :
   ImGui_ImplSDLRenderer_Init(m_renderer);
 }
 
-debugView::~debugView() {
+DebugView::~DebugView() {
   ImGui_ImplSDLRenderer_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
@@ -36,11 +36,11 @@ debugView::~debugView() {
   SDL_Quit();
 }
 
-void debugView::show(core &c) {
+void DebugView::show(const Core &c) const noexcept {
   registerStatus(c);
 }
 
-void debugView::registerStatus(core &m_core) {
+void DebugView::registerStatus(const Core &m_core) const noexcept {
   ImGui_ImplSDLRenderer_NewFrame();
   ImGui_ImplSDL2_NewFrame();
   ImGui::NewFrame();
