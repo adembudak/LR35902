@@ -10,7 +10,10 @@ auto Core::fetchByte() noexcept -> byte {
 };
 
 auto Core::fetchWord() noexcept -> word {
-  return word(fetchByte() << 8 | fetchByte());
+  const byte hi = m_bus.read(PC++);
+  const byte lo = m_bus.read(PC++);
+
+  return word(hi << 8 | lo);
 };
 
 void Core::run() noexcept {
