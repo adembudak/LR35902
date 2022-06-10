@@ -17,17 +17,19 @@ namespace LR35902 {
 // https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7
 class Core {
 private:
+  Bus m_bus;
+
   r8 A;
   flags F;
 
   r8 B, C;
-  r16 BC{B, C};
+  r16 BC;
 
   r8 D, E;
-  r16 DE{D, E};
+  r16 DE;
 
   r8 H, L;
-  r16 HL{H, L};
+  r16 HL;
 
   n16 SP;
   n16 PC;
@@ -50,6 +52,14 @@ private:
   auto fetchWord() noexcept -> word;
 
 public:
+  // clang-format off
+  explicit Core(Bus bus) noexcept : 
+          m_bus{std::move(bus)}
+        , BC{m_bus, B, C}
+        , DE{m_bus, D, E}
+        , HL{m_bus, H, L} {}
+  // clang-format on
+
   void run() noexcept;
 
   friend class DebugView;

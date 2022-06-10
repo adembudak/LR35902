@@ -1,14 +1,21 @@
 #include "LR35902/stubs/bus/bus.h"
+#include "LR35902/stubs/cartridge/cartridge.h"
 
 namespace LR35902 {
 
-Bus &Bus::reach() noexcept {
-  static Bus instance;
-  return instance;
+Bus::Bus(Cartridge &cart) : m_cart{cart} {
 }
 
-byte &Bus::operator[](const std::size_t i) noexcept {
-  return m_cart[i];
+byte &Bus::read_write(const std::size_t index) noexcept {
+  return m_cart[index];
+}
+
+byte Bus::read(const std::size_t index) const noexcept {
+  return m_cart.read(index);
+}
+
+void Bus::write(const std::size_t index, const byte b) noexcept {
+  m_cart.write(index, b);
 }
 
 }

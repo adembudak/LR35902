@@ -1,4 +1,3 @@
-
 #include <LR35902/stubs/cartridge/cartridge.h>
 
 #include <fstream>

@@ -1,5 +1,6 @@
 #include "LR35902/core.h"
 #include "LR35902/debugView/debugView.h"
+#include "LR35902/stubs/bus/bus.h"
 #include "LR35902/stubs/cartridge/cartridge.h"
 
 #include <SDL2/SDL.h>
@@ -12,7 +13,8 @@ int main(int argc, char **argv) {
     Cartridge cart;
     cart.load(argv[1]);
 
-    Core cpu;
+    Bus bus{cart};
+    Core cpu{bus};
 
     DebugView debugger;
 
