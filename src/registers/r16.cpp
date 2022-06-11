@@ -10,8 +10,8 @@ std::uint16_t r16::data() const noexcept {
   return std::uint16_t(m_hi.data() << 8 | m_lo.data());
 }
 
-byte &r16::operator*(const r16 rr) noexcept {
-  return m_bus.read_write(rr.data());
+byte &r16::operator*() noexcept {
+  return m_bus.read_write(data());
 }
 
 }
