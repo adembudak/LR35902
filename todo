@@ -1,4 +1,11 @@
-- fill out debug view with rom dump, dissassembly, register status.. what else?, imgui demo window
-- compare assembly with generated dissassembly
+prioritize
+- op* n16, how to pass bus to it
+- move opcode definitions to source file
+- register status, r16 too
+- flags
+- debug screen
+- busDump
+- disassembly
+- ImGui
 - create CMakePresets.json
 - setup Github Actions
