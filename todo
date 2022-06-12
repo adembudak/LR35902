@@ -1,11 +1,9 @@
 prioritize
 - op* n16, how to pass bus to it
-- move opcode definitions to source file
-- register status, r16 too
-- flags
-- debug screen
-- busDump
-- disassembly
-- ImGui
+
+- show register status, r16, in debugView
+- show flags in debugView
+- show busDump in debugView
+- show disassembly in debugView
 - create CMakePresets.json
 - setup Github Actions
