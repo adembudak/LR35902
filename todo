@@ -1,7 +1,6 @@
 prioritize
 - op* n16, how to pass bus to it
 
-- show register status, r16, in debugView
 - show flags in debugView
 - show busDump in debugView
 - show disassembly in debugView
