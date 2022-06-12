@@ -28,7 +28,12 @@ void Core::run() noexcept {
   case 0x05: dec(B); break;
   case 0x06: ld(B, n8{fetchByte()}); break;
   case 0x07: rlca(); break;
-  case 0x08: ld(*n16{fetchWord()}, SP_register_tag{}); break;
+  case 0x08: {
+    const n16 nn{fetchWord()};
+    byte &b = m_bus.read_write(nn.m_data);
+    ld(b, SP_register_tag{});
+    break;
+  }
   case 0x09: add(HL_register_tag{}, BC); break;
   case 0x0a: ld(load_to_A_tag{}, *BC); break;
   case 0x0b: dec(BC); break;
@@ -527,9 +532,19 @@ void Core::run() noexcept {
   case 0xdd: /* unused */ break;
   case 0xde: sbc(n8{fetchByte()}); break;
   case 0xdf: rst(0x18); break;
-  case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
+  case 0xe0: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
+    byte &b = m_bus.read_write(nn.m_data);
+    ldh(b, load_from_A_tag{});
+    break;
+  }
   case 0xe1: pop(HL); break;
-  case 0xe2: ldh(*n16{static_cast<uint16_t>(0xFF00 + C.data())}, load_from_A_tag{}, C_register_tag{}); break;
+  case 0xe2: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
+    byte &b = m_bus.read_write(nn.m_data);
+    ldh(b, load_from_A_tag{}, C_register_tag{});
+    break;
+  }
   case 0xe3: /* unused */ break;
   case 0xe4: /* unused */ break;
   case 0xe5: push(HL); break;
@@ -537,15 +552,30 @@ void Core::run() noexcept {
   case 0xe7: rst(0x20); break;
   case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xe9: jp(HL_register_tag{}); break;
-  case 0xea: ld(*n16{fetchWord()}, load_from_A_tag{}, tag{}); break;
+  case 0xea: {
+    const n16 nn{fetchWord()};
+    byte &b = m_bus.read_write(nn.m_data);
+    ld(b, load_from_A_tag{}, tag{});
+    break;
+  }
   case 0xeb: /* unused */ break;
   case 0xec: /* unused */ break;
   case 0xed: /* unused */ break;
   case 0xee: xor_(n8{fetchByte()}); break;
   case 0xef: rst(0x28); break;
-  case 0xf0: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + fetchByte())}); break;
+  case 0xf0: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
+    const byte b = m_bus.read(nn.m_data);
+    ldh(load_to_A_tag{}, b);
+    break;
+  }
   case 0xf1: pop(AF_register_tag{}); break;
-  case 0xf2: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + C.data())}, C_register_tag{}); break;
+  case 0xf2: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
+    const byte b = m_bus.read(nn.m_data);
+    ldh(load_to_A_tag{}, b, C_register_tag{});
+    break;
+  }
   case 0xf3: di(); break;
   case 0xf4: /* unused */ break;
   case 0xf5: push(AF_register_tag{}); break;
@@ -553,7 +583,12 @@ void Core::run() noexcept {
   case 0xf7: rst(0x30); break;
   case 0xf8: ld(HL_register_tag{}, SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xf9: ld(SP_register_tag{}, HL_register_tag{}); break;
-  case 0xfa: ld(load_to_A_tag{}, *n16{fetchWord()}, tag{}); break;
+  case 0xfa: {
+    const n16 nn{fetchWord()};
+    const byte b = m_bus.read(nn.m_data);
+    ld(load_to_A_tag{}, b, tag{});
+    break;
+  }
   case 0xfb: ei(); break;
   case 0xfc: /* unused */ break;
   case 0xfd: /* unused */ break;

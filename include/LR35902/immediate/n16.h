@@ -15,8 +15,6 @@ struct n16 {
     ++m_data;
     return temp;
   }
-
-  friend byte &operator*(const n16 nn) noexcept;
 };
 
 } // namespace LR35902
