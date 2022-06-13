@@ -1,24 +1,25 @@
 #include <LR35902/core.h>
+#include <LR35902/stubs/bus/bus.h>
 
 #include <cstdint>
-#include <tuple> // for std::ignore
-#include <vector>
 
 namespace LR35902 {
 
-std::vector<byte> bus(1024);
+auto Core::fetchByte() noexcept -> byte {
+  return m_bus.read(PC++);
+};
 
-void core::run() noexcept {
-  auto fetchByte = [&]() -> byte { //
-    return bus[PC.m_data];
-  };
+auto Core::fetchWord() noexcept -> word {
+  const byte hi = m_bus.read(PC++);
+  const byte lo = m_bus.read(PC++);
 
-  auto fetchWord = [&]() -> word { //
-    return word(fetchByte() << 8 | fetchByte());
-  };
+  return word(hi << 8 | lo);
+};
 
-  switch(const byte opcode = fetchByte(); opcode) {
-  // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
+void Core::run() noexcept {
+
+  switch(opcode = fetchByte(); opcode) {
+    // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
   case 0x00: nop(); break;
   case 0x01: ld(BC, n16{fetchWord()}); break;
   case 0x02: ld(*BC, load_from_A_tag{}); break;
@@ -27,7 +28,12 @@ void core::run() noexcept {
   case 0x05: dec(B); break;
   case 0x06: ld(B, n8{fetchByte()}); break;
   case 0x07: rlca(); break;
-  case 0x08: ld(*n16{fetchWord()}, SP_register_tag{}); break;
+  case 0x08: {
+    const n16 nn{fetchWord()};
+    byte &b = m_bus.read_write(nn.m_data);
+    ld(b, SP_register_tag{});
+    break;
+  }
   case 0x09: add(HL_register_tag{}, BC); break;
   case 0x0a: ld(load_to_A_tag{}, *BC); break;
   case 0x0b: dec(BC); break;
@@ -236,7 +242,7 @@ void core::run() noexcept {
   case 0xc9: ret(); break;
   case 0xca: jp(cc::z, n16{fetchWord()}); break;
   case 0xcb:
-    switch(fetchByte()) {
+    switch(opcode = fetchByte(); opcode) {
     case 0x0: rlc(B); break;
     case 0x1: rlc(C); break;
     case 0x2: rlc(D); break;
@@ -526,9 +532,19 @@ void core::run() noexcept {
   case 0xdd: /* unused */ break;
   case 0xde: sbc(n8{fetchByte()}); break;
   case 0xdf: rst(0x18); break;
-  case 0xe0: ldh(*n16{static_cast<uint16_t>(0xFF00 + fetchByte())}, load_from_A_tag{}); break;
+  case 0xe0: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
+    byte &b = m_bus.read_write(nn.m_data);
+    ldh(b, load_from_A_tag{});
+    break;
+  }
   case 0xe1: pop(HL); break;
-  case 0xe2: ldh(*n16{static_cast<uint16_t>(0xFF00 + C.data())}, load_from_A_tag{}, C_register_tag{}); break;
+  case 0xe2: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
+    byte &b = m_bus.read_write(nn.m_data);
+    ldh(b, load_from_A_tag{}, C_register_tag{});
+    break;
+  }
   case 0xe3: /* unused */ break;
   case 0xe4: /* unused */ break;
   case 0xe5: push(HL); break;
@@ -536,15 +552,30 @@ void core::run() noexcept {
   case 0xe7: rst(0x20); break;
   case 0xe8: add(SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xe9: jp(HL_register_tag{}); break;
-  case 0xea: ld(*n16{fetchWord()}, load_from_A_tag{}, tag{}); break;
+  case 0xea: {
+    const n16 nn{fetchWord()};
+    byte &b = m_bus.read_write(nn.m_data);
+    ld(b, load_from_A_tag{}, tag{});
+    break;
+  }
   case 0xeb: /* unused */ break;
   case 0xec: /* unused */ break;
   case 0xed: /* unused */ break;
   case 0xee: xor_(n8{fetchByte()}); break;
   case 0xef: rst(0x28); break;
-  case 0xf0: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + fetchByte())}); break;
+  case 0xf0: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
+    const byte b = m_bus.read(nn.m_data);
+    ldh(load_to_A_tag{}, b);
+    break;
+  }
   case 0xf1: pop(AF_register_tag{}); break;
-  case 0xf2: ldh(load_to_A_tag{}, *n16{static_cast<uint16_t>(0xFF00 + C.data())}, C_register_tag{}); break;
+  case 0xf2: {
+    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
+    const byte b = m_bus.read(nn.m_data);
+    ldh(load_to_A_tag{}, b, C_register_tag{});
+    break;
+  }
   case 0xf3: di(); break;
   case 0xf4: /* unused */ break;
   case 0xf5: push(AF_register_tag{}); break;
@@ -552,7 +583,12 @@ void core::run() noexcept {
   case 0xf7: rst(0x30); break;
   case 0xf8: ld(HL_register_tag{}, SP_register_tag{}, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xf9: ld(SP_register_tag{}, HL_register_tag{}); break;
-  case 0xfa: ld(load_to_A_tag{}, *n16{fetchWord()}, tag{}); break;
+  case 0xfa: {
+    const n16 nn{fetchWord()};
+    const byte b = m_bus.read(nn.m_data);
+    ld(load_to_A_tag{}, b, tag{});
+    break;
+  }
   case 0xfb: ei(); break;
   case 0xfc: /* unused */ break;
   case 0xfd: /* unused */ break;
@@ -560,4 +596,154 @@ void core::run() noexcept {
   case 0xff: rst(0x38); break;
   }
 }
+
+// 8-bit Arithmetic and Logic Instructions
+void Core::adc(const r8 r) noexcept {};   // adc A,r8
+void Core::adc(const byte b) noexcept {}; // adc A,[HL]
+void Core::adc(const n8 n) noexcept {};   // adc A,n8
+
+void Core::add(const r8 r) noexcept {};   // add A,r8
+void Core::add(const byte b) noexcept {}; // add A,[HL]
+void Core::add(const n8 n) noexcept {};   // add A,n8
+
+void Core::and_(const r8 r) noexcept {};   // and A,r8
+void Core::and_(const byte b) noexcept {}; // and A,[HL]
+void Core::and_(const n8 n) noexcept {};   // and A,n8
+
+void Core::cp(const r8 r) noexcept {};   // cp A,r8
+void Core::cp(const byte b) noexcept {}; // cp A,[HL]
+void Core::cp(const n8 n) noexcept {};   // cp A,n8
+
+void Core::dec(r8 &r) noexcept {};   // dec r8
+void Core::dec(byte &b) noexcept {}; // dec [HL]
+
+void Core::inc(r8 &r) noexcept {};   // inc r8
+void Core::inc(byte &b) noexcept {}; // inc [HL]
+
+void Core::or_(const r8 r) noexcept {};   // or A,r8
+void Core::or_(const byte b) noexcept {}; // or A,[HL]
+void Core::or_(const n8 n) noexcept {};   // or A,n8
+
+void Core::sbc(const r8 r) noexcept {};   // sbc A,r8
+void Core::sbc(const byte b) noexcept {}; // sbc A,[HL]
+void Core::sbc(const n8 n) noexcept {};   // sbc A,n8
+
+void Core::sub(const r8 r) noexcept {};   // sub A,r8
+void Core::sub(const byte b) noexcept {}; // sub A,[HL]
+void Core::sub(const n8 n) noexcept {};   // sub A,n8
+
+void Core::xor_(const r8 r) noexcept {};   // xor A,r8
+void Core::xor_(const byte b) noexcept {}; // xor A,[HL]
+void Core::xor_(const n8 n) noexcept {};   // xor A,n8
+
+// // 16-bit Arithmetic Instructions
+void Core::add(HL_register_tag, const r16 rr) noexcept {}; // add HL,r16
+void Core::dec(r16 &rr) noexcept {};                       // dec r16
+void Core::inc(r16 &rr) noexcept {};                       // inc r16
+
+// // Bit Operations Instructions
+void Core::bit(const u3, const r8 r) noexcept {};   // bit u3,r8
+void Core::bit(const u3, const byte b) noexcept {}; // bit u3,[HL]
+
+void Core::res(const u3, r8 &r) noexcept {};   // res u3,r8
+void Core::res(const u3, byte &b) noexcept {}; // res u3,[HL]
+
+void Core::set(const u3, r8 &r) noexcept {};   // set u3,r8
+void Core::set(const u3, byte &b) noexcept {}; // set u3,[HL]
+
+void Core::swap(r8 &r) noexcept {};   // swap r8
+void Core::swap(byte &b) noexcept {}; // swap [HL]
+
+// // Bit Shift Instructions
+void Core::rl(r8 &r) noexcept {};   // rl r8
+void Core::rl(byte &b) noexcept {}; // rl [HL]
+void Core::rla() noexcept {};       // rla
+
+void Core::rlc(r8 &r) noexcept {};   // rlc r8
+void Core::rlc(byte &b) noexcept {}; // rlc [HL]
+void Core::rlca() noexcept {};       // rlca
+
+void Core::rr(r8 &r) noexcept {};   // rr r8
+void Core::rr(byte &b) noexcept {}; // rr [HL]
+void Core::rra() noexcept {};       // rra
+
+void Core::rrc(r8 &r) noexcept {};   // rrc r8
+void Core::rrc(byte &b) noexcept {}; // rrc [HL]
+void Core::rrca() noexcept {};       // rrca
+
+void Core::sla(r8 &r) noexcept {};   // sla r8
+void Core::sla(byte &b) noexcept {}; // sla [HL]
+
+void Core::sra(r8 &r) noexcept {};   // sra r8
+void Core::sra(byte &b) noexcept {}; // sra [HL]
+
+void Core::srl(r8 &r) noexcept {};   // srl r8
+void Core::srl(byte &b) noexcept {}; // srl [HL]
+
+// Load Instructions
+void Core::ld(r8 &to, const r8 from) noexcept {}; // ld r8,r8
+void Core::ld(r8 &r, const n8 n) noexcept {};     // ld r8,n8
+void Core::ld(r16 &rr, const n16 nn) noexcept {}; // ld r16,n16
+void Core::ld(byte &b, const r8 r) noexcept {};   // ld [HL],r8
+void Core::ld(byte &b, const n8 n) noexcept {};   // ld [HL],n8
+void Core::ld(r8 &r, const byte b) noexcept {};   // ld r8,[HL]
+//
+void Core::ld(byte &b, load_from_A_tag) noexcept {};      // ld [r16],A
+void Core::ld(byte &b, load_from_A_tag, tag) noexcept {}; // ld [n16],A
+//
+void Core::ld(load_to_A_tag, const byte b) noexcept {};      // ld A,[r16]
+void Core::ld(load_to_A_tag, const byte b, tag) noexcept {}; // ld A,[n16]
+//
+void Core::ldh(byte &b, load_from_A_tag) noexcept {};                 // ldh [n16],A
+void Core::ldh(byte &b, load_from_A_tag, C_register_tag) noexcept {}; // ldh [C],A
+//
+void Core::ldh(load_to_A_tag, const byte b) noexcept {};                 // ldh A,[n16]
+void Core::ldh(load_to_A_tag, const byte b, C_register_tag) noexcept {}; // ldh A,[C]
+//
+void Core::ld(HLi_tag, load_from_A_tag) noexcept {}; // ld [HLI],A
+void Core::ld(HLd_tag, load_from_A_tag) noexcept {}; // ld [HLD],A
+
+void Core::ld(load_to_A_tag, HLi_tag) noexcept {}; // ld A,[HLI]
+void Core::ld(load_to_A_tag, HLd_tag) noexcept {}; // ld A,[HLD]
+
+// // Jumps and Subroutines
+void Core::call(const n16 nn) noexcept {};              // call n16
+void Core::call(const cc cc, const n16 nn) noexcept {}; // call cc,n16
+void Core::jp(HL_register_tag) noexcept {};             // jp HL
+void Core::jp(const n16 nn) noexcept {};                // jp n16
+void Core::jp(const cc cc, const n16 nn) noexcept {};   // jp cc,n16
+void Core::jr(const e8 e) noexcept {};                  // jr e8
+void Core::jr(const cc cc, const e8 e) noexcept {};     // jr cc,e8
+void Core::ret(const cc cc) noexcept {};                // ret cc
+void Core::ret() noexcept {};                           // ret
+void Core::reti() noexcept {};                          // reti
+void Core::rst(const std::size_t v) noexcept {};        // rst vec
+
+// // Stack Operations Instructions
+void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP
+void Core::add(SP_register_tag, const e8 e) noexcept {};      // add SP,e8
+void Core::dec(SP_register_tag) noexcept {};                  // dec SP
+void Core::inc(SP_register_tag) noexcept {};                  // inc SP
+
+void Core::ld(SP_register_tag, const n16 nn) noexcept {};                // ld SP,n16
+void Core::ld(byte &b, SP_register_tag) noexcept {};                     // ld [n16],SP
+void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8
+void Core::ld(SP_register_tag, HL_register_tag) noexcept {};             // ld SP,HL
+
+void Core::pop(AF_register_tag) noexcept {};  // pop AF
+void Core::pop(r16 &rr) noexcept {};          // pop r16
+void Core::push(AF_register_tag) noexcept {}; // push AF
+void Core::push(const r16 rr) noexcept {};    // push r16
+
+// // Miscellaneous Instructions
+void Core::ccf() noexcept {};  // ccf
+void Core::cpl() noexcept {};  // cpl
+void Core::daa() noexcept {};  // daa
+void Core::di() noexcept {};   // di
+void Core::ei() noexcept {};   // ei
+void Core::halt() noexcept {}; // halt
+void Core::nop() noexcept {};  // nop
+void Core::scf() noexcept {};  // scf
+void Core::stop() noexcept {}; // stop
+
 } // namespace LR35902

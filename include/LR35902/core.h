@@ -1,6 +1,6 @@
 #pragma once
 
-#include "immediate//e8.h"
+#include "immediate/e8.h"
 #include "immediate/n16.h"
 #include "immediate/n8.h"
 #include "immediate/u3.h"
@@ -11,31 +11,36 @@
 
 #include <array>
 
-// note:  *() should return byte&
 namespace LR35902 {
 
 // instruction names and behaviors taken from:
 // https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7
-
-class core {
+class Core {
 private:
+  Bus m_bus;
+
   r8 A;
   flags F;
 
   r8 B, C;
-  r16 BC{B, C};
+  r16 BC;
 
   r8 D, E;
-  r16 DE{D, E};
+  r16 DE;
 
   r8 H, L;
-  r16 HL{H, L};
+  r16 HL;
 
   n16 SP;
   n16 PC;
 
   cc cc_;
-  std::array<byte, 8> rst_vec{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
+  std::array<const byte, 8> rst_vec{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
+
+  auto fetchByte() noexcept -> byte;
+  auto fetchWord() noexcept -> word;
+
+  byte opcode{};
 
   struct AF_register_tag {};
   struct SP_register_tag {};
@@ -49,13 +54,23 @@ private:
   struct tag {};
 
 public:
+  // clang-format off
+  explicit Core(Bus bus) noexcept : 
+          m_bus{std::move(bus)}
+        , BC{m_bus, B, C}
+        , DE{m_bus, D, E}
+        , HL{m_bus, H, L} {}
+  // clang-format on
+
   void run() noexcept;
+
+  friend class DebugView;
 
 private:
   // 8-bit Arithmetic and Logic Instructions
   void adc(const r8 r) noexcept;   // adc A,r8
   void adc(const byte b) noexcept; // adc A,[HL]
-  void adc(const n8 n);            // adc A,n8
+  void adc(const n8 n) noexcept;   // adc A,n8
 
   void add(const r8 r) noexcept;   // add A,r8
   void add(const byte b) noexcept; // add A,[HL]
@@ -135,7 +150,7 @@ private:
   void srl(r8 &r) noexcept;   // srl r8
   void srl(byte &b) noexcept; // srl [HL]
 
-  // revisit Load Instructions
+  // Load Instructions
   void ld(r8 &to, const r8 from) noexcept; // ld r8,r8
   void ld(r8 &r, const n8 n) noexcept;     // ld r8,n8
   void ld(r16 &rr, const n16 nn) noexcept; // ld r16,n16
@@ -174,7 +189,7 @@ private:
   void reti() noexcept;                          // reti
   void rst(const std::size_t v) noexcept;        // rst vec
 
-  // revisit // Stack Operations Instructions
+  // // Stack Operations Instructions
   void add(HL_register_tag, SP_register_tag) noexcept; // add HL,SP
   void add(SP_register_tag, const e8 e) noexcept;      // add SP,e8
   void dec(SP_register_tag) noexcept;                  // dec SP

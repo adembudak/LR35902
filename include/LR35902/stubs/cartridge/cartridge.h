@@ -2,20 +2,19 @@
 
 #include "../../config.h"
 
-#include <array>
+#include <vector>
 
 namespace LR35902 {
 
-class Cartridge;
-
-class Bus {
+class Cartridge {
 private:
-  Cartridge &m_cart;
+  std::vector<byte> m_rom{};
 
 public:
-  [[nodiscard]] explicit Bus(Cartridge &cart);
+  void load(const char *romfile);
 
-  [[nodiscard]] byte &read_write(const std::size_t index) noexcept;
+  byte &operator[](const std::size_t index) noexcept;
+
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
 };

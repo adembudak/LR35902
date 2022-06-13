@@ -1,3 +1,7 @@
-- Dereference operators in r8 r16 n16 *() should return byte&
-- how to inject access to bus into the register classes? Handroll a simple signal-slot mechanism?
+- show flags in debugView
+- show busDump in debugView
+- show disassembly in debugView
+- create CMakePresets.json
+- setup Github Actions
+- implement instructions
 
