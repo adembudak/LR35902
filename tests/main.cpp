@@ -28,7 +28,7 @@ int main(int argc, char **argv) {
         if(event.type == SDL_QUIT) done = true;
       }
 
-      debugger.show(cpu);
+      debugger.registerStatus(cpu);
     }
   }
 

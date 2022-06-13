@@ -6,6 +6,7 @@
 namespace LR35902 {
 
 class Core;
+class Cartridge;
 
 class DebugView {
 private:
@@ -16,11 +17,8 @@ public:
   DebugView();
   ~DebugView();
 
-  void show(const Core &c) const noexcept;
-
-private:
   void registerStatus(const Core &m_core) const noexcept;
-  void romDump(const Core &m_core) const noexcept;
+  void romDump(const Cartridge &m_core) const noexcept;
 };
 
 }

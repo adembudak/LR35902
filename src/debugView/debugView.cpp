@@ -36,28 +36,26 @@ DebugView::~DebugView() {
   SDL_Quit();
 }
 
-void DebugView::show(const Core &c) const noexcept {
-  registerStatus(c);
-}
-
 void DebugView::registerStatus(const Core &m_core) const noexcept {
   ImGui_ImplSDLRenderer_NewFrame();
   ImGui_ImplSDL2_NewFrame();
-  ImGui::NewFrame();
+  using namespace ImGui;
+  NewFrame();
 
-  ImGui::Begin("Registers:");
+  Begin("Registers:");
   // clang-format off
-    ImGui::Text("A: %u", m_core.A.data()); ImGui::SameLine(); ImGui::Text("F: %u", m_core.F.data());
-    ImGui::Text("B: %u", m_core.B.data()); ImGui::SameLine(); ImGui::Text("C: %u", m_core.C.data()); // m_core.BC.data();
-    ImGui::Text("D: %u", m_core.D.data()); ImGui::SameLine(); ImGui::Text("E: %u", m_core.E.data()); // m_core.DE.data();
-    ImGui::Text("H: %u", m_core.H.data()); ImGui::SameLine(); ImGui::Text("L: %u", m_core.L.data()); // m_core.HL.data();
-    ImGui::Text("SP: %u", m_core.SP.m_data); ImGui::Text("PC: %u", m_core.PC.m_data);
+    Text("A: %u", m_core.A.data()); SameLine(); Text("F: %u", m_core.F.data());
+    Text("B: %u", m_core.B.data()); SameLine(); Text("C: %u", m_core.C.data()); Text("BC: %u", m_core.BC.data());
+    Text("D: %u", m_core.D.data()); SameLine(); Text("E: %u", m_core.E.data()); Text("DE: %u", m_core.DE.data());
+    Text("H: %u", m_core.H.data()); SameLine(); Text("L: %u", m_core.L.data()); Text("HL: %u", m_core.HL.data());
 
-    ImGui::Text("%.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+    Text("SP: %u", m_core.SP.m_data); Text("PC: %u", m_core.PC.m_data);
+
+    Text("%.3f ms/frame (%.1f FPS)", 1/ ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
   // clang-format on
-  ImGui::End();
+  End();
 
-  ImGui::Render();
+  Render();
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
   ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
