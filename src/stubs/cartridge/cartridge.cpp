@@ -6,6 +6,7 @@ namespace LR35902 {
 
 void Cartridge::load(const char *romfile) {
   std::ifstream fin{romfile};
+  fin.exceptions(std::ifstream::failbit);
   m_rom.assign(std::istreambuf_iterator<char>{fin}, {});
 }
 
