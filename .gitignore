@@ -1,6 +1,11 @@
-build/
+[Bb]uild/
 debug/
 release/
-./3rdparty/imgui-1.87/*
+3rdparty/imgui-1.87/
 .cache/
 *.swp
+B/
+tryouts/
+tests/test_roms/
+imgui.ini
+
