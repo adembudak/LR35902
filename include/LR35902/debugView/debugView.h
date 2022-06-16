@@ -17,6 +17,9 @@ public:
   DebugView();
   ~DebugView();
 
+  DebugView(const DebugView &) = delete;
+  DebugView &operator=(const DebugView &) = delete;
+
   void registerStatus(const Core &m_core) const noexcept;
   void romDump(const Cartridge &m_core) const noexcept;
 };
