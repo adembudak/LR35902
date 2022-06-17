@@ -1,7 +1,4 @@
-- show flags in debugView
-- show busDump in debugView
 - show disassembly in debugView
-- create CMakePresets.json
-- setup Github Actions
 - implement instructions
+- setup Github Actions
 

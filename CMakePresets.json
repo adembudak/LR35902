@@ -1,0 +1,152 @@
+{
+  "version": 4,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 23,
+    "patch": 1
+  },
+  "configurePresets": [
+    {
+      "name": "linux",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+         "WITH_DEBUGGER" : "ON",
+         "CMAKE_CXX_STANDARD" : "20",
+         "CMAKE_CXX_EXTENSIONS" : "OFF",
+         "CMAKE_CXX_STANDARD_REQUIRED" : "ON"
+      }
+    },
+
+    {
+      "name": "debug-gcc-linux",
+      "inherits": "linux",
+      "description": "Build with GCC and debug information",
+
+      "binaryDir": "${sourceDir}/debug_gcc_build",
+      "cacheVariables": {
+         "CMAKE_BUILD_TYPE" : "Debug",
+         "CMAKE_CXX_FLAGS" : "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Wall -Wextra -Waddress -Wuninitialized -Wreorder -Wconversion -Warith-conversion"
+      },
+      "environment": {
+         "CXX" : "g++"
+      }
+    },
+
+    {
+      "name": "release-gcc-linux",
+      "inherits": "linux",
+      "description": "Build with GCC in release mode",
+
+      "binaryDir": "${sourceDir}/release_gcc_build",
+      "cacheVariables": {
+         "CMAKE_BUILD_TYPE" : "Release"
+      },
+      "environment": {
+         "CXX" : "g++"
+      }
+    }, 
+
+    {
+      "name": "debug-clang-linux",
+      "inherits": "linux",
+      "description": "Build with Clang and debug information",
+
+      "binaryDir": "${sourceDir}/debug_clang_build",
+      "cacheVariables": {
+         "CMAKE_BUILD_TYPE" : "Debug",
+         "CMAKE_CXX_FLAGS" : "-stdlib=libc++ -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Waddress -Wuninitialized -Wreorder-ctor -Wall -Wextra -Wconversion"
+      },
+
+      "environment": {
+         "CXX" : "clang++-14"
+      }
+    },
+
+    {
+      "name": "release-clang-linux",
+      "inherits": "linux",
+      "description": "Build with Clang in release mode",
+
+      "binaryDir": "${sourceDir}/release_clang_build",
+      "cacheVariables": {
+         "CMAKE_BUILD_TYPE" : "Release",
+         "CMAKE_CXX_FLAGS" : "-stdlib=libc++"
+      },
+      "environment": {
+         "CXX" : "clang++-14"
+      }
+    },
+
+    {
+      "name": "msvc-debug",
+      "displayName": "Windows x64 Debug",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      }
+    },  
+
+    {
+      "name": "msvc-release",
+      "displayName": "Windows x64 Release",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "architecture": {
+        "value": "x64",
+        "strategy": "external"
+      },
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+      },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Windows" ]
+        }
+      }
+    },
+
+    {
+      "name":"cppcheck",
+      "hidden":true,
+      "inherits": "debug-gcc-linux",
+      "cacheVariables":{
+        "CMAKE_CXX_CPPCHECK":"cppcheck;--language=c++;--std=c++17;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build"
+      }
+    },
+
+    {
+      "name":"clang-tidy",
+      "hidden":true,
+      "inherits": "debug-gcc-linux",
+      "cacheVariables":{
+        "CMAKE_CXX_CLANG_TIDY":"clang-tidy;-checks=-*,bugprone-*,performance-*,portability-*"
+      }
+    },
+
+    {
+      "name":"static-analysis",
+      "displayName": "cppcheck, clang-tidy",
+      "hidden":false,
+      "generator":"Ninja",
+      "inherits":[
+        "cppcheck",
+        "clang-tidy"
+      ]
+    }
+  ]
+}
+
+
