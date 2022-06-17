@@ -12,7 +12,7 @@
 #include <imgui_impl_sdlrenderer.h>
 
 namespace LR35902 {
-
+/*
 DebugView::DebugView() :
     m_window{SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
                               SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI)},
@@ -35,12 +35,15 @@ DebugView::~DebugView() {
   SDL_DestroyWindow(m_window);
   SDL_Quit();
 }
+*/
 
 void DebugView::registerStatus(const Core &m_core) const noexcept {
-  ImGui_ImplSDLRenderer_NewFrame();
-  ImGui_ImplSDL2_NewFrame();
   using namespace ImGui;
-  NewFrame();
+  /*
+ImGui_ImplSDLRenderer_NewFrame();
+ImGui_ImplSDL2_NewFrame();
+NewFrame();
+*/
 
   Begin("Registers:");
   // clang-format off
@@ -55,11 +58,13 @@ void DebugView::registerStatus(const Core &m_core) const noexcept {
   // clang-format on
   End();
 
+  /*
   Render();
   SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
   SDL_RenderClear(m_renderer);
   ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
   SDL_RenderPresent(m_renderer);
+  */
 }
 
 }
