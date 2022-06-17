@@ -5,6 +5,11 @@
 
 namespace LR35902 {
 
+auto Core::fetchOpcode() noexcept -> byte {
+  this->opcode = m_bus.read(PC++);
+  return opcode;
+}
+
 auto Core::fetchByte() noexcept -> byte {
   return m_bus.read(PC++);
 };
@@ -16,10 +21,10 @@ auto Core::fetchWord() noexcept -> word {
   return word(hi << 8 | lo);
 };
 
+// opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
 void Core::run() noexcept {
 
-  switch(opcode = fetchByte(); opcode) {
-    // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
+  switch(fetchOpcode()) {
   case 0x00: nop(); break;
   case 0x01: ld(BC, n16{fetchWord()}); break;
   case 0x02: ld(*BC, load_from_A_tag{}); break;
@@ -242,7 +247,7 @@ void Core::run() noexcept {
   case 0xc9: ret(); break;
   case 0xca: jp(cc::z, n16{fetchWord()}); break;
   case 0xcb:
-    switch(opcode = fetchByte(); opcode) {
+    switch(fetchOpcode()) {
     case 0x0: rlc(B); break;
     case 0x1: rlc(C); break;
     case 0x2: rlc(D); break;
