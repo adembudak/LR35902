@@ -2,6 +2,7 @@
 debug/
 release/
 3rdparty/imgui-1.87/
+3rdparty/imgui_club/
 .cache/
 *.swp
 B/
