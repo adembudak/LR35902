@@ -22,4 +22,8 @@ void Cartridge::write(const std::size_t index, const byte b) noexcept {
   m_rom[index] = b;
 }
 
+auto Cartridge::data() const noexcept -> std::vector<byte> {
+  return m_rom;
+}
+
 }

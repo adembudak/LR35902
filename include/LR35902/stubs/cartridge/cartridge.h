@@ -17,5 +17,10 @@ public:
 
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
+
+  [[nodiscard]] auto data() const noexcept -> std::vector<byte>;
+
+public:
+  friend class DebugView;
 };
 }
