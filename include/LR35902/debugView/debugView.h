@@ -1,8 +1,5 @@
 #pragma once
 
-#include <SDL2/SDL_render.h>
-#include <SDL2/SDL_video.h>
-
 namespace LR35902 {
 
 class Core;
