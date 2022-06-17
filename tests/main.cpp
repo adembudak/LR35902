@@ -43,8 +43,6 @@ int main(int argc, char **argv) {
         Bus bus{cart};
         Core cpu{bus};
 
-        DebugView debugger;
-
         bool done = false;
         while(!done) {
           cpu.run();
@@ -59,7 +57,8 @@ int main(int argc, char **argv) {
             if(event.type == SDL_QUIT) done = true;
           }
 
-          debugger.registerStatus(cpu);
+          DebugView::registerStatus(cpu);
+          DebugView::romDump(cart);
 
           Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);

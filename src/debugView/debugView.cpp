@@ -1,18 +1,13 @@
 #include <LR35902/core.h>
 #include <LR35902/debugView/debugView.h>
-
-#include <SDL2/SDL.h>
-
-#if !SDL_VERSION_ATLEAST(2, 0, 17)
-#error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
-#endif
+#include <LR35902/stubs/cartridge/cartridge.h>
 
 #include <imgui.h>
-#include <imgui_impl_sdl.h>
-#include <imgui_impl_sdlrenderer.h>
+#include <imgui_memory_editor/imgui_memory_editor.h>
 
 namespace LR35902 {
-void DebugView::registerStatus(const Core &m_core) const noexcept {
+
+void DebugView::registerStatus(const Core &m_core) noexcept {
   using namespace ImGui;
 
   Begin("Registers:");
@@ -37,6 +32,13 @@ void DebugView::registerStatus(const Core &m_core) const noexcept {
     Text("%.3f ms/frame (%.1f FPS)", 1/ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
   // clang-format on
   End();
+}
+
+void DebugView::romDump(const Cartridge &cart) noexcept {
+  static MemoryEditor mem_editor;
+  mem_editor.ReadOnly = true;
+
+  mem_editor.DrawWindow("memory", (void *)cart.m_rom.data(), cart.m_rom.size());
 }
 
 }

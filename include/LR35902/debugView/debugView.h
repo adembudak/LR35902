@@ -10,8 +10,8 @@ class Cartridge;
 
 class DebugView {
 public:
-  void registerStatus(const Core &m_core) const noexcept;
-  void romDump(const Cartridge &m_core) const noexcept;
+  static void registerStatus(const Core &m_core) noexcept;
+  static void romDump(const Cartridge &cart) noexcept;
 };
 
 }
