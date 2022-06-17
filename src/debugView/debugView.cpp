@@ -7,30 +7,35 @@
 
 namespace LR35902 {
 
-void DebugView::registerStatus(const Core &m_core) noexcept {
+void DebugView::registerStatus(const Core &core) noexcept {
   using namespace ImGui;
 
   Begin("Registers:");
-  // clang-format off
-    Text("A: %u", m_core.A.data()); 
-    Text("F: %u", m_core.F.data()); 
 
-    ImGui::NewLine();
-    Text("B: %u", m_core.B.data()); SameLine(); Text("C: %u", m_core.C.data()); Text("BC: %u", m_core.BC.data());
+  Text("A: %u", core.A.data());
+  const char Z = core.F.data() & 0b1000'0000 ? 'Z' : '-';
+  const char N = core.F.data() & 0b0100'0000 ? 'N' : '-';
+  const char H = core.F.data() & 0b0010'0000 ? 'H' : '-';
+  const char C = core.F.data() & 0b0001'0000 ? 'C' : '-';
+  Text("Flags: %c %c %c %c", Z, N, H, C);
 
-    ImGui::NewLine();
-    Text("D: %u", m_core.D.data()); SameLine(); Text("E: %u", m_core.E.data()); Text("DE: %u", m_core.DE.data());
+  NewLine();
+  Text("B C: %x %x", core.B.data(), core.C.data());
 
-    ImGui::NewLine();
-    Text("H: %u", m_core.H.data()); SameLine(); Text("L: %u", m_core.L.data()); Text("HL: %u", m_core.HL.data());
+  NewLine();
+  Text("D E: %x %x", core.D.data(), core.E.data());
 
-    ImGui::NewLine();
-    Text("SP: %u", m_core.SP.m_data); Text("PC: %u", m_core.PC.m_data);
+  NewLine();
+  Text("H L: %x %x", core.H.data(), core.L.data());
 
-    ImGui::NewLine();
-    ImGui::NewLine();
-    Text("%.3f ms/frame (%.1f FPS)", 1/ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-  // clang-format on
+  NewLine();
+  Text("SP: %u", core.SP.m_data);
+  Text("PC: %u", core.PC.m_data);
+
+  NewLine();
+  NewLine();
+  Text("%.3f ms/frame (%.1f FPS)", 1 / GetIO().Framerate, GetIO().Framerate);
+
   End();
 }
 
@@ -40,5 +45,4 @@ void DebugView::romDump(const Cartridge &cart) noexcept {
 
   mem_editor.DrawWindow("memory", (void *)cart.m_rom.data(), cart.m_rom.size());
 }
-
 }
