@@ -2,7 +2,7 @@
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/stubs/cartridge/cartridge.h>
 
-#include <imgui.h>
+#include <imgui/imgui.h>
 #include <imgui_memory_editor/imgui_memory_editor.h>
 
 namespace LR35902 {

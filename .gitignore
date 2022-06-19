@@ -1,8 +1,6 @@
 [Bb]uild/
-debug*/
-release*/
-3rdparty/imgui-1.87/
-3rdparty/imgui_club/
+debug_*/
+release_*/
 .cache/
 *.swp
 B/

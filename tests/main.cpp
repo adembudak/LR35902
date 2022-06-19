@@ -9,9 +9,9 @@
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
 
-#include <imgui.h>
-#include <imgui_impl_sdl.h>
-#include <imgui_impl_sdlrenderer.h>
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_sdl.h>
+#include <imgui/backends/imgui_impl_sdlrenderer.h>
 
 #include <cstdio>
 #include <string_view>
