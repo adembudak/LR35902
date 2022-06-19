@@ -19,7 +19,7 @@ target_link_libraries(core PRIVATE bus)
 target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
-  find_package(SDL2 REQUIRED)
+  find_package(SDL2 QUIET REQUIRED)
 
   add_library(
     imgui
