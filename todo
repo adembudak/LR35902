@@ -1,4 +1,5 @@
-- show disassembly in debugView
+- how to calculate half-carry/carry with a practical API
 - implement instructions
+- show disassembly in debugView, what is disassembly really, what information should i provide? study objdump?
 - setup Github Actions
 
