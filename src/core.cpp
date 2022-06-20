@@ -27,7 +27,7 @@ void Core::run() noexcept {
   switch(fetchOpcode()) {
   case 0x00: nop(); break;
   case 0x01: ld(BC, n16{fetchWord()}); break;
-  case 0x02: ld(*BC, load_from_A_tag{}); break;
+  case 0x02: ld(*BC, register_to_memory{}); break;
   case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
   case 0x05: dec(B); break;
@@ -40,7 +40,7 @@ void Core::run() noexcept {
     break;
   }
   case 0x09: add(HL_register_tag{}, BC); break;
-  case 0x0a: ld(load_to_A_tag{}, *BC); break;
+  case 0x0a: ld(memory_to_register{}, *BC); break;
   case 0x0b: dec(BC); break;
   case 0x0c: inc(C); break;
   case 0x0d: dec(C); break;
@@ -48,7 +48,7 @@ void Core::run() noexcept {
   case 0x0f: rrca(); break;
   case 0x10: stop(); break;
   case 0x11: ld(DE, n16{fetchWord()}); break;
-  case 0x12: ld(*DE, load_from_A_tag{}); break;
+  case 0x12: ld(*DE, register_to_memory{}); break;
   case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
   case 0x15: dec(D); break;
@@ -56,7 +56,7 @@ void Core::run() noexcept {
   case 0x17: rla(); break;
   case 0x18: jr(e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x19: add(HL_register_tag{}, DE); break;
-  case 0x1a: ld(load_to_A_tag{}, *DE); break;
+  case 0x1a: ld(memory_to_register{}, *DE); break;
   case 0x1b: dec(DE); break;
   case 0x1c: inc(E); break;
   case 0x1d: dec(E); break;
@@ -64,7 +64,7 @@ void Core::run() noexcept {
   case 0x1f: rra(); break;
   case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x21: ld(HL, n16{fetchWord()}); break;
-  case 0x22: ld(HLi_tag{}, load_from_A_tag{}); break;
+  case 0x22: ld(HLi_tag{}, register_to_memory{}); break;
   case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
   case 0x25: dec(H); break;
@@ -72,7 +72,7 @@ void Core::run() noexcept {
   case 0x27: daa(); break;
   case 0x28: jr(cc::z, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x29: add(HL_register_tag{}, HL); break;
-  case 0x2a: ld(load_to_A_tag{}, HLi_tag{}); break;
+  case 0x2a: ld(memory_to_register{}, HLi_tag{}); break;
   case 0x2b: dec(HL); break;
   case 0x2c: inc(L); break;
   case 0x2d: dec(L); break;
@@ -80,7 +80,7 @@ void Core::run() noexcept {
   case 0x2f: cpl(); break;
   case 0x30: jr(cc::nc, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x31: ld(SP_register_tag{}, n16{fetchWord()}); break;
-  case 0x32: ld(HLd_tag{}, load_from_A_tag{}); break;
+  case 0x32: ld(HLd_tag{}, register_to_memory{}); break;
   case 0x33: inc(SP_register_tag{}); break;
   case 0x34: inc(*HL); break;
   case 0x35: dec(*HL); break;
@@ -88,7 +88,7 @@ void Core::run() noexcept {
   case 0x37: scf(); break;
   case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x39: add(HL_register_tag{}, SP_register_tag{}); break;
-  case 0x3a: ld(load_to_A_tag{}, HLd_tag{}); break;
+  case 0x3a: ld(memory_to_register{}, HLd_tag{}); break;
   case 0x3b: dec(SP_register_tag{}); break;
   case 0x3c: inc(A); break;
   case 0x3d: dec(A); break;
@@ -154,7 +154,7 @@ void Core::run() noexcept {
   case 0x74: ld(*HL, H); break;
   case 0x75: ld(*HL, L); break;
   case 0x76: halt(); break;
-  case 0x77: ld(*HL, load_from_A_tag{}); break;
+  case 0x77: ld(*HL, register_to_memory{}); break;
   case 0x78: ld(A, B); break;
   case 0x79: ld(A, C); break;
   case 0x7a: ld(A, D); break;
@@ -540,14 +540,14 @@ void Core::run() noexcept {
   case 0xe0: {
     const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
     byte &b = m_bus.read_write(nn.m_data);
-    ldh(b, load_from_A_tag{});
+    ldh(b, register_to_memory{});
     break;
   }
   case 0xe1: pop(HL); break;
   case 0xe2: {
     const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
     byte &b = m_bus.read_write(nn.m_data);
-    ldh(b, load_from_A_tag{}, C_register_tag{});
+    ldh(b, register_to_memory{}, C_register_tag{});
     break;
   }
   case 0xe3: /* unused */ break;
@@ -560,7 +560,7 @@ void Core::run() noexcept {
   case 0xea: {
     const n16 nn{fetchWord()};
     byte &b = m_bus.read_write(nn.m_data);
-    ld(b, load_from_A_tag{}, tag{});
+    ld(b, register_to_memory{}, tag{});
     break;
   }
   case 0xeb: /* unused */ break;
@@ -571,14 +571,14 @@ void Core::run() noexcept {
   case 0xf0: {
     const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
     const byte b = m_bus.read(nn.m_data);
-    ldh(load_to_A_tag{}, b);
+    ldh(memory_to_register{}, b);
     break;
   }
   case 0xf1: pop(AF_register_tag{}); break;
   case 0xf2: {
     const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
     const byte b = m_bus.read(nn.m_data);
-    ldh(load_to_A_tag{}, b, C_register_tag{});
+    ldh(memory_to_register{}, b, C_register_tag{});
     break;
   }
   case 0xf3: di(); break;
@@ -591,7 +591,7 @@ void Core::run() noexcept {
   case 0xfa: {
     const n16 nn{fetchWord()};
     const byte b = m_bus.read(nn.m_data);
-    ld(load_to_A_tag{}, b, tag{});
+    ld(memory_to_register{}, b, tag{});
     break;
   }
   case 0xfb: ei(); break;
@@ -693,23 +693,23 @@ void Core::ld(byte &b, const r8 r) noexcept {};   // ld [HL],r8
 void Core::ld(byte &b, const n8 n) noexcept {};   // ld [HL],n8
 void Core::ld(r8 &r, const byte b) noexcept {};   // ld r8,[HL]
 //
-void Core::ld(byte &b, load_from_A_tag) noexcept {};      // ld [r16],A
-void Core::ld(byte &b, load_from_A_tag, tag) noexcept {}; // ld [n16],A
+void Core::ld(byte &b, register_to_memory) noexcept {};      // ld [r16],A
+void Core::ld(byte &b, register_to_memory, tag) noexcept {}; // ld [n16],A
 //
-void Core::ld(load_to_A_tag, const byte b) noexcept {};      // ld A,[r16]
-void Core::ld(load_to_A_tag, const byte b, tag) noexcept {}; // ld A,[n16]
+void Core::ld(memory_to_register, const byte b) noexcept {};      // ld A,[r16]
+void Core::ld(memory_to_register, const byte b, tag) noexcept {}; // ld A,[n16]
 //
-void Core::ldh(byte &b, load_from_A_tag) noexcept {};                 // ldh [n16],A
-void Core::ldh(byte &b, load_from_A_tag, C_register_tag) noexcept {}; // ldh [C],A
+void Core::ldh(byte &b, register_to_memory) noexcept {};                 // ldh [n16],A
+void Core::ldh(byte &b, register_to_memory, C_register_tag) noexcept {}; // ldh [C],A
 //
-void Core::ldh(load_to_A_tag, const byte b) noexcept {};                 // ldh A,[n16]
-void Core::ldh(load_to_A_tag, const byte b, C_register_tag) noexcept {}; // ldh A,[C]
+void Core::ldh(memory_to_register, const byte b) noexcept {};                 // ldh A,[n16]
+void Core::ldh(memory_to_register, const byte b, C_register_tag) noexcept {}; // ldh A,[C]
 //
-void Core::ld(HLi_tag, load_from_A_tag) noexcept {}; // ld [HLI],A
-void Core::ld(HLd_tag, load_from_A_tag) noexcept {}; // ld [HLD],A
+void Core::ld(HLi_tag, register_to_memory) noexcept {}; // ld [HLI],A
+void Core::ld(HLd_tag, register_to_memory) noexcept {}; // ld [HLD],A
 
-void Core::ld(load_to_A_tag, HLi_tag) noexcept {}; // ld A,[HLI]
-void Core::ld(load_to_A_tag, HLd_tag) noexcept {}; // ld A,[HLD]
+void Core::ld(memory_to_register, HLi_tag) noexcept {}; // ld A,[HLI]
+void Core::ld(memory_to_register, HLd_tag) noexcept {}; // ld A,[HLD]
 
 // // Jumps and Subroutines
 void Core::call(const n16 nn) noexcept {};              // call n16

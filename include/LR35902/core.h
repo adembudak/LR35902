@@ -50,8 +50,8 @@ private:
   struct HLi_tag {};
   struct HLd_tag {};
 
-  struct load_from_A_tag {};
-  struct load_to_A_tag {};
+  struct register_to_memory {};
+  struct memory_to_register {};
   struct tag {};
 
 public:
@@ -159,23 +159,23 @@ private:
   void ld(byte &b, const n8 n) noexcept;   // ld [HL],n8
   void ld(r8 &r, const byte b) noexcept;   // ld r8,[HL]
   //
-  void ld(byte &b, load_from_A_tag) noexcept;      // ld [r16],A
-  void ld(byte &b, load_from_A_tag, tag) noexcept; // ld [n16],A
+  void ld(byte &b, register_to_memory) noexcept;      // ld [r16],A
+  void ld(byte &b, register_to_memory, tag) noexcept; // ld [n16],A
   //
-  void ld(load_to_A_tag, const byte b) noexcept;      // ld A,[r16]
-  void ld(load_to_A_tag, const byte b, tag) noexcept; // ld A,[n16]
+  void ld(memory_to_register, const byte b) noexcept;      // ld A,[r16]
+  void ld(memory_to_register, const byte b, tag) noexcept; // ld A,[n16]
   //
-  void ldh(byte &b, load_from_A_tag) noexcept;                 // ldh [n16],A
-  void ldh(byte &b, load_from_A_tag, C_register_tag) noexcept; // ldh [C],A
+  void ldh(byte &b, register_to_memory) noexcept;                 // ldh [n16],A
+  void ldh(byte &b, register_to_memory, C_register_tag) noexcept; // ldh [C],A
   //
-  void ldh(load_to_A_tag, const byte b) noexcept;                 // ldh A,[n16]
-  void ldh(load_to_A_tag, const byte b, C_register_tag) noexcept; // ldh A,[C]
+  void ldh(memory_to_register, const byte b) noexcept;                 // ldh A,[n16]
+  void ldh(memory_to_register, const byte b, C_register_tag) noexcept; // ldh A,[C]
   //
-  void ld(HLi_tag, load_from_A_tag) noexcept; // ld [HLI],A
-  void ld(HLd_tag, load_from_A_tag) noexcept; // ld [HLD],A
+  void ld(HLi_tag, register_to_memory) noexcept; // ld [HLI],A
+  void ld(HLd_tag, register_to_memory) noexcept; // ld [HLD],A
 
-  void ld(load_to_A_tag, HLi_tag) noexcept; // ld A,[HLI]
-  void ld(load_to_A_tag, HLd_tag) noexcept; // ld A,[HLD]
+  void ld(memory_to_register, HLi_tag) noexcept; // ld A,[HLI]
+  void ld(memory_to_register, HLd_tag) noexcept; // ld A,[HLD]
 
   // // Jumps and Subroutines
   void call(const n16 nn) noexcept;              // call n16
