@@ -24,6 +24,14 @@ public:
   r8 &operator--() noexcept;
   r8 operator--(int) noexcept;
   auto operator<=>(const r8 &) const = default;
+
+  static constexpr std::uint8_t min() noexcept {
+    return 0b0000'0000;
+  }
+
+  static constexpr std::uint8_t max() noexcept {
+    return 0b1111'1111;
+  }
 };
 
 } // namespace LR35902
