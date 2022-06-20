@@ -3,6 +3,7 @@
 #include "../config.h"
 #include "../immediate/n8.h"
 
+#include <compare>
 #include <cstdint>
 
 namespace LR35902 {
@@ -22,7 +23,7 @@ public:
 
   r8 &operator--() noexcept;
   r8 operator--(int) noexcept;
+  auto operator<=>(const r8 &) const = default;
 };
 
-static_assert(sizeof(r8) == sizeof(byte));
 } // namespace LR35902
