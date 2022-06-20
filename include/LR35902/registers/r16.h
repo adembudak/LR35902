@@ -22,6 +22,14 @@ public:
 
   [[nodiscard]] std::uint16_t data() const noexcept;
   byte &operator*() noexcept;
+
+  static constexpr std::uint16_t min() noexcept {
+    return 0b0000'0000'0000'0000;
+  }
+
+  static constexpr std::uint16_t max() noexcept {
+    return 0b1111'1111'1111'1111;
+  }
 };
 
 } // namespace LR35902
