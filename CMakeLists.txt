@@ -1,5 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
-project(LR3590 LANGUAGES CXX)
+project(
+  LR35902
+  HOMEPAGE_URL https://github.com/adembudak/LR35902
+  LANGUAGES CXX)
 
 set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
