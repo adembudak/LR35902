@@ -1,5 +1,6 @@
 #pragma once
 
+#include <LR35902/core/clock/clock.h>
 #include <LR35902/core/immediate/e8.h>
 #include <LR35902/core/immediate/n16.h>
 #include <LR35902/core/immediate/n8.h>
@@ -40,6 +41,8 @@ private:
   auto fetchOpcode() noexcept -> byte;
   auto fetchByte() noexcept -> byte;
   auto fetchWord() noexcept -> word;
+
+  clock m_clock;
 
   byte opcode{};
 
