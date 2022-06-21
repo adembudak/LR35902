@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../config.h"
+#include <LR35902/config.h>
 
 namespace LR35902 {
 

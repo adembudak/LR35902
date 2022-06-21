@@ -1,5 +1,5 @@
-#include "LR35902/stubs/bus/bus.h"
-#include "LR35902/stubs/cartridge/cartridge.h"
+#include <LR35902/stubs/bus/bus.h>
+#include <LR35902/stubs/cartridge/cartridge.h>
 
 namespace LR35902 {
 

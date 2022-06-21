@@ -1,4 +1,4 @@
-#include "LR35902/core.h"
+#include "LR35902/core/core.h"
 #include "LR35902/debugView/debugView.h"
 #include "LR35902/stubs/bus/bus.h"
 #include "LR35902/stubs/cartridge/cartridge.h"

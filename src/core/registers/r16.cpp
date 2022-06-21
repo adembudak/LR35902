@@ -1,6 +1,6 @@
 #include <LR35902/config.h>
-#include <LR35902/registers/r16.h>
-#include <LR35902/registers/r8.h>
+#include <LR35902/core/registers/r16.h>
+#include <LR35902/core/registers/r8.h>
 
 #include <cstdint>
 

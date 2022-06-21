@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../config.h"
-#include "LR35902/stubs/bus/bus.h"
+#include <LR35902/config.h>
+#include <LR35902/stubs/bus/bus.h>
 
 #include <cstdint>
 

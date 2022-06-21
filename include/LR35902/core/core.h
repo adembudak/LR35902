@@ -1,13 +1,13 @@
 #pragma once
 
-#include "immediate/e8.h"
-#include "immediate/n16.h"
-#include "immediate/n8.h"
-#include "immediate/u3.h"
-#include "registers/cc.h"
-#include "registers/flags.h"
-#include "registers/r16.h"
-#include "registers/r8.h"
+#include <LR35902/core/immediate/e8.h>
+#include <LR35902/core/immediate/n16.h>
+#include <LR35902/core/immediate/n8.h>
+#include <LR35902/core/immediate/u3.h>
+#include <LR35902/core/registers/cc.h>
+#include <LR35902/core/registers/flags.h>
+#include <LR35902/core/registers/r16.h>
+#include <LR35902/core/registers/r8.h>
 
 #include <array>
 

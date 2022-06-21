@@ -8,7 +8,7 @@ set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
 
-add_library(core src/core.cpp src/registers/r16.cpp src/registers/r8.cpp)
+add_library(core src/core/core.cpp src/core/registers/r16.cpp src/core/registers/r8.cpp)
 
 add_library(cartridge src/stubs/cartridge/cartridge.cpp)
 target_include_directories(cartridge PRIVATE include)
