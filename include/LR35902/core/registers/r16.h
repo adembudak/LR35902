@@ -1,12 +1,13 @@
 #pragma once
 
 #include <LR35902/config.h>
-#include <LR35902/stubs/bus/bus.h>
 
 #include <cstdint>
 
 namespace LR35902 {
 class r8;
+class n16;
+class Bus;
 
 class r16 {
 private:
@@ -19,6 +20,8 @@ public:
   r16() = delete;
   r16(Bus &bus, r8 &hi, r8 &lo) : m_bus{bus}, m_hi{hi}, m_lo{lo} {
   }
+
+  r16 &operator=(const n16 nn);
 
   [[nodiscard]] std::uint16_t data() const noexcept;
   byte &operator*() noexcept;
