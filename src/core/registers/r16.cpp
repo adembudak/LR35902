@@ -22,4 +22,31 @@ byte &r16::operator*() noexcept {
   return m_bus.read_write(data());
 }
 
+r16 &r16::operator++() noexcept {
+  if(m_hi != r8::max() && m_lo == r8::max()) {
+    m_lo = r8::min();
+    m_hi++;
+  } else if(m_hi == r8::max() && m_lo == r8::max()) {
+    m_hi = r8::min();
+    m_lo = r8::min();
+  } else {
+    m_lo++;
+  }
+
+  return *this;
+}
+
+r16 &r16::operator--() noexcept {
+  if(m_lo != r8::min()) {
+    m_lo--;
+  } else if(m_lo == r8::min() && m_hi != r8::min()) {
+    m_hi--;
+    m_lo = r8::max();
+  } else if(m_lo == r8::min() && m_hi == r8::min()) {
+    m_hi = r8::max();
+    m_lo = r8::max();
+  }
+
+  return *this;
+}
 }

@@ -26,6 +26,9 @@ public:
   [[nodiscard]] std::uint16_t data() const noexcept;
   byte &operator*() noexcept;
 
+  r16 &operator++() noexcept;
+  r16 &operator--() noexcept;
+
   static constexpr std::uint16_t min() noexcept {
     return 0b0000'0000'0000'0000;
   }
