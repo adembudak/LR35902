@@ -16,6 +16,9 @@ public:
   r8 &operator=(const byte b) noexcept;
   r8 &operator=(const n8 n) noexcept;
 
+  [[nodiscard]] std::uint8_t lowNibble() const noexcept;
+  [[nodiscard]] std::uint8_t highNibble() const noexcept;
+
   [[nodiscard]] std::uint8_t data() const noexcept;
 
   r8 &operator++() noexcept;
@@ -23,6 +26,7 @@ public:
 
   r8 &operator--() noexcept;
   r8 operator--(int) noexcept;
+
   auto operator<=>(const r8 &) const = default;
 
   static constexpr std::uint8_t min() noexcept {

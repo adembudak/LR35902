@@ -18,6 +18,14 @@ std::uint8_t r8::data() const noexcept {
   return m_data;
 }
 
+std::uint8_t r8::lowNibble() const noexcept {
+  return m_data & 0b0000'1111;
+}
+
+std::uint8_t r8::highNibble() const noexcept {
+  return (m_data & 0b1111'0000) >> 4;
+}
+
 r8 &r8::operator++() noexcept {
   ++m_data;
   return *this;
