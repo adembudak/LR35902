@@ -43,7 +43,7 @@ if(WITH_DEBUGGER)
   target_include_directories(debugView PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty
                                               3rdparty/imgui_club)
 
-  add_executable(test tests/main.cpp)
-  target_link_libraries(test PUBLIC debugView)
-  target_include_directories(test PUBLIC ${LR3590_INCLUDE_DIR})
+  add_executable(debugger debugger/main.cpp)
+  target_link_libraries(debugger PUBLIC debugView)
+  target_include_directories(debugger PUBLIC ${LR3590_INCLUDE_DIR})
 endif()
