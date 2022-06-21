@@ -46,4 +46,3 @@ void DebugView::dumpROM(const Cartridge &cart) noexcept {
 }
 
 }
-}

@@ -602,53 +602,61 @@ void Core::run() noexcept {
   }
 }
 
+////////////////////////////
+///  Z: zero flag        ///
+///  N: negation flag    ///
+///  H: half carry flag  ///
+///  C: carry flag       ///
+///  0bZNHC'0000         ///
+////////////////////////////
+
 // 8-bit Arithmetic and Logic Instructions
-void Core::adc(const r8 r) noexcept {};   // adc A,r8
-void Core::adc(const byte b) noexcept {}; // adc A,[HL]
+void Core::adc(r8 r) noexcept {};         // adc A,r8 // // "Z" "0" "H" "C"
+void Core::adc(const byte b) noexcept {}; // adc A,[HL] // "Z" "0" "H" "C"
 void Core::adc(const n8 n) noexcept {};   // adc A,n8
 
-void Core::add(const r8 r) noexcept {};   // add A,r8
-void Core::add(const byte b) noexcept {}; // add A,[HL]
+void Core::add(const r8 r) noexcept {};   // add A,r8 // "Z" "0" "H" "C"
+void Core::add(const byte b) noexcept {}; // add A,[HL] // "Z" "0" "H" "C"
 void Core::add(const n8 n) noexcept {};   // add A,n8
 
-void Core::and_(const r8 r) noexcept {};   // and A,r8
+void Core::and_(const r8 r) noexcept {};   // and A,r8 // "Z" "0" "1" "0"
 void Core::and_(const byte b) noexcept {}; // and A,[HL]
 void Core::and_(const n8 n) noexcept {};   // and A,n8
 
-void Core::cp(const r8 r) noexcept {};   // cp A,r8
+void Core::cp(const r8 r) noexcept {};   // cp A,r8 // "Z" "1" "H" "C"
 void Core::cp(const byte b) noexcept {}; // cp A,[HL]
 void Core::cp(const n8 n) noexcept {};   // cp A,n8
 
-void Core::dec(r8 &r) noexcept {};   // dec r8
-void Core::dec(byte &b) noexcept {}; // dec [HL]
+void Core::dec(r8 &r) noexcept {};   // dec r8 //    // "Z" "1" "H" "-"
+void Core::dec(byte &b) noexcept {}; // dec [HL] // "Z" "1" "H" "-"
 
-void Core::inc(r8 &r) noexcept {};   // inc r8
+void Core::inc(r8 &r) noexcept {};   // inc r8 //  // "Z" "0" "H" "-"
 void Core::inc(byte &b) noexcept {}; // inc [HL]
 
-void Core::or_(const r8 r) noexcept {};   // or A,r8
+void Core::or_(const r8 r) noexcept {};   // or A,r8 // "Z" "0" "0" "0"
 void Core::or_(const byte b) noexcept {}; // or A,[HL]
 void Core::or_(const n8 n) noexcept {};   // or A,n8
 
-void Core::sbc(const r8 r) noexcept {};   // sbc A,r8
+void Core::sbc(const r8 r) noexcept {};   // sbc A,r8 // "Z" "1" "H" "C"
 void Core::sbc(const byte b) noexcept {}; // sbc A,[HL]
 void Core::sbc(const n8 n) noexcept {};   // sbc A,n8
 
-void Core::sub(const r8 r) noexcept {};   // sub A,r8
+void Core::sub(const r8 r) noexcept {};   // sub A,r8 // "Z" "1" "H" "C"
 void Core::sub(const byte b) noexcept {}; // sub A,[HL]
 void Core::sub(const n8 n) noexcept {};   // sub A,n8
 
-void Core::xor_(const r8 r) noexcept {};   // xor A,r8
+void Core::xor_(const r8 r) noexcept {};   // xor A,r8 // "Z" "0" "0" "0"
 void Core::xor_(const byte b) noexcept {}; // xor A,[HL]
 void Core::xor_(const n8 n) noexcept {};   // xor A,n8
 
 // // 16-bit Arithmetic Instructions
-void Core::add(HL_register_tag, const r16 rr) noexcept {}; // add HL,r16
+void Core::add(HL_register_tag, const r16 rr) noexcept {}; // add HL,r16  // "-" "0" "H" "C"
 void Core::dec(r16 &rr) noexcept {};                       // dec r16
 void Core::inc(r16 &rr) noexcept {};                       // inc r16
 
 // // Bit Operations Instructions
-void Core::bit(const u3, const r8 r) noexcept {};   // bit u3,r8
-void Core::bit(const u3, const byte b) noexcept {}; // bit u3,[HL]
+void Core::bit(const u3, const r8 r) noexcept {};   // bit u3,r8 // "Z" "0" "1" "-"
+void Core::bit(const u3, const byte b) noexcept {}; // bit u3,[HL] // "Z" "0" "1" "-"
 
 void Core::res(const u3, r8 &r) noexcept {};   // res u3,r8
 void Core::res(const u3, byte &b) noexcept {}; // res u3,[HL]
@@ -656,33 +664,33 @@ void Core::res(const u3, byte &b) noexcept {}; // res u3,[HL]
 void Core::set(const u3, r8 &r) noexcept {};   // set u3,r8
 void Core::set(const u3, byte &b) noexcept {}; // set u3,[HL]
 
-void Core::swap(r8 &r) noexcept {};   // swap r8
+void Core::swap(r8 &r) noexcept {};   // swap r8 // "Z" "0" "0" "0"
 void Core::swap(byte &b) noexcept {}; // swap [HL]
 
 // // Bit Shift Instructions
-void Core::rl(r8 &r) noexcept {};   // rl r8
+void Core::rl(r8 &r) noexcept {};   // rl r8 // "Z" "0" "0" "C"
 void Core::rl(byte &b) noexcept {}; // rl [HL]
-void Core::rla() noexcept {};       // rla
+void Core::rla() noexcept {};       // rla // "0" "0" "0" "C"
 
-void Core::rlc(r8 &r) noexcept {};   // rlc r8
+void Core::rlc(r8 &r) noexcept {};   // rlc r8 // "Z" "0" "0" "C"
 void Core::rlc(byte &b) noexcept {}; // rlc [HL]
-void Core::rlca() noexcept {};       // rlca
+void Core::rlca() noexcept {};       // rlca //  // "0" "0" "0" "C"
 
-void Core::rr(r8 &r) noexcept {};   // rr r8
+void Core::rr(r8 &r) noexcept {};   // rr r8 // "Z" "0" "0" "C"
 void Core::rr(byte &b) noexcept {}; // rr [HL]
-void Core::rra() noexcept {};       // rra
+void Core::rra() noexcept {};       // rra // // "0" "0" "0" "C"
 
-void Core::rrc(r8 &r) noexcept {};   // rrc r8
+void Core::rrc(r8 &r) noexcept {};   // rrc r8 // "Z" "0" "0" "C"
 void Core::rrc(byte &b) noexcept {}; // rrc [HL]
-void Core::rrca() noexcept {};       // rrca
+void Core::rrca() noexcept {};       // rrca // // "0" "0" "0" "C"
 
-void Core::sla(r8 &r) noexcept {};   // sla r8
+void Core::sla(r8 &r) noexcept {};   // sla r8 // "Z" "0" "0" "C"
 void Core::sla(byte &b) noexcept {}; // sla [HL]
 
-void Core::sra(r8 &r) noexcept {};   // sra r8
+void Core::sra(r8 &r) noexcept {};   // sra r8 // "Z" "0" "0" "C"
 void Core::sra(byte &b) noexcept {}; // sra [HL]
 
-void Core::srl(r8 &r) noexcept {};   // srl r8
+void Core::srl(r8 &r) noexcept {};   // srl r8 // "Z" "0" "0" "C"
 void Core::srl(byte &b) noexcept {}; // srl [HL]
 
 // Load Instructions
@@ -725,30 +733,30 @@ void Core::reti() noexcept {};                          // reti
 void Core::rst(const std::size_t v) noexcept {};        // rst vec
 
 // // Stack Operations Instructions
-void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP
-void Core::add(SP_register_tag, const e8 e) noexcept {};      // add SP,e8
+void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP // "-" "0" "H" "C"
+void Core::add(SP_register_tag, const e8 e) noexcept {};      // add SP,e8 // "0" "0" "H" "C"
 void Core::dec(SP_register_tag) noexcept {};                  // dec SP
 void Core::inc(SP_register_tag) noexcept {};                  // inc SP
 
 void Core::ld(SP_register_tag, const n16 nn) noexcept {};                // ld SP,n16
 void Core::ld(byte &b, SP_register_tag) noexcept {};                     // ld [n16],SP
-void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8
+void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8 // "0" "0" "H" "C"
 void Core::ld(SP_register_tag, HL_register_tag) noexcept {};             // ld SP,HL
 
-void Core::pop(AF_register_tag) noexcept {};  // pop AF
+void Core::pop(AF_register_tag) noexcept {};  // pop AF // "Z" "N" "H" "C"
 void Core::pop(r16 &rr) noexcept {};          // pop r16
 void Core::push(AF_register_tag) noexcept {}; // push AF
 void Core::push(const r16 rr) noexcept {};    // push r16
 
 // // Miscellaneous Instructions
-void Core::ccf() noexcept {};  // ccf
-void Core::cpl() noexcept {};  // cpl
-void Core::daa() noexcept {};  // daa
+void Core::ccf() noexcept {};  // ccf // "-" "0" "0" "C"
+void Core::cpl() noexcept {};  // cpl // // "-" "1" "1" "-"
+void Core::daa() noexcept {};  // daa // // "Z" "-" "0" "C"
 void Core::di() noexcept {};   // di
 void Core::ei() noexcept {};   // ei
 void Core::halt() noexcept {}; // halt
 void Core::nop() noexcept {};  // nop
-void Core::scf() noexcept {};  // scf
+void Core::scf() noexcept {};  // scf // // "-" "0" "0" "1"
 void Core::stop() noexcept {}; // stop
 
 } // namespace LR35902
