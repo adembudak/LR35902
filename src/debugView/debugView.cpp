@@ -10,7 +10,7 @@ namespace LR35902 {
 void DebugView::registerStatus(const Core &core) noexcept {
   using namespace ImGui;
 
-  Begin("Registers:");
+  Begin("Registers:", NULL, ImGuiWindowFlags_NoResize);
 
   Text("A: %u", core.A.data());
   const char Z = core.F.data() & 0b1000'0000 ? 'Z' : '-';
@@ -39,10 +39,11 @@ void DebugView::registerStatus(const Core &core) noexcept {
   End();
 }
 
-void DebugView::romDump(const Cartridge &cart) noexcept {
-  static MemoryEditor mem_editor;
-  mem_editor.ReadOnly = true;
+void DebugView::dumpROM(const Cartridge &cart) noexcept {
+  static MemoryEditor memory_editor_rom;
+  memory_editor_rom.ReadOnly = true;
+  memory_editor_rom.DrawWindow("ROM", (void *)cart.m_rom.data(), 16_KiB);
+}
 
-  mem_editor.DrawWindow("memory", (void *)cart.m_rom.data(), cart.m_rom.size());
 }
 }

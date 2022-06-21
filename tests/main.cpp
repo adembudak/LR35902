@@ -9,9 +9,9 @@
 #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
 
-#include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_sdl.h>
 #include <imgui/backends/imgui_impl_sdlrenderer.h>
+#include <imgui/imgui.h>
 
 #include <cstdio>
 #include <string_view>
@@ -47,18 +47,21 @@ int main(int argc, char **argv) {
         while(!done) {
           cpu.run();
 
-          ImGui_ImplSDLRenderer_NewFrame();
-          ImGui_ImplSDL2_NewFrame();
-          NewFrame();
-
           SDL_Event event;
           while(SDL_PollEvent(&event)) {
             ImGui_ImplSDL2_ProcessEvent(&event);
             if(event.type == SDL_QUIT) done = true;
+            if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
+               event.window.windowID == SDL_GetWindowID(m_window))
+              done = true;
           }
 
+          ImGui_ImplSDLRenderer_NewFrame();
+          ImGui_ImplSDL2_NewFrame();
+          NewFrame();
+
           DebugView::registerStatus(cpu);
-          DebugView::romDump(cart);
+          DebugView::dumpROM(cart);
 
           Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
