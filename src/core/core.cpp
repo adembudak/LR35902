@@ -712,7 +712,12 @@ void Core::ld(r16 &rr, const n16 nn) noexcept { // ld r16,n16
   m_clock.cycle(3);
 }
 
-void Core::ld(byte &b, const r8 r) noexcept {}; // ld [HL],r8
+void Core::ld(byte &b, const r8 r) noexcept { // ld [HL],r8
+  b = r.data();
+
+  m_clock.cycle(2);
+}
+
 void Core::ld(byte &b, const n8 n) noexcept {}; // ld [HL],n8
 void Core::ld(r8 &r, const byte b) noexcept {}; // ld r8,[HL]
 //
