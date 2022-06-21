@@ -750,7 +750,11 @@ void Core::ld(memory_to_register, const byte b) noexcept { // ld A,[r16]
   m_clock.cycle(2);
 }
 
-void Core::ld(memory_to_register, const byte b, tag) noexcept {}; // ld A,[n16]
+void Core::ld(memory_to_register, const byte b, tag) noexcept { // ld A,[n16]
+  A = b;
+
+  m_clock.cycle(4);
+}
 //
 void Core::ldh(byte &b, register_to_memory) noexcept {};                 // ldh [n16],A
 void Core::ldh(byte &b, register_to_memory, C_register_tag) noexcept {}; // ldh [C],A
