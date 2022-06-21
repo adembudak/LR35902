@@ -27,6 +27,15 @@ public:
   r8 &operator--() noexcept;
   r8 operator--(int) noexcept;
 
+  r8 &operator+=(const r8 r) noexcept;
+  r8 &operator-=(const r8 r) noexcept;
+
+  r8 &operator+=(const n8 n) noexcept;
+  r8 &operator-=(const n8 n) noexcept;
+
+  r8 &operator+=(const byte r) noexcept;
+  r8 &operator-=(const byte r) noexcept;
+
   auto operator<=>(const r8 &) const = default;
 
   static constexpr std::uint8_t min() noexcept {
