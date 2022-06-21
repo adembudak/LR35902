@@ -37,6 +37,15 @@ public:
   r8 &operator-=(const byte r) noexcept;
 
   auto operator<=>(const r8 &) const = default;
+  bool operator==(const r8 &) const = default;
+
+  auto operator<=>(const std::uint8_t &u) const {
+    return m_data <=> u;
+  }
+
+  bool operator==(const std::uint8_t &u) const {
+    return m_data == u;
+  }
 
   static constexpr std::uint8_t min() noexcept {
     return 0b0000'0000;
