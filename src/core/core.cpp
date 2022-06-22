@@ -1,3 +1,4 @@
+#include <LR35902/config.h>
 #include <LR35902/core/core.h>
 #include <LR35902/stubs/bus/bus.h>
 
@@ -838,10 +839,14 @@ void Core::push(AF_register_tag) noexcept {}; // push AF
 void Core::push(const r16 rr) noexcept {};    // push r16
 
 // // Miscellaneous Instructions
-void Core::ccf() noexcept {};  // ccf // "-" "0" "0" "C"
-void Core::cpl() noexcept {};  // cpl // // "-" "1" "1" "-"
-void Core::daa() noexcept {};  // daa // // "Z" "-" "0" "C"
-void Core::di() noexcept {};   // di
+void Core::ccf() noexcept {}; // ccf // "-" "0" "0" "C"
+void Core::cpl() noexcept {}; // cpl // // "-" "1" "1" "-"
+void Core::daa() noexcept {}; // daa // // "Z" "-" "0" "C"
+
+void Core::di() noexcept { // di
+  ime = false;
+}
+
 void Core::ei() noexcept {};   // ei
 void Core::halt() noexcept {}; // halt
 void Core::nop() noexcept {};  // nop

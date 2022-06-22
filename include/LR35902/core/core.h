@@ -35,6 +35,7 @@ private:
   n16 SP;
   n16 PC;
 
+  flag ime{}; // interrupt master enable
   cc cc_;
   std::array<const byte, 8> rst_vec{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
 
