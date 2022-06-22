@@ -832,7 +832,11 @@ void Core::dec(SP_register_tag) noexcept { // dec SP
   m_clock.cycle(2);
 }
 
-void Core::inc(SP_register_tag) noexcept {}; // inc SP
+void Core::inc(SP_register_tag) noexcept { // inc SP
+  ++SP.m_data;
+
+  m_clock.cycle(2);
+}
 
 void Core::ld(SP_register_tag, const n16 nn) noexcept {};                // ld SP,n16
 void Core::ld(byte &b, SP_register_tag) noexcept {};                     // ld [n16],SP
