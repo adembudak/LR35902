@@ -845,9 +845,16 @@ void Core::daa() noexcept {}; // daa // // "Z" "-" "0" "C"
 
 void Core::di() noexcept { // di
   ime = false;
+
+  m_clock.cycle(1);
 }
 
-void Core::ei() noexcept {};   // ei
+void Core::ei() noexcept { // ei
+  ime = true;
+
+  m_clock.cycle(1);
+}
+//
 void Core::halt() noexcept {}; // halt
 void Core::nop() noexcept {};  // nop
 void Core::scf() noexcept {};  // scf // // "-" "0" "0" "1"
