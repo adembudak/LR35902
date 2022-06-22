@@ -787,7 +787,12 @@ void Core::ld(HLi_tag, register_to_memory) noexcept { // ld [HLI],A
   m_clock.cycle(2);
 }
 
-void Core::ld(HLd_tag, register_to_memory) noexcept {}; // ld [HLD],A
+void Core::ld(HLd_tag, register_to_memory) noexcept { // ld [HLD],A
+  *HL = A.data();
+  --HL;
+
+  m_clock.cycle(2);
+}
 
 void Core::ld(memory_to_register, HLi_tag) noexcept {}; // ld A,[HLI]
 void Core::ld(memory_to_register, HLd_tag) noexcept {}; // ld A,[HLD]
