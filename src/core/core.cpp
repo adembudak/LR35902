@@ -794,7 +794,13 @@ void Core::ld(HLd_tag, register_to_memory) noexcept { // ld [HLD],A
   m_clock.cycle(2);
 }
 
-void Core::ld(memory_to_register, HLi_tag) noexcept {}; // ld A,[HLI]
+void Core::ld(memory_to_register, HLi_tag) noexcept { // ld A,[HLI]
+  A = *HL;
+  ++HL;
+
+  m_clock.cycle(2);
+}
+
 void Core::ld(memory_to_register, HLd_tag) noexcept {}; // ld A,[HLD]
 
 // // Jumps and Subroutines
