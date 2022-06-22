@@ -780,7 +780,13 @@ void Core::ldh(memory_to_register, const byte b, C_register_tag) noexcept { // l
   m_clock.cycle(2);
 }
 //
-void Core::ld(HLi_tag, register_to_memory) noexcept {}; // ld [HLI],A
+void Core::ld(HLi_tag, register_to_memory) noexcept { // ld [HLI],A
+  *HL = A.data();
+  ++HL;
+
+  m_clock.cycle(2);
+}
+
 void Core::ld(HLd_tag, register_to_memory) noexcept {}; // ld [HLD],A
 
 void Core::ld(memory_to_register, HLi_tag) noexcept {}; // ld A,[HLI]
