@@ -8,17 +8,15 @@ set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
 
-add_library(core src/core/core.cpp src/core/registers/r16.cpp src/core/registers/r8.cpp)
+add_library(core src/core/core.cpp src/core/registers/r16.cpp
+                 src/core/registers/r8.cpp)
 
-add_library(cartridge src/stubs/cartridge/cartridge.cpp)
-target_include_directories(cartridge PRIVATE include)
+add_library(stubs src/stubs/bus/bus.cpp src/stubs/cartridge/cartridge.cpp
+                  src/stubs/ppu/ppu.cpp src/stubs/builtin/builtin.cpp)
 
-add_library(bus src/stubs/bus/bus.cpp)
-target_include_directories(bus PRIVATE include)
+target_include_directories(stubs PRIVATE include)
 
-target_link_libraries(bus PRIVATE cartridge)
-
-target_link_libraries(core PRIVATE bus)
+target_link_libraries(core PRIVATE stubs)
 target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
