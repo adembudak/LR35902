@@ -59,13 +59,11 @@ private:
   struct tag {};
 
 public:
-  // clang-format off
-  explicit Core(Bus bus) noexcept : 
-          m_bus{std::move(bus)}
-        , BC{m_bus, B, C}
-        , DE{m_bus, D, E}
-        , HL{m_bus, H, L} {}
-  // clang-format on
+  explicit Core(Bus bus) noexcept :
+      m_bus{std::move(bus)},
+      BC{m_bus, B, C},
+      DE{m_bus, D, E},
+      HL{m_bus, H, L} {}
 
   void run() noexcept;
 
