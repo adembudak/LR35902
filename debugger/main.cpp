@@ -1,7 +1,9 @@
-#include "LR35902/core/core.h"
-#include "LR35902/debugView/debugView.h"
-#include "LR35902/stubs/bus/bus.h"
-#include "LR35902/stubs/cartridge/cartridge.h"
+#include <LR35902/core/core.h>
+#include <LR35902/debugView/debugView.h>
+#include <LR35902/stubs/builtin/builtin.h>
+#include <LR35902/stubs/bus/bus.h>
+#include <LR35902/stubs/cartridge/cartridge.h>
+#include <LR35902/stubs/ppu/ppu.h>
 
 #include <SDL2/SDL.h>
 
@@ -40,7 +42,10 @@ int main(int argc, char **argv) {
         Cartridge cart;
         cart.load(sv.data());
 
-        Bus bus{cart};
+        PPU ppu;
+        BuiltIn builtIn;
+
+        Bus bus{cart, ppu, builtIn};
         Core cpu{bus};
 
         bool done = false;

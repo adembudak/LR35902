@@ -3,8 +3,10 @@
 
 namespace LR35902 {
 
-Bus::Bus(Cartridge &cart) : m_cart{cart} {
-}
+Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn) :
+    m_cart{cart},
+    m_ppu{ppu},
+    m_builtIn{builtIn} {}
 
 byte &Bus::read_write(const std::size_t index) noexcept {
   return m_cart[index];
