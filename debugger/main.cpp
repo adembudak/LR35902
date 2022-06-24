@@ -3,6 +3,7 @@
 #include <LR35902/stubs/builtin/builtin.h>
 #include <LR35902/stubs/bus/bus.h>
 #include <LR35902/stubs/cartridge/cartridge.h>
+#include <LR35902/stubs/io/io.h>
 #include <LR35902/stubs/ppu/ppu.h>
 
 #include <SDL2/SDL.h>
@@ -44,8 +45,9 @@ int main(int argc, char **argv) {
 
         PPU ppu;
         BuiltIn builtIn;
+        IO io;
 
-        Bus bus{cart, ppu, builtIn};
+        Bus bus{cart, ppu, builtIn, io};
         Core cpu{bus};
 
         bool done = false;
