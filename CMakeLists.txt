@@ -11,8 +11,9 @@ option(WITH_DEBUGGER "" OFF)
 add_library(core src/core/core.cpp src/core/registers/r16.cpp
                  src/core/registers/r8.cpp)
 
-add_library(stubs src/stubs/bus/bus.cpp src/stubs/cartridge/cartridge.cpp
-                  src/stubs/ppu/ppu.cpp src/stubs/builtin/builtin.cpp)
+add_library(
+  stubs src/stubs/bus/bus.cpp src/stubs/cartridge/cartridge.cpp
+        src/stubs/ppu/ppu.cpp src/stubs/builtin/builtin.cpp src/stubs/io/io.cpp)
 
 target_include_directories(stubs PRIVATE include)
 
