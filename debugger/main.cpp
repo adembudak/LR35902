@@ -68,6 +68,7 @@ int main(int argc, char **argv) {
           NewFrame();
 
           DebugView::registerStatus(cpu);
+          DebugView::registers(io);
           DebugView::dumpROM(cart);
 
           Render();

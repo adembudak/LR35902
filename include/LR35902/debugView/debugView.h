@@ -6,10 +6,12 @@ class Core;
 class Cartridge;
 class PPU;
 class Builtin;
+class IO;
 
 class DebugView {
 public:
   static void registerStatus(const Core &core) noexcept;
+  static void registers(const IO &io);
 
   static void dumpROM(const Cartridge &cart) noexcept;
   static void dumpSRAM(const Cartridge &cart) noexcept;
