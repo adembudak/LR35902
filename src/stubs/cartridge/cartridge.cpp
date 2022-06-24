@@ -14,11 +14,19 @@ byte &Cartridge::operator[](const std::size_t index) noexcept {
   return m_rom[index];
 }
 
-byte Cartridge::read(const std::size_t index) const noexcept {
+byte Cartridge::readSRAM(const std::size_t index) const noexcept {
+  return m_sram[index];
+}
+
+void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
+  m_sram[index] = b;
+}
+
+byte Cartridge::readROM(const std::size_t index) const noexcept {
   return m_rom[index];
 }
 
-void Cartridge::write(const std::size_t index, const byte b) noexcept {
+void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
   m_rom[index] = b;
 }
 
