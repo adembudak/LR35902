@@ -10,7 +10,7 @@ class IO;
 
 class DebugView {
 public:
-  static void registerStatus(const Core &core) noexcept;
+  static void CPURegisters(const Core &core) noexcept;
   static void registers(const IO &io);
 
   static void dumpROM(const Cartridge &cart) noexcept;

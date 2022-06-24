@@ -67,7 +67,7 @@ int main(int argc, char **argv) {
           ImGui_ImplSDL2_NewFrame();
           NewFrame();
 
-          DebugView::registerStatus(cpu);
+          DebugView::CPURegisters(cpu);
           DebugView::registers(io);
           DebugView::dumpROM(cart);
 
