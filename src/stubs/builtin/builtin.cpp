@@ -19,6 +19,14 @@ void BuiltIn::writeEcho(const std::size_t index, const byte b) noexcept {
   m_echo[index] = b;
 }
 
+byte BuiltIn::readNoUsable(const std::size_t index) const noexcept {
+  return m_noUsable[index];
+}
+
+void BuiltIn::writeNoUsable(const std::size_t index, const byte b) noexcept {
+  m_noUsable[index] = b;
+}
+
 byte BuiltIn::readHRAM(const std::size_t index) const noexcept {
   return m_hram[index];
 }
