@@ -612,7 +612,7 @@ void Core::run() noexcept {
 ////////////////////////////
 
 // 8-bit Arithmetic and Logic Instructions
-void Core::adc(r8 r) noexcept {};         // adc A,r8 // // "Z" "0" "H" "C"
+void Core::adc(const r8 r) noexcept {};   // adc A,r8 // // "Z" "0" "H" "C"
 void Core::adc(const byte b) noexcept {}; // adc A,[HL] // "Z" "0" "H" "C"
 void Core::adc(const n8 n) noexcept {};   // adc A,n8
 
@@ -656,14 +656,14 @@ void Core::dec(r16 &rr) noexcept {};                       // dec r16
 void Core::inc(r16 &rr) noexcept {};                       // inc r16
 
 // // Bit Operations Instructions
-void Core::bit(const u3, const r8 r) noexcept {};   // bit u3,r8 // "Z" "0" "1" "-"
-void Core::bit(const u3, const byte b) noexcept {}; // bit u3,[HL] // "Z" "0" "1" "-"
+void Core::bit(const u3 u, const r8 r) noexcept {};   // bit u3,r8 // "Z" "0" "1" "-"
+void Core::bit(const u3 u, const byte b) noexcept {}; // bit u3,[HL] // "Z" "0" "1" "-"
 
-void Core::res(const u3, r8 &r) noexcept {};   // res u3,r8
-void Core::res(const u3, byte &b) noexcept {}; // res u3,[HL]
+void Core::res(const u3 u, r8 &r) noexcept {};   // res u3,r8
+void Core::res(const u3 u, byte &b) noexcept {}; // res u3,[HL]
 
-void Core::set(const u3, r8 &r) noexcept {};   // set u3,r8
-void Core::set(const u3, byte &b) noexcept {}; // set u3,[HL]
+void Core::set(const u3 u, r8 &r) noexcept {};   // set u3,r8
+void Core::set(const u3 u, byte &b) noexcept {}; // set u3,[HL]
 
 void Core::swap(r8 &r) noexcept {};   // swap r8 // "Z" "0" "0" "0"
 void Core::swap(byte &b) noexcept {}; // swap [HL]
@@ -810,7 +810,15 @@ void Core::ld(memory_to_register, HLd_tag) noexcept { // ld A,[HLD]
 }
 
 // // Jumps and Subroutines
-void Core::call(const n16 nn) noexcept {};              // call n16
+void Core::call(const n16 nn) noexcept { // call n16
+  m_bus.write(--SP.m_data, nn.hi());
+  m_bus.write(--SP.m_data, nn.lo());
+
+  PC = nn;
+
+  m_clock.cycle(6);
+}
+
 void Core::call(const cc cc, const n16 nn) noexcept {}; // call cc,n16
 void Core::jp(HL_register_tag) noexcept {};             // jp HL
 void Core::jp(const n16 nn) noexcept {};                // jp n16

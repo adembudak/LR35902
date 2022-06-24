@@ -115,14 +115,14 @@ private:
   void inc(r16 &rr) noexcept;                       // inc r16
 
   // // Bit Operations Instructions
-  void bit(const u3, const r8 r) noexcept;   // bit u3,r8
-  void bit(const u3, const byte b) noexcept; // bit u3,[HL]
+  void bit(const u3 u, const r8 r) noexcept;   // bit u3,r8
+  void bit(const u3 u, const byte b) noexcept; // bit u3,[HL]
 
-  void res(const u3, r8 &r) noexcept;   // res u3,r8
-  void res(const u3, byte &b) noexcept; // res u3,[HL]
+  void res(const u3 u, r8 &r) noexcept;   // res u3,r8
+  void res(const u3 u, byte &b) noexcept; // res u3,[HL]
 
-  void set(const u3, r8 &r) noexcept;   // set u3,r8
-  void set(const u3, byte &b) noexcept; // set u3,[HL]
+  void set(const u3 u, r8 &r) noexcept;   // set u3,r8
+  void set(const u3 u, byte &b) noexcept; // set u3,[HL]
 
   void swap(r8 &r) noexcept;   // swap r8
   void swap(byte &b) noexcept; // swap [HL]
