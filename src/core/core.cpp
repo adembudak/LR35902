@@ -851,7 +851,6 @@ void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
   }
 }
 
-void Core::jp(const n16 nn) noexcept {};             // jp n16
 void Core::jp(const cc c, const n16 nn) noexcept {}; // jp cc,n16
 void Core::jr(const e8 e) noexcept {};               // jr e8
 void Core::jr(const cc c, const e8 e) noexcept {};   // jr cc,e8
@@ -863,6 +862,12 @@ void Core::jp(HL_register_tag) noexcept { // jp HL
   PC.m_data = HL.data();
 
   m_clock.cycle(1);
+}
+
+void Core::jp(const n16 nn) noexcept { // jp n16
+  PC = nn;
+
+  m_clock.cycle(4);
 }
 
 // // Stack Operations Instructions
