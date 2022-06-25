@@ -851,7 +851,6 @@ void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
   }
 }
 
-void Core::jr(const cc c, const e8 e) noexcept {};   // jr cc,e8
 void Core::ret(const cc c) noexcept {};              // ret cc
 void Core::ret() noexcept {};                        // ret
 void Core::reti() noexcept {};                       // reti
@@ -883,6 +882,17 @@ void Core::jr(const e8 e) noexcept { // jr e8
   PC.m_data += e.m_data;
 
   m_clock.cycle(3);
+}
+
+void Core::jr(const cc c, const e8 e) noexcept {     // jr cc,e8
+  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
+     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+    PC.m_data += e.m_data;
+
+    m_clock.cycle(3);
+  } else {
+    m_clock.cycle(2);
+  }
 }
 
 // // Stack Operations Instructions
