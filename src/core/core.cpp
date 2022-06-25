@@ -904,7 +904,13 @@ void Core::ret(const cc c) noexcept {                // ret cc
   }
 }
 
-void Core::ret() noexcept {};                    // ret
+void Core::ret() noexcept { // ret
+  PC.lo(m_bus.read(SP.m_data++));
+  PC.hi(m_bus.read(SP.m_data++));
+
+  m_clock.cycle(4);
+}
+
 void Core::reti() noexcept {};                   // reti
 void Core::rst(const std::size_t v) noexcept {}; // rst vec
 
