@@ -919,7 +919,14 @@ void Core::reti() noexcept { // reti
   m_clock.cycle(4);
 }
 
-void Core::rst(const std::size_t v) noexcept {}; // rst vec
+void Core::rst(const std::size_t v) noexcept { // rst vec
+  m_bus.write(--SP.m_data, PC.hi());
+  m_bus.write(--SP.m_data, PC.lo());
+
+  PC.m_data = rst_vec[v];
+
+  m_clock.cycle(4);
+}
 
 // // Stack Operations Instructions
 void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP // "-" "0" "H" "C"
