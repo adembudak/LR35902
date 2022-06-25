@@ -851,10 +851,6 @@ void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
   }
 }
 
-void Core::ret(const cc c) noexcept {};              // ret cc
-void Core::ret() noexcept {};                        // ret
-void Core::reti() noexcept {};                       // reti
-void Core::rst(const std::size_t v) noexcept {};     // rst vec
 void Core::jp(HL_register_tag) noexcept { // jp HL
   PC.m_data = HL.data();
 
@@ -894,6 +890,23 @@ void Core::jr(const cc c, const e8 e) noexcept {     // jr cc,e8
     m_clock.cycle(2);
   }
 }
+
+void Core::ret(const cc c) noexcept {                // ret cc
+  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
+     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+
+    PC.lo(m_bus.read(SP.m_data++));
+    PC.hi(m_bus.read(SP.m_data++));
+
+    m_clock.cycle(5);
+  } else {
+    m_clock.cycle(2);
+  }
+}
+
+void Core::ret() noexcept {};                    // ret
+void Core::reti() noexcept {};                   // reti
+void Core::rst(const std::size_t v) noexcept {}; // rst vec
 
 // // Stack Operations Instructions
 void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP // "-" "0" "H" "C"

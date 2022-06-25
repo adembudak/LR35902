@@ -10,15 +10,25 @@ namespace LR35902 {
 struct n16 {
   std::uint16_t m_data{};
 
-  inline std::uint8_t lo() const noexcept {
+  void lo(const std::uint8_t n) noexcept {
+    m_data &= 0b1111'1111'0000'0000; // reset lower byte
+    m_data |= n;                     // set it with n
+  }
+
+  void hi(const std::uint8_t n) noexcept {
+    m_data &= 0b0000'0000'1111'1111; // reset upper byte
+    m_data |= (n << 8);              // set upper byte by n
+  }
+
+  std::uint8_t lo() const noexcept {
     return std::uint8_t(m_data & 0b0000'0000'1111'1111);
   }
 
-  inline std::uint8_t hi() const noexcept {
+  std::uint8_t hi() const noexcept {
     return std::uint8_t((m_data & 0b1111'1111'0000'0000) >> 8);
   }
 
-  inline std::uint16_t operator++(int) noexcept {
+  std::uint16_t operator++(int) noexcept {
     auto temp = m_data;
     ++m_data;
     return temp;
