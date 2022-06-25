@@ -7,8 +7,8 @@
 namespace LR35902 {
 
 auto Core::fetchOpcode() noexcept -> byte {
-  this->opcode = m_bus.read(PC++);
-  return opcode;
+  this->OpcodeBeingExecuted = m_bus.read(PC++);
+  return OpcodeBeingExecuted;
 }
 
 auto Core::fetchByte() noexcept -> byte {
@@ -16,8 +16,8 @@ auto Core::fetchByte() noexcept -> byte {
 };
 
 auto Core::fetchWord() noexcept -> word {
-  const byte hi = m_bus.read(PC++);
   const byte lo = m_bus.read(PC++);
+  const byte hi = m_bus.read(PC++);
 
   return word(hi << 8 | lo);
 };
@@ -810,6 +810,23 @@ void Core::ld(memory_to_register, HLd_tag) noexcept { // ld A,[HLD]
 }
 
 // // Jumps and Subroutines
+//
+/////////////////////////////
+// Example
+// ------------
+// Before                 Operation         After
+// SP = 0xffff            call 0x80dd       SP = 0xfffd, PC = 0x80dd
+//
+//      address | value                      address | valu
+//       -------|----|                        -------|----|
+// SP -> 0xffff | ?? |                        0xffff | ?? |
+//       0xfffe | ?? |                        0xfffe |0x80|
+//       0xfffd | ?? |                  SP -> 0xfffd |0xdd|
+//         ...   ..                             ...    ..
+//       0x0000 | ?? |                        0x0000 | ?? |
+//
+//
+/////////////////////////////
 void Core::call(const n16 nn) noexcept { // call n16
   m_bus.write(--SP.m_data, nn.hi());
   m_bus.write(--SP.m_data, nn.lo());
@@ -819,16 +836,30 @@ void Core::call(const n16 nn) noexcept { // call n16
   m_clock.cycle(6);
 }
 
-void Core::call(const cc cc, const n16 nn) noexcept {}; // call cc,n16
-void Core::jp(HL_register_tag) noexcept {};             // jp HL
-void Core::jp(const n16 nn) noexcept {};                // jp n16
-void Core::jp(const cc cc, const n16 nn) noexcept {};   // jp cc,n16
-void Core::jr(const e8 e) noexcept {};                  // jr e8
-void Core::jr(const cc cc, const e8 e) noexcept {};     // jr cc,e8
-void Core::ret(const cc cc) noexcept {};                // ret cc
-void Core::ret() noexcept {};                           // ret
-void Core::reti() noexcept {};                          // reti
-void Core::rst(const std::size_t v) noexcept {};        // rst vec
+void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
+  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
+     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+
+    m_bus.write(--SP.m_data, nn.hi());
+    m_bus.write(--SP.m_data, nn.lo());
+
+    PC = nn;
+
+    m_clock.cycle(6);
+  } else {
+    m_clock.cycle(3);
+  }
+}
+
+void Core::jp(HL_register_tag) noexcept {};          // jp HL
+void Core::jp(const n16 nn) noexcept {};             // jp n16
+void Core::jp(const cc c, const n16 nn) noexcept {}; // jp cc,n16
+void Core::jr(const e8 e) noexcept {};               // jr e8
+void Core::jr(const cc c, const e8 e) noexcept {};   // jr cc,e8
+void Core::ret(const cc c) noexcept {};              // ret cc
+void Core::ret() noexcept {};                        // ret
+void Core::reti() noexcept {};                       // reti
+void Core::rst(const std::size_t v) noexcept {};     // rst vec
 
 // // Stack Operations Instructions
 void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP // "-" "0" "H" "C"

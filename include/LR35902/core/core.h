@@ -36,7 +36,7 @@ private:
   n16 PC;
 
   flag ime{}; // interrupt master enable
-  cc cc_;
+
   std::array<const byte, 8> rst_vec{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
 
   auto fetchOpcode() noexcept -> byte;
@@ -45,7 +45,7 @@ private:
 
   clock m_clock;
 
-  byte opcode{};
+  byte OpcodeBeingExecuted{};
 
   struct AF_register_tag {};
   struct SP_register_tag {};
@@ -180,17 +180,17 @@ private:
   void ld(memory_to_register, HLd_tag) noexcept; // ld A,[HLD]
 
   // // Jumps and Subroutines
-  void call(const n16 nn) noexcept;              // call n16
-  void call(const cc cc, const n16 nn) noexcept; // call cc,n16
-  void jp(HL_register_tag) noexcept;             // jp HL
-  void jp(const n16 nn) noexcept;                // jp n16
-  void jp(const cc cc, const n16 nn) noexcept;   // jp cc,n16
-  void jr(const e8 e) noexcept;                  // jr e8
-  void jr(const cc cc, const e8 e) noexcept;     // jr cc,e8
-  void ret(const cc cc) noexcept;                // ret cc
-  void ret() noexcept;                           // ret
-  void reti() noexcept;                          // reti
-  void rst(const std::size_t v) noexcept;        // rst vec
+  void call(const n16 nn) noexcept;             // call n16
+  void call(const cc c, const n16 nn) noexcept; // call cc,n16
+  void jp(HL_register_tag) noexcept;            // jp HL
+  void jp(const n16 nn) noexcept;               // jp n16
+  void jp(const cc c, const n16 nn) noexcept;   // jp cc,n16
+  void jr(const e8 e) noexcept;                 // jr e8
+  void jr(const cc c, const e8 e) noexcept;     // jr cc,e8
+  void ret(const cc c) noexcept;                // ret cc
+  void ret() noexcept;                          // ret
+  void reti() noexcept;                         // reti
+  void rst(const std::size_t v) noexcept;       // rst vec
 
   // // Stack Operations Instructions
   void add(HL_register_tag, SP_register_tag) noexcept; // add HL,SP
