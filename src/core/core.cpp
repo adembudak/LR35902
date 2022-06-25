@@ -911,7 +911,14 @@ void Core::ret() noexcept { // ret
   m_clock.cycle(4);
 }
 
-void Core::reti() noexcept {};                   // reti
+void Core::reti() noexcept { // reti
+  PC.lo(m_bus.read(SP.m_data++));
+  PC.hi(m_bus.read(SP.m_data++));
+  ime = true;
+
+  m_clock.cycle(4);
+}
+
 void Core::rst(const std::size_t v) noexcept {}; // rst vec
 
 // // Stack Operations Instructions
