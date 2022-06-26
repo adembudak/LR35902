@@ -78,4 +78,49 @@ r8 &r8::operator-=(const byte r) noexcept {
   return *this;
 }
 
+r8 &r8::operator&=(const r8 r) noexcept {
+  m_data &= r.data();
+  return *this;
+}
+
+r8 &r8::operator&=(const byte b) noexcept {
+  m_data &= b;
+  return *this;
+}
+
+r8 &r8::operator&=(const n8 n) noexcept {
+  m_data &= n.m_data;
+  return *this;
+}
+
+r8 &r8::operator|=(const r8 r) noexcept {
+  m_data |= r.data();
+  return *this;
+}
+
+r8 &r8::operator|=(const byte b) noexcept {
+  m_data |= b;
+  return *this;
+}
+
+r8 &r8::operator|=(const n8 n) noexcept {
+  m_data |= n.m_data;
+  return *this;
+}
+
+r8 &r8::operator^=(const r8 r) noexcept {
+  m_data ^= r.data();
+  return *this;
+}
+
+r8 &r8::operator^=(const byte b) noexcept {
+  m_data ^= b;
+  return *this;
+}
+
+r8 &r8::operator^=(const n8 n) noexcept {
+  m_data ^= n.m_data;
+  return *this;
+}
+
 }

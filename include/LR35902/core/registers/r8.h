@@ -36,6 +36,18 @@ public:
   r8 &operator+=(const byte r) noexcept;
   r8 &operator-=(const byte r) noexcept;
 
+  r8 &operator&=(const r8 r) noexcept;
+  r8 &operator&=(const byte b) noexcept;
+  r8 &operator&=(const n8 n) noexcept;
+
+  r8 &operator|=(const r8 r) noexcept;
+  r8 &operator|=(const byte b) noexcept;
+  r8 &operator|=(const n8 n) noexcept;
+
+  r8 &operator^=(const r8 r) noexcept;
+  r8 &operator^=(const byte b) noexcept;
+  r8 &operator^=(const n8 n) noexcept;
+
   auto operator<=>(const r8 &) const = default;
   bool operator==(const r8 &) const = default;
 
