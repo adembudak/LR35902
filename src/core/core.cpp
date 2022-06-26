@@ -681,9 +681,14 @@ void Core::sub(const r8 r) noexcept {};   // sub A,r8 // "Z" "1" "H" "C"
 void Core::sub(const byte b) noexcept {}; // sub A,[HL]
 void Core::sub(const n8 n) noexcept {};   // sub A,n8
 
-void Core::xor_(const r8 r) noexcept {};   // xor A,r8 // "Z" "0" "0" "0"
 void Core::xor_(const byte b) noexcept {}; // xor A,[HL]
 void Core::xor_(const n8 n) noexcept {};   // xor A,n8
+void Core::xor_(const r8 r) noexcept { // xor A,r8 // "Z" "0" "0" "0"
+  A ^= r;
+  F = {A == 0, 0, 0, 0};
+
+  m_clock.cycle(1);
+}
 
 // // 16-bit Arithmetic Instructions
 void Core::add(HL_register_tag, const r16 rr) noexcept {}; // add HL,r16  // "-" "0" "H" "C"
