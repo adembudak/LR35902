@@ -36,8 +36,9 @@ void Core::run() noexcept {
   case 0x07: rlca(); break;
   case 0x08: {
     const n16 nn{fetchWord()};
-    byte &b = m_bus.read_write(nn.m_data);
-    ld(b, SP_register_tag{});
+    byte &hi = m_bus.read_write(nn.m_data + 1);
+    byte &lo = m_bus.read_write(nn.m_data);
+    ld(lo, hi, SP_register_tag{});
     break;
   }
   case 0x09: add(HL_register_tag{}, BC); break;
@@ -950,7 +951,13 @@ void Core::ld(SP_register_tag, const n16 nn) noexcept { // ld SP,n16
   m_clock.cycle(3);
 }
 
-void Core::ld(byte &b, SP_register_tag) noexcept {};                     // ld [n16],SP
+void Core::ld(byte &lo, byte &hi, SP_register_tag) noexcept { // ld [n16],SP
+  lo = SP.lo();
+  hi = SP.hi();
+
+  m_clock.cycle(5);
+}
+
 void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8 // "0" "0" "H" "C"
 void Core::ld(SP_register_tag, HL_register_tag) noexcept {};             // ld SP,HL
 

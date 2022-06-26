@@ -199,7 +199,7 @@ private:
   void inc(SP_register_tag) noexcept;                  // inc SP
 
   void ld(SP_register_tag, const n16 nn) noexcept;                // ld SP,n16
-  void ld(byte &b, SP_register_tag) noexcept;                     // ld [n16],SP
+  void ld(byte &lo, byte &hi, SP_register_tag) noexcept;          // ld [n16],SP
   void ld(HL_register_tag, SP_register_tag, const e8 e) noexcept; // ld HL,SP+e8
   void ld(SP_register_tag, HL_register_tag) noexcept;             // ld SP,HL
 
