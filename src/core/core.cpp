@@ -959,7 +959,12 @@ void Core::ld(byte &lo, byte &hi, SP_register_tag) noexcept { // ld [n16],SP
 }
 
 void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8 // "0" "0" "H" "C"
-void Core::ld(SP_register_tag, HL_register_tag) noexcept {};             // ld SP,HL
+
+void Core::ld(SP_register_tag, HL_register_tag) noexcept { // ld SP,HL
+  SP.m_data = HL.data();
+
+  m_clock.cycle(2);
+}
 
 void Core::pop(AF_register_tag) noexcept {};  // pop AF // "Z" "N" "H" "C"
 void Core::pop(r16 &rr) noexcept {};          // pop r16
