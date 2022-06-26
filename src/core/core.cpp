@@ -748,12 +748,18 @@ void Core::set(const u3 u, byte &b) noexcept { // set u3,[HL]
   m_clock.cycle(4);
 }
 
-void Core::swap(byte &b) noexcept {}; // swap [HL]
 void Core::swap(r8 &r) noexcept { // swap r8 // "Z" "0" "0" "0"
   r = byte((r.lowNibble() << 4) | r.highNibble());
   F = {r == 0, 0, 0, 0};
 
   m_clock.cycle(2);
+}
+
+void Core::swap(byte &b) noexcept { // swap [HL]
+  b = byte(((b & 0b000'1111) << 4) | ((b & 0b1111'0000) >> 4));
+  F = {b == 0, 0, 0, 0};
+
+  m_clock.cycle(4);
 }
 
 // // Bit Shift Instructions
