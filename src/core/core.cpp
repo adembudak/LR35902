@@ -652,7 +652,6 @@ void Core::dec(byte &b) noexcept {}; // dec [HL] // "Z" "1" "H" "-"
 void Core::inc(r8 &r) noexcept {};   // inc r8 //  // "Z" "0" "H" "-"
 void Core::inc(byte &b) noexcept {}; // inc [HL]
 
-void Core::or_(const n8 n) noexcept {};   // or A,n8
 void Core::or_(const r8 r) noexcept { // or A,r8 // "Z" "0" "0" "0"
   A |= r;
   F = {A == 0, 0, 0, 0};
@@ -662,6 +661,13 @@ void Core::or_(const r8 r) noexcept { // or A,r8 // "Z" "0" "0" "0"
 
 void Core::or_(const byte b) noexcept { // or A,[HL]
   A |= b;
+  F = {A == 0, 0, 0, 0};
+
+  m_clock.cycle(2);
+}
+
+void Core::or_(const n8 n) noexcept { // or A,n8
+  A |= n;
   F = {A == 0, 0, 0, 0};
 
   m_clock.cycle(2);
