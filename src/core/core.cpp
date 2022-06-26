@@ -1098,7 +1098,12 @@ void Core::nop() noexcept { // nop
   m_clock.cycle(1);
 }
 
-void Core::scf() noexcept {};  // scf // // "-" "0" "0" "1"
+void Core::scf() noexcept { // scf // // "-" "0" "0" "1"
+  F = {F.z, 0, 0, 1};
+
+  m_clock.cycle(1);
+}
+
 void Core::stop() noexcept {}; // stop
 
 } // namespace LR35902
