@@ -1065,9 +1065,15 @@ void Core::push(AF_register_tag) noexcept {}; // push AF
 void Core::push(const r16 rr) noexcept {};    // push r16
 
 // // Miscellaneous Instructions
-void Core::cpl() noexcept {}; // cpl // // "-" "1" "1" "-"
 void Core::ccf() noexcept { // ccf // "-" "0" "0" "C"
   F = {F.z, 0, 0, bool(F.c ^ 1)};
+
+  m_clock.cycle(1);
+}
+
+void Core::cpl() noexcept { // cpl // // "-" "1" "1" "-"
+  A = ~A.data();
+  F = {F.z, 1, 1, F.c};
 
   m_clock.cycle(1);
 }
