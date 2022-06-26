@@ -621,7 +621,6 @@ void Core::add(const r8 r) noexcept {};   // add A,r8 // "Z" "0" "H" "C"
 void Core::add(const byte b) noexcept {}; // add A,[HL] // "Z" "0" "H" "C"
 void Core::add(const n8 n) noexcept {};   // add A,n8
 
-void Core::and_(const n8 n) noexcept {};   // and A,n8
 void Core::and_(const r8 r) noexcept { // and A,r8 // "Z" "0" "1" "0"
   A &= r;
   F = {A == 0, 0, 1, 0};
@@ -631,6 +630,13 @@ void Core::and_(const r8 r) noexcept { // and A,r8 // "Z" "0" "1" "0"
 
 void Core::and_(const byte b) noexcept { // and A,[HL]
   A &= b;
+  F = {A == 0, 0, 1, 0};
+
+  m_clock.cycle(2);
+}
+
+void Core::and_(const n8 n) noexcept { // and A,n8
+  A &= n;
   F = {A == 0, 0, 1, 0};
 
   m_clock.cycle(2);
