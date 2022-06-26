@@ -725,6 +725,13 @@ void Core::res(const u3 u, byte &b) noexcept { // res u3,[HL]
   m_clock.cycle(4);
 }
 
+void Core::set(const u3 u, r8 &r) noexcept { // set u3,r8
+  const byte mask = byte(0b1 << u.m_data);
+  r |= mask;
+
+  m_clock.cycle(2);
+}
+
 void Core::swap(r8 &r) noexcept {};   // swap r8 // "Z" "0" "0" "0"
 void Core::swap(byte &b) noexcept {}; // swap [HL]
 
