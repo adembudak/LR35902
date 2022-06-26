@@ -944,7 +944,12 @@ void Core::inc(SP_register_tag) noexcept { // inc SP
   m_clock.cycle(2);
 }
 
-void Core::ld(SP_register_tag, const n16 nn) noexcept {};                // ld SP,n16
+void Core::ld(SP_register_tag, const n16 nn) noexcept { // ld SP,n16
+  SP = nn;
+
+  m_clock.cycle(3);
+}
+
 void Core::ld(byte &b, SP_register_tag) noexcept {};                     // ld [n16],SP
 void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8 // "0" "0" "H" "C"
 void Core::ld(SP_register_tag, HL_register_tag) noexcept {};             // ld SP,HL
