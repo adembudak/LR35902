@@ -989,7 +989,11 @@ void Core::ei() noexcept { // ei
 }
 //
 void Core::halt() noexcept {}; // halt
-void Core::nop() noexcept {};  // nop
+
+void Core::nop() noexcept { // nop
+  m_clock.cycle(1);
+}
+
 void Core::scf() noexcept {};  // scf // // "-" "0" "0" "1"
 void Core::stop() noexcept {}; // stop
 
