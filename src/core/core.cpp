@@ -708,8 +708,12 @@ void Core::dec(r16 &rr) noexcept {};                       // dec r16
 void Core::inc(r16 &rr) noexcept {};                       // inc r16
 
 // // Bit Operations Instructions
-void Core::bit(const u3 u, const r8 r) noexcept {};   // bit u3,r8 // "Z" "0" "1" "-"
 void Core::bit(const u3 u, const byte b) noexcept {}; // bit u3,[HL] // "Z" "0" "1" "-"
+void Core::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // "Z" "0" "1" "-"
+  F = {bool(r.data() & byte(0b1 << u.m_data)) == 0, 0, 1, F.c};
+
+  m_clock.cycle(2);
+}
 
 void Core::res(const u3 u, r8 &r) noexcept { // res u3,r8
   const byte mask = ~byte(0b1 << u.m_data);
