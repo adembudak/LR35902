@@ -711,12 +711,18 @@ void Core::inc(r16 &rr) noexcept {};                       // inc r16
 void Core::bit(const u3 u, const r8 r) noexcept {};   // bit u3,r8 // "Z" "0" "1" "-"
 void Core::bit(const u3 u, const byte b) noexcept {}; // bit u3,[HL] // "Z" "0" "1" "-"
 
-void Core::res(const u3 u, byte &b) noexcept {}; // res u3,[HL]
 void Core::res(const u3 u, r8 &r) noexcept { // res u3,r8
   const byte mask = ~byte(0b1 << u.m_data);
   r &= mask;
 
   m_clock.cycle(2);
+}
+
+void Core::res(const u3 u, byte &b) noexcept { // res u3,[HL]
+  const byte mask = ~byte(0b1 << u.m_data);
+  b &= mask;
+
+  m_clock.cycle(4);
 }
 
 void Core::swap(r8 &r) noexcept {};   // swap r8 // "Z" "0" "0" "0"
