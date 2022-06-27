@@ -712,7 +712,6 @@ void Core::and_(const n8 n) noexcept { // and A,n8
   m_clock.cycle(2);
 }
 
-void Core::cp(const n8 n) noexcept {};   // cp A,n8
 void Core::cp(const r8 r) noexcept { // cp A,r8 // "Z" "1" "H" "C"
   F = {A == r, 1, r.lowNibble() > A.lowNibble(), r > A};
 
@@ -721,6 +720,12 @@ void Core::cp(const r8 r) noexcept { // cp A,r8 // "Z" "1" "H" "C"
 
 void Core::cp(const byte b) noexcept { // cp A,[HL]
   F = {A == b, 1, (b & 0b0000'1111) > A.lowNibble(), b > A};
+
+  m_clock.cycle(2);
+}
+
+void Core::cp(const n8 n) noexcept { // cp A,n8
+  F = {A == n, 1, n.lowNibble() > A.lowNibble(), n > A};
 
   m_clock.cycle(2);
 }
