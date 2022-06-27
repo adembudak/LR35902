@@ -613,7 +613,6 @@ void Core::run() noexcept {
 ////////////////////////////
 
 // 8-bit Arithmetic and Logic Instructions
-void Core::adc(const n8 n) noexcept {};   // adc A,n8
 void Core::adc(const r8 r) noexcept { // adc A,r8 // // "Z" "0" "H" "C"
   const flag c = (A.data() + r.data() + F.c) > r8::max();
   const flag h = (A.lowNibble() + r.lowNibble() + F.c) > 0b0000'1111;
@@ -635,6 +634,19 @@ void Core::adc(const byte b) noexcept { // adc A,[HL] // "Z" "0" "H" "C"
   const flag h = (A.lowNibble() + (b & 0b0000'1111) + F.c) > 0b0000'1111;
 
   A = A + b + F.c;
+
+  const flag z = A == 0;
+
+  F = {z, 0, h, c};
+
+  m_clock.cycle(2);
+}
+
+void Core::adc(const n8 n) noexcept { // adc A,n8
+  const flag c = (A.data() + n.m_data + F.c) > r8::max();
+  const flag h = (A.lowNibble() + (n.lowNibble()) + F.c) > 0b0000'1111;
+
+  A = A + n + F.c;
 
   const flag z = A == 0;
 
