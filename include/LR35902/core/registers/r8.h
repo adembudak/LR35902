@@ -51,12 +51,20 @@ public:
   auto operator<=>(const r8 &) const = default;
   bool operator==(const r8 &) const = default;
 
-  auto operator<=>(const std::uint8_t &u) const {
-    return m_data <=> u;
+  auto operator<=>(const byte b) const {
+    return m_data <=> b;
   }
 
-  bool operator==(const std::uint8_t &u) const {
-    return m_data == u;
+  bool operator==(const byte b) const {
+    return m_data == b;
+  }
+
+  auto operator<=>(const n8 n) const {
+    return m_data <=> n.m_data;
+  }
+
+  bool operator==(const n8 n) const {
+    return m_data == n.m_data;
   }
 
   static constexpr std::uint8_t min() noexcept {
