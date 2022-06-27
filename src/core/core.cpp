@@ -617,7 +617,6 @@ void Core::adc(const r8 r) noexcept { // adc A,r8 // // "Z" "0" "H" "C"
   const flag c = (A.data() + r.data() + F.c) > r8::max();
   const flag h = (A.lowNibble() + r.lowNibble() + F.c) > 0b0000'1111;
 
-void Core::add(const r8 r) noexcept {};   // add A,r8 // "Z" "0" "H" "C"
 void Core::add(const byte b) noexcept {}; // add A,[HL] // "Z" "0" "H" "C"
 void Core::add(const n8 n) noexcept {};   // add A,n8
   A = A + r + F.c;
@@ -653,6 +652,19 @@ void Core::adc(const n8 n) noexcept { // adc A,n8
   F = {z, 0, h, c};
 
   m_clock.cycle(2);
+}
+
+void Core::add(const r8 r) noexcept { // add A,r8 // // "Z" "0" "H" "C"
+  const flag c = (A.data() + r.data()) > r8::max();
+  const flag h = (A.lowNibble() + r.lowNibble()) > 0b0000'1111;
+
+  A = A + r;
+
+  const flag z = A == 0;
+
+  F = {z, 0, h, c};
+
+  m_clock.cycle(1);
 }
 
 void Core::and_(const r8 r) noexcept { // and A,r8 // "Z" "0" "1" "0"
