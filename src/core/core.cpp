@@ -1383,7 +1383,16 @@ void Core::add(HL_register_tag, SP_register_tag) noexcept { // add HL,SP // "-" 
   m_clock.cycle(2);
 }
 
-void Core::add(SP_register_tag, const e8 e) noexcept {}; // add SP,e8 // "0" "0" "H" "C"
+void Core::add(SP_register_tag, const e8 e) noexcept { // add SP,e8 // "0" "0" "H" "C"
+  const flag c = (SP.m_data & 0x00ff) + e.m_data > 0b1111'1111;
+  const flag h = (SP.m_data & 0x000f) + e.m_data > 0b0000'1111;
+
+  SP.m_data += e.m_data;
+
+  F = {0, 0, h, c};
+
+  m_clock.cycle(4);
+}
 
 void Core::dec(SP_register_tag) noexcept { // dec SP
   --SP.m_data;
