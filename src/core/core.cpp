@@ -730,8 +730,14 @@ void Core::cp(const n8 n) noexcept { // cp A,n8
   m_clock.cycle(2);
 }
 
-void Core::dec(r8 &r) noexcept {};   // dec r8 //    // "Z" "1" "H" "-"
 void Core::dec(byte &b) noexcept {}; // dec [HL] // "Z" "1" "H" "-"
+void Core::dec(r8 &r) noexcept { // dec r8 //    // "Z" "1" "H" "-"
+  --r;
+
+  F = {r == 0, 1, r.lowNibble() == 0b0000'1111, F.c};
+
+  m_clock.cycle(1);
+}
 
 void Core::inc(r8 &r) noexcept {};   // inc r8 //  // "Z" "0" "H" "-"
 void Core::inc(byte &b) noexcept {}; // inc [HL]
