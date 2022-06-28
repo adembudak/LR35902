@@ -1063,6 +1063,18 @@ void Core::sra(r8 &r) noexcept { // sra r8 // "Z" "0" "0" "C"
   m_clock.cycle(2);
 }
 
+void Core::sra(byte &b) noexcept { // sra [HL]
+  const flag old_7th_bit = b & 0b1000'0000;
+  F.c = b & 0b0000'0001;
+
+  b >>= 1;
+  b |= byte(old_7th_bit << 7);
+
+  F = {b == 0, 0, 0, F.c};
+
+  m_clock.cycle(4);
+}
+
 // Load Instructions
 void Core::ld(r8 &to, const r8 from) noexcept { // ld r8,r8
   to = from;
