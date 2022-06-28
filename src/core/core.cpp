@@ -1465,7 +1465,12 @@ void Core::push(AF_register_tag) noexcept { // push AF
   m_clock.cycle(4);
 }
 
-void Core::push(const r16 rr) noexcept {}; // push r16
+void Core::push(const r16 rr) noexcept { // push r16
+  m_bus.write(--SP.m_data, rr.hi().data());
+  m_bus.write(--SP.m_data, rr.lo().data());
+
+  m_clock.cycle(4);
+}
 
 // // Miscellaneous Instructions
 void Core::ccf() noexcept { // ccf // "-" "0" "0" "C"
