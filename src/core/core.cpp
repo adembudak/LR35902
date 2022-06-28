@@ -892,7 +892,6 @@ void Core::swap(byte &b) noexcept { // swap [HL]
 }
 
 // // Bit Shift Instructions
-void Core::rl(byte &b) noexcept {}; // rl [HL]
 void Core::rla() noexcept {};       // rla // "0" "0" "0" "C"
 void Core::rl(r8 &r) noexcept { // rl r8 // "Z" "0" "0" "C"
                                 // C <- [7 <- 0] <- C
@@ -904,6 +903,18 @@ void Core::rl(r8 &r) noexcept { // rl r8 // "Z" "0" "0" "C"
 
   F = {r == 0, 0, 0, F.c};
   m_clock.cycle(2);
+}
+
+void Core::rl(byte &b) noexcept { // rl [HL]
+  const flag old_carry = F.c;
+  F.c = 0b1000'0000 & b;
+
+  b <<= 1;
+  b |= old_carry;
+
+  F = {b == 0, 0, 0, F.c};
+
+  m_clock.cycle(4);
 }
 
 void Core::rlc(r8 &r) noexcept {};   // rlc r8 // "Z" "0" "0" "C"
