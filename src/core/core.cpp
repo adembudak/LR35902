@@ -746,13 +746,20 @@ void Core::dec(byte &b) noexcept { // dec [HL] // "Z" "1" "H" "-"
   m_clock.cycle(3);
 }
 
-void Core::inc(byte &b) noexcept {}; // inc [HL]
 void Core::inc(r8 &r) noexcept { // inc r8 //  // "Z" "0" "H" "-"
   ++r;
 
   F = {r == 0, 0, r.lowNibble() == 0, F.c};
 
   m_clock.cycle(1);
+}
+
+void Core::inc(byte &b) noexcept { // inc [HL]
+  ++b;
+
+  F = {b == 0, 0, (b & 0b1111'0000) == 0, F.c};
+
+  m_clock.cycle(3);
 }
 
 void Core::or_(const r8 r) noexcept { // or A,r8 // "Z" "0" "0" "0"
