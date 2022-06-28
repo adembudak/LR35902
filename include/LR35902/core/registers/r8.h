@@ -48,6 +48,9 @@ public:
   r8 &operator^=(const byte b) noexcept;
   r8 &operator^=(const n8 n) noexcept;
 
+  r8 &operator<<=(const std::uint8_t u) noexcept;
+  r8 &operator>>=(const std::uint8_t u) noexcept;
+
   auto operator<=>(const r8 &) const = default;
   bool operator==(const r8 &) const = default;
 

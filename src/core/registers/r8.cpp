@@ -123,6 +123,16 @@ r8 &r8::operator^=(const n8 n) noexcept {
   return *this;
 }
 
+r8 &r8::operator<<=(const std::uint8_t u) noexcept {
+  m_data <<= u;
+  return *this;
+}
+
+r8 &r8::operator>>=(const std::uint8_t u) noexcept {
+  m_data >>= u;
+  return *this;
+}
+
 byte operator+(const r8 l, const r8 r) noexcept {
   return l.data() + r.data();
 }
