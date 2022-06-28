@@ -1449,7 +1449,15 @@ void Core::pop(AF_register_tag) noexcept { // pop AF // "Z" "N" "H" "C"
   m_clock.cycle(3);
 }
 
-void Core::pop(r16 &rr) noexcept {};          // pop r16
+void Core::pop(r16 &rr) noexcept { // pop r16
+  const byte lo = m_bus.read(SP.m_data++);
+  const byte hi = m_bus.read(SP.m_data++);
+
+  rr = n16{std::uint16_t(hi << 8 | lo)};
+
+  m_clock.cycle(3);
+}
+
 void Core::push(AF_register_tag) noexcept {}; // push AF
 void Core::push(const r16 rr) noexcept {};    // push r16
 
