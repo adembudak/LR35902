@@ -2,6 +2,7 @@
 
 #include <LR35902/config.h>
 
+#include <compare>
 #include <cstdint>
 
 namespace LR35902 {
@@ -18,16 +19,29 @@ private:
 
 public:
   r16() = delete;
-  r16(Bus &bus, r8 &hi, r8 &lo) : m_bus{bus}, m_hi{hi}, m_lo{lo} {
-  }
+  r16(Bus &bus, r8 &hi, r8 &lo) :
+      m_bus{bus},
+      m_hi{hi},
+      m_lo{lo} {}
 
-  r16 &operator=(const n16 nn);
+  r16 &operator=(const n16 nn) noexcept;
 
   [[nodiscard]] std::uint16_t data() const noexcept;
   byte &operator*() noexcept;
 
   r16 &operator++() noexcept;
   r16 &operator--() noexcept;
+
+  r16 &operator+=(const r16 rr) noexcept;
+  r16 &operator-=(const r16 rr) noexcept;
+
+  auto operator<=>(const r16 rr) const noexcept {
+    return data() <=> rr.data();
+  }
+
+  bool operator==(const r16 rr) const noexcept {
+    return data() == rr.data();
+  }
 
   static constexpr std::uint16_t min() noexcept {
     return 0b0000'0000'0000'0000;

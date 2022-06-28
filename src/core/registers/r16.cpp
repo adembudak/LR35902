@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-r16 &r16::operator=(const n16 nn) {
+r16 &r16::operator=(const n16 nn) noexcept {
   m_lo = nn.m_data & 0b0000'0000'1111'1111;
   m_hi = (nn.m_data & 0b1111'1111'0000'0000) >> 8;
 
@@ -49,4 +49,21 @@ r16 &r16::operator--() noexcept {
 
   return *this;
 }
+
+r16 &r16::operator+=(const r16 rr) noexcept {
+  const std::uint16_t temp = data() + rr.data();
+  m_lo = temp & 0b0000'0000'1111'1111;
+  m_hi = (temp & 0b1111'1111'0000'0000) >> 8;
+
+  return *this;
+}
+
+r16 &r16::operator-=(const r16 rr) noexcept {
+  const std::uint16_t temp = data() - rr.data();
+  m_lo = temp & 0b0000'0000'1111'1111;
+  m_hi = (temp & 0b1111'1111'0000'0000) >> 8;
+
+  return *this;
+}
+
 }
