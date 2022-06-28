@@ -1,6 +1,5 @@
-- how to calculate half-carry/carry with a practical API
-- implement instructions
-- show ROM, VRAM, SRAM, HRAM, IO, OAM etc on memory editor, in tab view?
+- decode and show cartridge header, cartridge ram size depends on it
+- Is SBC instruction half carry setting proceduce correct?
 - Visually show VRAM, requires VRAM stub, and implementing cycle counts
 - show disassembly in debugView, what is disassembly really, what information should i provide? study objdump?
    - check imgui demo: Example: Long text display
