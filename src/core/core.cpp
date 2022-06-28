@@ -1437,7 +1437,18 @@ void Core::ld(SP_register_tag, HL_register_tag) noexcept { // ld SP,HL
   m_clock.cycle(2);
 }
 
-void Core::pop(AF_register_tag) noexcept {};  // pop AF // "Z" "N" "H" "C"
+void Core::pop(AF_register_tag) noexcept { // pop AF // "Z" "N" "H" "C"
+  const byte f = m_bus.read(SP.m_data++);
+  F.z = f & 0b1000'0000;
+  F.n = f & 0b0100'0000;
+  F.h = f & 0b0010'0000;
+  F.c = f & 0b0001'0000;
+
+  A = m_bus.read(SP.m_data++);
+
+  m_clock.cycle(3);
+}
+
 void Core::pop(r16 &rr) noexcept {};          // pop r16
 void Core::push(AF_register_tag) noexcept {}; // push AF
 void Core::push(const r16 rr) noexcept {};    // push r16
