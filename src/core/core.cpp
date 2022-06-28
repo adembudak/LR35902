@@ -928,9 +928,20 @@ void Core::rla() noexcept { // rla // "0" "0" "0" "C"
   m_clock.cycle(1);
 }
 
-void Core::rlc(r8 &r) noexcept {};   // rlc r8 // "Z" "0" "0" "C"
 void Core::rlc(byte &b) noexcept {}; // rlc [HL]
 void Core::rlca() noexcept {};       // rlca //  // "0" "0" "0" "C"
+void Core::rlc(r8 &r) noexcept { // rlc r8 // "Z" "0" "0" "C"
+                                 // C <- [7 <- 0] <- [7]
+  const flag old_7th_bit = r.data() & 0b1000'0000;
+  F.c = old_7th_bit;
+
+  r <<= 1;
+  r |= old_7th_bit;
+
+  F = {r == 0, 0, 0, F.c};
+
+  m_clock.cycle(2);
+}
 
 void Core::rr(r8 &r) noexcept { // rr r8 // "Z" "0" "0" "C"
                                 // C -> [7 -> 0] -> C
