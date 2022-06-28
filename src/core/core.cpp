@@ -1419,7 +1419,17 @@ void Core::ld(byte &lo, byte &hi, SP_register_tag) noexcept { // ld [n16],SP
   m_clock.cycle(5);
 }
 
-void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept {}; // ld HL,SP+e8 // "0" "0" "H" "C"
+void Core::ld(HL_register_tag, SP_register_tag, const e8 e) noexcept { // ld HL,SP+e8 // "0" "0" "H" "C"
+  const flag c = ((SP.m_data & 0x00ff) + e.m_data) > 0b1111'1111;
+  const flag h = ((SP.m_data & 0x000f) + e.m_data) > 0b0000'1111;
+
+  SP.m_data += e.m_data;
+  HL = SP;
+
+  F = {0, 0, h, c};
+
+  m_clock.cycle(3);
+}
 
 void Core::ld(SP_register_tag, HL_register_tag) noexcept { // ld SP,HL
   SP.m_data = HL.data();
