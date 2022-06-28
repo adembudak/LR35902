@@ -932,7 +932,6 @@ void Core::rlc(r8 &r) noexcept {};   // rlc r8 // "Z" "0" "0" "C"
 void Core::rlc(byte &b) noexcept {}; // rlc [HL]
 void Core::rlca() noexcept {};       // rlca //  // "0" "0" "0" "C"
 
-void Core::rra() noexcept {};       // rra // // "0" "0" "0" "C"
 void Core::rr(r8 &r) noexcept { // rr r8 // "Z" "0" "0" "C"
                                 // C -> [7 -> 0] -> C
   const flag old_carry = F.c;
@@ -958,6 +957,18 @@ void Core::rr(byte &b) noexcept { // rr [HL]
   m_clock.cycle(4);
 }
 //
+void Core::rra() noexcept { // rra // // "0" "0" "0" "C"
+  const flag old_carry = F.c;
+  F.c = A.data() & 0b0000'0001;
+
+  A >>= 1;
+  A |= byte(old_carry << 7);
+
+  F = {0, 0, 0, F.c};
+
+  m_clock.cycle(1);
+}
+
 void Core::rrc(r8 &r) noexcept {};   // rrc r8 // "Z" "0" "0" "C"
 void Core::rrc(byte &b) noexcept {}; // rrc [HL]
 void Core::rrca() noexcept {};       // rrca // // "0" "0" "0" "C"
