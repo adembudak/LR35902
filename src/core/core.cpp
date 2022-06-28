@@ -1372,8 +1372,18 @@ void Core::rst(const std::size_t v) noexcept { // rst vec
 }
 
 // // Stack Operations Instructions
-void Core::add(HL_register_tag, SP_register_tag) noexcept {}; // add HL,SP // "-" "0" "H" "C"
-void Core::add(SP_register_tag, const e8 e) noexcept {};      // add SP,e8 // "0" "0" "H" "C"
+void Core::add(HL_register_tag, SP_register_tag) noexcept { // add HL,SP // "-" "0" "H" "C"
+  const flag c = (HL.data() + SP.m_data) > r16::max();
+  const flag h = ((HL.data() & 0x0fff) + (SP.m_data & 0x0fff)) > 0x0fff;
+
+  HL += SP;
+
+  F = {F.z, 0, h, c};
+
+  m_clock.cycle(2);
+}
+
+void Core::add(SP_register_tag, const e8 e) noexcept {}; // add SP,e8 // "0" "0" "H" "C"
 
 void Core::dec(SP_register_tag) noexcept { // dec SP
   --SP.m_data;
