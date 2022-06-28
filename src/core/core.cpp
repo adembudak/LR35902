@@ -1434,6 +1434,9 @@ void Core::scf() noexcept { // scf // // "-" "0" "0" "1"
   m_clock.cycle(1);
 }
 
-void Core::stop() noexcept {}; // stop
+void Core::stop() noexcept { // stop
+  // Enter low power mode
+  // Reset Time.DIV register
+}
 
 } // namespace LR35902
