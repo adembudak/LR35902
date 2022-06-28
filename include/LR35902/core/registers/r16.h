@@ -26,6 +26,9 @@ public:
 
   r16 &operator=(const n16 nn) noexcept;
 
+  [[nodiscard]] r8 lo() const noexcept;
+  [[nodiscard]] r8 hi() const noexcept;
+
   [[nodiscard]] std::uint16_t data() const noexcept;
   byte &operator*() noexcept;
 

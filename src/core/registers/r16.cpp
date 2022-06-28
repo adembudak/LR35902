@@ -14,6 +14,14 @@ r16 &r16::operator=(const n16 nn) noexcept {
   return *this;
 }
 
+r8 r16::lo() const noexcept {
+  return m_lo;
+}
+
+r8 r16::hi() const noexcept {
+  return m_hi;
+}
+
 std::uint16_t r16::data() const noexcept {
   return std::uint16_t(m_hi.data() << 8 | m_lo.data());
 }
