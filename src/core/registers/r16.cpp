@@ -66,4 +66,20 @@ r16 &r16::operator-=(const r16 rr) noexcept {
   return *this;
 }
 
+r16 &r16::operator+=(const n16 nn) noexcept {
+  const std::uint16_t temp = data() + nn.m_data;
+  m_lo = temp & 0b0000'0000'1111'1111;
+  m_hi = (temp & 0b1111'1111'0000'0000) >> 8;
+
+  return *this;
+}
+
+r16 &r16::operator-=(const n16 nn) noexcept {
+  const std::uint16_t temp = data() - nn.m_data;
+  m_lo = temp & 0b0000'0000'1111'1111;
+  m_hi = (temp & 0b1111'1111'0000'0000) >> 8;
+
+  return *this;
+}
+
 }

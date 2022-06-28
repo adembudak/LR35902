@@ -35,6 +35,9 @@ public:
   r16 &operator+=(const r16 rr) noexcept;
   r16 &operator-=(const r16 rr) noexcept;
 
+  r16 &operator+=(const n16 nn) noexcept;
+  r16 &operator-=(const n16 nn) noexcept;
+
   auto operator<=>(const r16 rr) const noexcept {
     return data() <=> rr.data();
   }
