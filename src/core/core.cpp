@@ -762,7 +762,6 @@ void Core::sbc(const r8 r) noexcept { // sbc A,r8 // "Z" "1" "H" "C"
   const flag c = (r.data() + F.c) > A;
   const flag h = ((r.lowNibble() + F.c) & 0b0000'1111) > A.lowNibble();
 
-void Core::sub(const n8 n) noexcept {};   // sub A,n8
   A = A - r - F.c;
   F = {A == 0, 1, h, c};
 
@@ -800,6 +799,13 @@ void Core::sub(const r8 r) noexcept { // sub A,r8 // "Z" "1" "H" "C"
 void Core::sub(const byte b) noexcept { // sub A,[HL]
   F = {A == b, 1, (b & 0b0000'1111) > A.lowNibble(), b > A};
   A = A - b;
+
+  m_clock.cycle(2);
+}
+
+void Core::sub(const n8 n) noexcept { // sub A,n8
+  F = {A == n, 1, n.lowNibble() > A.lowNibble(), n > A};
+  A = A - n;
 
   m_clock.cycle(2);
 }
