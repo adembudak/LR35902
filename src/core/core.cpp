@@ -1458,8 +1458,14 @@ void Core::pop(r16 &rr) noexcept { // pop r16
   m_clock.cycle(3);
 }
 
-void Core::push(AF_register_tag) noexcept {}; // push AF
-void Core::push(const r16 rr) noexcept {};    // push r16
+void Core::push(AF_register_tag) noexcept { // push AF
+  m_bus.write(--SP.m_data, A.data());
+  m_bus.write(--SP.m_data, F.data());
+
+  m_clock.cycle(4);
+}
+
+void Core::push(const r16 rr) noexcept {}; // push r16
 
 // // Miscellaneous Instructions
 void Core::ccf() noexcept { // ccf // "-" "0" "0" "C"
