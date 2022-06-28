@@ -869,9 +869,14 @@ void Core::add(HL_register_tag, const r16 rr) noexcept { // add HL,r16  // "-" "
   m_clock.cycle(2);
 }
 
-void Core::inc(r16 &rr) noexcept {}; // inc r16
 void Core::dec(r16 &rr) noexcept { // dec r16
   --rr;
+
+  m_clock.cycle(2);
+}
+
+void Core::inc(r16 &rr) noexcept { // inc r16
+  ++rr;
 
   m_clock.cycle(2);
 }
