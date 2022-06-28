@@ -1002,7 +1002,6 @@ void Core::rra() noexcept { // rra // // "0" "0" "0" "C"
   m_clock.cycle(1);
 }
 
-void Core::rrca() noexcept {};       // rrca // // "0" "0" "0" "C"
 void Core::rrc(r8 &r) noexcept { // rrc r8 // "Z" "0" "0" "C"
                                  // [0] -> [7 -> 0] -> C
   F.c = r.data() & 0b0000'0001;
@@ -1020,6 +1019,15 @@ void Core::rrc(byte &b) noexcept { // rrc [HL]
   F = {b == 0, 0, 0, F.c};
 
   m_clock.cycle(4);
+}
+
+void Core::rrca() noexcept { // rrca // // "0" "0" "0" "C"
+  F.c = A.data() & 0b0000'0001;
+  A >>= 1;
+
+  F = {0, 0, 0, F.c};
+
+  m_clock.cycle(1);
 }
 
 void Core::sla(r8 &r) noexcept {};   // sla r8 // "Z" "0" "0" "C"
