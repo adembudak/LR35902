@@ -757,7 +757,6 @@ void Core::or_(const n8 n) noexcept { // or A,n8
   m_clock.cycle(2);
 }
 
-void Core::sbc(const n8 n) noexcept {};   // sbc A,n8
 void Core::sbc(const r8 r) noexcept { // sbc A,r8 // "Z" "1" "H" "C"
                                       // A = A -(r + F.c)
   const flag c = (r.data() + F.c) > A;
@@ -777,6 +776,16 @@ void Core::sbc(const byte b) noexcept { // sbc A,[HL]
   const flag h = ((b + F.c) & 0b0000'1111) > A.lowNibble();
 
   A = A - b - F.c;
+  F = {A == 0, 1, h, c};
+
+  m_clock.cycle(2);
+}
+
+void Core::sbc(const n8 n) noexcept { // sbc A,n8
+  const flag c = (n.m_data + F.c) > A;
+  const flag h = ((n.m_data + F.c) & 0b0000'1111) > A.lowNibble();
+
+  A = A - n - F.c;
   F = {A == 0, 1, h, c};
 
   m_clock.cycle(2);
