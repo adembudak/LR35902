@@ -757,13 +757,21 @@ void Core::or_(const n8 n) noexcept { // or A,n8
   m_clock.cycle(2);
 }
 
-void Core::sbc(const r8 r) noexcept {};   // sbc A,r8 // "Z" "1" "H" "C"
 void Core::sbc(const byte b) noexcept {}; // sbc A,[HL]
 void Core::sbc(const n8 n) noexcept {};   // sbc A,n8
+void Core::sbc(const r8 r) noexcept { // sbc A,r8 // "Z" "1" "H" "C"
+                                      // A = A -(r + F.c)
+  const flag c = (r.data() + F.c) > A;
+  const flag h = ((r.lowNibble() + F.c) & 0b0000'1111) > A.lowNibble();
 
 void Core::sub(const r8 r) noexcept {};   // sub A,r8 // "Z" "1" "H" "C"
 void Core::sub(const byte b) noexcept {}; // sub A,[HL]
 void Core::sub(const n8 n) noexcept {};   // sub A,n8
+  A = A - r - F.c;
+  F = {A == 0, 1, h, c};
+
+  m_clock.cycle(1);
+}
 
 void Core::xor_(const r8 r) noexcept { // xor A,r8 // "Z" "0" "0" "0"
   A ^= r;
