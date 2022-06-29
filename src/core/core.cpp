@@ -619,9 +619,7 @@ void Core::adc(const r8 r) noexcept { // adc A,r8 // // "Z" "0" "H" "C"
 
   A = A + r + F.c;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(1);
 }
@@ -632,9 +630,7 @@ void Core::adc(const byte b) noexcept { // adc A,[HL] // "Z" "0" "H" "C"
 
   A = A + b + F.c;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(2);
 }
@@ -645,9 +641,7 @@ void Core::adc(const n8 n) noexcept { // adc A,n8
 
   A = A + n + F.c;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(2);
 }
@@ -658,9 +652,7 @@ void Core::add(const r8 r) noexcept { // add A,r8 // // "Z" "0" "H" "C"
 
   A = A + r;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(1);
 }
@@ -671,9 +663,7 @@ void Core::add(const byte b) noexcept { // add A,[HL] // "Z" "0" "H" "C"
 
   A = A + b;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(2);
 }
@@ -684,9 +674,7 @@ void Core::add(const n8 n) noexcept { // add A,n8
 
   A = A + n;
 
-  const flag z = A == 0;
-
-  F = {z, 0, h, c};
+  F = {A == 0, 0, h, c};
 
   m_clock.cycle(2);
 }
