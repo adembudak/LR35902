@@ -1474,7 +1474,24 @@ void Core::cpl() noexcept { // cpl // // "-" "1" "1" "-"
   m_clock.cycle(1);
 }
 
-void Core::daa() noexcept {}; // daa // // "Z" "-" "0" "C"
+// decimal adjusted addition (daa)
+// https://forums.nesdev.org/viewtopic.php?f=20&t=15944
+void Core::daa() noexcept { // daa // // "Z" "-" "0" "C"
+  // clang-format off
+  if(F.n) {
+    if(F.c)                         { A -= 0x60;          }
+    if(F.h)                         { A -= 0x06;          }
+  } else {
+    if(F.c || A > 0x99)             { A += 0x60; F.c = 1; }
+    if(F.h || A.lowNibble() > 0x09) { A += 0x06;          }
+  }
+  // clang-format on
+
+  F.z = A == 0;
+  F.h = 0;
+
+  m_clock.cycle(1);
+}
 
 void Core::di() noexcept { // di
   ime = false;
