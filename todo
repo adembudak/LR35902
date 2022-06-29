@@ -4,4 +4,6 @@
 - show disassembly in debugView, what is disassembly really, what information should i provide? study objdump?
    - check imgui demo: Example: Long text display
 - setup Github Actions
+- implement halt instruction, requires interrupt stub
 
+- fix tmbl rr instruction
