@@ -1,3 +1,4 @@
+- write the bootrom and set it up to run it on upfront before execute rom
 - decode and show cartridge header, cartridge ram size depends on it
 - Is SBC instruction half carry setting proceduce correct?
 - Visually show VRAM, requires VRAM stub, and implementing cycle counts
