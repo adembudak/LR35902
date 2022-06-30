@@ -1,7 +1,9 @@
 #include <LR35902/core/core.h>
 #include <LR35902/debugView/debugView.h>
+#include <LR35902/stubs/builtin/builtin.h>
 #include <LR35902/stubs/cartridge/cartridge.h>
 #include <LR35902/stubs/io/io.h>
+#include <LR35902/stubs/ppu/ppu.h>
 
 #include <imgui/imgui.h>
 #include <imgui_memory_editor/imgui_memory_editor.h>
@@ -133,7 +135,43 @@ void DebugView::registers(const IO &io) {
 void DebugView::dumpROM(const Cartridge &cart) noexcept {
   static MemoryEditor memory_editor_rom;
   memory_editor_rom.ReadOnly = true;
-  memory_editor_rom.DrawWindow("ROM", (void *)cart.m_rom.data(), 16_KiB);
+
+  memory_editor_rom.DrawWindow("ROM", (void *)std::data(cart.m_rom), std::size(cart.m_rom));
+}
+
+void DebugView::dumpSRAM(const Cartridge &cart) noexcept {
+  static MemoryEditor memory_editor_sram;
+  memory_editor_sram.ReadOnly = true;
+
+  memory_editor_sram.DrawWindow("SRAM", (void *)std::data(cart.m_sram), std::size(cart.m_sram));
+}
+
+void DebugView::dumpVRAM(const PPU &ppu) noexcept {
+  static MemoryEditor memory_editor_vram;
+  memory_editor_vram.ReadOnly = true;
+
+  memory_editor_vram.DrawWindow("VRAM", (void *)std::data(ppu.m_vram), std::size(ppu.m_vram));
+}
+
+void DebugView::dumpOAM(const PPU &ppu) noexcept {
+  static MemoryEditor memory_editor_oam;
+  memory_editor_oam.ReadOnly = true;
+
+  memory_editor_oam.DrawWindow("OAM", (void *)std::data(ppu.m_oam), std::size(ppu.m_oam));
+}
+
+void DebugView::dumpWRAM(const BuiltIn &builtin) noexcept {
+  static MemoryEditor memory_editor_wram;
+  memory_editor_wram.ReadOnly = true;
+
+  memory_editor_wram.DrawWindow("WRAM", (void *)std::data(builtin.m_wram), std::size(builtin.m_wram));
+}
+
+void DebugView::dumpHRAM(const BuiltIn &builtin) noexcept {
+  static MemoryEditor memory_editor_hram;
+  memory_editor_hram.ReadOnly = true;
+
+  memory_editor_hram.DrawWindow("WRAM", (void *)std::data(builtin.m_hram), std::size(builtin.m_hram));
 }
 
 }

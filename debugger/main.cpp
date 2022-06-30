@@ -70,6 +70,11 @@ int main(int argc, char **argv) {
           DebugView::CPURegisters(cpu);
           DebugView::registers(io);
           DebugView::dumpROM(cart);
+          DebugView::dumpSRAM(cart);
+          DebugView::dumpVRAM(ppu);
+          DebugView::dumpOAM(ppu);
+          DebugView::dumpWRAM(builtIn);
+          DebugView::dumpHRAM(builtIn);
 
           Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);

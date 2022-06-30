@@ -5,7 +5,7 @@ namespace LR35902 {
 class Core;
 class Cartridge;
 class PPU;
-class Builtin;
+class BuiltIn;
 class IO;
 
 class DebugView {
@@ -19,9 +19,8 @@ public:
   static void dumpVRAM(const PPU &ppu) noexcept;
   static void dumpOAM(const PPU &ppu) noexcept;
 
-  static void dumpWRAM(const Builtin &builtin) noexcept;
-  static void dumpIO(const Builtin &builtin) noexcept;
-  static void dumpHRAM(const Builtin &builtin) noexcept;
+  static void dumpWRAM(const BuiltIn &builtin) noexcept;
+  static void dumpHRAM(const BuiltIn &builtin) noexcept;
 };
 
 }
