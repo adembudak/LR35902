@@ -33,6 +33,11 @@ struct n16 {
     ++m_data;
     return temp;
   }
+
+  n16 &operator--() noexcept {
+    --m_data;
+    return *this;
+  }
 };
 
 } // namespace LR35902
