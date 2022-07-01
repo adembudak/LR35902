@@ -47,16 +47,19 @@ private:
 
   byte OpcodeBeingExecuted{};
 
-  struct AF_register_tag {};
-  struct SP_register_tag {};
-  struct HL_register_tag {};
-  struct C_register_tag {};
-  struct HLi_tag {};
-  struct HLd_tag {};
+  // clang-format off
+  struct AF_register_tag_t { explicit AF_register_tag_t() = default; } AF_register_tag;
+  struct SP_register_tag_t { explicit SP_register_tag_t() = default; } SP_register_tag;
+  struct HL_register_tag_t { explicit HL_register_tag_t() = default; } HL_register_tag;
+  struct C_register_tag_t { explicit C_register_tag_t() = default; } C_register_tag;;
 
-  struct register_to_memory {};
-  struct memory_to_register {};
-  struct tag {};
+  struct HLi_tag_t { explicit HLi_tag_t() = default; } HLi_tag;
+  struct HLd_tag_t { explicit HLd_tag_t() = default; } HLd_tag;
+
+  struct register_to_memory_t { explicit register_to_memory_t() = default; } register_to_memory;
+  struct memory_to_register_t { explicit memory_to_register_t() = default; } memory_to_register;
+  struct tag_t { explicit tag_t() = default; } tag;
+  // clang-format on
 
 public:
   explicit Core(Bus bus) noexcept :
@@ -110,9 +113,9 @@ private:
   void xor_(const n8 n) noexcept;   // xor A,n8
 
   // // 16-bit Arithmetic Instructions
-  void add(HL_register_tag, const r16 rr) noexcept; // add HL,r16
-  void dec(r16 &rr) noexcept;                       // dec r16
-  void inc(r16 &rr) noexcept;                       // inc r16
+  void add(HL_register_tag_t, const r16 rr) noexcept; // add HL,r16
+  void dec(r16 &rr) noexcept;                         // dec r16
+  void inc(r16 &rr) noexcept;                         // inc r16
 
   // // Bit Operations Instructions
   void bit(const u3 u, const r8 r) noexcept;   // bit u3,r8
@@ -161,28 +164,28 @@ private:
   void ld(byte &b, const n8 n) noexcept;   // ld [HL],n8
   void ld(r8 &r, const byte b) noexcept;   // ld r8,[HL]
   //
-  void ld(byte &b, register_to_memory) noexcept;      // ld [r16],A
-  void ld(byte &b, register_to_memory, tag) noexcept; // ld [n16],A
+  void ld(byte &b, register_to_memory_t) noexcept;        // ld [r16],A
+  void ld(byte &b, register_to_memory_t, tag_t) noexcept; // ld [n16],A
   //
-  void ld(memory_to_register, const byte b) noexcept;      // ld A,[r16]
-  void ld(memory_to_register, const byte b, tag) noexcept; // ld A,[n16]
+  void ld(memory_to_register_t, const byte b) noexcept;        // ld A,[r16]
+  void ld(memory_to_register_t, const byte b, tag_t) noexcept; // ld A,[n16]
   //
-  void ldh(byte &b, register_to_memory) noexcept;                 // ldh [n16],A
-  void ldh(byte &b, register_to_memory, C_register_tag) noexcept; // ldh [C],A
+  void ldh(byte &b, register_to_memory_t) noexcept;                   // ldh [n16],A
+  void ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept; // ldh [C],A
   //
-  void ldh(memory_to_register, const byte b) noexcept;                 // ldh A,[n16]
-  void ldh(memory_to_register, const byte b, C_register_tag) noexcept; // ldh A,[C]
+  void ldh(memory_to_register_t, const byte b) noexcept;                   // ldh A,[n16]
+  void ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept; // ldh A,[C]
   //
-  void ld(HLi_tag, register_to_memory) noexcept; // ld [HLI],A
-  void ld(HLd_tag, register_to_memory) noexcept; // ld [HLD],A
+  void ld(HLi_tag_t, register_to_memory_t) noexcept; // ld [HLI],A
+  void ld(HLd_tag_t, register_to_memory_t) noexcept; // ld [HLD],A
 
-  void ld(memory_to_register, HLi_tag) noexcept; // ld A,[HLI]
-  void ld(memory_to_register, HLd_tag) noexcept; // ld A,[HLD]
+  void ld(memory_to_register_t, HLi_tag_t) noexcept; // ld A,[HLI]
+  void ld(memory_to_register_t, HLd_tag_t) noexcept; // ld A,[HLD]
 
   // // Jumps and Subroutines
   void call(const n16 nn) noexcept;             // call n16
   void call(const cc c, const n16 nn) noexcept; // call cc,n16
-  void jp(HL_register_tag) noexcept;            // jp HL
+  void jp(HL_register_tag_t) noexcept;          // jp HL
   void jp(const n16 nn) noexcept;               // jp n16
   void jp(const cc c, const n16 nn) noexcept;   // jp cc,n16
   void jr(const e8 e) noexcept;                 // jr e8
@@ -193,20 +196,20 @@ private:
   void rst(const std::size_t v) noexcept;       // rst vec
 
   // // Stack Operations Instructions
-  void add(HL_register_tag, SP_register_tag) noexcept; // add HL,SP
-  void add(SP_register_tag, const e8 e) noexcept;      // add SP,e8
-  void dec(SP_register_tag) noexcept;                  // dec SP
-  void inc(SP_register_tag) noexcept;                  // inc SP
+  void add(HL_register_tag_t, SP_register_tag_t) noexcept; // add HL,SP
+  void add(SP_register_tag_t, const e8 e) noexcept;        // add SP,e8
+  void dec(SP_register_tag_t) noexcept;                    // dec SP
+  void inc(SP_register_tag_t) noexcept;                    // inc SP
 
-  void ld(SP_register_tag, const n16 nn) noexcept;                // ld SP,n16
-  void ld(byte &lo, byte &hi, SP_register_tag) noexcept;          // ld [n16],SP
-  void ld(HL_register_tag, SP_register_tag, const e8 e) noexcept; // ld HL,SP+e8
-  void ld(SP_register_tag, HL_register_tag) noexcept;             // ld SP,HL
+  void ld(SP_register_tag_t, const n16 nn) noexcept;                  // ld SP,n16
+  void ld(byte &lo, byte &hi, SP_register_tag_t) noexcept;            // ld [n16],SP
+  void ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept; // ld HL,SP+e8
+  void ld(SP_register_tag_t, HL_register_tag_t) noexcept;             // ld SP,HL
 
-  void pop(AF_register_tag) noexcept;  // pop AF
-  void pop(r16 &rr) noexcept;          // pop r16
-  void push(AF_register_tag) noexcept; // push AF
-  void push(const r16 rr) noexcept;    // push r16
+  void pop(AF_register_tag_t) noexcept;  // pop AF
+  void pop(r16 &rr) noexcept;            // pop r16
+  void push(AF_register_tag_t) noexcept; // push AF
+  void push(const r16 rr) noexcept;      // push r16
 
   // // Miscellaneous Instructions
   void ccf() noexcept;  // ccf
