@@ -41,6 +41,7 @@ if(WITH_DEBUGGER)
   target_link_libraries(debugView PUBLIC core imgui::imgui)
   target_include_directories(debugView PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty
                                               3rdparty/imgui_club)
+  target_compile_definitions(debugView PUBLIC WITH_DEBUGGER)
 
   add_executable(debugger debugger/main.cpp)
   target_link_libraries(debugger PUBLIC debugView)

@@ -45,7 +45,13 @@ private:
 
   clock m_clock;
 
-  byte OpcodeBeingExecuted{};
+#if defined(WITH_DEBUGGER)
+  struct {
+    byte opcode{};
+    byte immediate_byte{};
+    word immediate_word{};
+  } InstructionBeingExecuted;
+#endif
 
   // clang-format off
   struct AF_register_tag_t { explicit AF_register_tag_t() = default; } AF_register_tag;
