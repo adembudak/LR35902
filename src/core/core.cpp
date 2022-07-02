@@ -604,16 +604,8 @@ void Core::run() noexcept {
   }
 }
 
-////////////////////////////
-///  Z: zero flag        ///
-///  N: negation flag    ///
-///  H: half carry flag  ///
-///  C: carry flag       ///
-///  0bZNHC'0000         ///
-////////////////////////////
-
 // 8-bit Arithmetic and Logic Instructions
-void Core::adc(const r8 r) noexcept { // adc A,r8 // // "Z" "0" "H" "C"
+void Core::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
   const flag c = (A.data() + r.data() + F.c) > r8::max();
   const flag h = (A.lowNibble() + r.lowNibble() + F.c) > 0b0000'1111;
 
@@ -624,7 +616,7 @@ void Core::adc(const r8 r) noexcept { // adc A,r8 // // "Z" "0" "H" "C"
   m_clock.cycle(1);
 }
 
-void Core::adc(const byte b) noexcept { // adc A,[HL] // "Z" "0" "H" "C"
+void Core::adc(const byte b) noexcept { // adc A,[HL] // z 0 h c
   const flag c = (A.data() + b + F.c) > r8::max();
   const flag h = (A.lowNibble() + (b & 0b0000'1111) + F.c) > 0b0000'1111;
 
@@ -646,7 +638,7 @@ void Core::adc(const n8 n) noexcept { // adc A,n8
   m_clock.cycle(2);
 }
 
-void Core::add(const r8 r) noexcept { // add A,r8 // // "Z" "0" "H" "C"
+void Core::add(const r8 r) noexcept { // add A,r8 // // z 0 h c
   const flag c = (A.data() + r.data()) > r8::max();
   const flag h = (A.lowNibble() + r.lowNibble()) > 0b0000'1111;
 
@@ -657,7 +649,7 @@ void Core::add(const r8 r) noexcept { // add A,r8 // // "Z" "0" "H" "C"
   m_clock.cycle(1);
 }
 
-void Core::add(const byte b) noexcept { // add A,[HL] // "Z" "0" "H" "C"
+void Core::add(const byte b) noexcept { // add A,[HL] // z 0 h c
   const flag c = (A.data() + b) > r8::max();
   const flag h = (A.lowNibble() + (b & 0b0000'1111)) > 0b0000'1111;
 
@@ -679,7 +671,7 @@ void Core::add(const n8 n) noexcept { // add A,n8
   m_clock.cycle(2);
 }
 
-void Core::and_(const r8 r) noexcept { // and A,r8 // "Z" "0" "1" "0"
+void Core::and_(const r8 r) noexcept { // and A,r8 // z 0 1 0
   A &= r;
   F = {A == 0, 0, 1, 0};
 
@@ -700,7 +692,7 @@ void Core::and_(const n8 n) noexcept { // and A,n8
   m_clock.cycle(2);
 }
 
-void Core::cp(const r8 r) noexcept { // cp A,r8 // "Z" "1" "H" "C"
+void Core::cp(const r8 r) noexcept { // cp A,r8 // z 1 h c
   F = {A == r, 1, r.lowNibble() > A.lowNibble(), r > A};
 
   m_clock.cycle(1);
@@ -718,7 +710,7 @@ void Core::cp(const n8 n) noexcept { // cp A,n8
   m_clock.cycle(2);
 }
 
-void Core::dec(r8 &r) noexcept { // dec r8 //    // "Z" "1" "H" "-"
+void Core::dec(r8 &r) noexcept { // dec r8 // z 1 h -
   --r;
 
   F = {r == 0, 1, r.lowNibble() == 0b0000'1111, F.c};
@@ -726,7 +718,7 @@ void Core::dec(r8 &r) noexcept { // dec r8 //    // "Z" "1" "H" "-"
   m_clock.cycle(1);
 }
 
-void Core::dec(byte &b) noexcept { // dec [HL] // "Z" "1" "H" "-"
+void Core::dec(byte &b) noexcept { // dec [HL] // z 1 h -
   --b;
 
   F = {b == 0, 1, (b & 0b0000'1111) == 0b0000'1111, F.c};
@@ -734,7 +726,7 @@ void Core::dec(byte &b) noexcept { // dec [HL] // "Z" "1" "H" "-"
   m_clock.cycle(3);
 }
 
-void Core::inc(r8 &r) noexcept { // inc r8 //  // "Z" "0" "H" "-"
+void Core::inc(r8 &r) noexcept { // inc r8 // z 0 h -
   ++r;
 
   F = {r == 0, 0, r.lowNibble() == 0, F.c};
@@ -750,7 +742,7 @@ void Core::inc(byte &b) noexcept { // inc [HL]
   m_clock.cycle(3);
 }
 
-void Core::or_(const r8 r) noexcept { // or A,r8 // "Z" "0" "0" "0"
+void Core::or_(const r8 r) noexcept { // or A,r8 // z 0 0 0
   A |= r;
   F = {A == 0, 0, 0, 0};
 
@@ -771,7 +763,7 @@ void Core::or_(const n8 n) noexcept { // or A,n8
   m_clock.cycle(2);
 }
 
-void Core::sbc(const r8 r) noexcept { // sbc A,r8 // "Z" "1" "H" "C"
+void Core::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
                                       // A = A -(r + F.c)
   const flag c = (r.data() + F.c) > A;
   const flag h = ((r.lowNibble() + F.c) & 0b0000'1111) > A.lowNibble();
@@ -802,7 +794,7 @@ void Core::sbc(const n8 n) noexcept { // sbc A,n8
   m_clock.cycle(2);
 }
 
-void Core::sub(const r8 r) noexcept { // sub A,r8 // "Z" "1" "H" "C"
+void Core::sub(const r8 r) noexcept { // sub A,r8 // z 1 h c
                                       // A = A - r
   F = {A == r, 1, r.lowNibble() > A.lowNibble(), r > A};
   A = A - r;
@@ -824,7 +816,7 @@ void Core::sub(const n8 n) noexcept { // sub A,n8
   m_clock.cycle(2);
 }
 
-void Core::xor_(const r8 r) noexcept { // xor A,r8 // "Z" "0" "0" "0"
+void Core::xor_(const r8 r) noexcept { // xor A,r8 // z 0 0 0
   A ^= r;
   F = {A == 0, 0, 0, 0};
 
@@ -845,8 +837,8 @@ void Core::xor_(const n8 n) noexcept { // xor A,n8
   m_clock.cycle(2);
 }
 
-// // 16-bit Arithmetic Instructions
-void Core::add(HL_register_tag_t, const r16 rr) noexcept { // add HL,r16  // "-" "0" "H" "C"
+// 16-bit Arithmetic Instructions
+void Core::add(HL_register_tag_t, const r16 rr) noexcept { // add HL,r16  // - 0 h c
   const flag c = (HL.data() + rr.data()) > r16::max();
   const flag h = ((HL.data() & 0x0fff) + (rr.data() & 0x0fff)) > 0x0fff;
 
@@ -869,14 +861,14 @@ void Core::inc(r16 &rr) noexcept { // inc r16
   m_clock.cycle(2);
 }
 
-// // Bit Operations Instructions
-void Core::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // "Z" "0" "1" "-"
+// Bit Operations Instructions
+void Core::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // z 0 1 -
   F = {bool(r.data() & byte(0b1 << u.m_data)) == 0, 0, 1, F.c};
 
   m_clock.cycle(2);
 }
 
-void Core::bit(const u3 u, const byte b) noexcept { // bit u3,[HL] // "Z" "0" "1" "-"
+void Core::bit(const u3 u, const byte b) noexcept { // bit u3,[HL] // z 0 1 -
   F = {bool(b & byte(0b1 << u.m_data)) == 0, 0, 1, F.c};
 
   m_clock.cycle(3);
@@ -910,7 +902,7 @@ void Core::set(const u3 u, byte &b) noexcept { // set u3,[HL]
   m_clock.cycle(4);
 }
 
-void Core::swap(r8 &r) noexcept { // swap r8 // "Z" "0" "0" "0"
+void Core::swap(r8 &r) noexcept { // swap r8 // z 0 0 0
   r = byte((r.lowNibble() << 4) | r.highNibble());
   F = {r == 0, 0, 0, 0};
 
@@ -924,8 +916,8 @@ void Core::swap(byte &b) noexcept { // swap [HL]
   m_clock.cycle(4);
 }
 
-// // Bit Shift Instructions
-void Core::rl(r8 &r) noexcept { // rl r8 // "Z" "0" "0" "C"
+// Bit Shift Instructions
+void Core::rl(r8 &r) noexcept { // rl r8 // z 0 0 c
                                 // C <- [7 <- 0] <- C
   const flag old_carry = F.c;
   F.c = 0b1000'0000 & r.data();
@@ -949,7 +941,7 @@ void Core::rl(byte &b) noexcept { // rl [HL]
   m_clock.cycle(4);
 }
 
-void Core::rla() noexcept { // rla // "0" "0" "0" "C"
+void Core::rla() noexcept { // rla // 0 0 0 c
   const flag old_carry = F.c;
   F.c = 0b1000'0000 & A.data();
 
@@ -961,7 +953,7 @@ void Core::rla() noexcept { // rla // "0" "0" "0" "C"
   m_clock.cycle(1);
 }
 
-void Core::rlc(r8 &r) noexcept { // rlc r8 // "Z" "0" "0" "C"
+void Core::rlc(r8 &r) noexcept { // rlc r8 // z 0 0 c
                                  // C <- [7 <- 0] <- [7]
   const flag old_7th_bit = r.data() & 0b1000'0000;
   F.c = old_7th_bit;
@@ -986,7 +978,7 @@ void Core::rlc(byte &b) noexcept { // rlc [HL]
   m_clock.cycle(4);
 }
 
-void Core::rlca() noexcept { // rlca //  // "0" "0" "0" "C"
+void Core::rlca() noexcept { // rlca // 0 0 0 c
   const flag old_7th_bit = A.data() & 0b1000'0000;
   F.c = old_7th_bit;
 
@@ -998,7 +990,7 @@ void Core::rlca() noexcept { // rlca //  // "0" "0" "0" "C"
   m_clock.cycle(2);
 }
 
-void Core::rr(r8 &r) noexcept { // rr r8 // "Z" "0" "0" "C"
+void Core::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
                                 // C -> [7 -> 0] -> C
   const flag old_carry = F.c;
   F.c = r.data() & 0b0000'0001;
@@ -1022,8 +1014,8 @@ void Core::rr(byte &b) noexcept { // rr [HL]
 
   m_clock.cycle(4);
 }
-//
-void Core::rra() noexcept { // rra // // "0" "0" "0" "C"
+
+void Core::rra() noexcept { // rra // // 0 0 0 c
   const flag old_carry = F.c;
   F.c = A.data() & 0b0000'0001;
 
@@ -1035,7 +1027,7 @@ void Core::rra() noexcept { // rra // // "0" "0" "0" "C"
   m_clock.cycle(1);
 }
 
-void Core::rrc(r8 &r) noexcept { // rrc r8 // "Z" "0" "0" "C"
+void Core::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
                                  // [0] -> [7 -> 0] -> C
   F.c = r.data() & 0b0000'0001;
   r >>= 1;
@@ -1054,7 +1046,7 @@ void Core::rrc(byte &b) noexcept { // rrc [HL]
   m_clock.cycle(4);
 }
 
-void Core::rrca() noexcept { // rrca // // "0" "0" "0" "C"
+void Core::rrca() noexcept { // rrca // 0 0 0 c
   F.c = A.data() & 0b0000'0001;
   A >>= 1;
 
@@ -1063,7 +1055,7 @@ void Core::rrca() noexcept { // rrca // // "0" "0" "0" "C"
   m_clock.cycle(1);
 }
 
-void Core::sla(r8 &r) noexcept { // sla r8 // "Z" "0" "0" "C"
+void Core::sla(r8 &r) noexcept { // sla r8 // z 0 0 c
                                  // C <- [7 <- 0] <- 0
   F.c = r.data() & 0b1000'0000;
   r <<= 1;
@@ -1082,7 +1074,7 @@ void Core::sla(byte &b) noexcept { // sla [HL]
   m_clock.cycle(4);
 }
 
-void Core::sra(r8 &r) noexcept { // sra r8 // "Z" "0" "0" "C"
+void Core::sra(r8 &r) noexcept { // sra r8 // z 0 0 c
   const flag old_7th_bit = r.data() & 0b1000'0000;
   F.c = r.data() & 0b0000'0001;
 
@@ -1106,7 +1098,7 @@ void Core::sra(byte &b) noexcept { // sra [HL]
   m_clock.cycle(4);
 }
 
-void Core::srl(r8 &r) noexcept { // srl r8 // "Z" "0" "0" "C"
+void Core::srl(r8 &r) noexcept { // srl r8 // z 0 0 c
                                  // 0 -> [7 -> 0] -> C
   F.c = r.data() & 0b0000'0001;
   r >>= 1;
@@ -1162,7 +1154,6 @@ void Core::ld(r8 &r, const byte b) noexcept { // ld r8,[HL]
   m_clock.cycle(2);
 }
 
-//
 void Core::ld(byte &b, register_to_memory_t) noexcept { // ld [r16],A
   b = A.data();
 
@@ -1175,7 +1166,6 @@ void Core::ld(byte &b, register_to_memory_t, tag_t) noexcept { // ld [n16],A
   m_clock.cycle(4);
 }
 
-//
 void Core::ld(memory_to_register_t, const byte b) noexcept { // ld A,[r16]
   A = b;
 
@@ -1187,7 +1177,7 @@ void Core::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16
 
   m_clock.cycle(4);
 }
-//
+
 void Core::ldh(byte &b, register_to_memory_t) noexcept { // ldh [n16],A
   b = A.data();
 
@@ -1199,7 +1189,7 @@ void Core::ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept { // ld
 
   m_clock.cycle(2);
 }
-//
+
 void Core::ldh(memory_to_register_t, const byte b) noexcept { // ldh A,[n16]
   A = b;
 
@@ -1211,7 +1201,7 @@ void Core::ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept { 
 
   m_clock.cycle(2);
 }
-//
+
 void Core::ld(HLi_tag_t, register_to_memory_t) noexcept { // ld [HLI],A
   *HL = A.data();
   ++HL;
@@ -1240,9 +1230,8 @@ void Core::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
   m_clock.cycle(2);
 }
 
-// // Jumps and Subroutines
-//
-/////////////////////////////
+// Jumps and Subroutines
+
 // Example
 // ------------
 // Before                 Operation         After
@@ -1256,8 +1245,7 @@ void Core::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
 //         ...   ..                             ...    ..
 //       0x0000 | ?? |                        0x0000 | ?? |
 //
-//
-/////////////////////////////
+
 void Core::call(const n16 nn) noexcept { // call n16
   m_bus.write(--SP.m_data, nn.hi());
   m_bus.write(--SP.m_data, nn.lo());
@@ -1360,7 +1348,7 @@ void Core::rst(const std::size_t v) noexcept { // rst vec
 }
 
 // // Stack Operations Instructions
-void Core::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // "-" "0" "H" "C"
+void Core::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // - 0 h c
   const flag c = (HL.data() + SP.m_data) > r16::max();
   const flag h = ((HL.data() & 0x0fff) + (SP.m_data & 0x0fff)) > 0x0fff;
 
@@ -1371,7 +1359,7 @@ void Core::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // 
   m_clock.cycle(2);
 }
 
-void Core::add(SP_register_tag_t, const e8 e) noexcept { // add SP,e8 // "0" "0" "H" "C"
+void Core::add(SP_register_tag_t, const e8 e) noexcept { // add SP,e8 // 0 0 h c
   const flag c = (SP.m_data & 0x00ff) + e.m_data > 0b1111'1111;
   const flag h = (SP.m_data & 0x000f) + e.m_data > 0b0000'1111;
 
@@ -1407,7 +1395,7 @@ void Core::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP
   m_clock.cycle(5);
 }
 
-void Core::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld HL,SP+e8 // "0" "0" "H" "C"
+void Core::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld HL,SP+e8 // 0 0 h c
   const flag c = ((SP.m_data & 0x00ff) + e.m_data) > 0b1111'1111;
   const flag h = ((SP.m_data & 0x000f) + e.m_data) > 0b0000'1111;
 
@@ -1425,7 +1413,7 @@ void Core::ld(SP_register_tag_t, HL_register_tag_t) noexcept { // ld SP,HL
   m_clock.cycle(2);
 }
 
-void Core::pop(AF_register_tag_t) noexcept { // pop AF // "Z" "N" "H" "C"
+void Core::pop(AF_register_tag_t) noexcept { // pop AF // z n h c
   const byte f = m_bus.read(SP.m_data++);
   F.z = f & 0b1000'0000;
   F.n = f & 0b0100'0000;
@@ -1461,13 +1449,13 @@ void Core::push(const r16 rr) noexcept { // push r16
 }
 
 // // Miscellaneous Instructions
-void Core::ccf() noexcept { // ccf // "-" "0" "0" "C"
+void Core::ccf() noexcept { // ccf // - 0 0 c
   F = {F.z, 0, 0, bool(F.c ^ 1)};
 
   m_clock.cycle(1);
 }
 
-void Core::cpl() noexcept { // cpl // // "-" "1" "1" "-"
+void Core::cpl() noexcept { // cpl // // - 1 1 -
   A = ~A.data();
   F = {F.z, 1, 1, F.c};
 
@@ -1476,7 +1464,7 @@ void Core::cpl() noexcept { // cpl // // "-" "1" "1" "-"
 
 // decimal adjusted addition (daa)
 // https://forums.nesdev.org/viewtopic.php?f=20&t=15944
-void Core::daa() noexcept { // daa // // "Z" "-" "0" "C"
+void Core::daa() noexcept { // daa // z - 0 c
   // clang-format off
   if(F.n) {
     if(F.c)                         { A -= 0x60;          }
@@ -1511,7 +1499,7 @@ void Core::nop() noexcept { // nop
   m_clock.cycle(1);
 }
 
-void Core::scf() noexcept { // scf // // "-" "0" "0" "1"
+void Core::scf() noexcept { // scf - 0 0 1
   F = {F.z, 0, 0, 1};
 
   m_clock.cycle(1);

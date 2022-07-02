@@ -51,7 +51,7 @@ private:
   struct AF_register_tag_t { explicit AF_register_tag_t() = default; } AF_register_tag;
   struct SP_register_tag_t { explicit SP_register_tag_t() = default; } SP_register_tag;
   struct HL_register_tag_t { explicit HL_register_tag_t() = default; } HL_register_tag;
-  struct C_register_tag_t { explicit C_register_tag_t() = default; } C_register_tag;;
+  struct C_register_tag_t { explicit C_register_tag_t() = default; } C_register_tag;
 
   struct HLi_tag_t { explicit HLi_tag_t() = default; } HLi_tag;
   struct HLd_tag_t { explicit HLd_tag_t() = default; } HLd_tag;
@@ -112,12 +112,12 @@ private:
   void xor_(const byte b) noexcept; // xor A,[HL]
   void xor_(const n8 n) noexcept;   // xor A,n8
 
-  // // 16-bit Arithmetic Instructions
+  // 16-bit Arithmetic Instructions
   void add(HL_register_tag_t, const r16 rr) noexcept; // add HL,r16
   void dec(r16 &rr) noexcept;                         // dec r16
   void inc(r16 &rr) noexcept;                         // inc r16
 
-  // // Bit Operations Instructions
+  // Bit Operations Instructions
   void bit(const u3 u, const r8 r) noexcept;   // bit u3,r8
   void bit(const u3 u, const byte b) noexcept; // bit u3,[HL]
 
@@ -130,7 +130,7 @@ private:
   void swap(r8 &r) noexcept;   // swap r8
   void swap(byte &b) noexcept; // swap [HL]
 
-  // // Bit Shift Instructions
+  // Bit Shift Instructions
   void rl(r8 &r) noexcept;   // rl r8
   void rl(byte &b) noexcept; // rl [HL]
   void rla() noexcept;       // rla
@@ -182,7 +182,7 @@ private:
   void ld(memory_to_register_t, HLi_tag_t) noexcept; // ld A,[HLI]
   void ld(memory_to_register_t, HLd_tag_t) noexcept; // ld A,[HLD]
 
-  // // Jumps and Subroutines
+  // Jumps and Subroutines
   void call(const n16 nn) noexcept;             // call n16
   void call(const cc c, const n16 nn) noexcept; // call cc,n16
   void jp(HL_register_tag_t) noexcept;          // jp HL
@@ -195,7 +195,7 @@ private:
   void reti() noexcept;                         // reti
   void rst(const std::size_t v) noexcept;       // rst vec
 
-  // // Stack Operations Instructions
+  // Stack Operations Instructions
   void add(HL_register_tag_t, SP_register_tag_t) noexcept; // add HL,SP
   void add(SP_register_tag_t, const e8 e) noexcept;        // add SP,e8
   void dec(SP_register_tag_t) noexcept;                    // dec SP
@@ -211,7 +211,7 @@ private:
   void push(AF_register_tag_t) noexcept; // push AF
   void push(const r16 rr) noexcept;      // push r16
 
-  // // Miscellaneous Instructions
+  // Miscellaneous Instructions
   void ccf() noexcept;  // ccf
   void cpl() noexcept;  // cpl
   void daa() noexcept;  // daa

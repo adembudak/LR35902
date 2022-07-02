@@ -9,7 +9,7 @@ using flag = bool;
 using byte = std::uint8_t;
 using word = std::uint16_t;
 
-[[nodiscard]] consteval unsigned long long operator"" _B(const unsigned long long l) { //
+[[nodiscard]] consteval unsigned long long operator"" _B(const unsigned long long l) {
   return l;
 }
 
