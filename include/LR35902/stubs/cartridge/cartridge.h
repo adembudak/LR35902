@@ -45,6 +45,15 @@ private:
     // clang-format on
   };
 
+  struct {
+    bool nintendo_logo_check{};
+    const char title[12]{}; // 11 character + '\0'
+    mbc kind{};
+    bool checksum{};
+    byte rom_size{};
+    byte ram_size{};
+  } CartridgeHeader;
+
 public:
   void load(const char *romfile);
 
@@ -58,7 +67,9 @@ public:
 
   [[nodiscard]] auto data() const noexcept -> std::vector<byte>;
 
-public:
   friend class DebugView;
+
+private:
+  void decodeCartridgeHeader();
 };
 }
