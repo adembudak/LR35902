@@ -1,5 +1,9 @@
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 #include <LR35902/stubs/builtin/builtin.h>
+
+#include <cassert>
+#include <cstdint>
 
 namespace LR35902 {
 
@@ -33,6 +37,14 @@ byte BuiltIn::readHRAM(const std::size_t index) const noexcept {
 
 void BuiltIn::writeHRAM(const std::size_t index, const byte b) noexcept {
   m_hram[index] = b;
+}
+
+byte &BuiltIn::operator[](const std::size_t index) noexcept {
+  if(index < wramx_end) return m_wram[index - wram0];
+  else if(index < echo_end) return m_echo[index - echo];
+  else if(index < noUsable_end) return m_noUsable[index - noUsable];
+  else if(index < hram_end) return m_hram[index - hram];
+  else assert(false);
 }
 
 }
