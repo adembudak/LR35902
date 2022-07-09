@@ -98,6 +98,9 @@ public:
 
   [[nodiscard]] byte readIO(const std::size_t index) const noexcept;
   void writeIO(const std::size_t index, const byte b) noexcept;
+
+  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
+  [[nodiscard]] auto data() const noexcept -> decltype(m_data);
 };
 
 }
