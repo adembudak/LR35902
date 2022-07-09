@@ -18,12 +18,12 @@ byte &Bus::read_write(const std::size_t index) noexcept {
   if(index < romx_end) return m_cart[index];
   else if(index < vram_end) return m_ppu[index];
   else if(index < sram_end) return m_cart[index];
-  // else if(index < wramx_end) return m_builtIn[index - wram0];
-  // else if(index < echo_end) return m_builtIn[index - echo];
+  else if(index < wramx_end) return m_builtIn[index];
+  else if(index < echo_end) return m_builtIn[index - echo];
   else if(index < oam) return m_ppu[index];
-  // else if(index < noUsable_end) return m_builtIn[index - noUsable];
+  else if(index < noUsable_end) return m_builtIn[index - noUsable];
   // else if(index < io_end) return m_io[index - io];
-  // else if(index < hram_end) return m_builtIn[index - hram];
+  else if(index < hram_end) return m_builtIn[index - hram];
   // return {}; // REVISIT: implement this, IE interrupt stub
 }
 
