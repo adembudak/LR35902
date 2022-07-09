@@ -3,6 +3,7 @@
 #include <LR35902/config.h>
 
 #include <array>
+#include <cstdint>
 
 namespace LR35902 {
 
@@ -19,6 +20,7 @@ public:
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
 
+  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] auto data() const noexcept -> decltype(m_rom);
 };
 

@@ -1,4 +1,5 @@
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 #include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
 namespace LR35902 {
@@ -17,6 +18,12 @@ byte rom_ram::readSRAM(const std::size_t index) const noexcept {
 
 void rom_ram::writeSRAM(const std::size_t index, const byte b) noexcept {
   m_sram[index] = b;
+}
+
+byte &rom_ram::operator[](const std::size_t index) noexcept {
+  if(index < romx_end) //
+    return m_rom[index];
+  return m_sram[index - sram];
 }
 
 auto rom_ram::data() const noexcept -> decltype(m_rom) {

@@ -21,6 +21,7 @@ public:
   [[nodiscard]] byte readSRAM(const std::size_t index) const noexcept;
   void writeSRAM(const std::size_t index, const byte b) noexcept;
 
+  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] auto data() const noexcept -> decltype(m_rom);
 };
 
