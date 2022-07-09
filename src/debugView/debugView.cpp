@@ -149,6 +149,7 @@ void DebugView::registers(const IO &io) {
   End();
 }
 
+/*
 void DebugView::dumpROM(const Cartridge &cart) noexcept {
   static MemoryEditor memory_editor_rom;
   memory_editor_rom.ReadOnly = true;
@@ -718,5 +719,6 @@ void f(const std::uint16_t pc_shadow) {
     }
   }
 }
+*/
 
 }

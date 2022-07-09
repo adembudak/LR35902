@@ -35,6 +35,10 @@ int main(int argc, char **argv) {
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
+
+        GetIO().Fonts->AddFontFromFileTTF("../misc/source-code-pro/TTF/SourceCodePro-Regular.ttf", 14.0f);
+        GetIO().Fonts->Build();
+
         ImGui::StyleColorsDark();
 
         ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer); // setup renderer backends
@@ -69,12 +73,12 @@ int main(int argc, char **argv) {
 
           DebugView::CPURegisters(cpu);
           DebugView::registers(io);
-          DebugView::dumpROM(cart);
-          DebugView::dumpSRAM(cart);
-          DebugView::dumpVRAM(ppu);
-          DebugView::dumpOAM(ppu);
-          DebugView::dumpWRAM(builtIn);
-          DebugView::dumpHRAM(builtIn);
+          // DebugView::dumpROM(cart);
+          // DebugView::dumpSRAM(cart);
+          // DebugView::dumpVRAM(ppu);
+          // DebugView::dumpOAM(ppu);
+          // DebugView::dumpWRAM(builtIn);
+          // DebugView::dumpHRAM(builtIn);
 
           Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
