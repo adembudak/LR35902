@@ -36,7 +36,8 @@ int main(int argc, char **argv) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
-        GetIO().Fonts->AddFontFromFileTTF("../misc/source-code-pro/TTF/SourceCodePro-Regular.ttf", 14.0f);
+        GetIO().Fonts->AddFontFromFileTTF("../misc/font/source-code-pro/TTF/SourceCodePro-Regular.ttf",
+                                          14.0f);
         GetIO().Fonts->Build();
 
         ImGui::StyleColorsDark();
