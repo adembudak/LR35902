@@ -36,6 +36,7 @@ byte Bus::read(const std::size_t index) const noexcept {
   else if(index < sram_end) return m_cart.readSRAM(index - sram);
   else if(index < wramx_end) return m_builtIn.readWRAM(index - wram0);
   else if(index < echo_end) return m_builtIn.readEcho(index - echo);
+  else if(index < oam) return m_ppu.readOAM(index - oam);
   else if(index < noUsable_end) return m_builtIn.readNoUsable(index - noUsable);
   else if(index < io_end) return m_io.readIO(index - io);
   else if(index < hram_end) return m_builtIn.readHRAM(index - hram);
@@ -48,6 +49,7 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < sram_end) m_cart.writeSRAM(index - sram, b);
   else if(index < wramx_end) m_builtIn.writeWRAM(index - wram0, b);
   else if(index < echo_end) m_builtIn.writeEcho(index - echo, b);
+  else if(index < oam) m_ppu.writeOAM(index - oam, b);
   else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
   else if(index < io_end) m_io.writeIO(index, b);
   else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
