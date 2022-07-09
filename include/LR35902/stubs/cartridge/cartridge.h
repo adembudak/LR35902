@@ -1,26 +1,26 @@
 #pragma once
 
 #include <LR35902/config.h>
+#include <LR35902/stubs/cartridge/kind/rom_only.h>
+#include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
-#include <array>
-#include <vector>
+#include <variant>
 
 namespace LR35902 {
 
+// this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge {
-private:
-  std::vector<byte> m_rom{};
-  std::array<byte, 8_KiB> m_sram{};
+  std::variant<rom_only, rom_ram> m_cart;
 
   enum class mbc : std::uint8_t {
     // clang-format off
-    rom_only                       = 0x00,
+    rom_only                       = 0x00, // done
     mbc1                           = 0x01,
     mbc1_ram                       = 0x02,
     mbc1_ram_battery               = 0x03,
     mbc2                           = 0x05,
     mbc2_battery                   = 0x06,
-    rom_ram                        = 0x08,
+    rom_ram                        = 0x08, // done
     rom_ram_battery                = 0x09,
     mmm01                          = 0x0b,
     mmm01_ram                      = 0x0c,
@@ -57,15 +57,14 @@ private:
 public:
   void load(const char *romfile);
 
-  byte &operator[](const std::size_t index) noexcept;
+  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
+  void writeROM(const std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] byte readSRAM(const std::size_t index) const noexcept;
   void writeSRAM(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
-  void writeROM(const std::size_t index, const byte b) noexcept;
-
-  [[nodiscard]] auto data() const noexcept -> std::vector<byte>;
+  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
+  [[nodiscard]] auto data() const noexcept -> decltype(auto);
 
   friend class DebugView;
 
