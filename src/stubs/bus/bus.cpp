@@ -15,10 +15,12 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io) :
     m_io{io} {}
 
 byte &Bus::read_write(const std::size_t index) noexcept {
+  if(index < romx_end) return m_cart[index];
   /*
-    if(index < romx_end) return m_cart[index];
     else if(index < vram_end) return m_ppu[index - vram];
-    else if(index < sram_end) return m_cart[index - sram];
+    */
+  else if(index < sram_end) return m_cart[index]; // don't normalize index
+  /*
     else if(index < wramx_end) return m_builtIn[index - wram0];
     else if(index < echo_end) return m_builtIn[index - echo];
     else if(index < noUsable_end) return m_builtIn[index - noUsable];
