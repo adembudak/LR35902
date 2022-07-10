@@ -19,7 +19,7 @@ class Bus {
   IO &m_io;
 
 public:
-  Interrupt &m_interrupt;
+  Interrupt &interruptHandler;
 
 public:
   [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interrupt);

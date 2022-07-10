@@ -45,31 +45,31 @@ void Core::handleInterrupts() noexcept {
   m_bus.write(--SP.m_data, PC.hi());
   m_bus.write(--SP.m_data, PC.lo());
 
-  switch(m_bus.m_interrupt.get()) {
+  switch(m_bus.interruptHandler.get()) {
     using enum Interrupt::kind;
   case vblank:
     PC.m_data = intr_vec[0];
-    m_bus.m_interrupt.IF &= 0b1111'1110;
+    m_bus.interruptHandler.IF &= 0b1111'1110;
     break;
 
   case lcd_stat:
     PC.m_data = intr_vec[1];
-    m_bus.m_interrupt.IF &= 0b1111'1101;
+    m_bus.interruptHandler.IF &= 0b1111'1101;
     break;
 
   case timer:
     PC.m_data = intr_vec[2];
-    m_bus.m_interrupt.IF &= 0b1111'1011;
+    m_bus.interruptHandler.IF &= 0b1111'1011;
     break;
 
   case serial:
     PC.m_data = intr_vec[3];
-    m_bus.m_interrupt.IF &= 0b1111'0111;
+    m_bus.interruptHandler.IF &= 0b1111'0111;
     break;
 
   case joypad:
     PC.m_data = intr_vec[4];
-    m_bus.m_interrupt.IF &= 0b1110'1111;
+    m_bus.interruptHandler.IF &= 0b1110'1111;
     break;
   }
 
@@ -79,7 +79,7 @@ void Core::handleInterrupts() noexcept {
 // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
 void Core::run() noexcept {
 
-  if(ime && m_bus.m_interrupt.isThereAnAwaitingInterrupt()) {
+  if(ime && m_bus.interruptHandler.isThereAnAwaitingInterrupt()) {
     handleInterrupts();
   }
 

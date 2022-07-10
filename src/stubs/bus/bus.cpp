@@ -16,7 +16,7 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interru
     m_ppu{ppu},
     m_builtIn{builtIn},
     m_io{io},
-    m_interrupt{interrupt} {}
+    interruptHandler{interrupt} {}
 
 byte &Bus::read_write(const std::size_t index) noexcept {
   if(index < romx_end) return m_cart[index];
@@ -26,9 +26,9 @@ byte &Bus::read_write(const std::size_t index) noexcept {
   else if(index < echo_end) return m_builtIn[index];
   else if(index < oam) return m_ppu[index];
   else if(index < noUsable_end) return m_builtIn[index];
-  else if(index < io_end) return index == 0xff0f ? m_interrupt.IF : m_io[index];
+  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF : m_io[index];
   else if(index < hram_end) return m_builtIn[index];
-  else if(index == IE) return m_interrupt.IE;
+  else if(index == IE) return interruptHandler.IE;
   else assert(false);
 }
 
@@ -40,9 +40,9 @@ byte Bus::read(const std::size_t index) const noexcept {
   else if(index < echo_end) return m_builtIn.readEcho(index - echo);
   else if(index < oam) return m_ppu.readOAM(index - oam);
   else if(index < noUsable_end) return m_builtIn.readNoUsable(index - noUsable);
-  else if(index < io_end) return index == 0xff0f ? m_interrupt.IF : m_io.readIO(index - io);
+  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF : m_io.readIO(index - io);
   else if(index < hram_end) return m_builtIn.readHRAM(index - hram);
-  else if(index == IE) return m_interrupt.IE;
+  else if(index == IE) return interruptHandler.IE;
   else assert(false);
 }
 
@@ -55,9 +55,9 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < echo_end) m_builtIn.writeEcho(index - echo, b);
   else if(index < oam) m_ppu.writeOAM(index - oam, b);
   else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
-  else if(index < io_end) { if(index == 0xff0f) m_interrupt.IF = b; else m_io.writeIO(index, b); } 
+  else if(index < io_end) { if(index == 0xff0f) interruptHandler.IF = b; else m_io.writeIO(index, b); } 
   else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
-  else if(index == IE) m_interrupt.IE = b;
+  else if(index == IE) interruptHandler.IE = b;
   else assert(false);
 }
 
