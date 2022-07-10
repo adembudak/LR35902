@@ -10,6 +10,7 @@ class Cartridge;
 class PPU;
 class BuiltIn;
 class IO;
+class Interrupt;
 
 class Bus {
   Cartridge &m_cart;
@@ -18,11 +19,14 @@ class Bus {
   IO &m_io;
 
 public:
-  [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io);
+  Interrupt &m_interrupt;
 
-  [[nodiscard]] byte &read_write(const std::size_t index) noexcept;
+public:
+  [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interrupt);
 
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
+
+  [[nodiscard]] byte &read_write(const std::size_t index) noexcept;
 };
 }
