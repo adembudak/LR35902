@@ -44,6 +44,8 @@ private:
   auto fetchByte() noexcept -> byte;
   auto fetchWord() noexcept -> word;
 
+  void handleInterrupts() noexcept;
+
   clock m_clock;
 
 #if defined(WITH_DEBUGGER)

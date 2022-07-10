@@ -32,8 +32,56 @@ auto Core::fetchWord() noexcept -> word {
   return word(hi << 8 | lo);
 };
 
+// interrupt procedure:
+// ---
+// 1- disable ime
+// 2- push PC into stack
+// 3- set PC to corresponding interrupt vector
+// 4- reset corresponding bit if IF
+// 5- all results in 5 cycle.
+void Core::handleInterrupts() noexcept {
+  ime = false;
+
+  m_bus.write(--SP.m_data, PC.hi());
+  m_bus.write(--SP.m_data, PC.lo());
+
+  switch(m_bus.m_interrupt.get()) {
+    using enum Interrupt::kind;
+  case vblank:
+    PC.m_data = intr_vec[0];
+    m_bus.m_interrupt.IF &= 0b1111'1110;
+    break;
+
+  case lcd_stat:
+    PC.m_data = intr_vec[1];
+    m_bus.m_interrupt.IF &= 0b1111'1101;
+    break;
+
+  case timer:
+    PC.m_data = intr_vec[2];
+    m_bus.m_interrupt.IF &= 0b1111'1011;
+    break;
+
+  case serial:
+    PC.m_data = intr_vec[3];
+    m_bus.m_interrupt.IF &= 0b1111'0111;
+    break;
+
+  case joypad:
+    PC.m_data = intr_vec[4];
+    m_bus.m_interrupt.IF &= 0b1110'1111;
+    break;
+  }
+
+  m_clock.cycle(5);
+}
+
 // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
 void Core::run() noexcept {
+
+  if(ime && m_bus.m_interrupt.isThereAnAwaitingInterrupt()) {
+    handleInterrupts();
+  }
 
   switch(fetchOpcode()) {
   case 0x00: nop(); break;
