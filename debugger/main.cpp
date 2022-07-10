@@ -51,8 +51,9 @@ int main(int argc, char **argv) {
         PPU ppu;
         BuiltIn builtIn;
         IO io;
+        Interrupt intr;
 
-        Bus bus{cart, ppu, builtIn, io};
+        Bus bus{cart, ppu, builtIn, io, intr};
         Core cpu{bus};
 
         bool done = false;
