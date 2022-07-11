@@ -1,6 +1,7 @@
 #include <LR35902/config.h>
 #include <LR35902/core/core.h>
 #include <LR35902/stubs/bus/bus.h>
+#include <LR35902/stubs/interrupt/interrupt.h>
 
 #include <cstdint>
 

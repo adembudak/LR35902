@@ -3,6 +3,7 @@
 #include <LR35902/stubs/builtin/builtin.h>
 #include <LR35902/stubs/bus/bus.h>
 #include <LR35902/stubs/cartridge/cartridge.h>
+#include <LR35902/stubs/interrupt/interrupt.h>
 #include <LR35902/stubs/io/io.h>
 #include <LR35902/stubs/ppu/ppu.h>
 
