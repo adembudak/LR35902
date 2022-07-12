@@ -21,8 +21,8 @@ byte &rom_only::operator[](const std::size_t index) noexcept {
   return m_rom[index];
 }
 
-auto rom_only::data() const noexcept -> decltype(m_rom) {
-  return m_rom;
+const byte *rom_only::data() const noexcept {
+  return m_rom.data();
 }
 
 }

@@ -26,8 +26,8 @@ byte &rom_ram::operator[](const std::size_t index) noexcept {
   return m_sram[index - sram];
 }
 
-auto rom_ram::data() const noexcept -> decltype(m_rom) {
-  return m_rom;
+const byte *rom_ram::data() const noexcept {
+  return m_rom.data();
 }
 
 }

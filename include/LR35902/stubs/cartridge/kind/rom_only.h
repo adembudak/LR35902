@@ -21,7 +21,7 @@ public:
   void write(const std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
-  [[nodiscard]] auto data() const noexcept -> decltype(m_rom);
+  [[nodiscard]] const byte *data() const noexcept;
 };
 
 }
