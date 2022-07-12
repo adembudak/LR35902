@@ -1,6 +1,7 @@
 #pragma once
 
 #include <LR35902/config.h>
+#include <LR35902/stubs/cartridge/kind/mbc1.h>
 #include <LR35902/stubs/cartridge/kind/rom_only.h>
 #include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
@@ -12,7 +13,7 @@ enum class mbc : std::uint8_t;
 
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge {
-  std::variant<rom_only, rom_ram> m_cart;
+  std::variant<rom_only, rom_ram, mbc1> m_cart;
 
   struct {
     bool nintendo_logo_check{};
@@ -33,7 +34,7 @@ public:
   void writeSRAM(const std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
-  [[nodiscard]] auto data() const noexcept -> decltype(auto);
+  [[nodiscard]] const byte *data() const noexcept;
 
   friend class DebugView;
 };
