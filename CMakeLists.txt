@@ -17,6 +17,7 @@ add_library(
   src/stubs/cartridge/cartridge.cpp
   src/stubs/cartridge/kind/rom_only.cpp
   src/stubs/cartridge/kind/rom_ram.cpp
+  src/stubs/cartridge/kind/mbc1.cpp
   src/stubs/ppu/ppu.cpp
   src/stubs/builtin/builtin.cpp
   src/stubs/io/io.cpp)
