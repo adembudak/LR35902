@@ -19,8 +19,8 @@ void DebugView::disassembly() const noexcept {
 
   std::uint16_t pc_shadow = m_core.PC.m_data;
 
-  for(; pc_shadow <= 0xffff;) {
-  }
+  //  for(; pc_shadow <= 0xffff;) {
+  // }
 
   End();
 }
@@ -153,14 +153,14 @@ void DebugView::dumpROM() const noexcept {
   static MemoryEditor memory_editor_rom;
   memory_editor_rom.ReadOnly = true;
 
-  memory_editor_rom.DrawWindow("ROM", (void *)m_cart.data(), 32_KiB);
+  memory_editor_rom.DrawWindow("ROM", (void *)m_cart.data(), 64_KiB);
 }
 
 void DebugView::dumpSRAM() const noexcept {
   static MemoryEditor memory_editor_sram;
   memory_editor_sram.ReadOnly = true;
 
-  memory_editor_sram.DrawWindow("SRAM", (void *)m_cart.data(), 8_KiB);
+  //  memory_editor_sram.DrawWindow("SRAM", (void *)m_cart.data(), 8_KiB);
 }
 
 void DebugView::dumpVRAM() const noexcept {

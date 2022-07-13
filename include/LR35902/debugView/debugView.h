@@ -17,6 +17,14 @@ class DebugView {
   const BuiltIn &m_builtIn;
 
 public:
+  DebugView() = delete;
+  DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn) :
+      m_core{core},
+      m_io{io},
+      m_cart{cart},
+      m_ppu{ppu},
+      m_builtIn{builtIn} {}
+
   void disassembly() const noexcept;
   void CPURegisters() const noexcept;
   void registers() const noexcept;

@@ -57,6 +57,8 @@ int main(int argc, char **argv) {
         Bus bus{cart, ppu, builtIn, io, intr};
         Core cpu{bus};
 
+        DebugView debugView{cpu, io, cart, ppu, builtIn};
+
         bool done = false;
         while(!done) {
           cpu.run();
@@ -74,14 +76,14 @@ int main(int argc, char **argv) {
           ImGui_ImplSDL2_NewFrame();
           NewFrame();
 
-          DebugView::CPURegisters(cpu);
-          DebugView::registers(io);
-          // DebugView::dumpROM(cart);
-          // DebugView::dumpSRAM(cart);
-          // DebugView::dumpVRAM(ppu);
-          // DebugView::dumpOAM(ppu);
-          // DebugView::dumpWRAM(builtIn);
-          // DebugView::dumpHRAM(builtIn);
+          debugView.CPURegisters();
+          debugView.registers();
+          debugView.dumpROM();
+          debugView.dumpSRAM();
+          debugView.dumpVRAM();
+          debugView.dumpOAM();
+          debugView.dumpWRAM();
+          debugView.dumpHRAM();
 
           Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
