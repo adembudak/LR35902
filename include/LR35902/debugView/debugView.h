@@ -7,21 +7,28 @@ class Cartridge;
 class PPU;
 class BuiltIn;
 class IO;
+class Interrupt;
 
 class DebugView {
+  const Core &m_core;
+  const IO &m_io;
+  const Cartridge &m_cart;
+  const PPU &m_ppu;
+  const BuiltIn &m_builtIn;
+
 public:
-  static void disassembly(Core &core) noexcept;
-  static void CPURegisters(const Core &core) noexcept;
-  static void registers(const IO &io);
+  void disassembly() const noexcept;
+  void CPURegisters() const noexcept;
+  void registers() const noexcept;
 
-  //  static void dumpROM(const Cartridge &cart) noexcept;
-  //  static void dumpSRAM(const Cartridge &cart) noexcept;
+  void dumpROM() const noexcept;
+  void dumpSRAM() const noexcept;
 
-  //  static void dumpVRAM(const PPU &ppu) noexcept;
-  //  static void dumpOAM(const PPU &ppu) noexcept;
+  void dumpVRAM() const noexcept;
+  void dumpOAM() const noexcept;
 
-  //  static void dumpWRAM(const BuiltIn &builtin) noexcept;
-  //  static void dumpHRAM(const BuiltIn &builtin) noexcept;
+  void dumpWRAM() const noexcept;
+  void dumpHRAM() const noexcept;
 };
 
 }

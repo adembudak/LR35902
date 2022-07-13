@@ -5,6 +5,7 @@
 #include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
 #include <algorithm>
+#include <cassert>
 #include <cstdint>
 #include <fstream>
 #include <vector>
@@ -63,9 +64,8 @@ void Cartridge::load(const char *romfile) {
   const std::size_t title_begin = 0x134;
   std::copy_n(dumpedGamePak.begin() + title_begin, 11_B, std::begin(CartridgeHeader.title));
 
-  const std::size_t cartridge_type = 0x134;
+  const std::size_t cartridge_type = 0x147;
   switch(dumpedGamePak[cartridge_type]) {
-
   case 0x00:
     CartridgeHeader.kind = mbc::rom_only;
     m_cart = rom_only(begin(dumpedGamePak), end(dumpedGamePak));
@@ -80,6 +80,8 @@ void Cartridge::load(const char *romfile) {
     CartridgeHeader.kind = mbc::rom_ram;
     m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak));
     break;
+
+  default: assert(false && "this type of cart not supported (yet)");
   };
 
   const std::size_t checksum_begin = 0x134;

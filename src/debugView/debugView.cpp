@@ -12,12 +12,12 @@
 
 namespace LR35902 {
 
-void DebugView::disassembly(Core &core) noexcept {
+void DebugView::disassembly() const noexcept {
   using namespace ImGui;
 
   Begin("Disassembly");
 
-  std::uint16_t pc_shadow = core.PC.m_data;
+  std::uint16_t pc_shadow = m_core.PC.m_data;
 
   for(; pc_shadow <= 0xffff;) {
   }
@@ -26,30 +26,30 @@ void DebugView::disassembly(Core &core) noexcept {
 }
 
 bool showCpuRegisters = true;
-void DebugView::CPURegisters(const Core &core) noexcept {
+void DebugView::CPURegisters() const noexcept {
   using namespace ImGui;
 
   Begin("CPU: ", &showCpuRegisters, ImGuiWindowFlags_NoResize);
 
-  Text("A: %u", core.A.data());
-  const char Z = core.F.data() & 0b1000'0000 ? 'Z' : '-';
-  const char N = core.F.data() & 0b0100'0000 ? 'N' : '-';
-  const char H = core.F.data() & 0b0010'0000 ? 'H' : '-';
-  const char C = core.F.data() & 0b0001'0000 ? 'C' : '-';
+  Text("A: %u", m_core.A.data());
+  const char Z = m_core.F.data() & 0b1000'0000 ? 'Z' : '-';
+  const char N = m_core.F.data() & 0b0100'0000 ? 'N' : '-';
+  const char H = m_core.F.data() & 0b0010'0000 ? 'H' : '-';
+  const char C = m_core.F.data() & 0b0001'0000 ? 'C' : '-';
   Text("Flags: %c %c %c %c", Z, N, H, C);
 
   NewLine();
-  Text("B C: %x %x", core.B.data(), core.C.data());
+  Text("B C: %x %x", m_core.B.data(), m_core.C.data());
 
   NewLine();
-  Text("D E: %x %x", core.D.data(), core.E.data());
+  Text("D E: %x %x", m_core.D.data(), m_core.E.data());
 
   NewLine();
-  Text("H L: %x %x", core.H.data(), core.L.data());
+  Text("H L: %x %x", m_core.H.data(), m_core.L.data());
 
   NewLine();
-  Text("SP: %u", core.SP.m_data);
-  Text("PC: %u", core.PC.m_data);
+  Text("SP: %u", m_core.SP.m_data);
+  Text("PC: %u", m_core.PC.m_data);
 
   NewLine();
   NewLine();
@@ -65,80 +65,80 @@ bool showTimerRegisters = false;
 bool showAudioRegisters = false;
 bool showLCDRegistesr = false;
 
-void DebugView::registers(const IO &io) {
+void DebugView::registers() const noexcept {
   using namespace ImGui;
 
   Begin("Registers:", &showRegisters);
 
   if(Checkbox("LCD", &showLCDRegistesr); showLCDRegistesr) {
-    Text("LCDC: %x", io.LCDC);
-    Text("STAT: %x", io.STAT);
+    Text("LCDC: %x", m_io.LCDC);
+    Text("STAT: %x", m_io.STAT);
 
-    Text("SCY: %x", io.SCY);
-    Text("SCX: %x", io.SCX);
+    Text("SCY: %x", m_io.SCY);
+    Text("SCX: %x", m_io.SCX);
 
-    Text("LY:  %x", io.LY);
-    Text("LYC: %x", io.LYC);
+    Text("LY:  %x", m_io.LY);
+    Text("LYC: %x", m_io.LYC);
 
-    Text("DMA: %x", io.DMA);
+    Text("DMA: %x", m_io.DMA);
 
-    Text("BGP: %x", io.BGP);
-    Text("OBP0: %x", io.OBP0);
-    Text("OBP1: %x", io.OBP1);
+    Text("BGP: %x", m_io.BGP);
+    Text("OBP0: %x", m_io.OBP0);
+    Text("OBP1: %x", m_io.OBP1);
 
-    Text("WY: %x", io.WY);
-    Text("WX: %x", io.WX);
+    Text("WY: %x", m_io.WY);
+    Text("WX: %x", m_io.WX);
 
     Separator();
   }
 
   if(Checkbox("Timer", &showTimerRegisters); showTimerRegisters) {
-    Text("DIV: %x\n", io.DIV);
-    Text("TIMA: %x\n", io.TIMA);
-    Text("TMA: %x\n", io.TMA);
-    Text("TAC: %x\n", io.TAC);
+    Text("DIV: %x\n", m_io.DIV);
+    Text("TIMA: %x\n", m_io.TIMA);
+    Text("TMA: %x\n", m_io.TMA);
+    Text("TAC: %x\n", m_io.TAC);
 
     Separator();
   }
 
   if(Checkbox("Joypad", &showJoypadRegister); showJoypadRegister) {
-    Text("P1: %x", io.P1);
+    Text("P1: %x", m_io.P1);
 
     Separator();
   }
 
   if(Checkbox("Serial Cable", &showSerialCableRegisters); showSerialCableRegisters) {
-    Text("SB: %x\n", io.SB);
-    Text("SC: %x\n", io.SC);
+    Text("SB: %x\n", m_io.SB);
+    Text("SC: %x\n", m_io.SC);
 
     Separator();
   }
 
   if(Checkbox("Audio", &showAudioRegisters); showAudioRegisters) {
-    Text("NR10: %x\n", io.NR10);
-    Text("NR11: %x\n", io.NR11);
-    Text("NR12: %x\n", io.NR12);
-    Text("NR13: %x\n", io.NR13);
-    Text("NR14: %x\n", io.NR14);
+    Text("NR10: %x\n", m_io.NR10);
+    Text("NR11: %x\n", m_io.NR11);
+    Text("NR12: %x\n", m_io.NR12);
+    Text("NR13: %x\n", m_io.NR13);
+    Text("NR14: %x\n", m_io.NR14);
 
-    Text("NR21: %x\n", io.NR21);
-    Text("NR22: %x\n", io.NR22);
-    Text("NR23: %x\n", io.NR23);
-    Text("NR24: %x\n", io.NR24);
+    Text("NR21: %x\n", m_io.NR21);
+    Text("NR22: %x\n", m_io.NR22);
+    Text("NR23: %x\n", m_io.NR23);
+    Text("NR24: %x\n", m_io.NR24);
 
-    Text("NR30: %x\n", io.NR30);
-    Text("NR31: %x\n", io.NR31);
-    Text("NR32: %x\n", io.NR32);
-    Text("NR33: %x\n", io.NR33);
-    Text("NR34: %x\n", io.NR34);
+    Text("NR30: %x\n", m_io.NR30);
+    Text("NR31: %x\n", m_io.NR31);
+    Text("NR32: %x\n", m_io.NR32);
+    Text("NR33: %x\n", m_io.NR33);
+    Text("NR34: %x\n", m_io.NR34);
 
-    Text("NR41: %x\n", io.NR41);
-    Text("NR42: %x\n", io.NR42);
-    Text("NR43: %x\n", io.NR43);
-    Text("NR44: %x\n", io.NR44);
-    Text("NR50: %x\n", io.NR50);
-    Text("NR51: %x\n", io.NR51);
-    Text("NR52: %x\n", io.NR52);
+    Text("NR41: %x\n", m_io.NR41);
+    Text("NR42: %x\n", m_io.NR42);
+    Text("NR43: %x\n", m_io.NR43);
+    Text("NR44: %x\n", m_io.NR44);
+    Text("NR50: %x\n", m_io.NR50);
+    Text("NR51: %x\n", m_io.NR51);
+    Text("NR52: %x\n", m_io.NR52);
   }
 
   /*
@@ -149,47 +149,46 @@ void DebugView::registers(const IO &io) {
   End();
 }
 
-/*
-void DebugView::dumpROM(const Cartridge &cart) noexcept {
+void DebugView::dumpROM() const noexcept {
   static MemoryEditor memory_editor_rom;
   memory_editor_rom.ReadOnly = true;
 
-  memory_editor_rom.DrawWindow("ROM", (void *)std::data(cart.m_rom), std::size(cart.m_rom));
+  memory_editor_rom.DrawWindow("ROM", (void *)m_cart.data(), 32_KiB);
 }
 
-void DebugView::dumpSRAM(const Cartridge &cart) noexcept {
+void DebugView::dumpSRAM() const noexcept {
   static MemoryEditor memory_editor_sram;
   memory_editor_sram.ReadOnly = true;
 
-  memory_editor_sram.DrawWindow("SRAM", (void *)std::data(cart.m_sram), std::size(cart.m_sram));
+  memory_editor_sram.DrawWindow("SRAM", (void *)m_cart.data(), 8_KiB);
 }
 
-void DebugView::dumpVRAM(const PPU &ppu) noexcept {
+void DebugView::dumpVRAM() const noexcept {
   static MemoryEditor memory_editor_vram;
   memory_editor_vram.ReadOnly = true;
 
-  memory_editor_vram.DrawWindow("VRAM", (void *)std::data(ppu.m_vram), std::size(ppu.m_vram));
+  memory_editor_vram.DrawWindow("VRAM", (void *)std::data(m_ppu.m_vram), std::size(m_ppu.m_vram));
 }
 
-void DebugView::dumpOAM(const PPU &ppu) noexcept {
+void DebugView::dumpOAM() const noexcept {
   static MemoryEditor memory_editor_oam;
   memory_editor_oam.ReadOnly = true;
 
-  memory_editor_oam.DrawWindow("OAM", (void *)std::data(ppu.m_oam), std::size(ppu.m_oam));
+  memory_editor_oam.DrawWindow("OAM", (void *)std::data(m_ppu.m_oam), std::size(m_ppu.m_oam));
 }
 
-void DebugView::dumpWRAM(const BuiltIn &builtin) noexcept {
+void DebugView::dumpWRAM() const noexcept {
   static MemoryEditor memory_editor_wram;
   memory_editor_wram.ReadOnly = true;
 
-  memory_editor_wram.DrawWindow("WRAM", (void *)std::data(builtin.m_wram), std::size(builtin.m_wram));
+  memory_editor_wram.DrawWindow("WRAM", (void *)std::data(m_builtIn.m_wram), std::size(m_builtIn.m_wram));
 }
 
-void DebugView::dumpHRAM(const BuiltIn &builtin) noexcept {
+void DebugView::dumpHRAM() const noexcept {
   static MemoryEditor memory_editor_hram;
   memory_editor_hram.ReadOnly = true;
 
-  memory_editor_hram.DrawWindow("WRAM", (void *)std::data(builtin.m_hram), std::size(builtin.m_hram));
+  memory_editor_hram.DrawWindow("WRAM", (void *)std::data(m_builtIn.m_hram), std::size(m_builtIn.m_hram));
 }
 
 void f(const std::uint16_t pc_shadow) {
@@ -719,6 +718,5 @@ void f(const std::uint16_t pc_shadow) {
     }
   }
 }
-*/
 
 }
