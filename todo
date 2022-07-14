@@ -1,41 +1,23 @@
 - show disassembly in debugView
 
-Disassembly will show ROM, along with RAMs
-ROM doesn't change, iterate over it.
-
-How to do it with imGui in effective way.
-
-RAM does change.
-
-PC <- index
-
-Disassembly read all ROM (not RAMs) in once and dump it.
-
-Disassembly is a state, shouldn't run like a game.
-PC should iterator 0x0000 -> 0xFFFF
-and show what is in there.
-
-opcode              -> scf, rr A, nop, ...
-opcode immediaten8  -> ld A, 0x10
-opcode immediaten16 -> ld SP, 0xffff
-
-PC | [PC]              opcode
-PC | [PC] | [PC]       opcode immediate_n8
-PC | [PC] | [PC][PC+1] opcode immediate_n16
-
-- decode and show cartridge header, cartridge ram size depends on it
-
 - Is SBC instruction half carry setting proceduce correct?
 
 - Visually show VRAM, requires VRAM stub, and implementing cycle counts
-
-- setup Github Actions
 
 - implement halt instruction, requires interrupt stub?
 
 - write the bootrom and set it up to run it on upfront before execute rom
 
-- put size literals like _KiB and friends into literals namespace?
+- add Menu items: File | View
+
+- show sram0/sramX rom0/romx
+
+- show interrupts
+
+- setup Github Actions
 
 ---
 - fix tmbl rr instruction
+
+
+
