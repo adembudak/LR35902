@@ -35,10 +35,12 @@ void DebugView::showMemoryPortions() const noexcept {
       EndTabItem();
     }
 
-    if(BeginTabItem("sram")) {
-      memory_editor.DrawContents((void *)m_cart.data(), 8_KiB, sram);
+    if(m_cart.hasSRAM()) {
+      if(BeginTabItem("sram")) {
+        memory_editor.DrawContents((void *)m_cart.data(), 8_KiB, sram);
 
-      EndTabItem();
+        EndTabItem();
+      }
     }
 
     if(BeginTabItem("wram")) {
