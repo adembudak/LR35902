@@ -75,6 +75,40 @@ int main(int argc, char **argv) {
           ImGui_ImplSDL2_NewFrame();
           ImGui::NewFrame();
 
+          if(ImGui::BeginMainMenuBar()) {
+            if(ImGui::BeginMenu("File")) {
+              if(ImGui::MenuItem("Open", "Ctrl-O")) {
+              }
+
+              if(ImGui::MenuItem("Close", "Alt-<F4>")) {
+              }
+
+              ImGui::EndMenu();
+            }
+
+            if(ImGui::BeginMenu("View")) {
+              if(ImGui::MenuItem("Memory chunks", NULL, &debugView._memory_portions)) {
+              }
+
+              if(ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly)) {
+              }
+
+              if(ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state)) {
+              }
+
+              if(ImGui::MenuItem("Registers", NULL, &debugView._registers)) {
+              }
+
+              if(ImGui::MenuItem("Cartridge header", NULL, &debugView._cartridge_header)) {
+              }
+
+              ImGui::EndMenu();
+            }
+
+            ImGui::EndMainMenuBar();
+          }
+
+          debugView.showDisassembly();
           debugView.showCartridgeHeader();
           debugView.showMemoryPortions();
           debugView.showCPUState();
