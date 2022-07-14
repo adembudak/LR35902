@@ -10,12 +10,14 @@ class IO;
 class Interrupt;
 
 class DebugView {
+private:
   const Core &m_core;
   const IO &m_io;
   const Cartridge &m_cart;
   const PPU &m_ppu;
   const BuiltIn &m_builtIn;
 
+public:
   bool _memory_portions = true;
   bool _disassembly = true;
   bool _cpu_state = true;
