@@ -16,8 +16,15 @@ class DebugView {
   const PPU &m_ppu;
   const BuiltIn &m_builtIn;
 
+  bool _memory_portions = true;
+  bool _disassembly = true;
+  bool _cpu_state = true;
+  bool _registers = true;
+  bool _cartridge_header = true;
+
 public:
   DebugView() = delete;
+
   DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn) :
       m_core{core},
       m_io{io},
@@ -25,11 +32,11 @@ public:
       m_ppu{ppu},
       m_builtIn{builtIn} {}
 
-  void showMemoryPortions() const noexcept;
-  void showDisassembly() const noexcept;
-  void showCPUState() const noexcept;
-  void showRegisters() const noexcept;
-  void showCartridgeHeader() const noexcept;
+  void showMemoryPortions() noexcept;
+  void showDisassembly() noexcept;
+  void showCPUState() noexcept;
+  void showRegisters() noexcept;
+  void showCartridgeHeader() noexcept;
 };
 
 }
