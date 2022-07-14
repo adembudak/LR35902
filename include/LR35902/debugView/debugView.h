@@ -25,18 +25,11 @@ public:
       m_ppu{ppu},
       m_builtIn{builtIn} {}
 
-  void disassembly() const noexcept;
-  void CPURegisters() const noexcept;
-  void registers() const noexcept;
-
-  void dumpROM() const noexcept;
-  void dumpSRAM() const noexcept;
-
-  void dumpVRAM() const noexcept;
-  void dumpOAM() const noexcept;
-
-  void dumpWRAM() const noexcept;
-  void dumpHRAM() const noexcept;
+  void showMemoryPortions() const noexcept;
+  void showDisassembly() const noexcept;
+  void showCPUState() const noexcept;
+  void showRegisters() const noexcept;
+  void showCartridgeHeader() const noexcept;
 };
 
 }

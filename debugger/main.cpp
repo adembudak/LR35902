@@ -22,7 +22,6 @@
 
 int main(int argc, char **argv) {
   using namespace LR35902;
-  using namespace ImGui;
 
   if(argc > 1) {
     if(std::string_view sv{argv[1]}; sv.ends_with(".gb")) {
@@ -37,9 +36,9 @@ int main(int argc, char **argv) {
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
 
-        GetIO().Fonts->AddFontFromFileTTF("../misc/font/source-code-pro/TTF/SourceCodePro-Regular.ttf",
-                                          14.0f);
-        GetIO().Fonts->Build();
+        ImGui::GetIO().Fonts->AddFontFromFileTTF("../misc/font/source-code-pro/TTF/SourceCodePro-Regular.ttf",
+                                                 14.0f);
+        ImGui::GetIO().Fonts->Build();
 
         ImGui::StyleColorsDark();
 
@@ -74,18 +73,14 @@ int main(int argc, char **argv) {
 
           ImGui_ImplSDLRenderer_NewFrame();
           ImGui_ImplSDL2_NewFrame();
-          NewFrame();
+          ImGui::NewFrame();
 
-          debugView.CPURegisters();
-          debugView.registers();
-          debugView.dumpROM();
-          debugView.dumpSRAM();
-          debugView.dumpVRAM();
-          debugView.dumpOAM();
-          debugView.dumpWRAM();
-          debugView.dumpHRAM();
+          debugView.showCartridgeHeader();
+          debugView.showMemoryPortions();
+          debugView.showCPUState();
+          debugView.showRegisters();
 
-          Render();
+          ImGui::Render();
           SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
           SDL_RenderClear(m_renderer);
           ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
