@@ -9,10 +9,6 @@
 namespace LR35902 {
 
 class mbc1 {
-public:
-  static constexpr bool has_sram = false;
-
-private:
   std::vector<byte> m_rom;
 
   // registers are zero by default;

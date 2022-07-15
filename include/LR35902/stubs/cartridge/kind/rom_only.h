@@ -8,10 +8,6 @@
 namespace LR35902 {
 
 class rom_only {
-public:
-  static constexpr bool has_sram = false;
-
-private:
   std::array<byte, 32_KiB> m_rom{};
 
 public:

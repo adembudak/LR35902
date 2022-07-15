@@ -170,9 +170,9 @@ const byte *Cartridge::data() const noexcept {
 }
 
 bool Cartridge::hasSRAM() const noexcept {
-  return std::visit(overloaded { [&](const rom_only &rom) { return rom.has_sram;  },
-                                 [&](const rom_ram &rom)  { return rom.has_sram;  },
-                                 [&](const mbc1 &rom)     { return rom.has_sram;  }
+  return std::visit(overloaded { [&](const rom_only &) { return false;  },
+                                 [&](const rom_ram &)  { return true;   },
+                                 [&](const mbc1 &)     { return false;  }
                                }, m_cart);
 }
 

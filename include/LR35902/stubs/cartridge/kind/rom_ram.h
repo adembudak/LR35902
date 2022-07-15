@@ -7,10 +7,6 @@
 namespace LR35902 {
 
 class rom_ram {
-public:
-  static constexpr bool has_sram = true;
-
-private:
   std::array<byte, 32_KiB> m_rom{};
   std::array<byte, 8_KiB> m_sram{};
 
