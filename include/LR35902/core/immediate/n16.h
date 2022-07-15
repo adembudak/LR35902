@@ -17,7 +17,7 @@ struct n16 {
 
   void hi(const std::uint8_t n) noexcept {
     m_data &= 0b0000'0000'1111'1111; // reset upper byte
-    m_data |= (n << 8);              // set upper byte by n
+    m_data |= std::uint16_t(n << 8); // set upper byte by n
   }
 
   std::uint8_t lo() const noexcept {
