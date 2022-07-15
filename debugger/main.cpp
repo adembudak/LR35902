@@ -87,7 +87,20 @@ int main(int argc, char **argv) {
             }
 
             if(ImGui::BeginMenu("View")) {
-              if(ImGui::MenuItem("Memory chunks", NULL, &debugView._memory_portions)) {
+
+              if(ImGui::BeginMenu("Memory chunks", debugView._memory_portions)) {
+
+                ImGui::MenuItem("ROM", NULL, &debugView._memory_portions_rom);
+                ImGui::MenuItem("VRAM", NULL, &debugView._memory_portions_vram);
+                ImGui::MenuItem("SRAM", NULL, &debugView._memory_portions_sram, cart.hasSRAM());
+                ImGui::MenuItem("WRAM", NULL, &debugView._memory_portions_wram);
+                ImGui::MenuItem("echo", NULL, &debugView._memory_portions_echo);
+                ImGui::MenuItem("OAM", NULL, &debugView._memory_portions_oam);
+                ImGui::MenuItem("No usable area", NULL, &debugView._memory_portions_noUsable);
+                ImGui::MenuItem("IO", NULL, &debugView._memory_portions_io);
+                ImGui::MenuItem("HRAM", NULL, &debugView._memory_portions_hram);
+
+                ImGui::EndMenu();
               }
 
               if(ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly)) {

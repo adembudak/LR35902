@@ -13,6 +13,16 @@
 
 namespace LR35902 {
 
+DebugView::DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu,
+                     const BuiltIn &builtIn) :
+    m_core{core},
+    m_io{io},
+    m_cart{cart},
+    m_ppu{ppu},
+    m_builtIn{builtIn} {
+  _memory_portions_sram = m_cart.hasSRAM();
+}
+
 void DebugView::showMemoryPortions() noexcept {
   using namespace ImGui;
 
@@ -22,58 +32,58 @@ void DebugView::showMemoryPortions() noexcept {
     if(static MemoryEditor memory_editor; BeginTabBar("Tab Bar")) {
       memory_editor.ReadOnly = true;
 
-      if(BeginTabItem("rom")) {
+      if(BeginTabItem("rom", &_memory_portions_rom)) {
         memory_editor.DrawContents((void *)m_cart.data(), 32_KiB, rom0);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("vram")) {
+      if(BeginTabItem("vram", &_memory_portions_vram)) {
         memory_editor.DrawContents((void *)std::data(m_ppu.m_vram), std::size(m_ppu.m_vram), vram);
 
         EndTabItem();
       }
 
       if(m_cart.hasSRAM()) {
-        if(BeginTabItem("sram")) {
+        if(BeginTabItem("sram", &_memory_portions_sram)) {
           memory_editor.DrawContents((void *)m_cart.data(), 8_KiB, sram);
 
           EndTabItem();
         }
       }
 
-      if(BeginTabItem("wram")) {
+      if(BeginTabItem("wram", &_memory_portions_wram)) {
         memory_editor.DrawContents((void *)std::data(m_builtIn.m_wram), std::size(m_builtIn.m_wram), wram0);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("echo")) {
+      if(BeginTabItem("echo", &_memory_portions_echo)) {
         memory_editor.DrawContents((void *)std::data(m_builtIn.m_echo), std::size(m_builtIn.m_echo), echo);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("oam")) {
+      if(BeginTabItem("oam", &_memory_portions_oam)) {
         memory_editor.DrawContents((void *)std::data(m_ppu.m_oam), std::size(m_ppu.m_oam), oam);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("noUsable")) {
+      if(BeginTabItem("noUsable", &_memory_portions_noUsable)) {
         memory_editor.DrawContents((void *)std::data(m_builtIn.m_noUsable), std::size(m_builtIn.m_noUsable),
                                    noUsable);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("io")) {
+      if(BeginTabItem("io", &_memory_portions_io)) {
         memory_editor.DrawContents((void *)std::data(m_io.m_data), std::size(m_io.m_data), io);
 
         EndTabItem();
       }
 
-      if(BeginTabItem("hram")) {
+      if(BeginTabItem("hram", &_memory_portions_hram)) {
         memory_editor.DrawContents((void *)std::data(m_builtIn.m_hram), std::size(m_builtIn.m_hram), hram);
 
         EndTabItem();
@@ -244,5 +254,4 @@ void DebugView::showCartridgeHeader() noexcept {
     End();
   }
 }
-
 }

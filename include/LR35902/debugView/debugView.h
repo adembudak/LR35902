@@ -19,6 +19,16 @@ private:
 
 public:
   bool _memory_portions = true;
+  bool _memory_portions_rom = true;
+  bool _memory_portions_vram = true;
+  bool _memory_portions_sram{};
+  bool _memory_portions_wram = true;
+  bool _memory_portions_echo = false;
+  bool _memory_portions_oam = true;
+  bool _memory_portions_noUsable = false;
+  bool _memory_portions_io = true;
+  bool _memory_portions_hram = true;
+
   bool _disassembly = true;
   bool _cpu_state = true;
   bool _registers = true;
@@ -26,13 +36,7 @@ public:
 
 public:
   DebugView() = delete;
-
-  DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn) :
-      m_core{core},
-      m_io{io},
-      m_cart{cart},
-      m_ppu{ppu},
-      m_builtIn{builtIn} {}
+  DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn);
 
   void showMemoryPortions() noexcept;
   void showDisassembly() noexcept;
