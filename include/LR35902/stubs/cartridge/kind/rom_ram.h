@@ -22,7 +22,8 @@ public:
   void writeSRAM(const std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
-  const byte *data() const noexcept;
+  [[nodiscard]] const byte *data() const noexcept;
+  [[nodiscard]] std::size_t size() const noexcept;
 };
 
 }

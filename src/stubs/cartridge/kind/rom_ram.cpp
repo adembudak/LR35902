@@ -30,4 +30,7 @@ const byte *rom_ram::data() const noexcept {
   return m_rom.data();
 }
 
+std::size_t rom_ram::size() const noexcept {
+  return m_rom.size();
 }
+

@@ -25,4 +25,8 @@ const byte *rom_only::data() const noexcept {
   return m_rom.data();
 }
 
+std::size_t rom_only::size() const noexcept {
+  return m_rom.size();
+}
+
 }

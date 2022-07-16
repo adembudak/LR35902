@@ -105,4 +105,8 @@ const byte *mbc1::data() const noexcept {
   return m_rom.data();
 }
 
+std::size_t mbc1::size() const noexcept {
+  return m_rom.size();
+}
+
 }
