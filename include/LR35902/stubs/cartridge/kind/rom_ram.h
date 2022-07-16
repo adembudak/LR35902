@@ -24,6 +24,9 @@ public:
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] const byte *data() const noexcept;
   [[nodiscard]] std::size_t size() const noexcept;
+
+  [[nodiscard]] std::size_t RAMSize() const noexcept;
+  [[nodiscard]] const byte *RAMData() const noexcept;
 };
 
 }
