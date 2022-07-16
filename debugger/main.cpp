@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 
         ImGui::StyleColorsDark();
 
-        ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer); // setup renderer backends
+        ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
         ImGui_ImplSDLRenderer_Init(m_renderer);
 
         Cartridge cart;
@@ -103,17 +103,10 @@ int main(int argc, char **argv) {
                 ImGui::EndMenu();
               }
 
-              if(ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly)) {
-              }
-
-              if(ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state)) {
-              }
-
-              if(ImGui::MenuItem("Registers", NULL, &debugView._registers)) {
-              }
-
-              if(ImGui::MenuItem("Cartridge header", NULL, &debugView._cartridge_header)) {
-              }
+              ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
+              ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
+              ImGui::MenuItem("Registers", NULL, &debugView._registers);
+              ImGui::MenuItem("Cartridge header", NULL, &debugView._cartridge_header);
 
               ImGui::EndMenu();
             }
