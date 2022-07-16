@@ -8,6 +8,7 @@
 #include <cassert>
 #include <cstdint>
 #include <fstream>
+#include <optional>
 #include <vector>
 
 namespace LR35902 {
@@ -169,6 +170,14 @@ const byte *Cartridge::data() const noexcept {
                                }, m_cart);
 }
 
+std::size_t Cartridge::size() const noexcept {
+  return std::visit(overloaded { [&](const rom_only &rom) { return rom.size();  },
+                                 [&](const rom_ram &rom)  { return rom.size();  },
+                                 [&](const mbc1 &rom)     { return rom.size();  }
+                               }, m_cart);
+}
+
+
 bool Cartridge::hasSRAM() const noexcept {
   return std::visit(overloaded { [&](const rom_only &) { return false;  },
                                  [&](const rom_ram &)  { return true;   },
@@ -176,5 +185,16 @@ bool Cartridge::hasSRAM() const noexcept {
                                }, m_cart);
 }
 
+std::optional<std::size_t> Cartridge::RAMSize() const noexcept {
+  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                        }
+  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).RAMSize(); }
+  else                                             { return std::nullopt;                        }
+}
+
+std::optional<const byte *> Cartridge::RAMData() const noexcept {
+  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                        }
+  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).RAMData(); }
+  else                                             { return std::nullopt;                        }
+}
 
 }

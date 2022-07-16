@@ -6,6 +6,7 @@
 #include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
 #include <cstdint>
+#include <optional>
 #include <variant>
 
 namespace LR35902 {
@@ -35,8 +36,11 @@ public:
 
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] const byte *data() const noexcept;
+  [[nodiscard]] std::size_t size() const noexcept;
 
   [[nodiscard]] bool hasSRAM() const noexcept;
+  [[nodiscard]] std::optional<std::size_t> RAMSize() const noexcept;
+  [[nodiscard]] std::optional<const byte *> RAMData() const noexcept;
 
   friend class DebugView;
 };
