@@ -1,4 +1,5 @@
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 #include <LR35902/stubs/io/io.h>
 
 namespace LR35902 {
@@ -12,7 +13,7 @@ void IO::writeIO(const std::size_t index, const byte b) noexcept {
 }
 
 byte &IO::operator[](const std::size_t index) noexcept {
-  return m_data[index];
+  return m_data[index - io];
 }
 
 auto IO::data() const noexcept -> decltype(m_data) {
