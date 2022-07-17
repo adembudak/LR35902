@@ -123,13 +123,13 @@ void DebugView::showCPUState() noexcept {
     Text("Flags: %c %c %c %c", Z, N, H, C);
 
     NewLine();
-    Text("B C: %x %x", m_core.B.data(), m_core.C.data());
+    Text("B C: %x %02x", m_core.B.data(), m_core.C.data());
 
     NewLine();
-    Text("D E: %x %x", m_core.D.data(), m_core.E.data());
+    Text("D E: %x %02x", m_core.D.data(), m_core.E.data());
 
     NewLine();
-    Text("H L: %x %x", m_core.H.data(), m_core.L.data());
+    Text("H L: %x %02x", m_core.H.data(), m_core.L.data());
 
     NewLine();
     Text("SP: %u", m_core.SP.m_data);
