@@ -38,6 +38,14 @@ public:
   DebugView() = delete;
   DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn);
 
+  ~DebugView() = default;
+
+  DebugView(const DebugView &) = delete;
+  DebugView &operator=(const DebugView &) = delete;
+
+  DebugView(DebugView &&) = delete;
+  DebugView &operator=(DebugView &&) = delete;
+
   void showMemoryPortions() noexcept;
   void showDisassembly() noexcept;
   void showCPUState() noexcept;
