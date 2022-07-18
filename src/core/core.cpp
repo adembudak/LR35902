@@ -1397,11 +1397,11 @@ void Core::reti() noexcept { // reti
   m_clock.cycle(4);
 }
 
-void Core::rst(const std::size_t v) noexcept { // rst vec
+void Core::rst(const std::uint16_t v) noexcept { // rst vec
   m_bus.write(--SP.m_data, PC.hi());
   m_bus.write(--SP.m_data, PC.lo());
 
-  PC.m_data = rst_vec[v];
+  PC.m_data = v;
 
   m_clock.cycle(4);
 }

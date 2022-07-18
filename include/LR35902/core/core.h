@@ -38,7 +38,7 @@ private:
   flag ime{}; // interrupt master enable
 
   std::array<const byte, 8> rst_vec{0x00, 0x08, 0x10, 0x18, 0x20, 0x28, 0x30, 0x38};
-  std::array<const byte, 5> intr_vec{0x40, 0x48, 0x50, 0x58, 0x60};
+  std::array<const std::uint16_t, 5> intr_vec{0x40, 0x48, 0x50, 0x58, 0x60};
 
   auto fetchOpcode() noexcept -> byte;
   auto fetchByte() noexcept -> byte;
@@ -202,7 +202,7 @@ private:
   void ret(const cc c) noexcept;                // ret cc
   void ret() noexcept;                          // ret
   void reti() noexcept;                         // reti
-  void rst(const std::size_t v) noexcept;       // rst vec
+  void rst(const std::uint16_t v) noexcept;     // rst vec
 
   // Stack Operations Instructions
   void add(HL_register_tag_t, SP_register_tag_t) noexcept; // add HL,SP
