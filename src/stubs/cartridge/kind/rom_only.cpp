@@ -18,6 +18,7 @@ void rom_only::write(const std::size_t index, const byte b) noexcept {
 }
 
 byte &rom_only::operator[](const std::size_t index) noexcept {
+  if(index >= m_rom.size()) return dummy;
   return m_rom[index];
 }
 

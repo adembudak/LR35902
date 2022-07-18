@@ -10,6 +10,8 @@ namespace LR35902 {
 class rom_only {
   std::array<byte, 32_KiB> m_rom{};
 
+  byte dummy; // dummy byte to handle write static_ram
+
 public:
   explicit rom_only() = default;
 
