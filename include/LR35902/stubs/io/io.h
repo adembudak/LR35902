@@ -18,10 +18,10 @@ public:
   byte &SC = m_data[0x02];
 
   // timer registers
-  byte &DIV = m_data[0x03];
-  byte &TIMA = m_data[0x04];
-  byte &TMA = m_data[0x05];
-  byte &TAC = m_data[0x06];
+  byte &DIV = m_data[0x04];
+  byte &TIMA = m_data[0x05];
+  byte &TMA = m_data[0x06];
+  byte &TAC = m_data[0x07];
 
   // sound registers
   byte &NR10 = m_data[0x10];
