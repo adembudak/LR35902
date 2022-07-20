@@ -115,12 +115,13 @@ void DebugView::showCPUState() noexcept {
   if(_cpu_state) {
     Begin("CPU State", &_cpu_state, ImGuiWindowFlags_NoResize);
 
-    Text("A: %u", m_core.A.data());
-    const char Z = m_core.F.data() & 0b1000'0000 ? 'Z' : '-';
-    const char N = m_core.F.data() & 0b0100'0000 ? 'N' : '-';
-    const char H = m_core.F.data() & 0b0010'0000 ? 'H' : '-';
-    const char C = m_core.F.data() & 0b0001'0000 ? 'C' : '-';
-    Text("Flags: %c %c %c %c", Z, N, H, C);
+    Text("A: %02x", m_core.A.data());
+    const bool Z = m_core.F.data() & 0b1000'0000;
+    const bool N = m_core.F.data() & 0b0100'0000;
+    const bool H = m_core.F.data() & 0b0010'0000;
+    const bool C = m_core.F.data() & 0b0001'0000;
+    Text("Flags: Z N H C\n");
+    Text("       %d %d %d %d", Z, N, H, C);
 
     NewLine();
     Text("B C: %x %02x", m_core.B.data(), m_core.C.data());
