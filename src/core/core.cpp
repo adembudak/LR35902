@@ -40,6 +40,7 @@ auto Core::fetchWord() noexcept -> word {
 // 3- set PC to corresponding interrupt vector
 // 4- reset corresponding bit if IF
 // 5- all results in 5 cycle.
+// interrupt_vector[]{0x40, 0x48, 0x50, 0x58, 0x60};
 void Core::handleInterrupts() noexcept {
   ime = false;
 
@@ -49,27 +50,27 @@ void Core::handleInterrupts() noexcept {
   switch(m_bus.interruptHandler.get()) {
     using enum Interrupt::kind;
   case vblank:
-    PC.m_data = intr_vec[0];
+    PC.m_data = 0x40;
     m_bus.interruptHandler.IF &= 0b1111'1110;
     break;
 
   case lcd_stat:
-    PC.m_data = intr_vec[1];
+    PC.m_data = 0x48;
     m_bus.interruptHandler.IF &= 0b1111'1101;
     break;
 
   case timer:
-    PC.m_data = intr_vec[2];
+    PC.m_data = 0x50;
     m_bus.interruptHandler.IF &= 0b1111'1011;
     break;
 
   case serial:
-    PC.m_data = intr_vec[3];
+    PC.m_data = 0x58;
     m_bus.interruptHandler.IF &= 0b1111'0111;
     break;
 
   case joypad:
-    PC.m_data = intr_vec[4];
+    PC.m_data = 0x60;
     m_bus.interruptHandler.IF &= 0b1110'1111;
     break;
   }
