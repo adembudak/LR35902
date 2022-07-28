@@ -46,11 +46,9 @@ private:
   clock m_clock;
 
 #if defined(WITH_DEBUGGER)
-  struct {
-    byte opcode{};
-    byte immediate_byte{};
-    word immediate_word{};
-  } InstructionBeingExecuted;
+  byte opcode{};
+  byte immediate_byte{};
+  word immediate_word{};
 #endif
 
   // clang-format off

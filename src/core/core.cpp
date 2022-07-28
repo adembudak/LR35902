@@ -9,16 +9,16 @@ namespace LR35902 {
 
 auto Core::fetchOpcode() noexcept -> byte {
 #if defined(WITH_DEBUGGER)
-  InstructionBeingExecuted.opcode = m_bus.read(PC++);
-  return InstructionBeingExecuted.opcode;
+  opcode = m_bus.read(PC++);
+  return opcode;
 #endif
   return m_bus.read(PC++);
 }
 
 auto Core::fetchByte() noexcept -> byte {
 #if defined(WITH_DEBUGGER)
-  InstructionBeingExecuted.immediate_byte = m_bus.read(PC++);
-  return InstructionBeingExecuted.immediate_byte;
+  immediate_byte = m_bus.read(PC++);
+  return immediate_byte;
 #endif
   return m_bus.read(PC++);
 };
@@ -27,8 +27,8 @@ auto Core::fetchWord() noexcept -> word {
   const byte lo = m_bus.read(PC++);
   const byte hi = m_bus.read(PC++);
 #if defined(WITH_DEBUGGER)
-  InstructionBeingExecuted.immediate_word = word(hi << 8 | lo);
-  return InstructionBeingExecuted.immediate_word;
+  immediate_word = word(hi << 8 | lo);
+  return immediate_word;
 #endif
   return word(hi << 8 | lo);
 };
