@@ -24,6 +24,8 @@ public:
 public:
   [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interrupt);
 
+  void setPostBootValues() noexcept;
+
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
 
