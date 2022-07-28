@@ -73,6 +73,7 @@ public:
       HL{m_bus, H, L} {}
 
   void run() noexcept;
+  void setPostBootValues() noexcept;
 
   friend class DebugView;
 

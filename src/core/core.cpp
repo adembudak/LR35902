@@ -664,6 +664,24 @@ void Core::run() noexcept {
   }
 }
 
+// https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
+void Core::setPostBootValues() noexcept {
+  A = 0x01;
+  F = {.z = 1, .n = 0, .h = 0, .c = 0};
+
+  B = 0x00;
+  C = 0x13;
+
+  D = 0x00;
+  E = 0xd8;
+
+  H = 0xd1;
+  L = 0x4d;
+
+  PC.m_data = 0x0100;
+  SP.m_data = 0xfffe;
+}
+
 // 8-bit Arithmetic and Logic Instructions
 void Core::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
   const flag c = (A.data() + r.data() + F.c) > r8::max();
