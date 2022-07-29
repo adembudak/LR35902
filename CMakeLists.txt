@@ -8,6 +8,7 @@ set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
+option(VISUALIZE_TARGETS "" OFF)
 
 add_library(core src/core/core.cpp src/core/registers/r16.cpp
                  src/core/registers/r8.cpp)
@@ -61,4 +62,14 @@ if(WITH_TOOLS)
 
   add_executable(header_dumper tools/header_dumper.cpp)
   target_link_libraries(header_dumper PRIVATE fmt::fmt)
+endif()
+
+if(VISUALIZE_TARGETS)
+  find_program(DOT dot REQUIRED)
+
+  add_custom_target(
+    graphviz ALL
+    COMMAND ${CMAKE_COMMAND} --graphviz=tgt.dot ${PROJECT_BINARY_DIR}
+    COMMAND dot -Tpng tgt.dot -o targets.png
+    WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
 endif()
