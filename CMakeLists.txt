@@ -7,6 +7,7 @@ project(
 set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
+option(WITH_TOOLS "" OFF)
 
 add_library(core src/core/core.cpp src/core/registers/r16.cpp
                  src/core/registers/r8.cpp)
@@ -53,4 +54,11 @@ if(WITH_DEBUGGER)
   add_executable(debugger debugger/main.cpp)
   target_link_libraries(debugger PUBLIC debugView)
   target_include_directories(debugger PUBLIC ${LR3590_INCLUDE_DIR})
+endif()
+
+if(WITH_TOOLS)
+  find_package(fmt QUIET REQUIRED CONFIG)
+
+  add_executable(header_dumper tools/header_dumper.cpp)
+  target_link_libraries(header_dumper PRIVATE fmt::fmt)
 endif()
