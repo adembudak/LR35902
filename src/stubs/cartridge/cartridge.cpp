@@ -128,6 +128,8 @@ void Cartridge::load(const char *romfile) {
 // clang-format off
 template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 
+template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+
 byte Cartridge::readROM(const std::size_t index) const noexcept {
   return std::visit(overloaded { [&](const rom_only &rom) { return rom.read(index);    },
                                  [&](const rom_ram &rom)  { return rom.readROM(index); },
