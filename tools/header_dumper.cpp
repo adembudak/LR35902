@@ -1,21 +1,23 @@
 // Cartridge header ([0x100, 0x150)) decoder, DMG only
 // Based on: https://gbdev.io/pandocs/The_Cartridge_Header.html#the-cartridge-header
 
-#include <algorithm> // for std::replace
+#include <algorithm> // for std::replace, std::equal
 #include <array>
 #include <cstdint> // for std::size_t
 #include <filesystem>
 #include <fstream>
-#include <numeric>
+#include <numeric> // for std::accumulate
 #include <string_view>
 #include <unordered_map>
-#include <vector>
 
 #include <fmt/format.h>
 #include <fmt/ostream.h>
 #include <fmt/printf.h>
 
 using byte = std::uint8_t;
+
+constexpr std::size_t cartridge_header_begin = 0x100;
+constexpr std::size_t cartridge_header_end = 0x14f + 1;
 
 constexpr std::size_t nintendo_logo_begin = 0x104;
 constexpr std::size_t nintendo_logo_end = 0x133 + 1;
@@ -59,6 +61,7 @@ std::string_view sgb_support(const byte b) {
   switch(b) {
   case 0x00: return "compatible";
   case 0x03: return "need sgb functionalities";
+  default: return "";
   }
 }
 
@@ -67,6 +70,7 @@ std::string_view cgb_support(const byte b) {
   case 0x00: return "dmg-only";
   case 0x80: return "dmg-compatible";
   case 0xc0: return "cgb-only";
+  default: return "";
   }
 }
 
@@ -100,6 +104,7 @@ std::string_view mbc(const byte b) {
   case 0xFD: return "bandai tama5";
   case 0xFE: return "HuC3";
   case 0xFF: return "HuC1+ram+battery";
+  default: return "";
   }
 }
 
@@ -117,6 +122,7 @@ std::string_view rom(const byte b) {
   case 0x52: return "1.1_mb";
   case 0x53: return "1.2_mb";
   case 0x54: return "1.5_mb";
+  default: return "";
   }
 }
 
@@ -128,6 +134,7 @@ std::string_view ram(const byte b) {
   case 0x03: return "32_kb";
   case 0x04: return "128_kb";
   case 0x05: return "64_kb";
+  default: return "";
   }
 }
 
@@ -349,6 +356,7 @@ std::string_view licensee(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte
   case 0xf0: return "A wave";
   case 0xf3: return "Extreme entertainment";
   case 0xff: return "Ljn";
+  default: return "";
   }
 }
 }
@@ -356,17 +364,17 @@ std::string_view licensee(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte
 int main(int argc, const char *const argv[]) {
   if(argc < 2) return 1;
 
-  std::ofstream fout{"cart.data", std::ios_base::app}; // append
+  std::ofstream fout{"cart.data", std::ios_base::app /*append*/};
   std::ifstream fin;
 
   for(const auto &e : std::filesystem::directory_iterator{argv[1]}) {
     if(!e.path().string().ends_with(".gb")) continue;
 
     fin.open(e.path());
-    const std::vector<byte> dump(std::istreambuf_iterator<char>{fin}, {});
-    fin.close();
 
-    if(dump.empty()) continue;
+    std::array<byte, cartridge_header_end> dump;
+    fin.read((char *)dump.data(), cartridge_header_end); // read till cartridge header end
+    fin.close();
 
     fmt::print(fout,
                "Name                : {}\n"                                            //
@@ -387,7 +395,7 @@ int main(int argc, const char *const argv[]) {
                std::equal(&dump[nintendo_logo_begin], &dump[nintendo_logo_end], nintendo_logo.begin())
                    ? "Passed"
                    : "Failed",
-               dump.size(),                              //
+               e.file_size(),
                rom(dump[rom_size]),                      //
                ram(dump[ram_size]),                      //
                mbc(dump[mbc_type]),                      //
