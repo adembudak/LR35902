@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 class r8;
-class n16;
+struct n16;
 class Bus;
 
 class r16 {

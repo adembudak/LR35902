@@ -10,7 +10,7 @@ class Cartridge;
 class PPU;
 class BuiltIn;
 class IO;
-class Interrupt;
+struct Interrupt;
 
 class Bus {
   Cartridge &m_cart;
