@@ -26,7 +26,7 @@ class Cartridge {
   } CartridgeHeader;
 
 public:
-  void load(const char *romfile);
+  void load(const char *romfile) noexcept;
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

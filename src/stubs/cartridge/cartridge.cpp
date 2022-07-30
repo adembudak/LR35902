@@ -51,9 +51,8 @@ enum class mbc : std::uint8_t {
   // clang-format on
 };
 
-void Cartridge::load(const char *romfile) {
+void Cartridge::load(const char *romfile) noexcept {
   std::ifstream fin{romfile};
-  fin.exceptions(std::ifstream::failbit);
 
   const std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
