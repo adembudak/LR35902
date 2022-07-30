@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.23)
+
 project(
   LR35902
   HOMEPAGE_URL https://github.com/adembudak/LR35902
@@ -29,6 +30,10 @@ target_include_directories(stubs PRIVATE include)
 target_link_libraries(core PRIVATE stubs)
 target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR})
 
+add_library(GameBoy debugger/GameBoy.cpp)
+target_link_libraries(GameBoy PUBLIC core)
+target_include_directories(GameBoy PUBLIC ${LR3590_INCLUDE_DIR})
+
 if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
 
@@ -43,17 +48,17 @@ if(WITH_DEBUGGER)
     3rdparty/imgui/backends/imgui_impl_sdlrenderer.cpp)
 
   target_include_directories(imgui PUBLIC imgui imgui_club)
-  target_link_libraries(imgui PUBLIC SDL2::SDL2 SDL2::SDL2-static)
+  target_link_libraries(imgui PRIVATE SDL2::SDL2 SDL2::SDL2-static)
   add_library(imgui::imgui ALIAS imgui)
 
   add_library(debugView src/debugView/debugView.cpp)
-  target_link_libraries(debugView PUBLIC core imgui::imgui)
+  target_link_libraries(debugView PRIVATE GameBoy imgui::imgui)
   target_include_directories(debugView PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty
                                               3rdparty/imgui_club)
   target_compile_definitions(core PUBLIC WITH_DEBUGGER)
 
   add_executable(debugger debugger/main.cpp)
-  target_link_libraries(debugger PUBLIC debugView)
+  target_link_libraries(debugger PRIVATE debugView)
   target_include_directories(debugger PUBLIC ${LR3590_INCLUDE_DIR})
 endif()
 
