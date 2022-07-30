@@ -1,21 +1,18 @@
 #pragma once
 
+#include <LR35902/core/core.h>
+
+#include <cstdint>
+#include <map>
+#include <optional>
+#include <tuple>
+
 namespace LR35902 {
 
-class Core;
-class Cartridge;
-class PPU;
-class BuiltIn;
-class IO;
-class Interrupt;
+class GameBoy;
 
 class DebugView {
-private:
-  const Core &m_core;
-  const IO &m_io;
-  const Cartridge &m_cart;
-  const PPU &m_ppu;
-  const BuiltIn &m_builtIn;
+  const GameBoy &gameboy;
 
 public:
   bool _memory_portions = true;
@@ -34,9 +31,12 @@ public:
   bool _registers = true;
   bool _cartridge_header = true;
 
+  using Operation = std::tuple<Core::OpcodeKind, std::uint8_t, std::optional<std::uint16_t>>;
+  std::map<std::uint16_t, Operation> instructions; // pc -> opcodeKind, opcode, immediate
+
 public:
   DebugView() = delete;
-  DebugView(const Core &core, const IO &io, const Cartridge &cart, const PPU &ppu, const BuiltIn &builtIn);
+  DebugView(const GameBoy &);
 
   ~DebugView() = default;
 
