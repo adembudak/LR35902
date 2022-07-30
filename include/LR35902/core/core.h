@@ -65,6 +65,9 @@ private:
   struct tag_t { explicit tag_t() = default; } tag;
   // clang-format on
 
+  enum class OpcodeKind : std::uint8_t { opcode, opcode_reg_n8, opcode_e8, opcode_reg_n16 };
+  OpcodeKind kind;
+
 public:
   explicit Core(Bus bus) noexcept :
       m_bus{std::move(bus)},
@@ -74,6 +77,7 @@ public:
 
   void run() noexcept;
   void setPostBootValues() noexcept;
+  std::size_t latestCycles() const noexcept;
 
   friend class DebugView;
 
