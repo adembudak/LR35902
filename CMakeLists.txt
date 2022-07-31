@@ -11,11 +11,11 @@ option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 
-add_library(core src/cpu/cpu.cpp src/cpu/registers/r16.cpp
-                 src/cpu/registers/r8.cpp)
-
 add_library(
-  stubs
+  lr35902
+  src/cpu/cpu.cpp
+  src/cpu/registers/r16.cpp
+  src/cpu/registers/r8.cpp
   src/bus/bus.cpp
   src/cartridge/cartridge.cpp
   src/cartridge/kind/rom_only.cpp
@@ -25,14 +25,7 @@ add_library(
   src/builtin/builtin.cpp
   src/io/io.cpp)
 
-target_include_directories(stubs PRIVATE include)
-
-target_link_libraries(core PRIVATE stubs)
-target_include_directories(core PUBLIC ${LR3590_INCLUDE_DIR})
-
-add_library(GameBoy debugger/GameBoy.cpp)
-target_link_libraries(GameBoy PUBLIC core)
-target_include_directories(GameBoy PUBLIC ${LR3590_INCLUDE_DIR})
+target_include_directories(lr35902 PUBLIC ${LR3590_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
@@ -52,12 +45,13 @@ if(WITH_DEBUGGER)
   add_library(imgui::imgui ALIAS imgui)
 
   add_library(debugView src/debugView/debugView.cpp)
-  target_link_libraries(debugView PRIVATE GameBoy imgui::imgui)
+  target_link_libraries(debugView PRIVATE imgui::imgui lr35902)
   target_include_directories(debugView PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty
                                               3rdparty/imgui_club)
-  target_compile_definitions(core PUBLIC WITH_DEBUGGER)
 
-  add_executable(debugger debugger/main.cpp)
+  target_compile_definitions(lr35902 PUBLIC WITH_DEBUGGER)
+
+  add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
   target_link_libraries(debugger PRIVATE debugView)
   target_include_directories(debugger PUBLIC ${LR3590_INCLUDE_DIR})
 endif()
