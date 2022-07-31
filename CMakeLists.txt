@@ -10,6 +10,7 @@ set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
+option(CACHE_BUILD "" OFF)
 
 add_library(
   lr35902
@@ -71,4 +72,9 @@ if(VISUALIZE_TARGETS)
     COMMAND ${CMAKE_COMMAND} --graphviz=tgt.dot ${PROJECT_BINARY_DIR}
     COMMAND dot -Tpng tgt.dot -o targets.png
     WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+endif()
+
+if(CACHE_BUILD)
+  find_program(CCACHE ccache REQUIRED)
+  set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE})
 endif()
