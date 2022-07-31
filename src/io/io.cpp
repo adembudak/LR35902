@@ -1,6 +1,6 @@
 #include <LR35902/config.h>
+#include <LR35902/io/io.h>
 #include <LR35902/memory_map.h>
-#include <LR35902/stubs/io/io.h>
 
 namespace LR35902 {
 

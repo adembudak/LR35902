@@ -1,9 +1,9 @@
 #pragma once
 
+#include <LR35902/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/rom_only.h>
+#include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
-#include <LR35902/stubs/cartridge/kind/mbc1.h>
-#include <LR35902/stubs/cartridge/kind/rom_only.h>
-#include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
 #include <cstdint>
 #include <optional>

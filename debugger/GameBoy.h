@@ -1,11 +1,11 @@
 #pragma once
 
+#include <LR35902/builtin/builtin.h>
+#include <LR35902/cartridge/cartridge.h>
 #include <LR35902/core/core.h>
-#include <LR35902/stubs/builtin/builtin.h>
-#include <LR35902/stubs/cartridge/cartridge.h>
-#include <LR35902/stubs/interrupt/interrupt.h>
-#include <LR35902/stubs/io/io.h>
-#include <LR35902/stubs/ppu/ppu.h>
+#include <LR35902/interrupt/interrupt.h>
+#include <LR35902/io/io.h>
+#include <LR35902/ppu/ppu.h>
 
 #include <string_view>
 

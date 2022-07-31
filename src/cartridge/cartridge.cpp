@@ -1,8 +1,8 @@
+#include <LR35902/cartridge/cartridge.h>
+#include <LR35902/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/rom_only.h>
+#include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
-#include <LR35902/stubs/cartridge/cartridge.h>
-#include <LR35902/stubs/cartridge/kind/mbc1.h>
-#include <LR35902/stubs/cartridge/kind/rom_only.h>
-#include <LR35902/stubs/cartridge/kind/rom_ram.h>
 
 #include <algorithm>
 #include <cassert>

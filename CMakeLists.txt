@@ -16,14 +16,14 @@ add_library(core src/core/core.cpp src/core/registers/r16.cpp
 
 add_library(
   stubs
-  src/stubs/bus/bus.cpp
-  src/stubs/cartridge/cartridge.cpp
-  src/stubs/cartridge/kind/rom_only.cpp
-  src/stubs/cartridge/kind/rom_ram.cpp
-  src/stubs/cartridge/kind/mbc1.cpp
-  src/stubs/ppu/ppu.cpp
-  src/stubs/builtin/builtin.cpp
-  src/stubs/io/io.cpp)
+  src/bus/bus.cpp
+  src/cartridge/cartridge.cpp
+  src/cartridge/kind/rom_only.cpp
+  src/cartridge/kind/rom_ram.cpp
+  src/cartridge/kind/mbc1.cpp
+  src/ppu/ppu.cpp
+  src/builtin/builtin.cpp
+  src/io/io.cpp)
 
 target_include_directories(stubs PRIVATE include)
 

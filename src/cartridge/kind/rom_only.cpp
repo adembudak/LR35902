@@ -1,6 +1,6 @@
+#include <LR35902/cartridge/kind/rom_only.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
-#include <LR35902/stubs/cartridge/kind/rom_only.h>
 
 #include <cstdint>
 

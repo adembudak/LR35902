@@ -1,6 +1,6 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
-#include <LR35902/stubs/ppu/ppu.h>
+#include <LR35902/ppu/ppu.h>
 
 #include <cassert>
 #include <cstddef>

@@ -1,6 +1,6 @@
+#include <LR35902/builtin/builtin.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
-#include <LR35902/stubs/builtin/builtin.h>
 
 #include <cassert>
 #include <cstdint>

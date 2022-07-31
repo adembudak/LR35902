@@ -1,4 +1,4 @@
-#include <LR35902/stubs/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/mbc1.h>
 
 #include <cassert>
 
