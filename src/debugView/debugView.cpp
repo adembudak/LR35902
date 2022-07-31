@@ -106,15 +106,15 @@ void DebugView::showDisassembly() noexcept {
   if(_disassembly) {
 
     Begin("Disassembly", &_disassembly, ImGuiWindowFlags_NoCollapse);
-    const auto core = gameboy.core;
+    const auto cpu = gameboy.cpu;
 
-    using enum Core::OpcodeKind;
-    switch(core.kind) {
-    // clang-format off
-      case opcode:         instructions.insert_or_assign(core.PC.m_data, std::tuple{core.kind, core.opcode, std::nullopt}); break;
-      case opcode_reg_n8:  instructions.insert_or_assign(core.PC.m_data, std::tuple{core.kind, core.opcode, core.immediate_byte}); break;
-      case opcode_reg_n16: instructions.insert_or_assign(core.PC.m_data, std::tuple{core.kind, core.opcode, core.immediate_word}); break;
-      case opcode_e8:      instructions.insert_or_assign(core.PC.m_data, std::tuple{core.kind, core.opcode, std::int8_t(core.immediate_byte)}); break;
+    using enum CPU::OpcodeKind;
+    switch(cpu.kind) {
+      // clang-format off
+      case opcode:         instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::nullopt}); break;
+      case opcode_reg_n8:  instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_byte}); break;
+      case opcode_reg_n16: instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_word}); break;
+      case opcode_e8:      instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::int8_t(cpu.immediate_byte)}); break;
     }
 
     for(const auto &[pc, operation] : instructions) {
@@ -138,35 +138,35 @@ void DebugView::showCPUState() noexcept {
 
   if(_cpu_state) {
     Begin("CPU State", &_cpu_state, ImGuiWindowFlags_NoResize);
-    const auto &core = gameboy.core;
+    const auto &cpu = gameboy.cpu;
 
-    Text("Cycle: %lu", core.m_clock.m_data);
-
-    NewLine();
-    Text("ime: %d", core.ime);
+    Text("Cycle: %lu", cpu.m_clock.m_data);
 
     NewLine();
-    Text("A: %02x", core.A.data());
-    const bool Z = core.F.data() & 0b1000'0000;
-    const bool N = core.F.data() & 0b0100'0000;
-    const bool H = core.F.data() & 0b0010'0000;
-    const bool C = core.F.data() & 0b0001'0000;
+    Text("ime: %d", cpu.ime);
+
+    NewLine();
+    Text("A: %02x", cpu.A.data());
+    const bool Z = cpu.F.data() & 0b1000'0000;
+    const bool N = cpu.F.data() & 0b0100'0000;
+    const bool H = cpu.F.data() & 0b0010'0000;
+    const bool C = cpu.F.data() & 0b0001'0000;
     Text("Flags: Z N H C\n"
          "       %d %d %d %d",
          Z, N, H, C);
 
     NewLine();
-    Text("B C: %x %02x", core.B.data(), core.C.data());
+    Text("B C: %x %02x", cpu.B.data(), cpu.C.data());
 
     NewLine();
-    Text("D E: %x %02x", core.D.data(), core.E.data());
+    Text("D E: %x %02x", cpu.D.data(), cpu.E.data());
 
     NewLine();
-    Text("H L: %x %02x", core.H.data(), core.L.data());
+    Text("H L: %x %02x", cpu.H.data(), cpu.L.data());
 
     NewLine();
-    Text("SP: %u", core.SP.m_data);
-    Text("PC: %u", core.PC.m_data);
+    Text("SP: %u", cpu.SP.m_data);
+    Text("PC: %u", cpu.PC.m_data);
 
     NewLine();
     NewLine();

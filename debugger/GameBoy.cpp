@@ -8,7 +8,7 @@ void GameBoy::boot(bool skipboot) noexcept {
   isRunning = true;
 
   if(!skipboot) {
-    core.setPostBootValues();
+    cpu.setPostBootValues();
     bus.setPostBootValues();
   } else {
     // implement this:
@@ -22,7 +22,7 @@ void GameBoy::plug(const std::string_view rom) noexcept {
 }
 
 void GameBoy::play() noexcept {
-  core.run();
+  cpu.run();
 }
 
 void GameBoy::pause() noexcept {

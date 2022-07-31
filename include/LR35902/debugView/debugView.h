@@ -31,7 +31,7 @@ public:
   bool _registers = true;
   bool _cartridge_header = true;
 
-  using Operation = std::tuple<Core::OpcodeKind, std::uint8_t, std::optional<std::uint16_t>>;
+  using Operation = std::tuple<CPU::OpcodeKind, std::uint8_t, std::optional<std::uint16_t>>;
   std::map<std::uint16_t, Operation> instructions; // pc -> opcodeKind, opcode, immediate
 
 public:

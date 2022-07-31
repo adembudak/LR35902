@@ -16,7 +16,7 @@ namespace LR35902 {
 
 // instruction names and behaviors taken from:
 // https://rgbds.gbdev.io/docs/v0.5.2/gbz80.7
-class Core {
+class CPU {
 private:
   Bus m_bus;
 
@@ -69,7 +69,7 @@ private:
   OpcodeKind kind;
 
 public:
-  explicit Core(Bus bus) noexcept :
+  explicit CPU(Bus bus) noexcept :
       m_bus{std::move(bus)},
       BC{m_bus, B, C},
       DE{m_bus, D, E},

@@ -19,7 +19,7 @@ class [[nodiscard]] GameBoy final {
   Interrupt intr;
 
   Bus bus{cart, ppu, builtIn, io, intr};
-  Core core{bus};
+  CPU cpu{bus};
 
   void render() noexcept;
 
@@ -30,7 +30,7 @@ class [[nodiscard]] GameBoy final {
 public:
 
   std::size_t updateCycles() const noexcept {
-    return core.latestCycles();
+    return cpu.latestCycles();
   }
   void boot(bool skipboot = true) noexcept;
 

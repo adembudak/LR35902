@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-auto Core::fetchOpcode() noexcept -> byte {
+auto CPU::fetchOpcode() noexcept -> byte {
 #if defined(WITH_DEBUGGER)
   opcode = m_bus.read(PC++);
   return opcode;
@@ -15,7 +15,7 @@ auto Core::fetchOpcode() noexcept -> byte {
   return m_bus.read(PC++);
 }
 
-auto Core::fetchByte() noexcept -> byte {
+auto CPU::fetchByte() noexcept -> byte {
 #if defined(WITH_DEBUGGER)
   immediate_byte = m_bus.read(PC++);
   return immediate_byte;
@@ -23,7 +23,7 @@ auto Core::fetchByte() noexcept -> byte {
   return m_bus.read(PC++);
 };
 
-auto Core::fetchWord() noexcept -> word {
+auto CPU::fetchWord() noexcept -> word {
   const byte lo = m_bus.read(PC++);
   const byte hi = m_bus.read(PC++);
 #if defined(WITH_DEBUGGER)
@@ -41,7 +41,7 @@ auto Core::fetchWord() noexcept -> word {
 // 4- reset corresponding bit if IF
 // 5- all results in 5 cycle.
 // interrupt_vector[]{0x40, 0x48, 0x50, 0x58, 0x60};
-void Core::handleInterrupts() noexcept {
+void CPU::handleInterrupts() noexcept {
   ime = false;
 
   m_bus.write(--SP.m_data, PC.hi());
@@ -79,7 +79,7 @@ void Core::handleInterrupts() noexcept {
 }
 
 // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
-void Core::run() noexcept {
+void CPU::run() noexcept {
 
   if(ime && m_bus.interruptHandler.isThereAnAwaitingInterrupt()) {
     handleInterrupts();
@@ -665,7 +665,7 @@ void Core::run() noexcept {
 }
 
 // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
-void Core::setPostBootValues() noexcept {
+void CPU::setPostBootValues() noexcept {
   A = 0x01;
   F = {.z = 1, .n = 0, .h = 0, .c = 0};
 
@@ -682,12 +682,12 @@ void Core::setPostBootValues() noexcept {
   SP.m_data = 0xfffe;
 }
 
-std::size_t Core::latestCycles() const noexcept {
+std::size_t CPU::latestCycles() const noexcept {
   return m_clock.latest();
 }
 
 // 8-bit Arithmetic and Logic Instructions
-void Core::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
+void CPU::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (A.data() + r.data() + F.c) > r8::max();
@@ -700,7 +700,7 @@ void Core::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
   m_clock.cycle(1);
 }
 
-void Core::adc(const byte b) noexcept { // adc A,[HL] // z 0 h c
+void CPU::adc(const byte b) noexcept { // adc A,[HL] // z 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (A.data() + b + F.c) > r8::max();
@@ -713,7 +713,7 @@ void Core::adc(const byte b) noexcept { // adc A,[HL] // z 0 h c
   m_clock.cycle(2);
 }
 
-void Core::adc(const n8 n) noexcept { // adc A,n8
+void CPU::adc(const n8 n) noexcept { // adc A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   const flag c = (A.data() + n.m_data + F.c) > r8::max();
@@ -726,7 +726,7 @@ void Core::adc(const n8 n) noexcept { // adc A,n8
   m_clock.cycle(2);
 }
 
-void Core::add(const r8 r) noexcept { // add A,r8 // // z 0 h c
+void CPU::add(const r8 r) noexcept { // add A,r8 // // z 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (A.data() + r.data()) > r8::max();
@@ -739,7 +739,7 @@ void Core::add(const r8 r) noexcept { // add A,r8 // // z 0 h c
   m_clock.cycle(1);
 }
 
-void Core::add(const byte b) noexcept { // add A,[HL] // z 0 h c
+void CPU::add(const byte b) noexcept { // add A,[HL] // z 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (A.data() + b) > r8::max();
@@ -752,7 +752,7 @@ void Core::add(const byte b) noexcept { // add A,[HL] // z 0 h c
   m_clock.cycle(2);
 }
 
-void Core::add(const n8 n) noexcept { // add A,n8
+void CPU::add(const n8 n) noexcept { // add A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   const flag c = (A.data() + n.m_data) > r8::max();
@@ -765,7 +765,7 @@ void Core::add(const n8 n) noexcept { // add A,n8
   m_clock.cycle(2);
 }
 
-void Core::and_(const r8 r) noexcept { // and A,r8 // z 0 1 0
+void CPU::and_(const r8 r) noexcept { // and A,r8 // z 0 1 0
   kind = OpcodeKind::opcode;
 
   A &= r;
@@ -774,7 +774,7 @@ void Core::and_(const r8 r) noexcept { // and A,r8 // z 0 1 0
   m_clock.cycle(1);
 }
 
-void Core::and_(const byte b) noexcept { // and A,[HL]
+void CPU::and_(const byte b) noexcept { // and A,[HL]
   kind = OpcodeKind::opcode;
 
   A &= b;
@@ -783,7 +783,7 @@ void Core::and_(const byte b) noexcept { // and A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::and_(const n8 n) noexcept { // and A,n8
+void CPU::and_(const n8 n) noexcept { // and A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   A &= n;
@@ -792,7 +792,7 @@ void Core::and_(const n8 n) noexcept { // and A,n8
   m_clock.cycle(2);
 }
 
-void Core::cp(const r8 r) noexcept { // cp A,r8 // z 1 h c
+void CPU::cp(const r8 r) noexcept { // cp A,r8 // z 1 h c
   kind = OpcodeKind::opcode;
 
   F = {A == r, 1, r.lowNibble() > A.lowNibble(), r > A};
@@ -800,7 +800,7 @@ void Core::cp(const r8 r) noexcept { // cp A,r8 // z 1 h c
   m_clock.cycle(1);
 }
 
-void Core::cp(const byte b) noexcept { // cp A,[HL]
+void CPU::cp(const byte b) noexcept { // cp A,[HL]
   kind = OpcodeKind::opcode;
 
   F = {A == b, 1, (b & 0b0000'1111) > A.lowNibble(), b > A};
@@ -808,7 +808,7 @@ void Core::cp(const byte b) noexcept { // cp A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::cp(const n8 n) noexcept { // cp A,n8
+void CPU::cp(const n8 n) noexcept { // cp A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   F = {A == n, 1, n.lowNibble() > A.lowNibble(), n > A};
@@ -816,7 +816,7 @@ void Core::cp(const n8 n) noexcept { // cp A,n8
   m_clock.cycle(2);
 }
 
-void Core::dec(r8 &r) noexcept { // dec r8 // z 1 h -
+void CPU::dec(r8 &r) noexcept { // dec r8 // z 1 h -
   kind = OpcodeKind::opcode;
 
   --r;
@@ -826,7 +826,7 @@ void Core::dec(r8 &r) noexcept { // dec r8 // z 1 h -
   m_clock.cycle(1);
 }
 
-void Core::dec(byte &b) noexcept { // dec [HL] // z 1 h -
+void CPU::dec(byte &b) noexcept { // dec [HL] // z 1 h -
   kind = OpcodeKind::opcode;
 
   --b;
@@ -836,7 +836,7 @@ void Core::dec(byte &b) noexcept { // dec [HL] // z 1 h -
   m_clock.cycle(3);
 }
 
-void Core::inc(r8 &r) noexcept { // inc r8 // z 0 h -
+void CPU::inc(r8 &r) noexcept { // inc r8 // z 0 h -
   kind = OpcodeKind::opcode;
 
   ++r;
@@ -846,7 +846,7 @@ void Core::inc(r8 &r) noexcept { // inc r8 // z 0 h -
   m_clock.cycle(1);
 }
 
-void Core::inc(byte &b) noexcept { // inc [HL]
+void CPU::inc(byte &b) noexcept { // inc [HL]
   kind = OpcodeKind::opcode;
 
   ++b;
@@ -856,7 +856,7 @@ void Core::inc(byte &b) noexcept { // inc [HL]
   m_clock.cycle(3);
 }
 
-void Core::or_(const r8 r) noexcept { // or A,r8 // z 0 0 0
+void CPU::or_(const r8 r) noexcept { // or A,r8 // z 0 0 0
   kind = OpcodeKind::opcode;
 
   A |= r;
@@ -865,7 +865,7 @@ void Core::or_(const r8 r) noexcept { // or A,r8 // z 0 0 0
   m_clock.cycle(1);
 }
 
-void Core::or_(const byte b) noexcept { // or A,[HL]
+void CPU::or_(const byte b) noexcept { // or A,[HL]
   kind = OpcodeKind::opcode;
 
   A |= b;
@@ -874,7 +874,7 @@ void Core::or_(const byte b) noexcept { // or A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::or_(const n8 n) noexcept { // or A,n8
+void CPU::or_(const n8 n) noexcept { // or A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   A |= n;
@@ -883,8 +883,8 @@ void Core::or_(const n8 n) noexcept { // or A,n8
   m_clock.cycle(2);
 }
 
-void Core::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
-                                      // A = A -(r + F.c)
+void CPU::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
+                                     // A = A -(r + F.c)
   kind = OpcodeKind::opcode;
 
   const flag c = (r.data() + F.c) > A;
@@ -896,7 +896,7 @@ void Core::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
   m_clock.cycle(1);
 }
 
-void Core::sbc(const byte b) noexcept { // sbc A,[HL]
+void CPU::sbc(const byte b) noexcept { // sbc A,[HL]
   kind = OpcodeKind::opcode;
 
   const flag c = (b + F.c) > A;
@@ -908,7 +908,7 @@ void Core::sbc(const byte b) noexcept { // sbc A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::sbc(const n8 n) noexcept { // sbc A,n8
+void CPU::sbc(const n8 n) noexcept { // sbc A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   const flag c = (n.m_data + F.c) > A;
@@ -920,8 +920,8 @@ void Core::sbc(const n8 n) noexcept { // sbc A,n8
   m_clock.cycle(2);
 }
 
-void Core::sub(const r8 r) noexcept { // sub A,r8 // z 1 h c
-                                      // A = A - r
+void CPU::sub(const r8 r) noexcept { // sub A,r8 // z 1 h c
+                                     // A = A - r
   kind = OpcodeKind::opcode;
 
   F = {A == r, 1, r.lowNibble() > A.lowNibble(), r > A};
@@ -930,7 +930,7 @@ void Core::sub(const r8 r) noexcept { // sub A,r8 // z 1 h c
   m_clock.cycle(1);
 }
 
-void Core::sub(const byte b) noexcept { // sub A,[HL]
+void CPU::sub(const byte b) noexcept { // sub A,[HL]
   kind = OpcodeKind::opcode;
 
   F = {A == b, 1, (b & 0b0000'1111) > A.lowNibble(), b > A};
@@ -939,7 +939,7 @@ void Core::sub(const byte b) noexcept { // sub A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::sub(const n8 n) noexcept { // sub A,n8
+void CPU::sub(const n8 n) noexcept { // sub A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   F = {A == n, 1, n.lowNibble() > A.lowNibble(), n > A};
@@ -948,7 +948,7 @@ void Core::sub(const n8 n) noexcept { // sub A,n8
   m_clock.cycle(2);
 }
 
-void Core::xor_(const r8 r) noexcept { // xor A,r8 // z 0 0 0
+void CPU::xor_(const r8 r) noexcept { // xor A,r8 // z 0 0 0
   kind = OpcodeKind::opcode;
 
   A ^= r;
@@ -957,7 +957,7 @@ void Core::xor_(const r8 r) noexcept { // xor A,r8 // z 0 0 0
   m_clock.cycle(1);
 }
 
-void Core::xor_(const byte b) noexcept { // xor A,[HL]
+void CPU::xor_(const byte b) noexcept { // xor A,[HL]
   kind = OpcodeKind::opcode;
 
   A ^= b;
@@ -966,7 +966,7 @@ void Core::xor_(const byte b) noexcept { // xor A,[HL]
   m_clock.cycle(2);
 }
 
-void Core::xor_(const n8 n) noexcept { // xor A,n8
+void CPU::xor_(const n8 n) noexcept { // xor A,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   A ^= n;
@@ -976,7 +976,7 @@ void Core::xor_(const n8 n) noexcept { // xor A,n8
 }
 
 // 16-bit Arithmetic Instructions
-void Core::add(HL_register_tag_t, const r16 rr) noexcept { // add HL,r16  // - 0 h c
+void CPU::add(HL_register_tag_t, const r16 rr) noexcept { // add HL,r16  // - 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (HL.data() + rr.data()) > r16::max();
@@ -989,7 +989,7 @@ void Core::add(HL_register_tag_t, const r16 rr) noexcept { // add HL,r16  // - 0
   m_clock.cycle(2);
 }
 
-void Core::dec(r16 &rr) noexcept { // dec r16
+void CPU::dec(r16 &rr) noexcept { // dec r16
   kind = OpcodeKind::opcode;
 
   --rr;
@@ -997,7 +997,7 @@ void Core::dec(r16 &rr) noexcept { // dec r16
   m_clock.cycle(2);
 }
 
-void Core::inc(r16 &rr) noexcept { // inc r16
+void CPU::inc(r16 &rr) noexcept { // inc r16
   kind = OpcodeKind::opcode;
 
   ++rr;
@@ -1006,7 +1006,7 @@ void Core::inc(r16 &rr) noexcept { // inc r16
 }
 
 // Bit Operations Instructions
-void Core::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // z 0 1 -
+void CPU::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // z 0 1 -
   kind = OpcodeKind::opcode;
 
   F = {bool(r.data() & byte(0b1 << u.m_data)) == 0, 0, 1, F.c};
@@ -1014,7 +1014,7 @@ void Core::bit(const u3 u, const r8 r) noexcept { // bit u3,r8 // z 0 1 -
   m_clock.cycle(2);
 }
 
-void Core::bit(const u3 u, const byte b) noexcept { // bit u3,[HL] // z 0 1 -
+void CPU::bit(const u3 u, const byte b) noexcept { // bit u3,[HL] // z 0 1 -
   kind = OpcodeKind::opcode;
 
   F = {bool(b & byte(0b1 << u.m_data)) == 0, 0, 1, F.c};
@@ -1022,7 +1022,7 @@ void Core::bit(const u3 u, const byte b) noexcept { // bit u3,[HL] // z 0 1 -
   m_clock.cycle(3);
 }
 
-void Core::res(const u3 u, r8 &r) noexcept { // res u3,r8
+void CPU::res(const u3 u, r8 &r) noexcept { // res u3,r8
   kind = OpcodeKind::opcode;
 
   const byte mask = ~byte(0b1 << u.m_data);
@@ -1031,7 +1031,7 @@ void Core::res(const u3 u, r8 &r) noexcept { // res u3,r8
   m_clock.cycle(2);
 }
 
-void Core::res(const u3 u, byte &b) noexcept { // res u3,[HL]
+void CPU::res(const u3 u, byte &b) noexcept { // res u3,[HL]
   kind = OpcodeKind::opcode;
 
   const byte mask = ~byte(0b1 << u.m_data);
@@ -1040,7 +1040,7 @@ void Core::res(const u3 u, byte &b) noexcept { // res u3,[HL]
   m_clock.cycle(4);
 }
 
-void Core::set(const u3 u, r8 &r) noexcept { // set u3,r8
+void CPU::set(const u3 u, r8 &r) noexcept { // set u3,r8
   kind = OpcodeKind::opcode;
 
   const byte mask = byte(0b1 << u.m_data);
@@ -1049,7 +1049,7 @@ void Core::set(const u3 u, r8 &r) noexcept { // set u3,r8
   m_clock.cycle(2);
 }
 
-void Core::set(const u3 u, byte &b) noexcept { // set u3,[HL]
+void CPU::set(const u3 u, byte &b) noexcept { // set u3,[HL]
   kind = OpcodeKind::opcode;
 
   const byte mask = byte(0b1 << u.m_data);
@@ -1058,7 +1058,7 @@ void Core::set(const u3 u, byte &b) noexcept { // set u3,[HL]
   m_clock.cycle(4);
 }
 
-void Core::swap(r8 &r) noexcept { // swap r8 // z 0 0 0
+void CPU::swap(r8 &r) noexcept { // swap r8 // z 0 0 0
   kind = OpcodeKind::opcode;
 
   r = byte((r.lowNibble() << 4) | r.highNibble());
@@ -1067,7 +1067,7 @@ void Core::swap(r8 &r) noexcept { // swap r8 // z 0 0 0
   m_clock.cycle(2);
 }
 
-void Core::swap(byte &b) noexcept { // swap [HL]
+void CPU::swap(byte &b) noexcept { // swap [HL]
   kind = OpcodeKind::opcode;
 
   b = byte(((b & 0b000'1111) << 4) | ((b & 0b1111'0000) >> 4));
@@ -1077,8 +1077,8 @@ void Core::swap(byte &b) noexcept { // swap [HL]
 }
 
 // Bit Shift Instructions
-void Core::rl(r8 &r) noexcept { // rl r8 // z 0 0 c
-                                // C <- [7 <- 0] <- C
+void CPU::rl(r8 &r) noexcept { // rl r8 // z 0 0 c
+                               // C <- [7 <- 0] <- C
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1091,7 +1091,7 @@ void Core::rl(r8 &r) noexcept { // rl r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::rl(byte &b) noexcept { // rl [HL]
+void CPU::rl(byte &b) noexcept { // rl [HL]
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1105,7 +1105,7 @@ void Core::rl(byte &b) noexcept { // rl [HL]
   m_clock.cycle(4);
 }
 
-void Core::rla() noexcept { // rla // 0 0 0 c
+void CPU::rla() noexcept { // rla // 0 0 0 c
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1119,8 +1119,8 @@ void Core::rla() noexcept { // rla // 0 0 0 c
   m_clock.cycle(1);
 }
 
-void Core::rlc(r8 &r) noexcept { // rlc r8 // z 0 0 c
-                                 // C <- [7 <- 0] <- [7]
+void CPU::rlc(r8 &r) noexcept { // rlc r8 // z 0 0 c
+                                // C <- [7 <- 0] <- [7]
   kind = OpcodeKind::opcode;
 
   const flag old_7th_bit = r.data() & 0b1000'0000;
@@ -1134,7 +1134,7 @@ void Core::rlc(r8 &r) noexcept { // rlc r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::rlc(byte &b) noexcept { // rlc [HL]
+void CPU::rlc(byte &b) noexcept { // rlc [HL]
   kind = OpcodeKind::opcode;
 
   const flag old_7th_bit = b & 0b1000'0000;
@@ -1148,7 +1148,7 @@ void Core::rlc(byte &b) noexcept { // rlc [HL]
   m_clock.cycle(4);
 }
 
-void Core::rlca() noexcept { // rlca // 0 0 0 c
+void CPU::rlca() noexcept { // rlca // 0 0 0 c
   kind = OpcodeKind::opcode;
 
   const flag old_7th_bit = A.data() & 0b1000'0000;
@@ -1162,8 +1162,8 @@ void Core::rlca() noexcept { // rlca // 0 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
-                                // C -> [7 -> 0] -> C
+void CPU::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
+                               // C -> [7 -> 0] -> C
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1177,7 +1177,7 @@ void Core::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::rr(byte &b) noexcept { // rr [HL]
+void CPU::rr(byte &b) noexcept { // rr [HL]
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1191,7 +1191,7 @@ void Core::rr(byte &b) noexcept { // rr [HL]
   m_clock.cycle(4);
 }
 
-void Core::rra() noexcept { // rra // // 0 0 0 c
+void CPU::rra() noexcept { // rra // // 0 0 0 c
   kind = OpcodeKind::opcode;
 
   const flag old_carry = F.c;
@@ -1205,8 +1205,8 @@ void Core::rra() noexcept { // rra // // 0 0 0 c
   m_clock.cycle(1);
 }
 
-void Core::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
-                                 // [0] -> [7 -> 0] -> C
+void CPU::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
+                                // [0] -> [7 -> 0] -> C
   kind = OpcodeKind::opcode;
 
   F.c = r.data() & 0b0000'0001;
@@ -1217,7 +1217,7 @@ void Core::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::rrc(byte &b) noexcept { // rrc [HL]
+void CPU::rrc(byte &b) noexcept { // rrc [HL]
   kind = OpcodeKind::opcode;
 
   F.c = b & 0b0000'0001;
@@ -1228,7 +1228,7 @@ void Core::rrc(byte &b) noexcept { // rrc [HL]
   m_clock.cycle(4);
 }
 
-void Core::rrca() noexcept { // rrca // 0 0 0 c
+void CPU::rrca() noexcept { // rrca // 0 0 0 c
   kind = OpcodeKind::opcode;
 
   F.c = A.data() & 0b0000'0001;
@@ -1239,8 +1239,8 @@ void Core::rrca() noexcept { // rrca // 0 0 0 c
   m_clock.cycle(1);
 }
 
-void Core::sla(r8 &r) noexcept { // sla r8 // z 0 0 c
-                                 // C <- [7 <- 0] <- 0
+void CPU::sla(r8 &r) noexcept { // sla r8 // z 0 0 c
+                                // C <- [7 <- 0] <- 0
   kind = OpcodeKind::opcode;
 
   F.c = r.data() & 0b1000'0000;
@@ -1251,7 +1251,7 @@ void Core::sla(r8 &r) noexcept { // sla r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::sla(byte &b) noexcept { // sla [HL]
+void CPU::sla(byte &b) noexcept { // sla [HL]
   kind = OpcodeKind::opcode;
 
   F.c = b & 0b1000'0000;
@@ -1262,7 +1262,7 @@ void Core::sla(byte &b) noexcept { // sla [HL]
   m_clock.cycle(4);
 }
 
-void Core::sra(r8 &r) noexcept { // sra r8 // z 0 0 c
+void CPU::sra(r8 &r) noexcept { // sra r8 // z 0 0 c
   kind = OpcodeKind::opcode;
 
   const flag old_7th_bit = r.data() & 0b1000'0000;
@@ -1276,7 +1276,7 @@ void Core::sra(r8 &r) noexcept { // sra r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::sra(byte &b) noexcept { // sra [HL]
+void CPU::sra(byte &b) noexcept { // sra [HL]
   kind = OpcodeKind::opcode;
 
   const flag old_7th_bit = b & 0b1000'0000;
@@ -1290,8 +1290,8 @@ void Core::sra(byte &b) noexcept { // sra [HL]
   m_clock.cycle(4);
 }
 
-void Core::srl(r8 &r) noexcept { // srl r8 // z 0 0 c
-                                 // 0 -> [7 -> 0] -> C
+void CPU::srl(r8 &r) noexcept { // srl r8 // z 0 0 c
+                                // 0 -> [7 -> 0] -> C
   kind = OpcodeKind::opcode;
 
   F.c = r.data() & 0b0000'0001;
@@ -1302,7 +1302,7 @@ void Core::srl(r8 &r) noexcept { // srl r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void Core::srl(byte &b) noexcept { // srl [HL]
+void CPU::srl(byte &b) noexcept { // srl [HL]
   kind = OpcodeKind::opcode;
 
   F.c = b & 0b0000'0001;
@@ -1314,7 +1314,7 @@ void Core::srl(byte &b) noexcept { // srl [HL]
 }
 
 // Load Instructions
-void Core::ld(r8 &to, const r8 from) noexcept { // ld r8,r8
+void CPU::ld(r8 &to, const r8 from) noexcept { // ld r8,r8
   kind = OpcodeKind::opcode;
 
   to = from;
@@ -1322,7 +1322,7 @@ void Core::ld(r8 &to, const r8 from) noexcept { // ld r8,r8
   m_clock.cycle(1);
 }
 
-void Core::ld(r8 &r, const n8 n) noexcept { // ld r8,n8
+void CPU::ld(r8 &r, const n8 n) noexcept { // ld r8,n8
   kind = OpcodeKind::opcode_reg_n8;
 
   r = n;
@@ -1330,7 +1330,7 @@ void Core::ld(r8 &r, const n8 n) noexcept { // ld r8,n8
   m_clock.cycle(2);
 }
 
-void Core::ld(r16 &rr, const n16 nn) noexcept { // ld r16,n16
+void CPU::ld(r16 &rr, const n16 nn) noexcept { // ld r16,n16
   kind = OpcodeKind::opcode_reg_n16;
 
   rr = nn;
@@ -1338,7 +1338,7 @@ void Core::ld(r16 &rr, const n16 nn) noexcept { // ld r16,n16
   m_clock.cycle(3);
 }
 
-void Core::ld(byte &b, const r8 r) noexcept { // ld [HL],r8
+void CPU::ld(byte &b, const r8 r) noexcept { // ld [HL],r8
   kind = OpcodeKind::opcode;
 
   b = r.data();
@@ -1346,7 +1346,7 @@ void Core::ld(byte &b, const r8 r) noexcept { // ld [HL],r8
   m_clock.cycle(2);
 }
 
-void Core::ld(byte &b, const n8 n) noexcept { // ld [HL],n8
+void CPU::ld(byte &b, const n8 n) noexcept { // ld [HL],n8
   kind = OpcodeKind::opcode;
 
   b = n.m_data;
@@ -1354,7 +1354,7 @@ void Core::ld(byte &b, const n8 n) noexcept { // ld [HL],n8
   m_clock.cycle(3);
 }
 
-void Core::ld(r8 &r, const byte b) noexcept { // ld r8,[HL]
+void CPU::ld(r8 &r, const byte b) noexcept { // ld r8,[HL]
   kind = OpcodeKind::opcode;
 
   r = b;
@@ -1362,7 +1362,7 @@ void Core::ld(r8 &r, const byte b) noexcept { // ld r8,[HL]
   m_clock.cycle(2);
 }
 
-void Core::ld(byte &b, register_to_memory_t) noexcept { // ld [r16],A
+void CPU::ld(byte &b, register_to_memory_t) noexcept { // ld [r16],A
   kind = OpcodeKind::opcode;
 
   b = A.data();
@@ -1370,15 +1370,15 @@ void Core::ld(byte &b, register_to_memory_t) noexcept { // ld [r16],A
   m_clock.cycle(2);
 }
 
-void Core::ld(byte &b, register_to_memory_t, tag_t) noexcept { // ld [n16],A
-  kind = OpcodeKind::opcode;                                   /// <----
+void CPU::ld(byte &b, register_to_memory_t, tag_t) noexcept { // ld [n16],A
+  kind = OpcodeKind::opcode;                                  /// <----
 
   b = A.data();
 
   m_clock.cycle(4);
 }
 
-void Core::ld(memory_to_register_t, const byte b) noexcept { // ld A,[r16] // <------
+void CPU::ld(memory_to_register_t, const byte b) noexcept { // ld A,[r16] // <------
   kind = OpcodeKind::opcode;
 
   A = b;
@@ -1386,7 +1386,7 @@ void Core::ld(memory_to_register_t, const byte b) noexcept { // ld A,[r16] // <-
   m_clock.cycle(2);
 }
 
-void Core::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16]
+void CPU::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16]
   kind = OpcodeKind::opcode_reg_n8;
 
   A = b;
@@ -1394,25 +1394,25 @@ void Core::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16
   m_clock.cycle(4);
 }
 
-void Core::ldh(byte &b, register_to_memory_t) noexcept { // ldh [n16],A
+void CPU::ldh(byte &b, register_to_memory_t) noexcept { // ldh [n16],A
   b = A.data();
 
   m_clock.cycle(3);
 }
 
-void Core::ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept { // ldh [C],A
+void CPU::ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept { // ldh [C],A
   b = A.data();
 
   m_clock.cycle(2);
 }
 
-void Core::ldh(memory_to_register_t, const byte b) noexcept { // ldh A,[n16]
+void CPU::ldh(memory_to_register_t, const byte b) noexcept { // ldh A,[n16]
   A = b;
 
   m_clock.cycle(3);
 }
 
-void Core::ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept { // ldh A,[C]
+void CPU::ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept { // ldh A,[C]
   kind = OpcodeKind::opcode;
 
   A = b;
@@ -1420,28 +1420,28 @@ void Core::ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept { 
   m_clock.cycle(2);
 }
 
-void Core::ld(HLi_tag_t, register_to_memory_t) noexcept { // ld [HLI],A
+void CPU::ld(HLi_tag_t, register_to_memory_t) noexcept { // ld [HLI],A
   *HL = A.data();
   ++HL;
 
   m_clock.cycle(2);
 }
 
-void Core::ld(HLd_tag_t, register_to_memory_t) noexcept { // ld [HLD],A
+void CPU::ld(HLd_tag_t, register_to_memory_t) noexcept { // ld [HLD],A
   *HL = A.data();
   --HL;
 
   m_clock.cycle(2);
 }
 
-void Core::ld(memory_to_register_t, HLi_tag_t) noexcept { // ld A,[HLI]
+void CPU::ld(memory_to_register_t, HLi_tag_t) noexcept { // ld A,[HLI]
   A = *HL;
   ++HL;
 
   m_clock.cycle(2);
 }
 
-void Core::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
+void CPU::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
   A = *HL;
   --HL;
 
@@ -1464,7 +1464,7 @@ void Core::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
 //       0x0000 | ?? |                        0x0000 | ?? |
 //
 
-void Core::call(const n16 nn) noexcept { // call n16
+void CPU::call(const n16 nn) noexcept { // call n16
   m_bus.write(--SP.m_data, nn.hi());
   m_bus.write(--SP.m_data, nn.lo());
 
@@ -1473,7 +1473,7 @@ void Core::call(const n16 nn) noexcept { // call n16
   m_clock.cycle(6);
 }
 
-void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
+void CPU::call(const cc c, const n16 nn) noexcept {  // call cc,n16
   if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
      (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
 
@@ -1488,13 +1488,13 @@ void Core::call(const cc c, const n16 nn) noexcept { // call cc,n16
   }
 }
 
-void Core::jp(HL_register_tag_t) noexcept { // jp HL
+void CPU::jp(HL_register_tag_t) noexcept { // jp HL
   PC.m_data = HL.data();
 
   m_clock.cycle(1);
 }
 
-void Core::jp(const n16 nn) noexcept { // jp n16
+void CPU::jp(const n16 nn) noexcept { // jp n16
   kind = OpcodeKind::opcode_reg_n16;
 
   PC = nn;
@@ -1502,7 +1502,7 @@ void Core::jp(const n16 nn) noexcept { // jp n16
   m_clock.cycle(4);
 }
 
-void Core::jp(const cc c, const n16 nn) noexcept {   // jp cc,n16
+void CPU::jp(const cc c, const n16 nn) noexcept {    // jp cc,n16
   if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
      (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
     PC = nn;
@@ -1513,13 +1513,13 @@ void Core::jp(const cc c, const n16 nn) noexcept {   // jp cc,n16
   }
 }
 
-void Core::jr(const e8 e) noexcept { // jr e8
+void CPU::jr(const e8 e) noexcept { // jr e8
   PC.m_data += e.m_data;
 
   m_clock.cycle(3);
 }
 
-void Core::jr(const cc c, const e8 e) noexcept {     // jr cc,e8
+void CPU::jr(const cc c, const e8 e) noexcept {      // jr cc,e8
   if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
      (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
     PC.m_data += e.m_data;
@@ -1530,7 +1530,7 @@ void Core::jr(const cc c, const e8 e) noexcept {     // jr cc,e8
   }
 }
 
-void Core::ret(const cc c) noexcept {                // ret cc
+void CPU::ret(const cc c) noexcept {                 // ret cc
   if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
      (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
 
@@ -1543,7 +1543,7 @@ void Core::ret(const cc c) noexcept {                // ret cc
   }
 }
 
-void Core::ret() noexcept { // ret
+void CPU::ret() noexcept { // ret
   kind = OpcodeKind::opcode;
 
   PC.lo(m_bus.read(SP.m_data++));
@@ -1552,7 +1552,7 @@ void Core::ret() noexcept { // ret
   m_clock.cycle(4);
 }
 
-void Core::reti() noexcept { // reti
+void CPU::reti() noexcept { // reti
   kind = OpcodeKind::opcode;
 
   PC.lo(m_bus.read(SP.m_data++));
@@ -1562,7 +1562,7 @@ void Core::reti() noexcept { // reti
   m_clock.cycle(4);
 }
 
-void Core::rst(const std::uint16_t v) noexcept { // rst vec
+void CPU::rst(const std::uint16_t v) noexcept { // rst vec
   m_bus.write(--SP.m_data, PC.hi());
   m_bus.write(--SP.m_data, PC.lo());
 
@@ -1572,7 +1572,7 @@ void Core::rst(const std::uint16_t v) noexcept { // rst vec
 }
 
 // // Stack Operations Instructions
-void Core::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // - 0 h c
+void CPU::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // - 0 h c
   kind = OpcodeKind::opcode;
 
   const flag c = (HL.data() + SP.m_data) > r16::max();
@@ -1585,7 +1585,7 @@ void Core::add(HL_register_tag_t, SP_register_tag_t) noexcept { // add HL,SP // 
   m_clock.cycle(2);
 }
 
-void Core::add(SP_register_tag_t, const e8 e) noexcept { // add SP,e8 // 0 0 h c
+void CPU::add(SP_register_tag_t, const e8 e) noexcept { // add SP,e8 // 0 0 h c
   kind = OpcodeKind::opcode_e8;
 
   const flag c = (SP.m_data & 0x00ff) + e.m_data > 0b1111'1111;
@@ -1598,7 +1598,7 @@ void Core::add(SP_register_tag_t, const e8 e) noexcept { // add SP,e8 // 0 0 h c
   m_clock.cycle(4);
 }
 
-void Core::dec(SP_register_tag_t) noexcept { // dec SP
+void CPU::dec(SP_register_tag_t) noexcept { // dec SP
   kind = OpcodeKind::opcode;
 
   --SP.m_data;
@@ -1606,7 +1606,7 @@ void Core::dec(SP_register_tag_t) noexcept { // dec SP
   m_clock.cycle(2);
 }
 
-void Core::inc(SP_register_tag_t) noexcept { // inc SP
+void CPU::inc(SP_register_tag_t) noexcept { // inc SP
   kind = OpcodeKind::opcode;
 
   ++SP.m_data;
@@ -1614,20 +1614,20 @@ void Core::inc(SP_register_tag_t) noexcept { // inc SP
   m_clock.cycle(2);
 }
 
-void Core::ld(SP_register_tag_t, const n16 nn) noexcept { // ld SP,n16
+void CPU::ld(SP_register_tag_t, const n16 nn) noexcept { // ld SP,n16
   SP = nn;
 
   m_clock.cycle(3);
 }
 
-void Core::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP // <-----
+void CPU::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP // <-----
   lo = SP.lo();
   hi = SP.hi();
 
   m_clock.cycle(5);
 }
 
-void Core::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld HL,SP+e8 // 0 0 h c
+void CPU::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld HL,SP+e8 // 0 0 h c
   const flag c = ((SP.m_data & 0x00ff) + e.m_data) > 0b1111'1111;
   const flag h = ((SP.m_data & 0x000f) + e.m_data) > 0b0000'1111;
 
@@ -1639,13 +1639,13 @@ void Core::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld
   m_clock.cycle(3);
 }
 
-void Core::ld(SP_register_tag_t, HL_register_tag_t) noexcept { // ld SP,HL
+void CPU::ld(SP_register_tag_t, HL_register_tag_t) noexcept { // ld SP,HL
   SP.m_data = HL.data();
 
   m_clock.cycle(2);
 }
 
-void Core::pop(AF_register_tag_t) noexcept { // pop AF // z n h c
+void CPU::pop(AF_register_tag_t) noexcept { // pop AF // z n h c
   kind = OpcodeKind::opcode;
 
   const byte f = m_bus.read(SP.m_data++);
@@ -1659,7 +1659,7 @@ void Core::pop(AF_register_tag_t) noexcept { // pop AF // z n h c
   m_clock.cycle(3);
 }
 
-void Core::pop(r16 &rr) noexcept { // pop r16
+void CPU::pop(r16 &rr) noexcept { // pop r16
   kind = OpcodeKind::opcode;
 
   const byte lo = m_bus.read(SP.m_data++);
@@ -1670,7 +1670,7 @@ void Core::pop(r16 &rr) noexcept { // pop r16
   m_clock.cycle(3);
 }
 
-void Core::push(AF_register_tag_t) noexcept { // push AF
+void CPU::push(AF_register_tag_t) noexcept { // push AF
   kind = OpcodeKind::opcode;
 
   m_bus.write(--SP.m_data, A.data());
@@ -1679,7 +1679,7 @@ void Core::push(AF_register_tag_t) noexcept { // push AF
   m_clock.cycle(4);
 }
 
-void Core::push(const r16 rr) noexcept { // push r16
+void CPU::push(const r16 rr) noexcept { // push r16
   kind = OpcodeKind::opcode;
 
   m_bus.write(--SP.m_data, rr.hi().data());
@@ -1689,7 +1689,7 @@ void Core::push(const r16 rr) noexcept { // push r16
 }
 
 // // Miscellaneous Instructions
-void Core::ccf() noexcept { // ccf // - 0 0 c
+void CPU::ccf() noexcept { // ccf // - 0 0 c
   kind = OpcodeKind::opcode;
 
   F = {F.z, 0, 0, bool(F.c ^ 1)};
@@ -1697,7 +1697,7 @@ void Core::ccf() noexcept { // ccf // - 0 0 c
   m_clock.cycle(1);
 }
 
-void Core::cpl() noexcept { // cpl // - 1 1 -
+void CPU::cpl() noexcept { // cpl // - 1 1 -
   kind = OpcodeKind::opcode;
 
   A = ~A.data();
@@ -1708,7 +1708,7 @@ void Core::cpl() noexcept { // cpl // - 1 1 -
 
 // decimal adjusted addition (daa)
 // https://forums.nesdev.org/viewtopic.php?f=20&t=15944
-void Core::daa() noexcept { // daa // z - 0 c
+void CPU::daa() noexcept { // daa // z - 0 c
   kind = OpcodeKind::opcode;
 
   // clang-format off
@@ -1727,7 +1727,7 @@ void Core::daa() noexcept { // daa // z - 0 c
   m_clock.cycle(1);
 }
 
-void Core::di() noexcept { // di
+void CPU::di() noexcept { // di
   kind = OpcodeKind::opcode;
 
   ime = false;
@@ -1735,7 +1735,7 @@ void Core::di() noexcept { // di
   m_clock.cycle(1);
 }
 
-void Core::ei() noexcept { // ei
+void CPU::ei() noexcept { // ei
   kind = OpcodeKind::opcode;
 
   ime = true;
@@ -1743,18 +1743,18 @@ void Core::ei() noexcept { // ei
   m_clock.cycle(1);
 }
 
-void Core::halt() noexcept {
+void CPU::halt() noexcept {
   kind = OpcodeKind::opcode;
 
 }; // halt
 
-void Core::nop() noexcept { // nop
+void CPU::nop() noexcept { // nop
   kind = OpcodeKind::opcode;
 
   m_clock.cycle(1);
 }
 
-void Core::scf() noexcept { // scf - 0 0 1
+void CPU::scf() noexcept { // scf - 0 0 1
   kind = OpcodeKind::opcode;
 
   F = {F.z, 0, 0, 1};
@@ -1762,7 +1762,7 @@ void Core::scf() noexcept { // scf - 0 0 1
   m_clock.cycle(1);
 }
 
-void Core::stop() noexcept { // stop
+void CPU::stop() noexcept { // stop
   kind = OpcodeKind::opcode;
   // Enter low power mode
   // Reset Time.DIV register
