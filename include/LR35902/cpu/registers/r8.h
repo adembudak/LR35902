@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LR35902/config.h>
-#include <LR35902/core/immediate/n8.h>
+#include <LR35902/cpu/immediate/n8.h>
 
 #include <compare>
 #include <cstdint>

@@ -1,7 +1,7 @@
 #include <LR35902/config.h>
-#include <LR35902/core/immediate/n16.h>
-#include <LR35902/core/registers/r16.h>
-#include <LR35902/core/registers/r8.h>
+#include <LR35902/cpu/immediate/n16.h>
+#include <LR35902/cpu/registers/r16.h>
+#include <LR35902/cpu/registers/r8.h>
 
 #include <cstdint>
 

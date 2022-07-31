@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LR35902/core/core.h>
+#include <LR35902/cpu/cpu.h>
 
 #include <cstdint>
 #include <map>

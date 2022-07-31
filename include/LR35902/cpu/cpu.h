@@ -1,14 +1,14 @@
 #pragma once
 
-#include <LR35902/core/clock/clock.h>
-#include <LR35902/core/immediate/e8.h>
-#include <LR35902/core/immediate/n16.h>
-#include <LR35902/core/immediate/n8.h>
-#include <LR35902/core/immediate/u3.h>
-#include <LR35902/core/registers/cc.h>
-#include <LR35902/core/registers/flags.h>
-#include <LR35902/core/registers/r16.h>
-#include <LR35902/core/registers/r8.h>
+#include <LR35902/cpu/clock/clock.h>
+#include <LR35902/cpu/immediate/e8.h>
+#include <LR35902/cpu/immediate/n16.h>
+#include <LR35902/cpu/immediate/n8.h>
+#include <LR35902/cpu/immediate/u3.h>
+#include <LR35902/cpu/registers/cc.h>
+#include <LR35902/cpu/registers/flags.h>
+#include <LR35902/cpu/registers/r16.h>
+#include <LR35902/cpu/registers/r8.h>
 
 #include <array>
 

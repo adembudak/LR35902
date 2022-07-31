@@ -11,8 +11,8 @@ option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 
-add_library(core src/core/core.cpp src/core/registers/r16.cpp
-                 src/core/registers/r8.cpp)
+add_library(core src/cpu/cpu.cpp src/cpu/registers/r16.cpp
+                 src/cpu/registers/r8.cpp)
 
 add_library(
   stubs
