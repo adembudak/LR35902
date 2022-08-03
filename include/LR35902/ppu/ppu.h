@@ -92,9 +92,16 @@ public:
       oam_scan_period_cycles + drawing_period_cycles + hblank_period_cycles;
   static constexpr std::size_t vblank_period_cycles = 10 * one_scanline_cycles;
 
+public:
+  using palette_index = uint8_t;
+  using scanline = std::array<palette_index, screen_w>;
+  using screen = std::array<scanline, screen_h>;
+
 private:
   std::array<byte, 8_KiB> m_vram{};
   std::array<byte, 160_B> m_oam{};
+
+  screen m_screen;
 
   void fetchBackground() noexcept;
   void fetchWindow() noexcept;
