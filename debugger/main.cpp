@@ -96,6 +96,7 @@ int main(int argc, char **argv) {
         ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
         ImGui::MenuItem("Registers", NULL, &debugView._registers);
         ImGui::MenuItem("Cartridge header", NULL, &debugView._cartridge_header);
+        ImGui::MenuItem("VRAM", NULL, &debugView._vram);
 
         ImGui::EndMenu();
       }
@@ -113,6 +114,7 @@ int main(int argc, char **argv) {
     debugView.showMemoryPortions();
     debugView.showCPUState();
     debugView.showRegisters();
+    debugView.visualizeVRAM();
 
     ImGui::Render();
 

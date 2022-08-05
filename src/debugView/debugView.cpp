@@ -6,6 +6,7 @@
 #include <imgui/imgui.h>
 #include <imgui_memory_editor/imgui_memory_editor.h>
 
+#include <algorithm>
 #include <cstdint>
 
 namespace LR35902 {
@@ -109,17 +110,16 @@ void DebugView::showDisassembly() noexcept {
     const auto cpu = gameboy.cpu;
 
     using enum CPU::OpcodeKind;
+    // clang-format off
     switch(cpu.kind) {
-      // clang-format off
       case opcode:         instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::nullopt}); break;
       case opcode_reg_n8:  instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_byte}); break;
       case opcode_reg_n16: instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_word}); break;
       case opcode_e8:      instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::int8_t(cpu.immediate_byte)}); break;
     }
 
-    for(const auto &[pc, operation] : instructions) {
+    for(const auto &[PC, operation] : instructions) {
       const auto &[Kind, Opcode, Immediate] = operation;
-      const auto PC = pc - 1;
       switch(Kind) {
         case opcode:         ImGui::Text("%04x  %02x\n", PC, Opcode); break;
         case opcode_reg_n8:  ImGui::Text("%04x  %02x %02x\n", PC, Opcode, *Immediate); break;
@@ -282,6 +282,91 @@ void DebugView::showCartridgeHeader() noexcept {
     Text("Checksum:   %s\n", header.checksum ? "Pass" : "Fail");
     Text("ROM size:   %s\n", header.rom_size.data());
     Text("RAM size:   %s\n", header.ram_size.data());
+
+    End();
+  }
+}
+
+using palette_t = std::array<ImColor, 4>;
+
+// https://www.deviantart.com/thewolfbunny64/art/Game-Boy-Palette-Gamate-Ver-808006887
+const palette_t original = {
+    ImColor{107, 166, 74}, //
+    ImColor{67,  122, 99}, //
+    ImColor{37,  89,  85}, //
+    ImColor{18,  66,  76}
+};
+
+// https://www.deviantart.com/thewolfbunny64/art/Game-Boy-Palette-Cola-Cola-Red-808488517
+const palette_t cococola = {
+    ImColor{244, 0, 9}, //
+    ImColor{186, 0, 6}, //
+    ImColor{114, 0, 4}, //
+    ImColor{43,  0, 1}
+};
+
+const palette_t galata = {
+    ImColor{117, 148, 166},
+    ImColor{101, 130, 144},
+    ImColor{32,  46,  72 },
+    ImColor{34,  63,  69 }
+};
+
+void DebugView::visualizeVRAM() noexcept {
+  using namespace ImGui;
+
+  if(_vram) {
+    Begin("VRAM", &_vram);
+
+    palette_t palette = original;
+
+    static int selected = 0;
+
+    SetNextItemWidth(100.0f);
+    const char *items[]{"Original", "Coco'Cola", "Galata"};
+    Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
+    switch(selected) {
+    case 0: palette = original; break;
+    case 1: palette = cococola; break;
+    case 2: palette = galata; break;
+    }
+
+    ImDrawList *const draw_list = ImGui::GetWindowDrawList();
+    auto put_pixel = [&draw_list](const float x, const float y, const ImColor color) {
+      const ImVec2 p = ImGui::GetCursorScreenPos();
+
+      draw_list->AddRectFilled({p.x + x, p.y + y}, {p.x + x + 1, p.y + y + 1}, color);
+    };
+
+    using tile = std::array<byte, PPU::tile_size>;
+    tile tile_x{};
+    ///////////////////////
+
+    // iterate tile
+    // 0 -> 6144, += 16  (6144 == 6_KiB == tilemap size)
+    int x = 0;
+    for(std::size_t tile_nth = 0; tile_nth < PPU::tilemap_size; tile_nth += PPU::tile_size, x += 8) {
+      std::copy_n(gameboy.ppu.m_vram.begin() + tile_nth, PPU::tile_size, tile_x.begin());
+      if(std::all_of(begin(tile_x), end(tile_x), [](byte b) { return b == 0; })) continue;
+
+      int y = 0;
+      // iterate tilelines
+      // 0 -> 16, += 2
+      for(std::size_t tileline_nth = 0; tileline_nth < PPU::tile_size;
+          tileline_nth += PPU::tileline_size, ++y) {
+
+        byte mask = 0b1000'0000;
+        // iterate a single tile tileline
+        for(std::size_t pixel_nth = 0; pixel_nth < PPU::tile_w; ++pixel_nth, mask >>= 1) { // iterates 0->7
+          const bool index_1 = (tile_x[tileline_nth] & mask) >> (7 - pixel_nth); // scan tileline left to rght
+          const bool index_0 = (tile_x[tileline_nth + 1] & mask) >> (7 - pixel_nth);
+
+          const std::size_t palette_index = (index_1 << 1) | index_0;
+
+          put_pixel(pixel_nth + x, y, palette[palette_index]);
+        }
+      }
+    }
 
     End();
   }
