@@ -7,6 +7,10 @@
 
 namespace LR35902 {
 
+void PPU::update(const std::size_t cycles) noexcept {
+  // Implement this
+}
+
 byte PPU::readVRAM(const std::size_t index) const noexcept {
   return m_vram[index];
 }

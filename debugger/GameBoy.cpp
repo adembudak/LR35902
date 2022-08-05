@@ -23,6 +23,7 @@ void GameBoy::plug(const std::string_view rom) noexcept {
 
 void GameBoy::play() noexcept {
   cpu.run();
+  ppu.update(cpu.latestCycles());
 }
 
 void GameBoy::pause() noexcept {

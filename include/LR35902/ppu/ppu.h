@@ -108,6 +108,8 @@ private:
   void fetchSprites() noexcept;
 
 public:
+  void update(const std::size_t cycles) noexcept;
+
   [[nodiscard]] byte readVRAM(const std::size_t index) const noexcept;
   void writeVRAM(const std::size_t index, const byte b) noexcept;
 
@@ -118,5 +120,11 @@ public:
 
   friend class DebugView;
 };
+
+static_assert(PPU::oam_scan_period_cycles == 20);
+static_assert(PPU::drawing_period_cycles == 43);
+static_assert(PPU::hblank_period_cycles == 51);
+static_assert(PPU::one_scanline_cycles == 114);
+static_assert(PPU::vblank_period_cycles == 1140);
 
 }
