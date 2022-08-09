@@ -179,8 +179,8 @@ private:
   void ld(memory_to_register_t, const byte b) noexcept;        // ld A,[r16]
   void ld(memory_to_register_t, const byte b, tag_t) noexcept; // ld A,[n16]
   //
-  void ldh(const std::size_t index, register_to_memory_t) noexcept;   // ldh [n16],A
-  void ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept; // ldh [C],A
+  void ldh(const std::size_t index, register_to_memory_t) noexcept;                   // ldh [n16],A
+  void ldh(const std::size_t index, register_to_memory_t, C_register_tag_t) noexcept; // ldh [C],A
   //
   void ldh(memory_to_register_t, const byte b) noexcept;                   // ldh A,[n16]
   void ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept; // ldh A,[C]

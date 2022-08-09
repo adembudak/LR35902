@@ -601,12 +601,7 @@ void CPU::run() noexcept {
   case 0xdf: rst(0x18); break;
   case 0xe0: ldh(0xFF00 + fetchByte(), register_to_memory); break;
   case 0xe1: pop(HL); break;
-  case 0xe2: {
-    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
-    byte &b = m_bus.read_write(nn.m_data);
-    ldh(b, register_to_memory, C_register_tag);
-    break;
-  }
+  case 0xe2: ldh(0xFF00 + C.data(), register_to_memory, C_register_tag); break;
   case 0xe3: /* unused */ break;
   case 0xe4: /* unused */ break;
   case 0xe5: push(HL); break;
@@ -1395,8 +1390,8 @@ void CPU::ldh(const std::size_t index, register_to_memory_t) noexcept { // ldh [
   m_clock.cycle(3);
 }
 
-void CPU::ldh(byte &b, register_to_memory_t, C_register_tag_t) noexcept { // ldh [C],A
-  b = A.data();
+void CPU::ldh(const std::size_t index, register_to_memory_t, C_register_tag_t) noexcept { // ldh [C],A
+  m_bus.write(index, A.data());
 
   m_clock.cycle(2);
 }
