@@ -3,6 +3,7 @@
 #include <LR35902/builtin/builtin.h>
 #include <LR35902/cartridge/cartridge.h>
 #include <LR35902/cpu/cpu.h>
+#include <LR35902/dma/dma.h>
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
 #include <LR35902/ppu/ppu.h>
@@ -18,7 +19,8 @@ class [[nodiscard]] GameBoy final {
   IO io;
   Interrupt intr;
 
-  Bus bus{cart, ppu, builtIn, io, intr};
+  DMA dma{cart, ppu, builtIn};
+  Bus bus{cart, ppu, builtIn, dma, io, intr};
   CPU cpu{bus};
 
   void render() noexcept;
@@ -32,6 +34,7 @@ public:
   std::size_t updateCycles() const noexcept {
     return cpu.latestCycles();
   }
+
   void boot(bool skipboot = true) noexcept;
 
   void plug(const std::string_view rom) noexcept;

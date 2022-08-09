@@ -24,7 +24,8 @@ add_library(
   src/cartridge/kind/mbc1.cpp
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp
-  src/io/io.cpp)
+  src/io/io.cpp
+  src/dma/dma.cpp)
 
 target_include_directories(lr35902 PUBLIC ${LR3590_INCLUDE_DIR})
 

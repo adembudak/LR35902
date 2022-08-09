@@ -11,18 +11,20 @@ class PPU;
 class BuiltIn;
 class IO;
 struct Interrupt;
+class DMA;
 
 class Bus {
   Cartridge &m_cart;
   PPU &m_ppu;
   BuiltIn &m_builtIn;
+  DMA &m_dma;
   IO &m_io;
 
 public:
   Interrupt &interruptHandler;
 
 public:
-  [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interrupt);
+  [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt);
 
   void setPostBootValues() noexcept;
 

@@ -2,6 +2,7 @@
 #include <LR35902/bus/bus.h>
 #include <LR35902/cartridge/cartridge.h>
 #include <LR35902/config.h>
+#include <LR35902/dma/dma.h>
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
 #include <LR35902/memory_map.h>
@@ -11,10 +12,11 @@
 
 namespace LR35902 {
 
-Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, IO &io, Interrupt &interrupt) :
+Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt) :
     m_cart{cart},
     m_ppu{ppu},
     m_builtIn{builtIn},
+    m_dma{dma},
     m_io{io},
     interruptHandler{interrupt} {}
 
@@ -114,7 +116,12 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < echo_end) m_builtIn.writeEcho(index - echo, b);
   else if(index < oam_end) m_ppu.writeOAM(index - oam, b);
   else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
-  else if(index < io_end) { if(index == 0xff0f) interruptHandler.IF = b; else m_io.writeIO(index, b); } 
+  else if(index < io_end) { 
+    if(index == 0xff0f) interruptHandler.IF = b; 
+    else if(index == 0xff46) m_dma.action(b);
+
+    m_io.writeIO(index - io, b); 
+  } 
   else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
   else if(index == IE) interruptHandler.IE = b;
   else assert(false);
