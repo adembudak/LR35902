@@ -599,12 +599,7 @@ void CPU::run() noexcept {
   case 0xdd: /* unused */ break;
   case 0xde: sbc(n8{fetchByte()}); break;
   case 0xdf: rst(0x18); break;
-  case 0xe0: {
-    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
-    byte &b = m_bus.read_write(nn.m_data);
-    ldh(b, register_to_memory);
-    break;
-  }
+  case 0xe0: ldh(0xFF00 + fetchByte(), register_to_memory); break;
   case 0xe1: pop(HL); break;
   case 0xe2: {
     const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
@@ -1394,8 +1389,8 @@ void CPU::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16]
   m_clock.cycle(4);
 }
 
-void CPU::ldh(byte &b, register_to_memory_t) noexcept { // ldh [n16],A
-  b = A.data();
+void CPU::ldh(const std::size_t index, register_to_memory_t) noexcept { // ldh [n16],A
+  m_bus.write(index, A.data());
 
   m_clock.cycle(3);
 }
