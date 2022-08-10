@@ -1,5 +1,6 @@
 #pragma once
 
+#include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
 #include <cstddef>

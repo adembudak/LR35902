@@ -11,6 +11,7 @@ option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
+option(STATIC_ANALYSIS "" OFF)
 
 add_library(
   lr35902
@@ -79,3 +80,9 @@ if(CACHE_BUILD)
   find_program(CCACHE ccache REQUIRED)
   set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ${CCACHE})
 endif()
+
+if(STATIC_ANALYSIS)
+  find_program(CLANG_TIDY NAMES clang-tidy clang-tidy-12 clang-tidy-13 clang-tidy-14 REQUIRED)
+  find_program(CPPCHECK cppcheck REQUIRED)
+endif()
+

@@ -6,7 +6,7 @@ namespace LR35902 {
 
 constexpr std::size_t rom_bank_size = 16_KiB;
 
-mbc1::mbc1(const std::vector<byte> rom) :
+mbc1::mbc1(std::vector<byte> rom) :
     m_rom(std::move(rom)) {
 
   const auto rom_size = m_rom.size();

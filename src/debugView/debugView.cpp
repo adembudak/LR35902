@@ -107,7 +107,7 @@ void DebugView::showDisassembly() noexcept {
   if(_disassembly) {
 
     Begin("Disassembly", &_disassembly, ImGuiWindowFlags_NoCollapse);
-    const auto cpu = gameboy.cpu;
+    const auto &cpu = gameboy.cpu;
 
     using enum CPU::OpcodeKind;
     // clang-format off

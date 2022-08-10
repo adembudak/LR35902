@@ -38,7 +38,7 @@ auto CPU::fetchWord() noexcept -> word {
 // 1- disable ime
 // 2- push PC into stack
 // 3- set PC to corresponding interrupt vector
-// 4- reset corresponding bit if IF
+// 4- reset corresponding bit in IF
 // 5- all results in 5 cycle.
 // interrupt_vector[]{0x40, 0x48, 0x50, 0x58, 0x60};
 void CPU::handleInterrupts() noexcept {

@@ -1,14 +1,12 @@
-- show disassembly in debugView
+- show textual disassembly in debugView
 
 - Is SBC instruction half carry setting proceduce correct?
 
-- Visually show VRAM, requires VRAM stub, and implementing cycle counts
+- implement functional ppu
 
-- implement halt instruction, requires interrupt stub?
+- implement halt instruction
 
 - write the bootrom and set it up to run it on upfront before execute rom
-
-- add Menu items: File | View
 
 - show sram0/sramX rom0/romx
 

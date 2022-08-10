@@ -19,7 +19,7 @@ class mbc1 {
   std::size_t bank_normalize_mask;
 
 public:
-  explicit mbc1(const std::vector<byte> rom);
+  explicit mbc1(std::vector<byte> rom);
 
   [[nodiscard]] byte read(std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;

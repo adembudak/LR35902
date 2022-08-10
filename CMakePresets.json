@@ -122,8 +122,9 @@
       "name":"cppcheck",
       "hidden":true,
       "inherits": "debug-gcc-linux",
+      "binaryDir": "build_static_analysis",
       "cacheVariables":{
-        "CMAKE_CXX_CPPCHECK":"cppcheck;--language=c++;--std=c++17;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build"
+        "CMAKE_CXX_CPPCHECK":"cppcheck;--language=c++;--std=c++20;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build_static_analysis"
       }
     },
 
@@ -131,8 +132,9 @@
       "name":"clang-tidy",
       "hidden":true,
       "inherits": "debug-gcc-linux",
+      "binaryDir": "build_static_analysis",
       "cacheVariables":{
-        "CMAKE_CXX_CLANG_TIDY":"clang-tidy;-checks=-*,bugprone-*,performance-*,portability-*"
+        "CMAKE_CXX_CLANG_TIDY":"clang-tidy-14;-checks=-*,bugprone-*,performance-*,portability-*"
       }
     },
 
@@ -144,7 +146,11 @@
       "inherits":[
         "cppcheck",
         "clang-tidy"
-      ]
+      ],
+      "cacheVariables": {
+         "STATIC_ANALYSIS" : "ON"
+      }
+
     }
   ]
 }
