@@ -9,6 +9,11 @@ namespace LR35902 {
 }
 
 void IO::writeIO(const std::size_t index, const byte b) noexcept {
+  if(index == 0x04) { // writes to DIV resets it to 0
+    DIV = 0x00;
+    return;
+  }
+
   m_data[index] = b;
 }
 

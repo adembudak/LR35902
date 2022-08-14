@@ -26,7 +26,8 @@ add_library(
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp
   src/io/io.cpp
-  src/dma/dma.cpp)
+  src/dma/dma.cpp
+  src/timer/timer.cpp)
 
 target_include_directories(lr35902 PUBLIC ${LR3590_INCLUDE_DIR})
 

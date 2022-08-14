@@ -7,6 +7,7 @@
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
 #include <LR35902/ppu/ppu.h>
+#include <LR35902/timer/timer.h>
 
 #include <string_view>
 
@@ -21,6 +22,7 @@ class [[nodiscard]] GameBoy final {
 
   DMA dma{cart, ppu, builtIn};
   Bus bus{cart, ppu, builtIn, dma, io, intr};
+  Timer timer{io, intr};
   CPU cpu{bus};
 
   void render() noexcept;
