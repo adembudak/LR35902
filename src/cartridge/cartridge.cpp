@@ -126,8 +126,7 @@ void Cartridge::load(const char *romfile) noexcept {
 
 // clang-format off
 template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
-
-template<typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
+template <typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 byte Cartridge::readROM(const std::size_t index) const noexcept {
   return std::visit(overloaded { [&](const rom_only &rom) { return rom.read(index);    },
@@ -196,6 +195,13 @@ std::optional<const byte *> Cartridge::RAMData() const noexcept {
   if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                        }
   else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).RAMData(); }
   else                                             { return std::nullopt;                        }
+}
+
+void Cartridge::reset() noexcept { // only resets SRAM
+  std::visit(overloaded { [&](rom_only &)    {                     },
+                          [&](rom_ram &rom)  { return rom.reset(); },
+                          [&](mbc1 &)        {                     }
+                        }, m_cart);
 }
 
 }

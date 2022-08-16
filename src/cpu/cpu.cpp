@@ -676,6 +676,18 @@ std::size_t CPU::latestCycles() const noexcept {
   return m_clock.latest();
 }
 
+void CPU::reset() noexcept {
+  A = byte{};
+  F = flags{};
+
+  B = C = D = E = H = L = byte{};
+
+  SP = n16{};
+  PC = n16{};
+
+  ime = flag{};
+}
+
 // 8-bit Arithmetic and Logic Instructions
 void CPU::adc(const r8 r) noexcept { // adc A,r8 // // z 0 h c
   kind = OpcodeKind::opcode;

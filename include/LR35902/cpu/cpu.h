@@ -36,14 +36,13 @@ private:
   n16 PC;
 
   flag ime{}; // interrupt master enable
+  clock m_clock;
 
   auto fetchOpcode() noexcept -> byte;
   auto fetchByte() noexcept -> byte;
   auto fetchWord() noexcept -> word;
 
   void handleInterrupts() noexcept;
-
-  clock m_clock;
 
 #if defined(WITH_DEBUGGER)
   byte opcode{};
@@ -78,6 +77,7 @@ public:
   void run() noexcept;
   void setPostBootValues() noexcept;
   std::size_t latestCycles() const noexcept;
+  void reset() noexcept;
 
   friend class DebugView;
 

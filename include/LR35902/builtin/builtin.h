@@ -28,6 +28,8 @@ public:
 
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
 
+  void reset() noexcept;
+
   friend class DebugView;
 };
 

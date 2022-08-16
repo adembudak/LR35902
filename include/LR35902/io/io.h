@@ -102,6 +102,8 @@ public:
   [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] auto data() const noexcept -> decltype(m_data);
 
+  void reset() noexcept;
+
   friend class DebugView;
 };
 

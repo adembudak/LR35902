@@ -25,4 +25,8 @@ auto IO::data() const noexcept -> decltype(m_data) {
   return m_data;
 }
 
+void IO::reset() noexcept {
+  m_data.fill(byte{});
+}
+
 }

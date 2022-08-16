@@ -47,4 +47,11 @@ byte &BuiltIn::operator[](const std::size_t index) noexcept {
   else assert(false);
 }
 
+void BuiltIn::reset() noexcept {
+  m_wram.fill(byte{});
+  m_echo.fill(byte{});
+  m_noUsable.fill(byte{});
+  m_hram.fill(byte{});
+}
+
 }

@@ -42,4 +42,8 @@ std::size_t rom_ram::size() const noexcept {
   return m_sram.data();
 }
 
+void rom_ram::reset() noexcept {
+  m_sram.fill(byte{});
+}
+
 }

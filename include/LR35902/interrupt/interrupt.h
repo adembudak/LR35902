@@ -36,6 +36,9 @@ struct Interrupt {
     };
   }
 
+  void reset() noexcept {
+    IF = IE = byte{};
+  }
 };
 
 }

@@ -33,4 +33,9 @@ byte &PPU::operator[](const std::size_t index) noexcept {
   else assert(false);
 }
 
+void PPU::reset() noexcept {
+  m_vram.fill(byte{});
+  m_oam.fill(byte{});
+}
+
 }

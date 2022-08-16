@@ -27,6 +27,8 @@ public:
 
   [[nodiscard]] std::size_t RAMSize() const noexcept;
   [[nodiscard]] const byte *RAMData() const noexcept;
+
+  void reset() noexcept;
 };
 
 }

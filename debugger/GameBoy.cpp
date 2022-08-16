@@ -27,6 +27,14 @@ void GameBoy::play() noexcept {
   timer.update(cpu.latestCycles());
 }
 
+void GameBoy::reset() noexcept {
+  cart.reset();
+  ppu.reset();
+  builtIn.reset();
+  io.reset();
+  intr.reset();
+}
+
 void GameBoy::pause() noexcept {
   paused = true;
 }

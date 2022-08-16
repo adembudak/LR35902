@@ -42,6 +42,8 @@ public:
   [[nodiscard]] std::optional<std::size_t> RAMSize() const noexcept;
   [[nodiscard]] std::optional<const byte *> RAMData() const noexcept;
 
+  void reset() noexcept;
+
   friend class DebugView;
 };
 }
