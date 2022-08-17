@@ -12,6 +12,7 @@
 #include <imgui/imgui.h>
 
 #include <cstdio>
+#include <filesystem>
 #include <string_view>
 
 int main(int argc, char **argv) {
@@ -25,9 +26,12 @@ int main(int argc, char **argv) {
     return 2;
   }
 
-  SDL_Window *const m_window =
-      SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 1280, 720,
-                       SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+  const auto flags_win = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
+  const auto w_win = 1280;
+  const auto h_win = 720;
+
+  SDL_Window *const m_window = SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED,
+                                                SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_win);
 
   SDL_Renderer *const m_renderer =
       SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
@@ -36,8 +40,12 @@ int main(int argc, char **argv) {
   ImGui::CreateContext();
 
   ImGuiIO &io = ImGui::GetIO();
-  io.Fonts->AddFontFromFileTTF("../misc/font/source-code-pro/TTF/SourceCodePro-Regular.ttf", 14.0f);
-  io.Fonts->Build();
+
+  if(std::filesystem::path font_path{"../misc/font"}; std::filesystem::exists(font_path)) {
+    io.Fonts->AddFontFromFileTTF((font_path / "source-code-pro/TTF/SourceCodePro-Regular.ttf").c_str(),
+                                 14.0f);
+    io.Fonts->Build();
+  }
 
   ImGui::StyleColorsDark();
 
