@@ -52,7 +52,7 @@ int main(int argc, char **argv) {
   ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
   ImGui_ImplSDLRenderer_Init(m_renderer);
 
-  LR35902::GameBoy attaboy;
+  GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
   attaboy.plug(argv[1]);
@@ -63,10 +63,35 @@ int main(int argc, char **argv) {
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
       ImGui_ImplSDL2_ProcessEvent(&event);
-      if(event.type == SDL_QUIT) attaboy.stop();
-      if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_CLOSE &&
-         event.window.windowID == SDL_GetWindowID(m_window))
+
+      switch(event.type) {
+      case SDL_EventType::SDL_QUIT: //
         attaboy.stop();
+        break;
+
+      case SDL_EventType::SDL_WINDOWEVENT:
+        if(event.window.event == SDL_WINDOWEVENT_CLOSE) attaboy.stop();
+        break;
+
+      case SDL_EventType::SDL_KEYDOWN: {
+        const Uint8 *const state = SDL_GetKeyboardState(NULL);
+        if(state[SDL_SCANCODE_P]) attaboy.pause();
+        if(state[SDL_SCANCODE_SPACE]) attaboy.resume();
+
+        if(state[SDL_SCANCODE_W]) attaboy.joypad(button::up, keyStatus::pressed);
+        if(state[SDL_SCANCODE_D]) attaboy.joypad(button::right, keyStatus::pressed);
+        if(state[SDL_SCANCODE_S]) attaboy.joypad(button::down, keyStatus::pressed);
+        if(state[SDL_SCANCODE_A]) attaboy.joypad(button::left, keyStatus::pressed);
+      } break;
+
+      case SDL_EventType::SDL_KEYUP: {
+        const Uint8 *const state = SDL_GetKeyboardState(NULL);
+        if(state[SDL_SCANCODE_W]) attaboy.joypad(button::up, keyStatus::released);
+        if(state[SDL_SCANCODE_D]) attaboy.joypad(button::right, keyStatus::released);
+        if(state[SDL_SCANCODE_S]) attaboy.joypad(button::down, keyStatus::released);
+        if(state[SDL_SCANCODE_A]) attaboy.joypad(button::left, keyStatus::released);
+      } break;
+      }
     }
 
     ImGui_ImplSDLRenderer_NewFrame();
@@ -75,12 +100,13 @@ int main(int argc, char **argv) {
 
     if(ImGui::BeginMainMenuBar()) {
 
-      // clang-format off
       if(ImGui::BeginMenu("File")) {
-        if(ImGui::MenuItem("Open", "Ctrl-O")) {}
-        if(ImGui::MenuItem("Close", "Alt-<F4>")) {}
+        if(ImGui::MenuItem("Open", "Ctrl-O")) {
+        }
+        if(ImGui::MenuItem("Close", "Alt-<F4>")) {
+          attaboy.stop();
+        }
         ImGui::EndMenu();
-        // clang-format on
       }
 
       if(ImGui::BeginMenu("View")) {
@@ -112,10 +138,7 @@ int main(int argc, char **argv) {
       ImGui::EndMainMenuBar();
     }
 
-    //   constexpr std::size_t vblank_start_cycle = 16'416;
-    //    for(std::size_t i = 0; i < vblank_start_cycle; i += attaboy.updateCycles()) {
     attaboy.play();
-    //    }
 
     debugView.showDisassembly();
     debugView.showCartridgeHeader();
