@@ -7,9 +7,9 @@
 #include <optional>
 #include <tuple>
 
-namespace LR35902 {
-
 class GameBoy;
+
+namespace LR35902 {
 
 class DebugView {
   const GameBoy &gameboy;

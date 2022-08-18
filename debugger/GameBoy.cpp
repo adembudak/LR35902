@@ -2,8 +2,6 @@
 
 #include <string_view>
 
-namespace LR35902 {
-
 void GameBoy::boot(bool skipboot) noexcept {
   isRunning = true;
 
