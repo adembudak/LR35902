@@ -5,7 +5,7 @@ project(
   HOMEPAGE_URL https://github.com/adembudak/LR35902
   LANGUAGES CXX)
 
-set(LR3590_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(LR35902_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
@@ -29,13 +29,17 @@ add_library(
   src/dma/dma.cpp
   src/timer/timer.cpp)
 
-target_include_directories(lr35902 PUBLIC ${LR3590_INCLUDE_DIR})
+target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
 
+  target_compile_definitions(lr35902 PUBLIC WITH_DEBUGGER)
+
+  add_library(debugView src/debugView/debugView.cpp)
+
   add_library(
-    imgui
+    Dear_ImGui EXCLUDE_FROM_ALL
     3rdparty/imgui/imgui.cpp
     3rdparty/imgui/imgui_demo.cpp
     3rdparty/imgui/imgui_draw.cpp
@@ -44,20 +48,23 @@ if(WITH_DEBUGGER)
     3rdparty/imgui/backends/imgui_impl_sdl.cpp
     3rdparty/imgui/backends/imgui_impl_sdlrenderer.cpp)
 
-  target_include_directories(imgui PUBLIC imgui imgui_club)
-  target_link_libraries(imgui PRIVATE SDL2::SDL2 SDL2::SDL2-static)
-  add_library(imgui::imgui ALIAS imgui)
+  target_include_directories(Dear_ImGui PUBLIC imgui)
+  target_link_libraries(Dear_ImGui PRIVATE SDL2::SDL2 SDL2::SDL2-static)
+  add_library(imgui::imgui ALIAS Dear_ImGui)
 
-  add_library(debugView src/debugView/debugView.cpp)
-  target_link_libraries(debugView PRIVATE imgui::imgui lr35902)
-  target_include_directories(debugView PUBLIC ${LR3590_INCLUDE_DIR} 3rdparty
+  add_library(imgui_memory_editor INTERFACE)
+  target_include_directories(imgui_memory_editor INTERFACE 3rdparty/imgui_club)
+  add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
+
+  target_link_libraries(debugView PRIVATE imgui::imgui
+                                          imgui::imgui_memory_editor lr35902)
+
+  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} 3rdparty
                                               3rdparty/imgui_club)
-
-  target_compile_definitions(lr35902 PUBLIC WITH_DEBUGGER)
 
   add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
   target_link_libraries(debugger PRIVATE debugView)
-  target_include_directories(debugger PUBLIC ${LR3590_INCLUDE_DIR})
+  target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR})
 endif()
 
 if(WITH_TOOLS)
@@ -83,7 +90,7 @@ if(CACHE_BUILD)
 endif()
 
 if(STATIC_ANALYSIS)
-  find_program(CLANG_TIDY NAMES clang-tidy clang-tidy-12 clang-tidy-13 clang-tidy-14 REQUIRED)
+  find_program(CLANG_TIDY NAMES clang-tidy clang-tidy-12 clang-tidy-13
+                                clang-tidy-14 REQUIRED)
   find_program(CPPCHECK cppcheck REQUIRED)
 endif()
-
