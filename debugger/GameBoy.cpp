@@ -67,33 +67,23 @@ bool GameBoy::isPowerOn() const noexcept {
 // link: https://archive.org/details/GameBoyProgManVer1.1/page/n23/mode/1up
 //
 // 0: button pressed, 1: button released
-//
-// REVISIT: this probably shouldn't be this hard, maybe i'm overthinking
 void GameBoy::joypad(button btn, keyStatus s) noexcept {
   const std::uint8_t buttonKind = (io.P1 & 0b0011'0000) >> 4;
   const bool isPressed = s == keyStatus::pressed;
 
-  // direction button
-  // the implementation expects a direction button to be pressed. If pressed button is not one of them,
-  // so skip it.
-  if(isPressed && buttonKind == 0b01 &&
-     // #ifdef __cpp_lib_ranges
-     //     std::ranges::none_of(selectionButtons, [=](button b) { return btn == b; }))
-     // #else
-     std::none_of(std::begin(selectionButtons), std::end(selectionButtons),
-                  [=](button b) { return btn == b; }))
-    //#endif
-    return;
+  if(isPressed) {
+    // selection button
+    // Implementation expects a selection button to be pressed. If the pressed button isn't one of them, skip
+    // it
+    if(buttonKind == 0b01 && std::none_of(std::begin(selectionButtons), std::end(selectionButtons),
+                                          [=](button b) { return btn == b; }))
+      return;
 
-  // selection button
-  if(isPressed && buttonKind == 0b10 &&
-     //#ifdef __cpp_lib_ranges
-     //     std::none_of(directionButtons, [=](button b) { return btn == b; }))
-     //#else
-     std::none_of(std::begin(directionButtons), std::end(directionButtons),
-                  [=](button b) { return btn == b; }))
-    //#endif
-    return;
+    // direction button
+    if(buttonKind == 0b10 && std::none_of(std::begin(directionButtons), std::end(directionButtons),
+                                          [=](button b) { return btn == b; }))
+      return;
+  }
 
   switch(btn) {
     // clang-format off
