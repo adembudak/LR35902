@@ -1,11 +1,13 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.24.0)
 
 project(
   LR35902
   HOMEPAGE_URL https://github.com/adembudak/LR35902
   LANGUAGES CXX)
 
-set(LR35902_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
+set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
+set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
+set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
 
 option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
