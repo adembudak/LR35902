@@ -8,6 +8,7 @@ namespace LR35902 {
 
 // clang-format off
 //                                                                                                     
+//  VRAM
 //  |                  (each tile is 16 bytes)                  | (1KB = 32x32 = [0,1024) indexes)     
 //  |  2KB = 128 tiles  |  2KB = 128 tiles  |  2KB = 128 tiles  | 1KB      | 1KB      | = 8KB total    
 //  |                   |                   |                   |          |          |                
@@ -23,49 +24,46 @@ namespace LR35902 {
 //
 //  tile structure, based on https://www.huderlem.com/demos/gameboy2bpp.html
 //
-//  palette[] = {░░, ▒▒, ▓▓, ██}
-//
 //  VRAM[] = {0xff, 0x00, 0x7e, 0xff, 0x85, 0x81, 0x89, 0x83, 0x93, 0x85, 0xa5, 0x8b, 0xc9, 0x97, 0x7e, 0xff, ... }
 //
-//  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
-//  ▒▒████████████▒▒
-//  ██░░░░░░░░▓▓░░██
-//  ██░░░░░░▓▓░░▒▒██
-//  ██░░░░▓▓░░▒▒▓▓██
-//  ██░░▓▓░░▒▒▓▓▒▒██
-//  ██▓▓░░▒▒▓▓▒▒▒▒██
-//  ▒▒████████████▒▒
+//  palette[] = {██, ▓▓, ▒▒, ░░}, background and window tiles uses BGP register for palette, objects (sprites) uses OBP0/OBP1.
+//  For objects, palette[0] is called *transparent* and in effect, it's not drawn on screen.
 //
 //  2 bit per pixel
-//  each tile is 8 x 8 pixel
-//  echo tile is 8 x 8 x 2 bit == 128 bit == 16 byte
+//  each tile is  8 x 8 pixel
+//              = 8 x 8 x 2 bit
+//              = 128 bit
+//              = 16 byte
 //
 //  a pixel
+//    v
+//  |lo |
+//  |hi | -> specifies palette[(hi<<1) | lo]
 //    v  
 //  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | <- 2 byte creates a line of the tile                                   
-//  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | // 0x00  | each pixels of this tileline use palette[0b10] == palette[2]                   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+//  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | // 0x00  | each pixels of this tileline use palette[0b01] == palette[1]    ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓
 
 //  | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | // 0x7e
-//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | pal[1], pal[3], pal[3], pal[3], pal[3], pal[3], pal[3], pal[1]                 ▒▒████████████▒▒
+//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | pal[2], pal[3], pal[3], pal[3], pal[3], pal[3], pal[3], pal[2]  ▒▒ ░░ ░░ ░░ ░░ ░░ ░░ ▒▒
 
 //  | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | // 0x85
-//  | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | // 0x81  | pal[3], pal[0], pal[0], pal[0], pal[0], pal[2], pal[0], pal[3]                 ██░░░░░░░░▓▓░░██
-
-//  | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | // 0x89
-//  | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | // 0x83  | pal[3], pal[0], pal[0], pal[0], pal[2], pal[0], pal[1], pal[3]                 ██░░░░░░▓▓░░▒▒██
-
-//  | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | // 0x93
-//  | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | // 0x85  | pal[3], pal[0], pal[0]. pal[2], pal[0], pal[1], pal[2], pal[3]                 ██░░░░▓▓░░▒▒▓▓██
-
+//  | 1 | 0 | 0 | 0 | 0 | 0 | 0 | 1 | // 0x81  | pal[3], pal[0], pal[0], pal[0], pal[0], pal[1], pal[0], pal[3]  ░░ ██ ██ ██ ██ ▓▓ ██ ░░       ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+//                                                                                                                                             ▒▒░░░░░░░░░░░░▒▒
+//  | 1 | 0 | 0 | 0 | 1 | 0 | 0 | 1 | // 0x89                                                                                                  ░░████████▓▓██░░
+//  | 1 | 0 | 0 | 0 | 0 | 0 | 1 | 1 | // 0x83  | pal[3], pal[0], pal[0], pal[0], pal[1], pal[0], pal[2], pal[3]  ░░ ██ ██ ██ ▓▓ ██ ▒▒ ░░       ░░██████▓▓██▒▒░░
+//                                                                                                                                             ░░████▓▓██▒▒▓▓░░
+//  | 1 | 0 | 0 | 1 | 0 | 0 | 1 | 1 | // 0x93                                                                                                  ░░██▓▓██▒▒▓▓▒▒░░
+//  | 1 | 0 | 0 | 0 | 0 | 1 | 0 | 1 | // 0x85  | pal[3], pal[0], pal[0]. pal[1], pal[0], pal[2], pal[1], pal[3]  ░░ ██ ██ ▓▓ ██ ▒▒ ▓▓ ░░       ░░▓▓██▒▒▓▓▒▒▒▒░░ 
+//                                                                                                                                             ▒▒░░░░░░░░░░░░▒▒
 //  | 1 | 0 | 1 | 0 | 0 | 1 | 0 | 1 | // 0xa5
-//  | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | // 0x8b  | pal[3], pal[0], pal[2], pal[0], pal[1], pal[2], pal[1], pal[3]                 ██░░▓▓░░▒▒▓▓▒▒██
+//  | 1 | 0 | 0 | 0 | 1 | 0 | 1 | 1 | // 0x8b  | pal[3], pal[0], pal[1], pal[0], pal[2], pal[1], pal[2], pal[3]  ░░ ██ ▓▓ ██ ▒▒ ▓▓ ▒▒ ░░
 
 //  | 1 | 1 | 0 | 0 | 1 | 0 | 0 | 1 | // 0xc9
-//  | 1 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | // 0x97  | pal[3], pal[2], pal[0], pal[1], pal[2], pal[1], pal[1], pal[3]                 ██▓▓░░▒▒▓▓▒▒▒▒██
+//  | 1 | 0 | 0 | 1 | 0 | 1 | 1 | 1 | // 0x97  | pal[3], pal[1], pal[0], pal[2], pal[1], pal[2], pal[2], pal[3]  ░░ ▓▓ ██ ▒▒ ▓▓ ▒▒ ▒▒ ░░
 
 //  | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | // 0x7e
-//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | pal[1], pal[3], pal[3], pal[3], pal[3], pal[3], pal[3], pal[1]                 ▒▒████████████▒▒
-//
+//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | pal[2], pal[3], pal[3], pal[3], pal[3], pal[3], pal[3], pal[2]  ▒▒ ░░ ░░ ░░ ░░ ░░ ░░ ▒▒
+
 // clang-format on
 
 class PPU {
