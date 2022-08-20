@@ -35,12 +35,11 @@ enum class keyStatus : std::uint8_t { pressed, released };
 namespace lr = LR35902;
 
 class [[nodiscard]] GameBoy final {
-public:
   lr::Cartridge cart;
-  lr::PPU ppu;
   lr::BuiltIn builtIn;
   lr::IO io;
   lr::Interrupt intr;
+  lr::PPU ppu{intr, io};
 
   lr::DMA dma{cart, ppu, builtIn};
   lr::Bus bus{cart, ppu, builtIn, dma, io, intr};
@@ -53,6 +52,7 @@ public:
 
   void render() noexcept;
 
+public:
   void boot(bool skipboot = true) noexcept;
 
   void plug(const std::string_view rom) noexcept;

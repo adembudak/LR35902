@@ -66,6 +66,9 @@ namespace LR35902 {
 
 // clang-format on
 
+struct Interrupt;
+class IO;
+
 class PPU {
 public:
   static constexpr std::size_t screen_w = 256; // in px
@@ -92,20 +95,50 @@ public:
 
 public:
   using palette_index = uint8_t;
-  using scanline = std::array<palette_index, screen_w>;
-  using screen = std::array<scanline, screen_h>;
+  using scanline_t = std::array<palette_index, screen_w>;
+  using screen_t = std::array<scanline_t, screen_h>;
 
 private:
   std::array<byte, 8_KiB> m_vram{};
   std::array<byte, 160_B> m_oam{};
 
-  screen m_screen;
+private:
+  Interrupt &intr;
+
+private:
+  // lcd controller
+  byte &LCDC;
+
+  // lcd status
+  byte &STAT;
+
+  // screen (viewport) y, x
+  byte &SCY;
+  byte &SCX;
+
+  /// currently drawing scanline
+  byte &LY;
+  byte &LYC;
+
+  /// palettes
+  byte &BGP;
+  byte &OBP0;
+  byte &OBP1;
+
+  /// window y, x
+  byte &WY;
+  byte &WX;
+
+private:
+  screen_t m_screen;
 
   void fetchBackground() noexcept;
   void fetchWindow() noexcept;
   void fetchSprites() noexcept;
 
 public:
+  PPU(Interrupt &intr, IO &io) noexcept;
+
   void update(const std::size_t cycles) noexcept;
 
   [[nodiscard]] byte readVRAM(const std::size_t index) const noexcept;

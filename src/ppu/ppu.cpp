@@ -1,4 +1,6 @@
 #include <LR35902/config.h>
+#include <LR35902/interrupt/interrupt.h>
+#include <LR35902/io/io.h>
 #include <LR35902/memory_map.h>
 #include <LR35902/ppu/ppu.h>
 
@@ -6,6 +8,20 @@
 #include <cstddef>
 
 namespace LR35902 {
+
+PPU::PPU(Interrupt &intr, IO &io) noexcept :
+    intr{intr},
+    LCDC{io.LCDC},
+    STAT{io.STAT},
+    SCY{io.SCY},
+    SCX{io.SCX},
+    LY{io.LY},
+    LYC{io.LYC},
+    BGP{io.BGP},
+    OBP0{io.OBP0},
+    OBP1{io.OBP1},
+    WY{io.WY},
+    WX{io.WX} {}
 
 void PPU::update(const std::size_t cycles) noexcept {
   // Implement this
