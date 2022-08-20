@@ -36,6 +36,7 @@ byte &PPU::operator[](const std::size_t index) noexcept {
 void PPU::reset() noexcept {
   m_vram.fill(byte{});
   m_oam.fill(byte{});
+  m_screen.fill(scanline_t{});
 }
 
 }
