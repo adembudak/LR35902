@@ -108,6 +108,15 @@ private:
 private:
   // lcd controller
   byte &LCDC;
+  [[nodiscard]] bool isLCDEnabled() const noexcept;
+  [[nodiscard]] std::size_t windowTileMapIndex() const noexcept;
+  [[nodiscard]] bool isWindowEnabled() const noexcept;
+  [[nodiscard]] std::size_t backgroundTilesetIndex() const noexcept;
+  [[nodiscard]] std::size_t windowTilesetIndex() const noexcept;
+  [[nodiscard]] std::size_t backgroundTilemapIndex() const noexcept;
+  [[nodiscard]] bool isBigSprite() const noexcept;
+  [[nodiscard]] bool isSpritesEnabled() const noexcept;
+  [[nodiscard]] bool isBackgroundEnabled() const noexcept;
 
   // lcd status
   byte &STAT;

@@ -9,6 +9,44 @@
 
 namespace LR35902 {
 
+bool PPU::isLCDEnabled() const noexcept { // bit7
+  return LCDC & 0b1000'0000;
+}
+
+std::size_t PPU::windowTileMapIndex() const noexcept { // bit6
+  return (LCDC & 0b0100'0000) ? 0x1C00 : 0x1800;
+}
+
+// REVISIT: this effected by bit0
+bool PPU::isWindowEnabled() const noexcept { // bit5
+  return LCDC & 0b0010'0000;
+}
+
+std::size_t PPU::backgroundTilesetIndex() const noexcept { // bit4
+  return LCDC & 0b0001'0000;
+}
+
+// window and background share same space, so this does same thing above
+std::size_t PPU::windowTilesetIndex() const noexcept { // bit4
+  return LCDC & 0b0001'0000;
+}
+
+std::size_t PPU::backgroundTilemapIndex() const noexcept { // bit3
+  return (LCDC & 0b0000'1000) ? 0x1C00 : 0x1800;
+}
+
+bool PPU::isBigSprite() const noexcept { // bit2
+  return LCDC & 0b0000'0100;
+}
+
+bool PPU::isSpritesEnabled() const noexcept { // bit1
+  return LCDC & 0b0000'0010;
+}
+
+bool PPU::isBackgroundEnabled() const noexcept { // bit0
+  return LCDC & 0b0000'0001;
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
