@@ -60,8 +60,7 @@ int main(int argc, char **argv) {
 
   while(attaboy.isPowerOn()) {
 
-    SDL_Event event;
-    while(SDL_PollEvent(&event)) {
+    for(SDL_Event event; SDL_PollEvent(&event);) {
       ImGui_ImplSDL2_ProcessEvent(&event);
 
       switch(event.type) {
