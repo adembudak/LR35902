@@ -26,15 +26,10 @@ namespace LR35902 {
 //
 //  VRAM[] = {0xff, 0x00, 0x7e, 0xff, 0x85, 0x81, 0x89, 0x83, 0x93, 0x85, 0xa5, 0x8b, 0xc9, 0x97, 0x7e, 0xff, ... }
 //
-//  palette[] = {██, ▓▓, ▒▒, ░░}, background and window tiles uses BGP register for palette, objects (sprites) uses OBP0/OBP1.
-//  For objects, palette[0] is called *transparent* and in effect, it's not drawn on screen.
-//
-//  2 bit per pixel
-//  each tile is  8 x 8 pixel
+//  palette[] = {██, ▓▓, ▒▒, ░░}, background and window tiles uses BGP register for palette, objects (sprites) uses OBP0/OBP1
 //              = 8 x 8 x 2 bit
 //              = 128 bit
 //              = 16 byte
-//
 //  a pixel
 //    v
 //  |lo |
