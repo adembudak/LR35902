@@ -140,6 +140,9 @@ private:
   byte &BGP;
   byte &OBP0;
   byte &OBP1;
+  std::array<palette_index, 4> bgp() const noexcept;
+  std::array<palette_index, 4> obp0() const noexcept;
+  std::array<palette_index, 4> obp1() const noexcept;
 
   /// window y, x
   byte &WY;

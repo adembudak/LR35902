@@ -71,6 +71,33 @@ void PPU::compareScanline() noexcept {
   if(LYC == LY) intr.request(Interrupt::kind::vblank);
 }
 
+std::array<PPU::palette_index, 4> PPU::bgp() const noexcept {
+  const palette_index pal_0 = BGP & 0b0000'0011;
+  const palette_index pal_1 = (BGP & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (BGP & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (BGP & 0b1100'0000) >> 6;
+
+  return {pal_0, pal_1, pal_2, pal_3};
+}
+
+std::array<PPU::palette_index, 4> PPU::obp0() const noexcept {
+  const palette_index pal_0 = OBP0 & 0b0000'0011;
+  const palette_index pal_1 = (OBP0 & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (OBP0 & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (OBP0 & 0b1100'0000) >> 6;
+
+  return {pal_0, pal_1, pal_2, pal_3};
+}
+
+std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
+  const palette_index pal_0 = OBP1 & 0b0000'0011;
+  const palette_index pal_1 = (OBP1 & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (OBP1 & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (OBP1 & 0b1100'0000) >> 6;
+
+  return {pal_0, pal_1, pal_2, pal_3};
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
