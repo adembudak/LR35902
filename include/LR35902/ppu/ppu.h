@@ -131,6 +131,11 @@ private:
   byte &LY;
   byte &LYC;
 
+  byte currentScanline() const noexcept;
+  void updateScanline() noexcept;
+  void resetScanline() noexcept;
+  void compareScanline() noexcept;
+
   /// palettes
   byte &BGP;
   byte &OBP0;

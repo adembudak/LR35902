@@ -55,6 +55,22 @@ std::size_t PPU::screen_x() const noexcept {
   return SCX;
 }
 
+byte PPU::currentScanline() const noexcept {
+  return LY;
+}
+
+void PPU::updateScanline() noexcept {
+  ++LY;
+}
+
+void PPU::resetScanline() noexcept {
+  LY = 0;
+}
+
+void PPU::compareScanline() noexcept {
+  if(LYC == LY) intr.request(Interrupt::kind::vblank);
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
