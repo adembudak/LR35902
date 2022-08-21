@@ -124,6 +124,8 @@ private:
   // screen (viewport) y, x
   byte &SCY;
   byte &SCX;
+  std::size_t screen_y() const noexcept;
+  std::size_t screen_x() const noexcept;
 
   /// currently drawing scanline
   byte &LY;

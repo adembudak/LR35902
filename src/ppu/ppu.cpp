@@ -47,6 +47,14 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
   return LCDC & 0b0000'0001;
 }
 
+std::size_t PPU::screen_y() const noexcept {
+  return SCY;
+}
+
+std::size_t PPU::screen_x() const noexcept {
+  return SCX;
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
