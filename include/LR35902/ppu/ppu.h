@@ -147,6 +147,8 @@ private:
   /// window y, x
   byte &WY;
   byte &WX;
+  std::size_t window_y() const noexcept;
+  std::size_t window_x() const noexcept;
 
 private:
   screen_t m_screen;

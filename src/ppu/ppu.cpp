@@ -98,6 +98,14 @@ std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
+std::size_t PPU::window_y() const noexcept {
+  return WY;
+}
+
+std::size_t PPU::window_x() const noexcept {
+  return WX;
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
