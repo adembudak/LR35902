@@ -113,6 +113,14 @@ private:
   // lcd status
   byte &STAT;
 
+  enum class state : std::uint8_t;
+  enum class source : std::uint8_t;
+
+  [[nodiscard]] state mode() const noexcept;
+  void mode(const state s) noexcept;
+  void coincidence(const bool b) noexcept;
+  bool interruptSource(const source s) const noexcept;
+
   // screen (viewport) y, x
   byte &SCY;
   byte &SCX;

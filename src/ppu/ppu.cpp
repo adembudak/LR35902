@@ -47,6 +47,49 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
   return LCDC & 0b0000'0001;
 }
 
+enum class PPU::state : std::uint8_t {
+  searching_oam = 0b10,
+  drawing = 0b11,
+  hblanking = 0b00,
+  vblanking = 0b01
+};
+
+enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
+
+PPU::state PPU::mode() const noexcept { // bit0, bit1
+  switch(STAT & 0b0000'0011) {
+  case 0b00: return state::hblanking;
+  case 0b01: return state::vblanking;
+  case 0b10: return state::searching_oam;
+  case 0b11: return state::drawing;
+  }
+}
+
+void PPU::mode(const state s) noexcept { // bit0, bit1
+  switch(s) {
+  case state::hblanking: STAT &= 0b1111'1100; break;
+  case state::vblanking: (STAT &= 0b1111'1100) |= 0b01; break;
+  case state::searching_oam: (STAT &= 0b1111'1100) |= 0b10; break;
+  case state::drawing: STAT |= 0b0000'0011; break;
+  }
+}
+
+void PPU::coincidence(const bool b) noexcept {
+  if(b) STAT |= 0b0000'0100;
+  else STAT &= 0b0000'0100;
+}
+
+// clang-format off
+bool PPU::interruptSource(const source s) const noexcept {
+  switch(s) {
+  case source::hblank:      return STAT & 0b0000'1000; // bit 3
+  case source::vblank:      return STAT & 0b0001'0000; // bit 4
+  case source::oam:         return STAT & 0b0010'0000; // bit 5
+  case source::coincidence: return STAT & 0b0100'0000; // bit 6
+  }
+}
+// clang-format on
+
 std::size_t PPU::screen_y() const noexcept {
   return SCY;
 }
@@ -106,6 +149,16 @@ std::size_t PPU::window_x() const noexcept {
   return WX - 7;
 }
 
+void PPU::fetchBackground() noexcept {
+  /* implement this */
+}
+void PPU::fetchWindow() noexcept {
+  /* implement this */
+}
+void PPU::fetchSprites() noexcept {
+  /* implement this */
+}
+
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     LCDC{io.LCDC},
@@ -120,8 +173,123 @@ PPU::PPU(Interrupt &intr, IO &io) noexcept :
     WY{io.WY},
     WX{io.WX} {}
 
+/*
++----------------+      +----------------+      +----------------+
+| searching_oam  |----->|   drawing      |----->|   hblanking    |
++----------------+      +----------------+      +----------------+
+      ^                                                 | ++LY
+      |                                                 v
+      |-<--------------------------------------<---No---| LY == 144
+      |                                                Yes
+LY = 0|           +-->---------------------->-+         |
+      |           No                          |         |
+      | LY == 154 |     +----------------+    |         |
+      ^-------<-Yes--<--|   vblanking    |<---v---------v
+                        +----------------+
+*/
+constexpr std::size_t oam_search_period = 20; // [0, 20)
+constexpr std::size_t draw_period = 43;       // [20, 63)
+constexpr std::size_t hblank_period = 51;     // [63,114)
+
+constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
+static_assert(scanline_period == 114);
+
+constexpr std::size_t vblank_height = 10;
+constexpr std::size_t vblank_period = vblank_height * scanline_period;
+static_assert(vblank_period == 1140);
+
+constexpr std::size_t vblank_start = 144;
+constexpr std::size_t vblank_end = vblank_start + vblank_height; // when LY is in [144, 154) vblanking
+
+std::size_t oam_search_period_counter{};
+std::size_t draw_period_counter{};
+std::size_t hblank_period_counter{};
+
+std::size_t vblank_period_counter{};
+std::size_t scanline_period_counter{};
+
 void PPU::update(const std::size_t cycles) noexcept {
-  // Implement this
+  if(isLCDEnabled()) {
+    switch(mode()) {
+    case state::searching_oam:
+      oam_search_period_counter += cycles;
+
+      if(oam_search_period_counter > oam_search_period) {
+        if(isBackgroundEnabled()) fetchBackground();
+        if(isWindowEnabled()) fetchWindow();
+        if(isSpritesEnabled()) fetchSprites();
+
+        draw_period_counter += (oam_search_period_counter - oam_search_period);
+        oam_search_period_counter = 0;
+        mode(state::drawing);
+      }
+      break;
+
+    case state::drawing:
+      draw_period_counter += cycles;
+
+      if(draw_period_counter > draw_period) {
+        hblank_period_counter += (draw_period_counter - draw_period);
+        draw_period_counter = 0;
+        mode(state::hblanking);
+        if(interruptSource(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
+      }
+      break;
+
+    case state::hblanking:
+      hblank_period_counter += cycles;
+
+      if(hblank_period_counter > hblank_period) {
+        const std::size_t left_over_cycles = hblank_period_counter - hblank_period;
+
+        updateScanline();
+        coincidence(checkCoincidence());
+        if(checkCoincidence() && interruptSource(source::coincidence))
+          intr.request(Interrupt::kind::lcd_stat);
+
+        if(currentScanline() == vblank_start) {
+          vblank_period_counter += left_over_cycles;
+
+          mode(state::vblanking);
+          intr.request(Interrupt::kind::vblank);
+        } else {
+          oam_search_period_counter += left_over_cycles;
+
+          mode(state::searching_oam);
+          if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+        }
+
+        hblank_period_counter = 0;
+      }
+      break;
+
+    case state::vblanking:
+      vblank_period_counter += cycles;
+      scanline_period_counter += cycles;
+
+      if(scanline_period_counter > scanline_period) {
+        scanline_period_counter -= scanline_period;
+        updateScanline();
+      }
+
+      if(vblank_period_counter > vblank_period) {
+        resetScanline();
+
+        mode(state::searching_oam);
+        if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+
+        oam_search_period_counter += (vblank_period_counter - vblank_period);
+        vblank_period_counter = 0;
+        scanline_period_counter = 0;
+      }
+      break;
+    }
+  }
+
+  else { // LDC is off
+    resetScanline();
+    mode(state::hblanking);
+  }
 }
 
 byte PPU::readVRAM(const std::size_t index) const noexcept {
