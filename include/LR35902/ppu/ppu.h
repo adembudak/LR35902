@@ -85,13 +85,6 @@ public:
   static constexpr std::size_t tileline_size = 2_B;
   static constexpr std::size_t tile_size = tileline_size * tile_h;
 
-  static constexpr std::size_t oam_scan_period_cycles = 80 / 4;
-  static constexpr std::size_t drawing_period_cycles = 172 / 4;
-  static constexpr std::size_t hblank_period_cycles = 204 / 4;
-  static constexpr std::size_t one_scanline_cycles =
-      oam_scan_period_cycles + drawing_period_cycles + hblank_period_cycles;
-  static constexpr std::size_t vblank_period_cycles = 10 * one_scanline_cycles;
-
 public:
   using palette_index = uint8_t;
   using scanline_t = std::array<palette_index, screen_w>;
@@ -173,11 +166,4 @@ public:
 
   friend class DebugView;
 };
-
-static_assert(PPU::oam_scan_period_cycles == 20);
-static_assert(PPU::drawing_period_cycles == 43);
-static_assert(PPU::hblank_period_cycles == 51);
-static_assert(PPU::one_scanline_cycles == 114);
-static_assert(PPU::vblank_period_cycles == 1140);
-
 }
