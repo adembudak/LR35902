@@ -67,8 +67,8 @@ void PPU::resetScanline() noexcept {
   LY = 0;
 }
 
-void PPU::compareScanline() noexcept {
-  if(LYC == LY) intr.request(Interrupt::kind::vblank);
+bool PPU::checkCoincidence() const noexcept {
+  return LYC == LY;
 }
 
 std::array<PPU::palette_index, 4> PPU::bgp() const noexcept {

@@ -133,7 +133,7 @@ private:
   byte currentScanline() const noexcept;
   void updateScanline() noexcept;
   void resetScanline() noexcept;
-  void compareScanline() noexcept;
+  bool checkCoincidence() const noexcept;
 
   /// palettes
   byte &BGP;
