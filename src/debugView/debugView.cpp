@@ -181,7 +181,7 @@ bool showJoypadRegister = false;
 bool showSerialCableRegisters = false;
 bool showTimerRegisters = false;
 bool showAudioRegisters = false;
-bool showLCDRegistesr = false;
+bool showLCDRegisters = false;
 
 void DebugView::showRegisters() noexcept {
   using namespace ImGui;
@@ -190,15 +190,22 @@ void DebugView::showRegisters() noexcept {
     Begin("Registers", &_registers);
     const auto &io = gameboy.io;
 
-    if(Checkbox("LCD", &showLCDRegistesr); showLCDRegistesr) {
+    if(Checkbox("LCD", &showLCDRegisters); showLCDRegisters) {
       Text("LCDC: %x", io.LCDC);
       Text("STAT: %x", io.STAT);
+
+      switch(io.STAT & 0b11) {
+      case 0b00: Text("status : Horizontal Blank"); break;
+      case 0b01: Text("status : Vertical Blank"); break;
+      case 0b10: Text("status : Searching OAM"); break;
+      case 0b11: Text("status : Draw"); break;
+      }
 
       Text("SCY: %x", io.SCY);
       Text("SCX: %x", io.SCX);
 
-      Text("LY:  %x", io.LY);
-      Text("LYC: %x", io.LYC);
+      Text("LY:  %u", io.LY);
+      Text("LYC: %u", io.LYC);
 
       Text("DMA: %x", io.DMA);
 
