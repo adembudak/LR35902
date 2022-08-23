@@ -103,7 +103,7 @@ std::size_t PPU::window_y() const noexcept {
 }
 
 std::size_t PPU::window_x() const noexcept {
-  return WX;
+  return WX - 7;
 }
 
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
