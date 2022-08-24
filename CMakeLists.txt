@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.24.0)
+cmake_minimum_required(VERSION 3.24.1)
 
 project(
   LR35902
@@ -81,9 +81,9 @@ if(VISUALIZE_TARGETS)
 
   add_custom_target(
     graphviz ALL
-    COMMAND ${CMAKE_COMMAND} --graphviz=tgt.dot ${PROJECT_BINARY_DIR}
+    COMMAND ${CMAKE_COMMAND} --graphviz=tgt.dot ${LR35902_BINARY_DIR}
     COMMAND dot -Tpng tgt.dot -o targets.png
-    WORKING_DIRECTORY ${PROJECT_BINARY_DIR})
+    WORKING_DIRECTORY ${LR35902_BINARY_DIR})
 endif()
 
 if(CACHE_BUILD)
@@ -92,7 +92,7 @@ if(CACHE_BUILD)
 endif()
 
 if(STATIC_ANALYSIS)
-  find_program(CLANG_TIDY NAMES clang-tidy clang-tidy-12 clang-tidy-13
-                                clang-tidy-14 REQUIRED)
+  find_program(CLANG_TIDY NAMES clang-tidy-14 clang-tidy-13 clang-tidy-12
+                                clang-tidy REQUIRED)
   find_program(CPPCHECK cppcheck REQUIRED)
 endif()
