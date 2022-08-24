@@ -9,6 +9,7 @@
 
 namespace LR35902 {
 
+// LCDC register related members
 bool PPU::isLCDEnabled() const noexcept { // bit7
   return LCDC & 0b1000'0000;
 }
@@ -47,6 +48,7 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
   return LCDC & 0b0000'0001;
 }
 
+// STAT register related members
 enum class PPU::state : std::uint8_t {
   searching_oam = 0b10,
   drawing = 0b11,
@@ -65,21 +67,21 @@ PPU::state PPU::mode() const noexcept { // bit0, bit1
   }
 }
 
+// clang-format off
 void PPU::mode(const state s) noexcept { // bit0, bit1
   switch(s) {
-  case state::hblanking: STAT &= 0b1111'1100; break;
-  case state::vblanking: (STAT &= 0b1111'1100) |= 0b01; break;
+  case state::hblanking:      STAT &= 0b1111'1100;          break;
+  case state::vblanking:     (STAT &= 0b1111'1100) |= 0b01; break;
   case state::searching_oam: (STAT &= 0b1111'1100) |= 0b10; break;
-  case state::drawing: STAT |= 0b0000'0011; break;
+  case state::drawing:        STAT |= 0b0000'0011;          break;
   }
 }
 
 void PPU::coincidence(const bool b) noexcept {
   if(b) STAT |= 0b0000'0100;
-  else STAT &= 0b0000'0100;
+  else  STAT &= 0b1111'1011;
 }
 
-// clang-format off
 bool PPU::interruptSource(const source s) const noexcept {
   switch(s) {
   case source::hblank:      return STAT & 0b0000'1000; // bit 3
@@ -90,6 +92,7 @@ bool PPU::interruptSource(const source s) const noexcept {
 }
 // clang-format on
 
+// SCY/SCX registers related members
 std::size_t PPU::screen_y() const noexcept {
   return SCY;
 }
@@ -98,6 +101,7 @@ std::size_t PPU::screen_x() const noexcept {
   return SCX;
 }
 
+// LY/LYC registers related members
 byte PPU::currentScanline() const noexcept {
   return LY;
 }
@@ -114,6 +118,7 @@ bool PPU::checkCoincidence() const noexcept {
   return LYC == LY;
 }
 
+// BGP/OBP0/OBP1 palette registers related members
 std::array<PPU::palette_index, 4> PPU::bgp() const noexcept {
   const palette_index pal_0 = BGP & 0b0000'0011;
   const palette_index pal_1 = (BGP & 0b0000'1100) >> 2;
@@ -141,6 +146,7 @@ std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
+// WY/WX palette registers related members
 std::size_t PPU::window_y() const noexcept {
   return WY;
 }
