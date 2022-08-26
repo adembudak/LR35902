@@ -121,11 +121,11 @@ private:
   void coincidence(const bool b) noexcept;
   bool interruptSource(const source s) const noexcept;
 
-  // screen (viewport) y, x
+  // scroll viewport by y/x amount
   byte &SCY;
   byte &SCX;
-  std::size_t screen_y() const noexcept;
-  std::size_t screen_x() const noexcept;
+  std::size_t viewport_y() const noexcept;
+  std::size_t viewport_x() const noexcept;
 
   /// currently drawing scanline
   byte &LY;

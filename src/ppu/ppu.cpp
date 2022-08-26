@@ -93,12 +93,12 @@ bool PPU::interruptSource(const source s) const noexcept {
 // clang-format on
 
 // SCY/SCX registers related members
-std::size_t PPU::screen_y() const noexcept {
-  return SCY;
+std::size_t PPU::viewport_y() const noexcept {
+  return SCY % display_h;
 }
 
-std::size_t PPU::screen_x() const noexcept {
-  return SCX;
+std::size_t PPU::viewport_x() const noexcept {
+  return SCX % display_w;
 }
 
 // LY/LYC registers related members
