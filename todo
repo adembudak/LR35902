@@ -10,11 +10,8 @@
 
 - show sram0/sramX rom0/romx
 
-- show interrupts
-
 - setup Github Actions
 
-- implement joypad
-
+- What is the behavior when it is written on LY? Reset to 0? has no effect?
 ---
 - fix tmbl rr instruction
