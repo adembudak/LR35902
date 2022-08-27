@@ -11,6 +11,7 @@
 #include <LR35902/cpu/registers/r8.h>
 
 #include <array>
+#include <variant>
 
 namespace LR35902 {
 
@@ -44,11 +45,11 @@ private:
 
   void handleInterrupts() noexcept;
 
-#if defined(WITH_DEBUGGER)
+  //#if defined(WITH_DEBUGGER)
+  using immediate_t = std::variant<std::monostate, byte, word>;
   byte opcode{};
-  byte immediate_byte{};
-  word immediate_word{};
-#endif
+  immediate_t immediate;
+  //#endif
 
   // clang-format off
   struct AF_register_tag_t { explicit AF_register_tag_t() = default; } AF_register_tag;
@@ -63,9 +64,6 @@ private:
   struct memory_to_register_t { explicit memory_to_register_t() = default; } memory_to_register;
   struct tag_t { explicit tag_t() = default; } tag;
   // clang-format on
-
-  enum class OpcodeKind : std::uint8_t { opcode, opcode_reg_n8, opcode_e8, opcode_reg_n16 };
-  OpcodeKind kind;
 
 public:
   explicit CPU(Bus bus) noexcept :

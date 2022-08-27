@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <variant>
 
 namespace LR35902 {
 
@@ -93,40 +94,21 @@ void DebugView::showMemoryPortions() noexcept {
   }
 }
 
-// Example
-// PC     opcode                         instruction
-// ---------------------------------------------------
-// 1      mem[pc] mem[pc+1]              ld a, $12
-// 3      mem[pc]                        ld a, b
-// 4      mem[pc] mem[pc+1] mem[pc+2]    ld hl, $1234
-// 6      mem[pc]                        sfc
-
 void DebugView::showDisassembly() noexcept {
   using namespace ImGui;
 
   if(_disassembly) {
-
     Begin("Disassembly", &_disassembly);
-    const auto &cpu = gameboy.cpu;
 
-    using enum CPU::OpcodeKind;
-    // clang-format off
-    switch(cpu.kind) {
-      case opcode:         instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::nullopt}); break;
-      case opcode_reg_n8:  instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_byte}); break;
-      case opcode_reg_n16: instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, cpu.immediate_word}); break;
-      case opcode_e8:      instructions.insert_or_assign(cpu.PC.m_data, std::tuple{cpu.kind, cpu.opcode, std::int8_t(cpu.immediate_byte)}); break;
-    }
+    iv.insert_or_assign(gameboy.cpu.PC.m_data, std::pair{gameboy.cpu.opcode, gameboy.cpu.immediate});
 
-    for(const auto &[PC, operation] : instructions) {
-      const auto &[Kind, Opcode, Immediate] = operation;
-      switch(Kind) {
-        case opcode:         ImGui::Text("%04x  %02x\n", PC, Opcode); break;
-        case opcode_reg_n8:  ImGui::Text("%04x  %02x %02x\n", PC, Opcode, *Immediate); break;
-        case opcode_reg_n16: ImGui::Text("%04x  %02x %02x %02x\n", PC, Opcode, *Immediate & 0x00ff, (*Immediate & 0xff00) >> 8); break;
-        case opcode_e8:      ImGui::Text("%04x  %02x %02x", PC, Opcode, *Immediate); break;
-        // clang-format on
-      }
+    for(const auto &[PC, op] : iv) {
+      const auto [opcode, immediate] = op;
+      if(std::holds_alternative<byte>(immediate))
+        Text("%04x  %02x %02x", PC, opcode, std::get<byte>(immediate));
+      else if(std::holds_alternative<word>(immediate))
+        Text("%04x  %02x %02x", PC, opcode, std::get<word>(immediate));
+      else Text("%04x  %02x", PC, opcode);
     }
 
     End();

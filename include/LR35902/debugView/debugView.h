@@ -4,14 +4,13 @@
 
 #include <cstdint>
 #include <map>
-#include <optional>
-#include <tuple>
 
 class GameBoy;
 
 namespace LR35902 {
 
 class DebugView {
+  std::map<std::uint16_t, std::pair<byte, CPU::immediate_t>> iv;
   const GameBoy &gameboy;
 
 public:
@@ -31,9 +30,6 @@ public:
   bool _registers = true;
   bool _cartridge_header = true;
   bool _vram = true;
-
-  using Operation = std::tuple<CPU::OpcodeKind, std::uint8_t, std::optional<std::uint16_t>>;
-  std::map<std::uint16_t, Operation> instructions; // pc -> opcodeKind, opcode, immediate
 
 public:
   DebugView() = delete;
