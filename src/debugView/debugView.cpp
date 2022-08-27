@@ -106,7 +106,7 @@ void DebugView::showDisassembly() noexcept {
 
   if(_disassembly) {
 
-    Begin("Disassembly", &_disassembly, ImGuiWindowFlags_NoCollapse);
+    Begin("Disassembly", &_disassembly);
     const auto &cpu = gameboy.cpu;
 
     using enum CPU::OpcodeKind;
@@ -182,6 +182,7 @@ bool showSerialCableRegisters = false;
 bool showTimerRegisters = false;
 bool showAudioRegisters = false;
 bool showLCDRegisters = false;
+bool showInterruptRegisters = false;
 
 void DebugView::showRegisters() noexcept {
   using namespace ImGui;
@@ -268,8 +269,45 @@ void DebugView::showRegisters() noexcept {
       Text("NR52: %x\n", io.NR52);
     }
 
-    // interrupt registers
-    // byte &IF = m_data[0x0f];
+    if(Checkbox("Interrupts", &showInterruptRegisters); showInterruptRegisters) {
+      const auto &IE = gameboy.intr.IE;
+      const auto &IF = gameboy.intr.IF;
+
+      Text("IME: %d ", gameboy.cpu.ime); // interrupt master enable
+      Text("IE: %x ", IE);
+      Text("IE: %x ", IF);
+
+      static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit  //
+                                     | ImGuiTableFlags_RowBg         //
+                                     | ImGuiTableFlags_Borders       //
+                                     | ImGuiTableFlags_NoHostExtendX //
+                                     | ImGuiTableFlags_Hideable;
+
+      const char *const kind[6]{"", "vblank", "lcd_stat", "timer", "serial", "joypad"};
+      if(ImGui::BeginTable("Interrupts", /*columns*/ 6, flags)) {
+        for(int i = 0; i < 6; ++i)
+          ImGui::TableSetupColumn(kind[i]);
+        ImGui::TableHeadersRow();
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("%s", "(IE) Enabled: ");
+        for(int column = 1; column < 6; ++column) {
+          ImGui::TableSetColumnIndex(column);
+          ImGui::Text("%d", bool(IE & (0b0000'0001 << (column - 1))));
+        }
+
+        ImGui::TableNextRow();
+        ImGui::TableSetColumnIndex(0);
+        ImGui::Text("%s", "(IF) Requested: ");
+        for(int column = 1; column < 6; ++column) {
+          ImGui::TableSetColumnIndex(column);
+          ImGui::Text("%d", bool(IF & (0b0000'0001 << (column - 1))));
+        }
+
+        ImGui::EndTable();
+      }
+    }
 
     End();
   }

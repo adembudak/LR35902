@@ -139,11 +139,11 @@ int main(int argc, char **argv) {
 
     attaboy.play();
 
-    debugView.showDisassembly();
-    debugView.showCartridgeHeader();
     debugView.showMemoryPortions();
+    debugView.showDisassembly();
     debugView.showCPUState();
     debugView.showRegisters();
+    debugView.showCartridgeHeader();
     debugView.visualizeVRAM();
 
     ImGui::Render();
