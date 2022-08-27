@@ -14,6 +14,10 @@ void IO::writeIO(const std::size_t index, const byte b) noexcept {
     return;
   }
 
+  if(index == 0x44) { // LY is read-only
+    return;
+  }
+
   m_data[index] = b;
 }
 
