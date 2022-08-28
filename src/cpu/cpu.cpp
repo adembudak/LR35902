@@ -310,7 +310,7 @@ void CPU::run() noexcept {
   case 0xc9: ret(); break;
   case 0xca: jp(cc::z, n16{fetchWord()}); break;
   case 0xcb:
-    switch(fetchOpcode()) {
+    switch(fetchByte()) {
     case 0x0: rlc(B); break;
     case 0x1: rlc(C); break;
     case 0x2: rlc(D); break;
