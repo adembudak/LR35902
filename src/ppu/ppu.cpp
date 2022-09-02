@@ -156,13 +156,134 @@ std::size_t PPU::window_x() const noexcept {
 }
 
 void PPU::fetchBackground() noexcept {
-  /* implement this */
+
+  for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
+    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
+
+    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
+
+    const std::size_t tile_attribute = readVRAM(backgroundTilemapBaseAddress() + tile_index);
+
+    const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_attribute * tile_size) +
+                                         (currently_scanning_tileline * tileline_size);
+
+    const byte tileline_upper = readVRAM(tileline_address);
+    const byte tileline_lower = readVRAM(tileline_address + 1uz);
+
+    std::uint8_t mask = 0b1000'0000;
+    for(std::size_t i = 0; i < tile_w; ++i, mask >>= 1) {
+      const std::size_t y = currentScanline();
+      const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
+
+      const bool lo = bool(tileline_upper & mask); // the 2 bits in the
+      const bool hi = bool(tileline_lower & mask); // 2bpp format
+      const palette_index pi = (hi << 1) | lo;
+
+      m_screen[y][x] = bgp()[pi];
+    }
+  }
 }
+
 void PPU::fetchWindow() noexcept {
-  /* implement this */
+  if(currentScanline() < window_y()) return;
+
+  for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
+    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
+
+    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
+
+    const std::size_t tile_attribute = readVRAM(windowTilemapBaseAddress() + tile_index);
+
+    const std::size_t tileline_address = windowTilesetBaseAddress() + (tile_attribute * tile_size) +
+                                         (currently_scanning_tileline * tileline_size);
+
+    const byte tileline_upper = readVRAM(tileline_address);
+    const byte tileline_lower = readVRAM(tileline_address + 1uz);
+
+    std::uint8_t mask = 0b1000'0000;
+    for(std::size_t i = 0; i < tile_w; ++i, mask >>= 1) {
+      const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
+      if(x < window_x()) continue;
+      const std::size_t y = currentScanline();
+
+      const bool lo = bool(tileline_upper & mask);
+      const bool hi = bool(tileline_lower & mask);
+      const palette_index pi = (hi << 1) | lo;
+
+      m_screen[y][x] = bgp()[pi];
+    }
+  }
 }
+
+/*
+  // REVISIT: handle x pos. priority, travserse oam in reverse way
+  // REVISIT: implement this function with ranges, something like:
+  namespace rg = ranges;
+  namespace rv = rg::views;
+  namespace ra = rg::actions;
+
+  auto rng =  m_oam
+             | rv::chunk(4)
+             | rg::to<vector>
+             | ra::drop_while([&](auto &a) { return a[0] < y || a[0] >= y_end; })
+             | ra::sort([](auto &a, auto &b) { return a[1] < b[1]; })
+             | ra::reverse
+             | ra::take(10);
+   */
+
+constexpr std::uint8_t max_possible_sprite_on_scanline = 10;
+
 void PPU::fetchSprites() noexcept {
-  /* implement this */
+  std::uint8_t total_sprites_on_scanline = 0;
+
+  for(std::size_t i = 0; i < std::size(m_oam); i += 4uz) {
+    const byte y = readOAM(i + 0uz) - tile_size; // height occupied by a sprite: [y, y_end)
+    const byte y_end = y + (isBigSprite() ? 2 * tile_h : tile_h);
+
+    if(currentScanline() < y) continue;
+    if(currentScanline() >= y_end) continue;
+    if(++total_sprites_on_scanline > max_possible_sprite_on_scanline) break;
+
+    const byte x = readOAM(i + 1uz) - tile_w;
+    const byte tile_index = readOAM(i + 2uz);
+
+    const byte atrb = readOAM(i + 3uz);
+    const bool bgHasPriority = atrb & 0b1000'0000; // REVISIT: handle bgHasPriority
+    const bool yflip = atrb & 0b0100'0000;
+    const bool xflip = atrb & 0b0010'0000;
+    const std::size_t palette = bool(atrb & 0b0001'0000); // OBP0 or OBP1?
+
+    const std::size_t currently_scanning_tileline = currentScanline() - y;
+
+    const std::size_t currently_scanning_tileline_position = [&]() {
+      if(yflip)
+        if(isBigSprite()) //
+          return 2 * tile_h - 1uz - currently_scanning_tileline;
+        else //
+          return tile_h - 1uz - currently_scanning_tileline;
+      else //
+        return currently_scanning_tileline;
+    }();
+
+    const std::size_t tile_address =
+        (tile_index * tile_index) + (currently_scanning_tileline_position * tileline_size);
+
+    const byte tileline_upper = readVRAM(tile_address);
+    const byte tileline_lower = readVRAM(tile_address + 1uz);
+
+    std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
+    for(std::size_t i = 0; i < tile_w; ++i) {
+
+      const bool lo = bool(tileline_upper & mask);
+      const bool hi = bool(tileline_lower & mask);
+      const palette_index pi = (hi << 1) | lo;
+      if(pi == 0b00) continue; // transparent color
+
+      m_screen[y][x + i] = palette == 0 ? obp0()[pi] : obp1()[pi];
+
+      xflip ? mask <<= 1 : mask >>= 1;
+    }
+  }
 }
 
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
