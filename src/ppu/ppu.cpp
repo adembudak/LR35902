@@ -14,7 +14,7 @@ bool PPU::isLCDEnabled() const noexcept { // bit7
   return LCDC & 0b1000'0000;
 }
 
-std::size_t PPU::windowTileMapIndex() const noexcept { // bit6
+std::size_t PPU::windowTilemapBaseAddress() const noexcept { // bit6
   return (LCDC & 0b0100'0000) ? 0x1C00 : 0x1800;
 }
 
@@ -23,16 +23,16 @@ bool PPU::isWindowEnabled() const noexcept { // bit5
   return LCDC & 0b0010'0000;
 }
 
-std::size_t PPU::backgroundTilesetIndex() const noexcept { // bit4
-  return LCDC & 0b0001'0000;
+std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
+  return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
 }
 
 // window and background share same space, so this does same thing above
-std::size_t PPU::windowTilesetIndex() const noexcept { // bit4
-  return LCDC & 0b0001'0000;
+std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
+  return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
 }
 
-std::size_t PPU::backgroundTilemapIndex() const noexcept { // bit3
+std::size_t PPU::backgroundTilemapBaseAddress() const noexcept { // bit3
   return (LCDC & 0b0000'1000) ? 0x1C00 : 0x1800;
 }
 
@@ -94,11 +94,11 @@ bool PPU::interruptSource(const source s) const noexcept {
 
 // SCY/SCX registers related members
 std::size_t PPU::viewport_y() const noexcept {
-  return SCY % display_h;
+  return SCY % viewport_h;
 }
 
 std::size_t PPU::viewport_x() const noexcept {
-  return SCX % display_w;
+  return SCX % viewport_w;
 }
 
 // LY/LYC registers related members

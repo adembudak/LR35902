@@ -9,18 +9,18 @@ namespace LR35902 {
 // clang-format off
 //                                                                                                     
 //  VRAM
-//  |                  (each tile is 16 bytes)                  | (1KB = 32x32 = [0,1024) indexes)     
+//  |                  (each tile is 16 bytes)                  | (1KB = 32x32 = [0,1024) indexes)
 //  |  2KB = 128 tiles  |  2KB = 128 tiles  |  2KB = 128 tiles  | 1KB      | 1KB      | = 8KB total    
-//  |                   |                   |                   |          |          |                
-//  |   Block 0         |    Block 1        |    Block 2        |*LCDC.3=0*|*LCDC.3=1*| (Background)   
-//  |+++++++++++++++LCDC.4=1++++++++++++++++|                   |          |          |                
-//  |++tile [0,128)+++++++++tile [128,256)++|                   |,LCDC.6=0,|,LCDC.6=1,| (Window)       
-//  |                   |~~~~~~~~~~~~~~~~LCDC.4=0~~~~~~~~~~~~~~~|          |          |                
-//  |                   |~~tile [-128,0)~~~~~~tile [0,128)~~~~~~|          |          |                
-//  [-----------------------tile set---------------------------)[-------tile map------)
-//  [------------------)[------------------)[------------------)[---------)[----------)                
-//  0x8000              0x8800              0x9000              0x9800     0x9C00     0xA000           
-//                                                                                                     
+//  |                   |                   |                   |          |          |
+//  |   Block 0         |    Block 1        |    Block 2        |*LCDC.3=0*|*LCDC.3=1*| (Background)
+//  |+++++++++++++++LCDC.4=1++++++++++++++++|                   |          |          |
+//  |++tile [0,128)+++++++++tile [128,256)++|                   |,LCDC.6=0,|,LCDC.6=1,| (Window)
+//  |                   |~~~~~~~~~~~~~~~~LCDC.4=0~~~~~~~~~~~~~~~|          |          |
+//  |                   v~~~tile [0,128)~~~~~~tile [128,256)~~~~|          |          |
+//  v-----------------------tile set---------------------------)[-------tile map------)
+//  [------------------)[------------------)[------------------)[---------)[----------)
+//  0x8000              0x8800              0x9000              0x9800     0x9C00     0xA000
+//
 //  tile set or tileset: where to get from tiles
 //  tile map or tilemap: where to put the tiles
 //
@@ -73,8 +73,14 @@ public:
   static constexpr std::size_t screen_w = 256; // in px
   static constexpr std::size_t screen_h = 256;
 
-  static constexpr std::size_t display_w = 160; // in px
-  static constexpr std::size_t display_h = 144;
+  static constexpr std::size_t max_tile_screen_x = 32;
+  static constexpr std::size_t max_tile_screen_y = 32;
+
+  static constexpr std::size_t viewport_w = 160; // in px
+  static constexpr std::size_t viewport_h = 144;
+
+  static constexpr std::size_t max_tile_viewport_x = 20;
+  static constexpr std::size_t max_tile_viewport_y = 18;
 
   static constexpr std::size_t tilemap_size = 6_KiB;
   static constexpr std::size_t tileset_size = 2_KiB;
@@ -101,11 +107,11 @@ private:
   // lcd controller
   byte &LCDC;
   [[nodiscard]] bool isLCDEnabled() const noexcept;
-  [[nodiscard]] std::size_t windowTileMapIndex() const noexcept;
+  [[nodiscard]] std::size_t windowTilemapBaseAddress() const noexcept;
   [[nodiscard]] bool isWindowEnabled() const noexcept;
-  [[nodiscard]] std::size_t backgroundTilesetIndex() const noexcept;
-  [[nodiscard]] std::size_t windowTilesetIndex() const noexcept;
-  [[nodiscard]] std::size_t backgroundTilemapIndex() const noexcept;
+  [[nodiscard]] std::size_t backgroundTilesetBaseAddress() const noexcept;
+  [[nodiscard]] std::size_t windowTilesetBaseAddress() const noexcept;
+  [[nodiscard]] std::size_t backgroundTilemapBaseAddress() const noexcept;
   [[nodiscard]] bool isBigSprite() const noexcept;
   [[nodiscard]] bool isSpritesEnabled() const noexcept;
   [[nodiscard]] bool isBackgroundEnabled() const noexcept;
