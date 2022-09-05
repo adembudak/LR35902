@@ -849,9 +849,9 @@ void CPU::or_(const n8 n) noexcept { // or A,n8
 }
 
 void CPU::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
-                                     // A = A -(r + F.c)
+                                     // A = A - r - F.c
   const flag c = (r.data() + F.c) > A;
-  const flag h = ((r.lowNibble() + F.c) & 0b0000'1111) > A.lowNibble();
+  const flag h = (r.lowNibble() & 0b0000'1111) > (A.lowNibble() - F.c);
 
   A = A - r - F.c;
   F = {A == 0, 1, h, c};
@@ -861,7 +861,7 @@ void CPU::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
 
 void CPU::sbc(const byte b) noexcept { // sbc A,[HL]
   const flag c = (b + F.c) > A;
-  const flag h = ((b + F.c) & 0b0000'1111) > A.lowNibble();
+  const flag h = (b & 0b0000'1111) > (A.lowNibble() - F.c);
 
   A = A - b - F.c;
   F = {A == 0, 1, h, c};
@@ -871,7 +871,7 @@ void CPU::sbc(const byte b) noexcept { // sbc A,[HL]
 
 void CPU::sbc(const n8 n) noexcept { // sbc A,n8
   const flag c = (n.m_data + F.c) > A;
-  const flag h = ((n.m_data + F.c) & 0b0000'1111) > A.lowNibble();
+  const flag h = (n.m_data & 0b0000'1111) > (A.lowNibble() - F.c);
 
   A = A - n - F.c;
   F = {A == 0, 1, h, c};
