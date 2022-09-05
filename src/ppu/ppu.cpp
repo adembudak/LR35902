@@ -171,7 +171,7 @@ void PPU::fetchBackground() noexcept {
     const byte tileline_lower = readVRAM(tileline_address + 1uz);
 
     std::uint8_t mask = 0b1000'0000;
-    for(std::size_t i = 0; i < tile_w; ++i, mask >>= 1) {
+    for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const std::size_t y = currentScanline();
       const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
 
@@ -201,7 +201,7 @@ void PPU::fetchWindow() noexcept {
     const byte tileline_lower = readVRAM(tileline_address + 1uz);
 
     std::uint8_t mask = 0b1000'0000;
-    for(std::size_t i = 0; i < tile_w; ++i, mask >>= 1) {
+    for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
       if(x < window_x()) continue;
       const std::size_t y = currentScanline();
@@ -216,7 +216,6 @@ void PPU::fetchWindow() noexcept {
 }
 
 /*
-  // REVISIT: handle x pos. priority, travserse oam in reverse way
   // REVISIT: implement this function with ranges, something like:
   namespace rg = ranges;
   namespace rv = rg::views;
@@ -236,18 +235,18 @@ constexpr std::uint8_t max_possible_sprite_on_scanline = 10;
 void PPU::fetchSprites() noexcept {
   std::uint8_t total_sprites_on_scanline = 0;
 
-  for(std::size_t i = 0; i < std::size(m_oam); i += 4uz) {
-    const byte y = readOAM(i + 0uz) - tile_size; // height occupied by a sprite: [y, y_end)
+  for(std::size_t i = std::size(m_oam); i != 0uz; i -= 4uz) {
+    const byte y = readOAM(i - 3uz) - tile_size; // height occupied by a sprite: [y, y_end)
     const byte y_end = y + (isBigSprite() ? 2 * tile_h : tile_h);
 
     if(currentScanline() < y) continue;
     if(currentScanline() >= y_end) continue;
     if(++total_sprites_on_scanline > max_possible_sprite_on_scanline) break;
 
-    const byte x = readOAM(i + 1uz) - tile_w;
-    const byte tile_index = readOAM(i + 2uz);
+    const byte x = readOAM(i - 2uz) - tile_w;
+    const byte tile_index = readOAM(i - 1uz);
 
-    const byte atrb = readOAM(i + 3uz);
+    const byte atrb = readOAM(i);
     const bool bgHasPriority = atrb & 0b1000'0000; // REVISIT: handle bgHasPriority
     const bool yflip = atrb & 0b0100'0000;
     const bool xflip = atrb & 0b0010'0000;
@@ -272,7 +271,7 @@ void PPU::fetchSprites() noexcept {
     const byte tileline_lower = readVRAM(tile_address + 1uz);
 
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
-    for(std::size_t i = 0; i < tile_w; ++i) {
+    for(std::size_t i = 0; i != tile_w; ++i, xflip ? mask <<= 1 : mask >>= 1) {
 
       const bool lo = bool(tileline_upper & mask);
       const bool hi = bool(tileline_lower & mask);
@@ -280,8 +279,6 @@ void PPU::fetchSprites() noexcept {
       if(pi == 0b00) continue; // transparent color
 
       m_screen[y][x + i] = palette == 0 ? obp0()[pi] : obp1()[pi];
-
-      xflip ? mask <<= 1 : mask >>= 1;
     }
   }
 }
