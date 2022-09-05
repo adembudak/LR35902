@@ -1,17 +1,13 @@
 - show textual disassembly in debugView
 
-- Is SBC instruction half carry setting proceduce correct?
-
 - implement functional ppu
 
 - implement halt instruction
 
 - write the bootrom and set it up to run it on upfront before execute rom
 
-- show sram0/sramX rom0/romx
+- show sram0/sramX rom0/romx in debugView
 
 - setup Github Actions
 
 - What is the behavior when it is written on LY? Reset to 0? has no effect?
----
-- fix tmbl rr instruction
