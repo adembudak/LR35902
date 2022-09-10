@@ -53,7 +53,7 @@ class [[nodiscard]] GameBoy final {
   void render() noexcept;
 
 public:
-  void boot(bool skipboot = true) noexcept;
+  void skipboot(bool b = true) noexcept;
 
   void plug(const std::string_view rom) noexcept;
   void play() noexcept;

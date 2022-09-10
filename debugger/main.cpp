@@ -56,7 +56,7 @@ int main(int argc, char **argv) {
   LR35902::DebugView debugView{attaboy};
 
   attaboy.plug(argv[1]);
-  attaboy.boot();
+  attaboy.skipboot(false);
 
   while(attaboy.isPowerOn()) {
 

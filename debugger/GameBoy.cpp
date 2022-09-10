@@ -5,10 +5,10 @@
 #include <cassert>
 #include <string_view>
 
-void GameBoy::boot(bool skipboot) noexcept {
+void GameBoy::skipboot(bool b) noexcept {
   isRunning = true;
 
-  if(!skipboot) {
+  if(b) {
     cpu.setPostBootValues();
     bus.setPostBootValues();
   } else {
