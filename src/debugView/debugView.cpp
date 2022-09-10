@@ -39,9 +39,10 @@ void DebugView::showMemoryPortions() noexcept {
         EndTabItem();
       }
 
-      if(gameboy.cart.hasSRAM()) {
+      if(gameboy.cart.RAMSize()) {
         if(BeginTabItem("sram", &_memory_portions_sram)) {
-          memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), 8_KiB, sram);
+          memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), *gameboy.cart.RAMSize(),
+                                     sram);
 
           EndTabItem();
         }
