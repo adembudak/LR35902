@@ -9,7 +9,6 @@
 namespace LR35902 {
 
 class r8 {
-private:
   byte m_data = 0;
 
 public:
@@ -54,19 +53,19 @@ public:
   auto operator<=>(const r8 &) const = default;
   bool operator==(const r8 &) const = default;
 
-  auto operator<=>(const byte b) const {
+  auto operator<=>(const byte b) const noexcept {
     return m_data <=> b;
   }
 
-  bool operator==(const byte b) const {
+  bool operator==(const byte b) const noexcept {
     return m_data == b;
   }
 
-  auto operator<=>(const n8 n) const {
+  auto operator<=>(const n8 n) const noexcept {
     return m_data <=> n.m_data;
   }
 
-  bool operator==(const n8 n) const {
+  bool operator==(const n8 n) const noexcept {
     return m_data == n.m_data;
   }
 
