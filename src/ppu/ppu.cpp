@@ -27,7 +27,7 @@ std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
 }
 
-// window and background share same space, so this does same thing above
+// window and background share same space, so this does the same thing as above
 std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
 }
@@ -221,14 +221,19 @@ void PPU::fetchWindow() noexcept {
   namespace rv = rg::views;
   namespace ra = rg::actions;
 
-  auto rng =  m_oam
+  auto oam = m_oam
              | rv::chunk(4)
              | rg::to<vector>
-             | ra::drop_while([&](auto &a) { return a[0] < y || a[0] >= y_end; })
+             | ra::drop_while([&](auto &a) { return LY < a[0] || LY >= (a[0] + isBigSprite ? 16u : 8u); })
              | ra::sort([](auto &a, auto &b) { return a[1] < b[1]; })
              | ra::reverse
              | ra::take(10);
-   */
+
+  for(const auto &obj : oam) {
+    const auto [y, x, index, atrb] = rg::subrange(obj);
+    // ...
+  }
+ */
 
 constexpr std::uint8_t max_possible_sprite_on_scanline = 10;
 
