@@ -28,7 +28,6 @@ public:
   bool _disassembly = true;
   bool _cpu_state = true;
   bool _registers = true;
-  bool _cartridge_header = true;
   bool _vram = true;
 
 public:
@@ -47,7 +46,6 @@ public:
   void showDisassembly() noexcept;
   void showCPUState() noexcept;
   void showRegisters() noexcept;
-  void showCartridgeHeader() noexcept;
   void visualizeVRAM() noexcept;
 };
 

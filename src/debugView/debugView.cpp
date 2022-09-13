@@ -298,25 +298,6 @@ void DebugView::showRegisters() noexcept {
   }
 }
 
-void DebugView::showCartridgeHeader() noexcept {
-  using namespace ImGui;
-
-  if(_cartridge_header) {
-    Begin("Cartridge Header", &_cartridge_header);
-
-    const auto &header = gameboy.cart.CartridgeHeader;
-
-    Text("Logo check: %s\n", header.nintendo_logo_check ? "Pass" : "Fail");
-    Text("Title:      %s\n", header.title);
-    Text("MBC:        %d\n", (int)header.kind);
-    Text("Checksum:   %s\n", header.checksum ? "Pass" : "Fail");
-    Text("ROM size:   %s\n", header.rom_size.data());
-    Text("RAM size:   %s\n", header.ram_size.data());
-
-    End();
-  }
-}
-
 using palette_t = std::array<ImColor, 4>;
 
 // https://www.deviantart.com/thewolfbunny64/art/Game-Boy-Palette-Gamate-Ver-808006887

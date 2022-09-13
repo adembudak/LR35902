@@ -4,7 +4,6 @@
 #include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
 
-#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <fstream>
@@ -12,11 +11,6 @@
 #include <vector>
 
 namespace LR35902 {
-
-constexpr byte nintendo_logo[]{0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83,
-                               0x00, 0x0c, 0x00, 0x0d, 0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e,
-                               0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99, 0xbb, 0xbb, 0x67, 0x63,
-                               0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
 
 enum class mbc : std::uint8_t {
   // clang-format off
@@ -53,75 +47,14 @@ enum class mbc : std::uint8_t {
 
 void Cartridge::load(const char *romfile) noexcept {
   std::ifstream fin{romfile};
-
   const std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
-  // https://gbdev.io/pandocs/The_Cartridge_Header.html
-  const std::size_t nintendo_logo_begin = 0x104;
-  CartridgeHeader.nintendo_logo_check = std::equal(std::cbegin(nintendo_logo), std::cend(nintendo_logo),
-                                                   dumpedGamePak.cbegin() + nintendo_logo_begin);
-
-  const std::size_t title_begin = 0x134;
-  std::copy_n(dumpedGamePak.begin() + title_begin, 11_B, std::begin(CartridgeHeader.title));
-
-  const std::size_t cartridge_type = 0x147;
-  switch(dumpedGamePak[cartridge_type]) {
-  case 0x00:
-    CartridgeHeader.kind = mbc::rom_only;
-    m_cart = rom_only(begin(dumpedGamePak), end(dumpedGamePak));
-    break;
-
-  case 0x01:
-    CartridgeHeader.kind = mbc::mbc1;
-    m_cart = mbc1(dumpedGamePak);
-    break;
-
-  case 0x08:
-    CartridgeHeader.kind = mbc::rom_ram;
-    m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak));
-    break;
-
-  default: assert(false && "this type of cart not supported (yet)");
+  switch(const std::size_t cartridge_type = 0x147; dumpedGamePak[cartridge_type]) {
+  case 0x00: m_cart = rom_only(begin(dumpedGamePak), end(dumpedGamePak)); break;
+  case 0x01: m_cart = mbc1(dumpedGamePak); break;
+  case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
+  default: assert(false && "this type of cart not supported (yet)"); break;
   };
-
-  const std::size_t checksum_begin = 0x134;
-  const std::size_t checksum_end = 0x14c + 1; // +1 for to use the address as an end iterator
-  const byte checksum_result = dumpedGamePak[0x14d];
-
-  CartridgeHeader.checksum =
-      checksum_result == std::accumulate(&dumpedGamePak[checksum_begin], &dumpedGamePak[checksum_end], 0,
-                                         [](const byte x, const byte y) { return x - y - 1; });
-
-  const byte rom_size = dumpedGamePak[0x0148];
-  CartridgeHeader.rom_size = [&rom_size]() -> std::string_view {
-    switch(rom_size) {
-    case 0x00: return "32_KiB";
-    case 0x01: return "64_KiB";
-    case 0x02: return "128_KiB";
-    case 0x03: return "256_KiB";
-    case 0x04: return "512_KiB";
-    case 0x05: return "1_MiB";
-    case 0x06: return "2_MiB";
-    case 0x07: return "4_MiB";
-    case 0x08: return "8_MiB";
-    case 0x52: return "1.1_MiB";
-    case 0x53: return "1.2_MiB";
-    case 0x54: return "1.5_MiB";
-    default: return "Failed to decode";
-    };
-  }();
-
-  const byte ram_size = dumpedGamePak[0x0149];
-  CartridgeHeader.ram_size = [&ram_size]() -> std::string_view {
-    switch(ram_size) {
-    case 0x00: return "0_KiB";
-    case 0x02: return "8_KiB";
-    case 0x03: return "32_KiB";
-    case 0x04: return "128_KiB";
-    case 0x05: return "64_KiB";
-    default: return "Failed to decode";
-    }
-  }();
 }
 
 // clang-format off

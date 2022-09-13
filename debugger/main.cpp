@@ -26,6 +26,8 @@ int main(int argc, char **argv) {
     return 2;
   }
 
+  namespace fs = std::filesystem;
+
   const auto flags_win = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   const auto w_win = 1280;
   const auto h_win = 720;
@@ -41,7 +43,7 @@ int main(int argc, char **argv) {
 
   ImGuiIO &io = ImGui::GetIO();
 
-  if(std::filesystem::path font_path{"../misc/font"}; std::filesystem::exists(font_path)) {
+  if(fs::path font_path{"../misc/font"}; fs::exists(font_path)) {
     io.Fonts->AddFontFromFileTTF((font_path / "source-code-pro/TTF/SourceCodePro-Regular.ttf").c_str(),
                                  14.0f);
     io.Fonts->Build();
@@ -55,8 +57,13 @@ int main(int argc, char **argv) {
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
+  if(fs::exists("bootrom.bin") || fs::exists("bootrom.gb")) {
+    attaboy.skipboot(false);
+  } else {
+    attaboy.skipboot(true);
+  }
+
   attaboy.plug(argv[1]);
-  attaboy.skipboot(false);
 
   while(attaboy.isPowerOn()) {
 
@@ -128,7 +135,6 @@ int main(int argc, char **argv) {
         ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
         ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
         ImGui::MenuItem("Registers", NULL, &debugView._registers);
-        ImGui::MenuItem("Cartridge header", NULL, &debugView._cartridge_header);
         ImGui::MenuItem("VRAM", NULL, &debugView._vram);
 
         ImGui::EndMenu();
@@ -143,7 +149,6 @@ int main(int argc, char **argv) {
     debugView.showDisassembly();
     debugView.showCPUState();
     debugView.showRegisters();
-    debugView.showCartridgeHeader();
     debugView.visualizeVRAM();
 
     ImGui::Render();

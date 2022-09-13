@@ -10,20 +10,10 @@
 #include <variant>
 
 namespace LR35902 {
-enum class mbc : std::uint8_t;
 
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge {
   std::variant<rom_only, rom_ram, mbc1> m_cart;
-
-  struct {
-    bool nintendo_logo_check{};
-    char title[12]{}; // 11 character + '\0'
-    mbc kind{};
-    bool checksum{};
-    std::string_view rom_size{};
-    std::string_view ram_size{};
-  } CartridgeHeader;
 
 public:
   void load(const char *romfile) noexcept;
