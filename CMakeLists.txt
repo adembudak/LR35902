@@ -8,9 +8,11 @@ project(
 set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
+set(LR35902_TEST_DIR ${LR35902_SOURCE_DIR}/tests)
 
 option(WITH_DEBUGGER "" OFF)
 option(WITH_TOOLS "" OFF)
+option(BUILD_TEST_ROMS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 option(STATIC_ANALYSIS "" OFF)
@@ -74,6 +76,23 @@ if(WITH_TOOLS)
 
   add_executable(header_dumper tools/header_dumper.cpp)
   target_link_libraries(header_dumper PRIVATE fmt::fmt)
+endif()
+
+if(BUILD_TEST_ROMS)
+  find_program(RGBASM rgbasm REQUIRED)
+  find_program(RGBLINK rgblink REQUIRED)
+
+  file(GLOB_RECURSE test_roms ${LR35902_TEST_DIR}/*.asm)
+  foreach(e IN LISTS test_roms)
+    string(FIND ${e} "." pos REVERSE)
+    string(SUBSTRING ${e} #[[ from start ]] 0 ${pos} source)
+    set(object_file "${source}.o")
+    set(assembly_file "${source}.asm")
+    set(rom_file "${source}.gb")
+
+    execute_process(COMMAND ${RGBASM} -o ${object_file} ${assembly_file})
+    execute_process(COMMAND ${RGBLINK} -o ${rom_file} ${object_file})
+  endforeach()
 endif()
 
 if(VISUALIZE_TARGETS)
