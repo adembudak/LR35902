@@ -3,6 +3,8 @@ debug_*/
 release_*/
 .cache/
 *.swp
+*.o
+*.gb
 B/
 tryouts/
 tests/test_roms/

@@ -714,7 +714,7 @@ void CPU::adc(const byte b) noexcept { // adc A,[HL] // z 0 h c
 
 void CPU::adc(const n8 n) noexcept { // adc A,n8
   const flag c = (A.data() + n.m_data + F.c) > r8::max();
-  const flag h = (A.lowNibble() + (n.lowNibble()) + F.c) > 0b0000'1111;
+  const flag h = (A.lowNibble() + n.lowNibble() + F.c) > 0b0000'1111;
 
   A = A + n + F.c;
 
@@ -1473,7 +1473,7 @@ void CPU::ld(SP_register_tag_t, const n16 nn) noexcept { // ld SP,n16
   m_clock.cycle(3);
 }
 
-void CPU::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP // <-----
+void CPU::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP
   lo = SP.lo();
   hi = SP.hi();
 
