@@ -57,12 +57,7 @@ int main(int argc, char **argv) {
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
-  if(fs::exists("bootrom.bin") || fs::exists("bootrom.gb")) {
-    attaboy.skipboot(false);
-  } else {
-    attaboy.skipboot(true);
-  }
-
+  attaboy.skipboot(false);
   attaboy.plug(argv[1]);
 
   while(attaboy.isPowerOn()) {
