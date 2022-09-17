@@ -106,12 +106,17 @@ void DebugView::showDisassembly() noexcept {
     iv.insert_or_assign(gameboy.cpu.PC.m_data, std::pair{gameboy.cpu.opcode, gameboy.cpu.immediate});
 
     for(const auto &[PC, op] : iv) {
+      ImVec4 color{0.53f, 0.53f, 0.53f, 1.0f};
+      // if(PC == gameboy.cpu.PC.m_data) color = ImVec4{0.13f, 0.74f, 0.83f, 1.0f};
+      if(PC == gameboy.cpu.PC.m_data) color = ImVec4{1.00f, 1.00f, 1.00f, 1.0f};
+
       const auto [opcode, immediate] = op;
+
       if(std::holds_alternative<byte>(immediate))
-        Text("%04x  %02x %02x", PC - 2, opcode, std::get<byte>(immediate));
+        TextColored(color, "%04x  %02x %02x", PC - 2, opcode, std::get<byte>(immediate));
       else if(std::holds_alternative<word>(immediate))
-        Text("%04x  %02x %02x", PC - 3, opcode, std::get<word>(immediate));
-      else Text("%04x  %02x", PC - 1, opcode);
+        TextColored(color, "%04x  %02x %02x", PC - 3, opcode, std::get<word>(immediate));
+      else TextColored(color, "%04x  %02x", PC - 1, opcode);
     }
 
     End();
