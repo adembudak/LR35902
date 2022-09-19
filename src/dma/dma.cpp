@@ -39,7 +39,7 @@ void DMA::action(const byte n) noexcept {
   }
 
   else {
-    assert(false);
+    // ignore write
   }
   // clock.cycle(160);
 }
