@@ -24,12 +24,12 @@ bool PPU::isWindowEnabled() const noexcept { // bit5
 }
 
 std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
-  return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
+  return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
 // window and background share same space, so this does the same thing as above
 std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
-  return (LCDC & 0b0001'0000) ? 0x0800 : 0x0000;
+  return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
 std::size_t PPU::backgroundTilemapBaseAddress() const noexcept { // bit3
