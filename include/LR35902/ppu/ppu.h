@@ -81,9 +81,10 @@ public:
 
   static constexpr std::size_t max_tile_viewport_x = 20;
   static constexpr std::size_t max_tile_viewport_y = 18;
+  static constexpr std::size_t max_sprite_tile_viewport_x = 10;
 
-  static constexpr std::size_t tilemap_size = 6_KiB;
-  static constexpr std::size_t tileset_size = 2_KiB;
+  static constexpr std::size_t tileset_size = 6_KiB;
+  static constexpr std::size_t tilemap_size = 2_KiB;
 
   static constexpr std::size_t tile_w = 8; // in px
   static constexpr std::size_t tile_h = 8;

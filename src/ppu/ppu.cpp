@@ -235,8 +235,6 @@ void PPU::fetchWindow() noexcept {
   }
  */
 
-constexpr std::uint8_t max_possible_sprite_on_scanline = 10;
-
 void PPU::fetchSprites() noexcept {
   std::uint8_t total_sprites_on_scanline = 0;
 
@@ -246,7 +244,7 @@ void PPU::fetchSprites() noexcept {
 
     if(currentScanline() < y) continue;
     if(currentScanline() >= y_end) continue;
-    if(++total_sprites_on_scanline > max_possible_sprite_on_scanline) break;
+    if(++total_sprites_on_scanline > max_sprite_tile_viewport_x) break;
 
     const byte x = readOAM(i - 2uz) - tile_w;
     const byte tile_index = readOAM(i - 1uz);
