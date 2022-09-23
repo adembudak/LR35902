@@ -37,6 +37,7 @@ target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
+  find_package(fmt QUIET REQUIRED)
 
   target_compile_definitions(lr35902 PUBLIC WITH_DEBUGGER)
 
@@ -67,12 +68,12 @@ if(WITH_DEBUGGER)
                                               3rdparty/imgui_club)
 
   add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
-  target_link_libraries(debugger PRIVATE debugView)
+  target_link_libraries(debugger PRIVATE debugView fmt::fmt)
   target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR})
 endif()
 
 if(WITH_TOOLS)
-  find_package(fmt QUIET REQUIRED CONFIG)
+  find_package(fmt QUIET REQUIRED)
 
   add_executable(header_dumper tools/header_dumper.cpp)
   target_link_libraries(header_dumper PRIVATE fmt::fmt)
@@ -111,7 +112,7 @@ if(CACHE_BUILD)
 endif()
 
 if(STATIC_ANALYSIS)
-  find_program(CLANG_TIDY NAMES clang-tidy-14 clang-tidy-13 clang-tidy-12
+  find_program(CLANG_TIDY NAMES clang-tidy-15 clang-tidy-14 clang-tidy-13
                                 clang-tidy REQUIRED)
   find_program(CPPCHECK cppcheck REQUIRED)
 endif()
