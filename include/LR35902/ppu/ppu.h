@@ -4,6 +4,7 @@
 #include <LR35902/ppu/palettes.h>
 
 #include <array>
+#include <functional>
 
 namespace LR35902 {
 
@@ -98,6 +99,8 @@ public:
   using scanline_t = std::array<rgba32, screen_w>;
   using screen_t = std::array<scanline_t, screen_h>;
 
+  std::function<void(const screen_t &)> m_drawCallback;
+
 private:
   std::array<byte, 8_KiB> m_vram{};
   std::array<byte, 160_B> m_oam{};
@@ -169,6 +172,7 @@ public:
   PPU(Interrupt &intr, IO &io) noexcept;
 
   void update(const std::size_t cycles) noexcept;
+  void setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept;
 
   [[nodiscard]] byte readVRAM(const std::size_t index) const noexcept;
   void writeVRAM(const std::size_t index, const byte b) noexcept;

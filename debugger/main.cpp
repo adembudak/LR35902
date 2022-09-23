@@ -11,7 +11,8 @@
 #include <imgui/backends/imgui_impl_sdlrenderer.h>
 #include <imgui/imgui.h>
 
-#include <cstdio>
+#include <fmt/printf.h>
+
 #include <filesystem>
 #include <string_view>
 
@@ -52,12 +53,12 @@ void pollEvent(GameBoy &emu) {
 
 int main(int argc, char **argv) {
   if(argc < 2) {
-    std::puts("Usage: debugger [game.gb]");
+    fmt::printf("Usage: debugger [game.gb]");
     return 1;
   }
 
   if(std::string_view sv{argv[1]}; !sv.ends_with(".gb")) {
-    std::puts("Not a rom file!");
+    fmt::printf("Not a rom file!");
     return 2;
   }
 
@@ -71,6 +72,8 @@ int main(int argc, char **argv) {
   SDL_Renderer *const m_renderer =
       SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
 
+  SDL_Texture *m_texture = SDL_CreateTexture(m_renderer, SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32,
+                                             SDL_TEXTUREACCESS_STREAMING, w_win, h_win);
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -90,6 +93,13 @@ int main(int argc, char **argv) {
 
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
+
+  auto cbk = [&](const GameBoy::screen_t &f) {
+    SDL_Rect rect{8, 40, 256, 256};
+    SDL_UpdateTexture(m_texture, &rect, f.data(), sizeof(LR35902::rgba32) * 256);
+  };
+
+  attaboy.setDrawCallback(cbk);
 
   attaboy.skipboot(false);
   attaboy.plug(argv[1]);
@@ -140,7 +150,7 @@ int main(int argc, char **argv) {
       ImGui::EndMainMenuBar();
     }
 
-    attaboy.play();
+    attaboy.update();
 
     debugView.showMemoryPortions();
     debugView.showDisassembly();
@@ -149,9 +159,8 @@ int main(int argc, char **argv) {
     debugView.visualizeVRAM();
 
     ImGui::Render();
-
-    SDL_SetRenderDrawColor(m_renderer, 0, 0, 0, 255);
     SDL_RenderClear(m_renderer);
+    SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(m_renderer);
   }
@@ -160,6 +169,7 @@ int main(int argc, char **argv) {
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 
+  SDL_DestroyTexture(m_texture);
   SDL_DestroyRenderer(m_renderer);
   SDL_DestroyWindow(m_window);
   SDL_Quit();

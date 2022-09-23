@@ -5,6 +5,10 @@
 #include <cassert>
 #include <string_view>
 
+void GameBoy::setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) {
+  ppu.setDrawCallback(drawCallback);
+}
+
 void GameBoy::skipboot(bool b) noexcept {
   isRunning = true;
 
@@ -22,19 +26,12 @@ void GameBoy::plug(const std::string_view rom) noexcept {
   cart.load(rom.data());
 }
 
-// constexpr std::size_t base_clock = 1'048'576;
-// constexpr std::size_t base_clock_per_second = 1'048'576 / 60;
-
-void GameBoy::play() noexcept {
-  //  std::size_t i = 0;
+void GameBoy::update() noexcept {
   if(!paused) {
-    //   while(i < base_clock) {
     cpu.run();
     const auto cycles = cpu.latestCycles();
     ppu.update(cycles);
     timer.update(cycles);
-    //   i += cycles;
-    //  }
   }
 }
 
@@ -59,7 +56,7 @@ void GameBoy::stop() noexcept {
 }
 
 bool GameBoy::isPowerOn() const noexcept {
-  return isRunning;
+  return isRunning == true;
 }
 
 // link: https://gbdev.io/pandocs/Joypad_Input.html
@@ -73,8 +70,8 @@ void GameBoy::joypad(button btn, keyStatus s) noexcept {
 
   if(isPressed) {
     // selection button
-    // Implementation expects a selection button to be pressed. If the pressed button isn't one of them, skip
-    // it
+    // Implementation expects a selection button to be pressed. If the pressed button isn't one of them,
+    // skip it
     if(buttonKind == 0b01 && std::none_of(std::begin(selectionButtons), std::end(selectionButtons),
                                           [=](button b) { return btn == b; }))
       return;

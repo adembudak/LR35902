@@ -6,6 +6,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <functional>
 
 namespace LR35902 {
 
@@ -160,9 +161,9 @@ void PPU::fetchBackground() noexcept {
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
     const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
 
-    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-
     const std::size_t tile_attribute = readVRAM(backgroundTilemapBaseAddress() + tile_index);
+
+    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
     const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_attribute * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
@@ -173,13 +174,12 @@ void PPU::fetchBackground() noexcept {
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const std::size_t y = currentScanline();
-      const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
+      const std::size_t x = (tile_nth * tile_w) + i;
 
-      const bool lo = bool(tileline_upper & mask); // the 2 bits in the
-      const bool hi = bool(tileline_lower & mask); // 2bpp format
+      const bool lo = tileline_upper & mask; // the 2 bits in the
+      const bool hi = tileline_lower & mask; // 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = bgp()[pi];
       m_screen[y][x] = cococola[bgp()[pi]];
     }
   }
@@ -203,15 +203,14 @@ void PPU::fetchWindow() noexcept {
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const std::size_t x = ((tile_index % max_tile_screen_x) * tile_w) + i;
+      const std::size_t x = (tile_nth * tile_w) + i;
       if(x < window_x()) continue;
       const std::size_t y = currentScanline();
 
-      const bool lo = bool(tileline_upper & mask);
-      const bool hi = bool(tileline_lower & mask);
+      const bool lo = tileline_upper & mask;
+      const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = bgp()[pi];
       m_screen[y][x] = cococola[bgp()[pi]];
     }
   }
@@ -366,6 +365,8 @@ void PPU::update(const std::size_t cycles) noexcept {
       break;
 
     case state::hblanking:
+      m_drawCallback(m_screen);
+
       hblank_period_counter += cycles;
 
       if(hblank_period_counter > hblank_period) {
@@ -419,6 +420,10 @@ void PPU::update(const std::size_t cycles) noexcept {
     resetScanline();
     mode(state::hblanking);
   }
+}
+
+void PPU::setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept {
+  m_drawCallback = drawCallback;
 }
 
 byte PPU::readVRAM(const std::size_t index) const noexcept {

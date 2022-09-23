@@ -11,6 +11,7 @@
 #include <LR35902/timer/timer.h>
 
 #include <cstdint>
+#include <functional>
 #include <string_view>
 
 enum class button : std::uint8_t {
@@ -35,6 +36,10 @@ enum class keyStatus : std::uint8_t { pressed, released };
 namespace lr = LR35902;
 
 class [[nodiscard]] GameBoy final {
+public:
+  using screen_t = lr::PPU::screen_t;
+
+private:
   lr::Cartridge cart;
   lr::BuiltIn builtIn;
   lr::IO io;
@@ -53,10 +58,10 @@ class [[nodiscard]] GameBoy final {
   void render() noexcept;
 
 public:
+  void setDrawCallback(const std::function<void(const screen_t &)> &drawCallback);
   void skipboot(bool b = true) noexcept;
-
   void plug(const std::string_view rom) noexcept;
-  void play() noexcept;
+  void update() noexcept;
   void reset() noexcept;
   void pause() noexcept;
   void resume() noexcept;
