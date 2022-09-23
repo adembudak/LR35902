@@ -1072,7 +1072,7 @@ void CPU::rlca() noexcept { // rlca // 0 0 0 c
 
   F = {0, 0, 0, F.c};
 
-  m_clock.cycle(2);
+  m_clock.cycle(1);
 }
 
 void CPU::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
