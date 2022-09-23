@@ -304,31 +304,6 @@ void DebugView::showRegisters() noexcept {
   }
 }
 
-using palette_t = std::array<ImColor, 4>;
-
-// https://www.deviantart.com/thewolfbunny64/art/Game-Boy-Palette-Gamate-Ver-808006887
-const palette_t original = {
-    ImColor{107, 166, 74}, //
-    ImColor{67,  122, 99}, //
-    ImColor{37,  89,  85}, //
-    ImColor{18,  66,  76}
-};
-
-// https://www.deviantart.com/thewolfbunny64/art/Game-Boy-Palette-Cola-Cola-Red-808488517
-const palette_t cococola = {
-    ImColor{244, 0, 9}, //
-    ImColor{186, 0, 6}, //
-    ImColor{114, 0, 4}, //
-    ImColor{43,  0, 1}
-};
-
-const palette_t galata = {
-    ImColor{117, 148, 166},
-    ImColor{101, 130, 144},
-    ImColor{32,  46,  72 },
-    ImColor{34,  63,  69 }
-};
-
 void DebugView::visualizeVRAM() noexcept {
   using namespace ImGui;
 
@@ -349,10 +324,11 @@ void DebugView::visualizeVRAM() noexcept {
     }
 
     ImDrawList *const draw_list = ImGui::GetWindowDrawList();
-    auto put_pixel = [&draw_list](const float x, const float y, const ImColor color) {
+    auto put_pixel = [&draw_list](const float x, const float y, const rgba32 &color) {
+      ImColor color_{color.r, color.g, color.b};
       const ImVec2 p = ImGui::GetCursorScreenPos();
 
-      draw_list->AddRectFilled({p.x + x, p.y + y}, {p.x + x + 1, p.y + y + 1}, color);
+      draw_list->AddRectFilled({p.x + x, p.y + y}, {p.x + x + 1, p.y + y + 1}, color_);
     };
 
     using tile = std::array<byte, PPU::tile_size>;
