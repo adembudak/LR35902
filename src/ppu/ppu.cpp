@@ -180,6 +180,7 @@ void PPU::fetchBackground() noexcept {
       const palette_index pi = (hi << 1) | lo;
 
       m_screen[y][x] = bgp()[pi];
+      m_screen[y][x] = cococola[bgp()[pi]];
     }
   }
 }
@@ -211,6 +212,7 @@ void PPU::fetchWindow() noexcept {
       const palette_index pi = (hi << 1) | lo;
 
       m_screen[y][x] = bgp()[pi];
+      m_screen[y][x] = cococola[bgp()[pi]];
     }
   }
 }
@@ -281,7 +283,7 @@ void PPU::fetchSprites() noexcept {
       const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // transparent color
 
-      m_screen[y][x + i] = palette == 0 ? obp0()[pi] : obp1()[pi];
+      m_screen[y][x + i] = palette == 0 ? cococola[obp0()[pi]] : cococola[obp1()[pi]];
     }
   }
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <LR35902/config.h>
+#include <LR35902/ppu/palettes.h>
 
 #include <array>
 
@@ -94,7 +95,7 @@ public:
 
 public:
   using palette_index = uint8_t;
-  using scanline_t = std::array<palette_index, screen_w>;
+  using scanline_t = std::array<rgba32, screen_w>;
   using screen_t = std::array<scanline_t, screen_h>;
 
 private:
