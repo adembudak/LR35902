@@ -15,6 +15,41 @@
 #include <filesystem>
 #include <string_view>
 
+void pollEvent(GameBoy &emu) {
+  for(SDL_Event event; SDL_PollEvent(&event);) {
+    ImGui_ImplSDL2_ProcessEvent(&event);
+
+    switch(event.type) {
+    case SDL_EventType::SDL_QUIT: //
+      emu.stop();
+      break;
+
+    case SDL_EventType::SDL_WINDOWEVENT:
+      if(event.window.event == SDL_WINDOWEVENT_CLOSE) emu.stop();
+      break;
+
+    case SDL_EventType::SDL_KEYDOWN: {
+      const Uint8 *const state = SDL_GetKeyboardState(NULL);
+      if(state[SDL_SCANCODE_P]) emu.pause();
+      if(state[SDL_SCANCODE_SPACE]) emu.resume();
+
+      if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::pressed);
+      if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::pressed);
+      if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::pressed);
+      if(state[SDL_SCANCODE_A]) emu.joypad(button::left, keyStatus::pressed);
+    } break;
+
+    case SDL_EventType::SDL_KEYUP: {
+      const Uint8 *const state = SDL_GetKeyboardState(NULL);
+      if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::released);
+      if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::released);
+      if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::released);
+      if(state[SDL_SCANCODE_A]) emu.joypad(button::left, keyStatus::released);
+    } break;
+    }
+  }
+}
+
 int main(int argc, char **argv) {
   if(argc < 2) {
     std::puts("Usage: debugger [game.gb]");
@@ -25,8 +60,6 @@ int main(int argc, char **argv) {
     std::puts("Not a rom file!");
     return 2;
   }
-
-  namespace fs = std::filesystem;
 
   const auto flags_win = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   const auto w_win = 1280;
@@ -43,6 +76,7 @@ int main(int argc, char **argv) {
 
   ImGuiIO &io = ImGui::GetIO();
 
+  namespace fs = std::filesystem;
   if(fs::path font_path{"../misc/font"}; fs::exists(font_path)) {
     io.Fonts->AddFontFromFileTTF((font_path / "source-code-pro/TTF/SourceCodePro-Regular.ttf").c_str(),
                                  14.0f);
@@ -61,39 +95,7 @@ int main(int argc, char **argv) {
   attaboy.plug(argv[1]);
 
   while(attaboy.isPowerOn()) {
-
-    for(SDL_Event event; SDL_PollEvent(&event);) {
-      ImGui_ImplSDL2_ProcessEvent(&event);
-
-      switch(event.type) {
-      case SDL_EventType::SDL_QUIT: //
-        attaboy.stop();
-        break;
-
-      case SDL_EventType::SDL_WINDOWEVENT:
-        if(event.window.event == SDL_WINDOWEVENT_CLOSE) attaboy.stop();
-        break;
-
-      case SDL_EventType::SDL_KEYDOWN: {
-        const Uint8 *const state = SDL_GetKeyboardState(NULL);
-        if(state[SDL_SCANCODE_P]) attaboy.pause();
-        if(state[SDL_SCANCODE_SPACE]) attaboy.resume();
-
-        if(state[SDL_SCANCODE_W]) attaboy.joypad(button::up, keyStatus::pressed);
-        if(state[SDL_SCANCODE_D]) attaboy.joypad(button::right, keyStatus::pressed);
-        if(state[SDL_SCANCODE_S]) attaboy.joypad(button::down, keyStatus::pressed);
-        if(state[SDL_SCANCODE_A]) attaboy.joypad(button::left, keyStatus::pressed);
-      } break;
-
-      case SDL_EventType::SDL_KEYUP: {
-        const Uint8 *const state = SDL_GetKeyboardState(NULL);
-        if(state[SDL_SCANCODE_W]) attaboy.joypad(button::up, keyStatus::released);
-        if(state[SDL_SCANCODE_D]) attaboy.joypad(button::right, keyStatus::released);
-        if(state[SDL_SCANCODE_S]) attaboy.joypad(button::down, keyStatus::released);
-        if(state[SDL_SCANCODE_A]) attaboy.joypad(button::left, keyStatus::released);
-      } break;
-      }
-    }
+    pollEvent(attaboy);
 
     ImGui_ImplSDLRenderer_NewFrame();
     ImGui_ImplSDL2_NewFrame();
