@@ -1340,9 +1340,9 @@ void CPU::call(const n16 nn) noexcept { // call n16
   m_clock.cycle(6);
 }
 
-void CPU::call(const cc c, const n16 nn) noexcept {  // call cc,n16
-  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
-     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+void CPU::call(const cc c, const n16 nn) noexcept {           // call cc,n16
+  if((c == cc::z && F.z == 1) || (c == cc::nz && F.z == 0) || //
+     (c == cc::c && F.c == 1) || (c == cc::nc && F.c == 0)) {
 
     m_bus.write(--SP.m_data, nn.hi());
     m_bus.write(--SP.m_data, nn.lo());
@@ -1367,9 +1367,10 @@ void CPU::jp(const n16 nn) noexcept { // jp n16
   m_clock.cycle(4);
 }
 
-void CPU::jp(const cc c, const n16 nn) noexcept {    // jp cc,n16
-  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
-     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+void CPU::jp(const cc c, const n16 nn) noexcept {             // jp cc,n16
+  if((c == cc::z && F.z == 1) || (c == cc::nz && F.z == 0) || //
+     (c == cc::c && F.c == 1) || (c == cc::nc && F.c == 0)) {
+
     PC = nn;
 
     m_clock.cycle(4);
@@ -1384,9 +1385,10 @@ void CPU::jr(const e8 e) noexcept { // jr e8
   m_clock.cycle(3);
 }
 
-void CPU::jr(const cc c, const e8 e) noexcept {      // jr cc,e8
-  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
-     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+void CPU::jr(const cc c, const e8 e) noexcept {               // jr cc,e8
+  if((c == cc::z && F.z == 1) || (c == cc::nz && F.z == 0) || //
+     (c == cc::c && F.c == 1) || (c == cc::nc && F.c == 0)) {
+
     PC.m_data += e.m_data;
 
     m_clock.cycle(3);
@@ -1395,9 +1397,9 @@ void CPU::jr(const cc c, const e8 e) noexcept {      // jr cc,e8
   }
 }
 
-void CPU::ret(const cc c) noexcept {                 // ret cc
-  if((c == cc::z && F.z) || (c == cc::nz && !F.z) || //
-     (c == cc::c && F.c) || (c == cc::nc && !F.c)) {
+void CPU::ret(const cc c) noexcept {                          // ret cc
+  if((c == cc::z && F.z == 1) || (c == cc::nz && F.z == 0) || //
+     (c == cc::c && F.c == 1) || (c == cc::nc && F.c == 0)) {
 
     PC.lo(m_bus.read(SP.m_data++));
     PC.hi(m_bus.read(SP.m_data++));
