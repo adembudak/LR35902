@@ -240,17 +240,17 @@ void PPU::fetchSprites() noexcept {
   std::uint8_t total_sprites_on_scanline = 0;
 
   for(std::size_t i = std::size(m_oam); i != 0uz; i -= 4uz) {
-    const byte y = readOAM(i - 3uz) - tile_size; // height occupied by a sprite: [y, y_end)
+    const byte y = readOAM(i - 4uz) - tile_size; // height occupied by a sprite: [y, y_end)
     const byte y_end = y + (isBigSprite() ? 2 * tile_h : tile_h);
 
     if(currentScanline() < y) continue;
     if(currentScanline() >= y_end) continue;
     if(++total_sprites_on_scanline > max_sprite_tile_viewport_x) break;
 
-    const byte x = readOAM(i - 2uz) - tile_w;
-    const byte tile_index = readOAM(i - 1uz);
+    const byte x = readOAM(i - 3uz) - tile_w;
+    const byte tile_index = readOAM(i - 2uz);
 
-    const byte atrb = readOAM(i);
+    const byte atrb = readOAM(i - 1uz);
     const bool bgHasPriority = atrb & 0b1000'0000; // REVISIT: handle bgHasPriority
     const bool yflip = atrb & 0b0100'0000;
     const bool xflip = atrb & 0b0010'0000;
@@ -269,7 +269,7 @@ void PPU::fetchSprites() noexcept {
     }();
 
     const std::size_t tile_address =
-        (tile_index * tile_index) + (currently_scanning_tileline_position * tileline_size);
+        (tile_index * tile_size) + (currently_scanning_tileline_position * tileline_size);
 
     const byte tileline_upper = readVRAM(tile_address);
     const byte tileline_lower = readVRAM(tile_address + 1uz);
@@ -277,12 +277,12 @@ void PPU::fetchSprites() noexcept {
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, xflip ? mask <<= 1 : mask >>= 1) {
 
-      const bool lo = bool(tileline_upper & mask);
-      const bool hi = bool(tileline_lower & mask);
+      const bool lo = tileline_upper & mask;
+      const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // transparent color
 
-      m_screen[y][x + i] = palette == 0 ? cococola[obp0()[pi]] : cococola[obp1()[pi]];
+      m_screen[LY + y][x + i] = palette == 0 ? original[obp0()[pi]] : cococola[obp1()[pi]];
     }
   }
 }
