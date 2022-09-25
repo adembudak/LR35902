@@ -1332,8 +1332,8 @@ void CPU::ld(memory_to_register_t, HLd_tag_t) noexcept { // ld A,[HLD]
 //
 
 void CPU::call(const n16 nn) noexcept { // call n16
-  m_bus.write(--SP.m_data, nn.hi());
-  m_bus.write(--SP.m_data, nn.lo());
+  m_bus.write(--SP.m_data, PC.hi());
+  m_bus.write(--SP.m_data, PC.lo());
 
   PC = nn;
 
@@ -1344,8 +1344,8 @@ void CPU::call(const cc c, const n16 nn) noexcept {           // call cc,n16
   if((c == cc::z && F.z == 1) || (c == cc::nz && F.z == 0) || //
      (c == cc::c && F.c == 1) || (c == cc::nc && F.c == 0)) {
 
-    m_bus.write(--SP.m_data, nn.hi());
-    m_bus.write(--SP.m_data, nn.lo());
+    m_bus.write(--SP.m_data, PC.hi());
+    m_bus.write(--SP.m_data, PC.lo());
 
     PC = nn;
 
