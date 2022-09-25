@@ -107,7 +107,6 @@ void DebugView::showDisassembly() noexcept {
 
     for(const auto &[PC, op] : iv) {
       ImVec4 color{0.53f, 0.53f, 0.53f, 1.0f};
-      // if(PC == gameboy.cpu.PC.m_data) color = ImVec4{0.13f, 0.74f, 0.83f, 1.0f};
       if(PC == gameboy.cpu.PC.m_data) color = ImVec4{1.00f, 1.00f, 1.00f, 1.0f};
 
       const auto [opcode, immediate] = op;
@@ -181,17 +180,20 @@ void DebugView::showRegisters() noexcept {
   if(_registers) {
     Begin("Registers", &_registers);
     const auto &io = gameboy.io;
+    const auto &ppu = gameboy.ppu;
 
     if(Checkbox("LCD", &showLCDRegisters); showLCDRegisters) {
       Text("LCDC: %x", io.LCDC);
       Text("STAT: %x", io.STAT);
 
+      // clang-format off
       switch(io.STAT & 0b11) {
-      case 0b00: Text("status : Horizontal Blank"); break;
-      case 0b01: Text("status : Vertical Blank"); break;
-      case 0b10: Text("status : Searching OAM"); break;
-      case 0b11: Text("status : Draw"); break;
+      case 0b00: Text("status : Horizontal Blank [%lu/%lu]" ,ppu.m_hblank_period_counter, PPU::hblank_period); break;
+      case 0b01: Text("status : Vertical Blank   [%lu/%lu]" ,ppu.m_vblank_period_counter, PPU::vblank_period); break;
+      case 0b10: Text("status : Searching OAM    [%lu/%lu]" ,ppu.m_oam_search_period_counter, PPU::oam_search_period); break;
+      case 0b11: Text("status : Draw             [%lu/%lu]" ,ppu.m_draw_period_counter, PPU::draw_period); break;
       }
+      // clang-format on
 
       Text("SCY: %x", io.SCY);
       Text("SCX: %x", io.SCX);
