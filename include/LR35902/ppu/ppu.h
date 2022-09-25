@@ -94,6 +94,21 @@ public:
   static constexpr std::size_t tileline_size = 2_B;
   static constexpr std::size_t tile_size = tileline_size * tile_h;
 
+  static constexpr std::size_t oam_search_period = 20; // [0, 20)
+  static constexpr std::size_t draw_period = 43;       // [20, 63)
+  static constexpr std::size_t hblank_period = 51;     // [63,114)
+
+  static constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
+  static_assert(scanline_period == 114);
+
+  static constexpr std::size_t vblank_height = 10;
+  static constexpr std::size_t vblank_period = vblank_height * scanline_period;
+  static_assert(vblank_period == 1140);
+
+  static constexpr std::size_t vblank_start = 144;
+  static constexpr std::size_t vblank_end =
+      vblank_start + vblank_height; // when LY is in [144, 154) vblanking
+
 public:
   using palette_index = uint8_t;
   using scanline_t = std::array<rgba32, screen_w>;
@@ -167,6 +182,14 @@ private:
   void fetchBackground() noexcept;
   void fetchWindow() noexcept;
   void fetchSprites() noexcept;
+
+private:
+  std::size_t m_oam_search_period_counter{};
+  std::size_t m_draw_period_counter{};
+  std::size_t m_hblank_period_counter{};
+
+  std::size_t m_vblank_period_counter{};
+  std::size_t m_scanline_period_counter{};
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;

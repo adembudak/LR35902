@@ -315,50 +315,30 @@ LY = 0|           +-->---------------------->-+         |
       ^-------<-Yes--<--|   vblanking    |<---v---------v
                         +----------------+
 */
-constexpr std::size_t oam_search_period = 20; // [0, 20)
-constexpr std::size_t draw_period = 43;       // [20, 63)
-constexpr std::size_t hblank_period = 51;     // [63,114)
-
-constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
-static_assert(scanline_period == 114);
-
-constexpr std::size_t vblank_height = 10;
-constexpr std::size_t vblank_period = vblank_height * scanline_period;
-static_assert(vblank_period == 1140);
-
-constexpr std::size_t vblank_start = 144;
-constexpr std::size_t vblank_end = vblank_start + vblank_height; // when LY is in [144, 154) vblanking
-
-std::size_t oam_search_period_counter{};
-std::size_t draw_period_counter{};
-std::size_t hblank_period_counter{};
-
-std::size_t vblank_period_counter{};
-std::size_t scanline_period_counter{};
 
 void PPU::update(const std::size_t cycles) noexcept {
   if(isLCDEnabled()) {
     switch(mode()) {
     case state::searching_oam:
-      oam_search_period_counter += cycles;
+      m_oam_search_period_counter += cycles;
 
-      if(oam_search_period_counter > oam_search_period) {
+      if(m_oam_search_period_counter > oam_search_period) {
         if(isBackgroundEnabled()) fetchBackground();
         if(isWindowEnabled()) fetchWindow();
         if(isSpritesEnabled()) fetchSprites();
 
-        draw_period_counter += (oam_search_period_counter - oam_search_period);
-        oam_search_period_counter = 0;
+        m_draw_period_counter += (m_oam_search_period_counter - oam_search_period);
+        m_oam_search_period_counter = 0;
         mode(state::drawing);
       }
       break;
 
     case state::drawing:
-      draw_period_counter += cycles;
+      m_draw_period_counter += cycles;
 
-      if(draw_period_counter > draw_period) {
-        hblank_period_counter += (draw_period_counter - draw_period);
-        draw_period_counter = 0;
+      if(m_draw_period_counter > draw_period) {
+        m_hblank_period_counter += (m_draw_period_counter - draw_period);
+        m_draw_period_counter = 0;
         mode(state::hblanking);
         if(interruptSource(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
       }
@@ -367,10 +347,10 @@ void PPU::update(const std::size_t cycles) noexcept {
     case state::hblanking:
       m_drawCallback(m_screen);
 
-      hblank_period_counter += cycles;
+      m_hblank_period_counter += cycles;
 
-      if(hblank_period_counter > hblank_period) {
-        const std::size_t left_over_cycles = hblank_period_counter - hblank_period;
+      if(m_hblank_period_counter > hblank_period) {
+        const std::size_t left_over_cycles = m_hblank_period_counter - hblank_period;
 
         updateScanline();
         coincidence(checkCoincidence());
@@ -378,39 +358,39 @@ void PPU::update(const std::size_t cycles) noexcept {
           intr.request(Interrupt::kind::lcd_stat);
 
         if(currentScanline() == vblank_start) {
-          vblank_period_counter += left_over_cycles;
+          m_vblank_period_counter += left_over_cycles;
 
           mode(state::vblanking);
           intr.request(Interrupt::kind::vblank);
         } else {
-          oam_search_period_counter += left_over_cycles;
+          m_oam_search_period_counter += left_over_cycles;
 
           mode(state::searching_oam);
           if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
         }
 
-        hblank_period_counter = 0;
+        m_hblank_period_counter = 0;
       }
       break;
 
     case state::vblanking:
-      vblank_period_counter += cycles;
-      scanline_period_counter += cycles;
+      m_vblank_period_counter += cycles;
+      m_scanline_period_counter += cycles;
 
-      if(scanline_period_counter > scanline_period) {
-        scanline_period_counter -= scanline_period;
+      if(m_scanline_period_counter > scanline_period) {
+        m_scanline_period_counter -= scanline_period;
         updateScanline();
       }
 
-      if(vblank_period_counter > vblank_period) {
+      if(m_vblank_period_counter > vblank_period) {
         resetScanline();
 
         mode(state::searching_oam);
         if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
 
-        oam_search_period_counter += (vblank_period_counter - vblank_period);
-        vblank_period_counter = 0;
-        scanline_period_counter = 0;
+        m_oam_search_period_counter += (m_vblank_period_counter - vblank_period);
+        m_vblank_period_counter = 0;
+        m_scanline_period_counter = 0;
       }
       break;
     }
