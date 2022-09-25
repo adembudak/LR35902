@@ -587,7 +587,7 @@ void CPU::run() noexcept {
   case 0xd0: ret(cc::nc); break;
   case 0xd1: pop(DE); break;
   case 0xd2: jp(cc::nc, n16{fetchWord()}); break;
-  case 0xd3: /* unused */ break;
+  case 0xd3: unused(); break;
   case 0xd4: call(cc::nc, n16{fetchWord()}); break;
   case 0xd5: push(DE); break;
   case 0xd6: sub(n8{fetchByte()}); break;
@@ -595,16 +595,16 @@ void CPU::run() noexcept {
   case 0xd8: ret(cc::c); break;
   case 0xd9: reti(); break;
   case 0xda: jp(cc::c, n16{fetchWord()}); break;
-  case 0xdb: /* unused */ break;
+  case 0xdb: unused(); break;
   case 0xdc: call(cc::c, n16{fetchWord()}); break;
-  case 0xdd: /* unused */ break;
+  case 0xdd: unused(); break;
   case 0xde: sbc(n8{fetchByte()}); break;
   case 0xdf: rst(0x18); break;
   case 0xe0: ldh(0xFF00 + fetchByte(), register_to_memory); break;
   case 0xe1: pop(HL); break;
   case 0xe2: ldh(0xFF00 + C.data(), register_to_memory, C_register_tag); break;
-  case 0xe3: /* unused */ break;
-  case 0xe4: /* unused */ break;
+  case 0xe3: unused(); break;
+  case 0xe4: unused(); break;
   case 0xe5: push(HL); break;
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7: rst(0x20); break;
@@ -616,9 +616,9 @@ void CPU::run() noexcept {
     ld(b, register_to_memory, tag);
     break;
   }
-  case 0xeb: /* unused */ break;
-  case 0xec: /* unused */ break;
-  case 0xed: /* unused */ break;
+  case 0xeb: unused(); break;
+  case 0xec: unused(); break;
+  case 0xed: unused(); break;
   case 0xee: xor_(n8{fetchByte()}); break;
   case 0xef: rst(0x28); break;
   case 0xf0: {
@@ -635,7 +635,7 @@ void CPU::run() noexcept {
     break;
   }
   case 0xf3: di(); break;
-  case 0xf4: /* unused */ break;
+  case 0xf4: unused(); break;
   case 0xf5: push(AF_register_tag); break;
   case 0xf6: or_(n8{fetchByte()}); break;
   case 0xf7: rst(0x30); break;
@@ -648,8 +648,8 @@ void CPU::run() noexcept {
     break;
   }
   case 0xfb: ei(); break;
-  case 0xfc: /* unused */ break;
-  case 0xfd: /* unused */ break;
+  case 0xfc: unused(); break;
+  case 0xfd: unused(); break;
   case 0xfe: cp(n8{fetchByte()}); break;
   case 0xff: rst(0x38); break;
   }
@@ -1598,6 +1598,10 @@ void CPU::stop() noexcept { // stop
   /* implement this */
   // Enter low power mode
   // Reset Time.DIV register
+}
+
+void CPU::unused() noexcept {
+  m_clock.cycle(1);
 }
 
 } // namespace LR35902

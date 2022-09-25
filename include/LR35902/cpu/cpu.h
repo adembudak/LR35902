@@ -228,6 +228,7 @@ private:
   void nop() noexcept;  // nop
   void scf() noexcept;  // scf
   void stop() noexcept; // stop
+  void unused() noexcept;
 };
 
 } // namespace LR35902
