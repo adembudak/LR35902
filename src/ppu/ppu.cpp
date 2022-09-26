@@ -19,8 +19,9 @@ std::size_t PPU::windowTilemapBaseAddress() const noexcept { // bit6
   return (LCDC & 0b0100'0000) ? 0x1C00 : 0x1800;
 }
 
-// REVISIT: this effected by bit0
 bool PPU::isWindowEnabled() const noexcept { // bit5
+  if(!isBackgroundEnabled())                 //
+    return false;
   return LCDC & 0b0010'0000;
 }
 
@@ -28,7 +29,7 @@ std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
-// window and background share same space, so this does the same thing as above
+// window and background share the same memory space, so this member does the same thing as above
 std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
@@ -180,7 +181,7 @@ void PPU::fetchBackground() noexcept {
       const bool hi = tileline_lower & mask; // 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = cococola[bgp()[pi]];
+      m_screen[y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -211,7 +212,7 @@ void PPU::fetchWindow() noexcept {
       const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = cococola[bgp()[pi]];
+      m_screen[y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -275,17 +276,17 @@ void PPU::fetchSprites() noexcept {
     const byte tileline_lower = readVRAM(tile_address + 1uz);
 
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
-    for(std::size_t i = 0; i != tile_w; ++i, xflip ? mask <<= 1 : mask >>= 1) {
-
+    for(std::size_t i = 0; i != tile_w; ++i) {
       const bool lo = tileline_upper & mask;
       const bool hi = tileline_lower & mask;
-      const palette_index pi = (hi << 1) | lo;
+      xflip ? mask <<= 1 : mask >>= 1;
 
+      const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // transparent color
 
       m_screen[LY + y][x + i] = bgHasPriority  ? original[bgp()[pi]]
                                 : palette == 0 ? original[obp0()[pi]]
-                                               : cococola[obp1()[pi]];
+                                               : original[obp1()[pi]];
     }
   }
 }
