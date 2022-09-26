@@ -251,7 +251,7 @@ void PPU::fetchSprites() noexcept {
     const byte tile_index = readOAM(i - 2uz);
 
     const byte atrb = readOAM(i - 1uz);
-    const bool bgHasPriority = atrb & 0b1000'0000; // REVISIT: handle bgHasPriority
+    const bool bgHasPriority = atrb & 0b1000'0000;
     const bool yflip = atrb & 0b0100'0000;
     const bool xflip = atrb & 0b0010'0000;
     const std::size_t palette = bool(atrb & 0b0001'0000); // OBP0 or OBP1?
@@ -280,9 +280,12 @@ void PPU::fetchSprites() noexcept {
       const bool lo = tileline_upper & mask;
       const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
+
       if(pi == 0b00) continue; // transparent color
 
-      m_screen[LY + y][x + i] = palette == 0 ? original[obp0()[pi]] : cococola[obp1()[pi]];
+      m_screen[LY + y][x + i] = bgHasPriority  ? original[bgp()[pi]]
+                                : palette == 0 ? original[obp0()[pi]]
+                                               : cococola[obp1()[pi]];
     }
   }
 }
@@ -340,12 +343,12 @@ void PPU::update(const std::size_t cycles) noexcept {
         m_hblank_period_counter += (m_draw_period_counter - draw_period);
         m_draw_period_counter = 0;
         mode(state::hblanking);
+        m_drawCallback(m_screen);
         if(interruptSource(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
       }
       break;
 
     case state::hblanking:
-      m_drawCallback(m_screen);
 
       m_hblank_period_counter += cycles;
 
