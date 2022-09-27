@@ -4,6 +4,13 @@
 #include <LR35902/memory_map.h>
 #include <LR35902/ppu/ppu.h>
 
+#include <range/v3/action/drop_while.hpp>
+#include <range/v3/action/reverse.hpp>
+#include <range/v3/action/sort.hpp>
+#include <range/v3/action/take.hpp>
+#include <range/v3/to_container.hpp>
+#include <range/v3/view/chunk.hpp>
+
 #include <cassert>
 #include <cstddef>
 #include <functional>
@@ -217,56 +224,40 @@ void PPU::fetchWindow() noexcept {
   }
 }
 
-/*
-  // REVISIT: implement this function with ranges, something like:
+void PPU::fetchSprites() noexcept {
   namespace rg = ranges;
   namespace rv = rg::views;
   namespace ra = rg::actions;
 
-  auto oam = m_oam
-             | rv::chunk(4)
-             | rg::to<vector>
-             | ra::drop_while([&](auto &a) { return LY < a[0] || LY >= (a[0] + isBigSprite ? 16u : 8u); })
-             | ra::sort([](auto &a, auto &b) { return a[1] < b[1]; })
-             | ra::reverse
-             | ra::take(10);
+  const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
+  // clang-format off
+  const auto 
+  sprites_on_scanline = m_oam
+                        | rv::chunk(4) // [y, x, tile_index, atrb] x 40
+                        | rg::to<std::vector> 
+                        | ra::reverse
+                        | ra::drop_while([&](const auto &o) { return o[0] < tile_size || LY < o[0] || LY >= o[0] + spriteHeight(); })
+                        | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
+                        | ra::take(max_sprite_tile_viewport_x);
 
-  for(const auto &obj : oam) {
-    const auto [y, x, index, atrb] = rg::subrange(obj);
-    // ...
-  }
- */
+  for(const auto &obj : sprites_on_scanline) {
+    const byte y =          obj[0];
+    const byte x =          obj[1];
+    const byte tile_index = obj[2];
+    const byte atrb       = obj[3];
 
-void PPU::fetchSprites() noexcept {
-  std::uint8_t total_sprites_on_scanline = 0;
-
-  for(std::size_t i = std::size(m_oam); i != 0uz; i -= 4uz) {
-    const byte y = readOAM(i - 4uz) - tile_size; // height occupied by a sprite: [y, y_end)
-    const byte y_end = y + (isBigSprite() ? 2 * tile_h : tile_h);
-
-    if(currentScanline() < y) continue;
-    if(currentScanline() >= y_end) continue;
-    if(++total_sprites_on_scanline > max_sprite_tile_viewport_x) break;
-
-    const byte x = readOAM(i - 3uz) - tile_w;
-    const byte tile_index = readOAM(i - 2uz);
-
-    const byte atrb = readOAM(i - 1uz);
-    const bool bgHasPriority = atrb & 0b1000'0000;
-    const bool yflip = atrb & 0b0100'0000;
-    const bool xflip = atrb & 0b0010'0000;
-    const std::size_t palette = bool(atrb & 0b0001'0000); // OBP0 or OBP1?
+    const bool bgHasPriority =  atrb & 0b1000'0000;
+    const bool yflip =          atrb & 0b0100'0000;
+    const bool xflip =          atrb & 0b0010'0000;
+    const std::size_t palette = atrb & 0b0001'0000; // OBP0 or OBP1?
+    // clang-format on
 
     const std::size_t currently_scanning_tileline = currentScanline() - y;
+    if(currently_scanning_tileline >= spriteHeight()) continue;
 
     const std::size_t currently_scanning_tileline_position = [&]() {
-      if(yflip)
-        if(isBigSprite()) //
-          return 2 * tile_h - 1uz - currently_scanning_tileline;
-        else //
-          return tile_h - 1uz - currently_scanning_tileline;
-      else //
-        return currently_scanning_tileline;
+      if(yflip) return spriteHeight() - 1uz - currently_scanning_tileline;
+      else return currently_scanning_tileline;
     }();
 
     const std::size_t tile_address =
@@ -284,9 +275,9 @@ void PPU::fetchSprites() noexcept {
       const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // transparent color
 
-      m_screen[LY + y][x + i] = bgHasPriority  ? original[bgp()[pi]]
-                                : palette == 0 ? original[obp0()[pi]]
-                                               : original[obp1()[pi]];
+      m_screen[y + currently_scanning_tileline][x + i] = bgHasPriority  ? original[bgp()[pi]]
+                                                         : palette == 0 ? original[obp0()[pi]]
+                                                                        : original[obp1()[pi]];
     }
   }
 }

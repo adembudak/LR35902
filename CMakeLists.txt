@@ -17,6 +17,8 @@ option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 option(STATIC_ANALYSIS "" OFF)
 
+find_package(range-v3 QUIET REQUIRED)
+
 add_library(
   lr35902
   src/cpu/cpu.cpp
@@ -33,6 +35,7 @@ add_library(
   src/dma/dma.cpp
   src/timer/timer.cpp)
 
+target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
