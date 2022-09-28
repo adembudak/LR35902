@@ -62,18 +62,20 @@ int main(int argc, char **argv) {
     return 2;
   }
 
-  const auto flags_win = (SDL_WindowFlags)(SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
   const auto w_win = 1280;
   const auto h_win = 720;
 
-  SDL_Window *const m_window = SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED,
-                                                SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_win);
+  const auto flags_win = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+  SDL_Window *m_window = SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+                                          w_win, h_win, flags_win);
 
-  SDL_Renderer *const m_renderer =
-      SDL_CreateRenderer(m_window, -1, SDL_RENDERER_PRESENTVSYNC | SDL_RENDERER_ACCELERATED);
+  const auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
+  SDL_Renderer *m_renderer = SDL_CreateRenderer(m_window, -1, flags_renderer);
 
-  SDL_Texture *m_texture = SDL_CreateTexture(m_renderer, SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32,
-                                             SDL_TEXTUREACCESS_STREAMING, w_win, h_win);
+  const auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
+  SDL_Texture *m_texture =
+      SDL_CreateTexture(m_renderer, SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win);
+
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
