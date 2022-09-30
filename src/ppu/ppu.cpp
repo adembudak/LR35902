@@ -375,6 +375,9 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(m_scanline_period_counter > scanline_period) {
         m_scanline_period_counter -= scanline_period;
         updateScanline();
+        coincidence(checkCoincidence());
+        if(checkCoincidence() && interruptSource(source::coincidence))
+          intr.request(Interrupt::kind::lcd_stat);
       }
 
       if(m_vblank_period_counter > vblank_period) {
