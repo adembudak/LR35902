@@ -53,12 +53,12 @@ void pollEvent(GameBoy &emu) {
 
 int main(int argc, char **argv) {
   if(argc < 2) {
-    fmt::printf("Usage: debugger [game.gb]");
+    fmt::printf("Usage: debugger [game.gb]\n");
     return 1;
   }
 
   if(std::string_view sv{argv[1]}; !sv.ends_with(".gb")) {
-    fmt::printf("Not a rom file!");
+    fmt::printf("Not a rom file!\n");
     return 2;
   }
 
@@ -103,7 +103,7 @@ int main(int argc, char **argv) {
 
   attaboy.setDrawCallback(cbk);
 
-  attaboy.skipboot(false);
+  attaboy.skipboot(true);
   attaboy.plug(argv[1]);
 
   while(attaboy.isPowerOn()) {
