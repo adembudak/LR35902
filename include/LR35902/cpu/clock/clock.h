@@ -9,10 +9,10 @@ class clock {
   std::size_t m_latest{};
 
 public:
-  void cycle(const std::size_t t) {
-    m_latest = t;
+  void cycle(const std::size_t m) {
+    m_latest = m;
 
-    for(std::size_t i = 0; i < t; ++i)
+    for(std::size_t i = 0; i < m; ++i)
       ++m_data;
   }
 
