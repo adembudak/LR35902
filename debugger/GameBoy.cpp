@@ -5,7 +5,7 @@
 #include <cassert>
 #include <string_view>
 
-void GameBoy::setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) {
+void GameBoy::setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) noexcept {
   ppu.setDrawCallback(drawCallback);
 }
 
@@ -30,7 +30,7 @@ void GameBoy::update() noexcept {
   if(!paused) {
     const int one_scanline_period = 114;
     int cycles = 0;
-    for(int i = 0; i < one_scaneline_period; i += cycles) {
+    for(int i = 0; i < one_scanline_period; i += cycles) {
       cpu.run();
       cycles = cpu.latestCycles();
       ppu.update(cycles);

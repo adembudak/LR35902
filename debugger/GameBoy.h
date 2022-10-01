@@ -58,7 +58,7 @@ private:
   void render() noexcept;
 
 public:
-  void setDrawCallback(const std::function<void(const screen_t &)> &drawCallback);
+  void setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) noexcept;
   void skipboot(bool b = true) noexcept;
   void plug(const std::string_view rom) noexcept;
   void update() noexcept;
