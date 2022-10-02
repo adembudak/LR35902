@@ -176,6 +176,9 @@ private:
   std::size_t window_y() const noexcept;
   std::size_t window_x() const noexcept;
 
+  bool isVRAMAccessibleToCPU() const noexcept;
+  bool isOAMAccessibleToCPU() const noexcept;
+
 private:
   screen_t m_screen;
 
@@ -207,6 +210,7 @@ public:
 
   void reset() noexcept;
 
+  friend class DMA;
   friend class DebugView;
 };
 }

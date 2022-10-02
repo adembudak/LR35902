@@ -20,22 +20,22 @@ void DMA::action(const byte n) noexcept {
 
   if(destination < romx_end) {
     for(std::size_t i = 0; i < amount; ++i)
-      m_ppu.writeOAM(i, m_cart.readROM(i));
+      m_ppu.m_oam[i] = m_cart.readROM(i);
   }
 
   else if(destination < vram_end) {
     for(std::size_t i = 0; i < amount; ++i)
-      m_ppu.writeOAM(i, m_ppu.readVRAM(i));
+      m_ppu.m_oam[i] = m_ppu.m_vram[i];
   }
 
   else if(destination < sram_end) {
     for(std::size_t i = 0; i < amount; ++i)
-      m_ppu.writeOAM(i, m_cart.readSRAM(i));
+      m_ppu.m_oam[i] = m_cart.readSRAM(i);
   }
 
   else if(destination < wramx_end) {
     for(std::size_t i = 0; i < amount; ++i)
-      m_ppu.writeOAM(i, m_builtIn.readWRAM(i));
+      m_ppu.m_oam[i] = m_builtIn.readWRAM(i);
   }
 
   else {

@@ -164,20 +164,39 @@ std::size_t PPU::window_x() const noexcept {
   return WX - 7;
 }
 
+/*
+Memory parts accessible to CPU, during scanline rendering:
+
+state         | VRAM  | OAM
+--------------+-------+------
+hblanking     |   ✔   |  ✔
+vblanking     |   ✔   |  ✔
+searching_oam |   ✔   |  ✕
+drawing       |   ✕   |  ✕
+*/
+
+bool PPU::isVRAMAccessibleToCPU() const noexcept {
+  return mode() != state::drawing;
+}
+
+bool PPU::isOAMAccessibleToCPU() const noexcept {
+  return mode() == state::hblanking || mode() == state::vblanking;
+}
+
 void PPU::fetchBackground() noexcept {
 
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
     const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
 
-    const std::size_t tile_attribute = readVRAM(backgroundTilemapBaseAddress() + tile_index);
+    const std::size_t tile_attribute = m_vram[backgroundTilemapBaseAddress() + tile_index];
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
     const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_attribute * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
 
-    const byte tileline_upper = readVRAM(tileline_address);
-    const byte tileline_lower = readVRAM(tileline_address + 1uz);
+    const byte tileline_upper = m_vram[tileline_address];
+    const byte tileline_lower = m_vram[tileline_address + 1uz];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
@@ -201,13 +220,13 @@ void PPU::fetchWindow() noexcept {
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
-    const std::size_t tile_attribute = readVRAM(windowTilemapBaseAddress() + tile_index);
+    const std::size_t tile_attribute = m_vram[windowTilemapBaseAddress() + tile_index];
 
     const std::size_t tileline_address = windowTilesetBaseAddress() + (tile_attribute * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
 
-    const byte tileline_upper = readVRAM(tileline_address);
-    const byte tileline_lower = readVRAM(tileline_address + 1uz);
+    const byte tileline_upper = m_vram[tileline_address];
+    const byte tileline_lower = m_vram[tileline_address + 1uz];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
@@ -263,8 +282,8 @@ void PPU::fetchSprites() noexcept {
     const std::size_t tile_address =
         (tile_index * tile_size) + (currently_scanning_tileline_position * tileline_size);
 
-    const byte tileline_upper = readVRAM(tile_address);
-    const byte tileline_lower = readVRAM(tile_address + 1uz);
+    const byte tileline_upper = m_vram[tile_address];
+    const byte tileline_lower = m_vram[tile_address + 1uz];
 
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i) {
@@ -405,19 +424,21 @@ void PPU::setDrawCallback(const std::function<void(const screen_t &framebuffer)>
 }
 
 byte PPU::readVRAM(const std::size_t index) const noexcept {
-  return m_vram[index];
+  if(isVRAMAccessibleToCPU()) return m_vram[index];
+  return 0xff;
 }
 
 void PPU::writeVRAM(const std::size_t index, const byte b) noexcept {
-  m_vram[index] = b;
+  if(isVRAMAccessibleToCPU()) m_vram[index] = b;
 }
 
 byte PPU::readOAM(const std::size_t index) const noexcept {
-  return m_oam[index];
+  if(isOAMAccessibleToCPU()) return m_oam[index];
+  else return 0xff;
 }
 
 void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
-  m_oam[index] = b;
+  if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
 
 byte &PPU::operator[](const std::size_t index) noexcept {
