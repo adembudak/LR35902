@@ -26,9 +26,15 @@ void DebugView::showMemoryPortions() noexcept {
     if(static MemoryEditor memory_editor; BeginTabBar("Tab Bar")) {
       memory_editor.ReadOnly = true;
 
-      if(BeginTabItem("rom", &_memory_portions_rom)) {
-        memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), 32_KiB, rom0);
+      constexpr std::size_t rom_bank_size = 16_KiB;
+      if(BeginTabItem("rom0", &_memory_portions_rom)) {
+        memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), rom_bank_size, rom0);
+        EndTabItem();
+      }
 
+      if(BeginTabItem("romX", &_memory_portions_rom)) {
+        memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data() + rom_bank_size),
+                                   gameboy.cart.size() - rom_bank_size, romx);
         EndTabItem();
       }
 
