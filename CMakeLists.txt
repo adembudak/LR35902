@@ -85,18 +85,36 @@ endif()
 if(BUILD_TEST_ROMS)
   find_program(RGBASM rgbasm REQUIRED)
   find_program(RGBLINK rgblink REQUIRED)
+  find_program(RGBFIX rgbfix REQUIRED)
 
-  file(GLOB_RECURSE test_roms ${LR35902_TEST_DIR}/*.asm)
-  foreach(e IN LISTS test_roms)
-    string(FIND ${e} "." pos REVERSE)
-    string(SUBSTRING ${e} #[[ from start ]] 0 ${pos} source)
-    set(object_file "${source}.o")
-    set(assembly_file "${source}.asm")
-    set(rom_file "${source}.gb")
+  function(add_test_rom)
+    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE"
+                          "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE" ${ARGN})
 
-    execute_process(COMMAND ${RGBASM} -o ${object_file} ${assembly_file})
-    execute_process(COMMAND ${RGBLINK} -o ${rom_file} ${object_file})
-  endforeach()
+    file(MAKE_DIRECTORY ${test_OUTPUT_DIRECTORY})
+
+    foreach(e IN LISTS test_SOURCE)
+      cmake_path(GET e STEM LAST_ONLY source)
+      cmake_path(GET e PARENT_PATH source_dir)
+
+      set(assembly_file ${source_dir}/${source}.asm)
+      set(object_file ${test_OUTPUT_DIRECTORY}/${source}.o)
+      set(rom_file ${test_OUTPUT_DIRECTORY}/${source}.gb)
+
+      # cmake-format: off
+      execute_process(COMMAND ${RGBASM} ${test_COMPILE_FLAGS} --output ${object_file} ${assembly_file})
+      execute_process(COMMAND ${RGBLINK} ${test_LINK_FLAGS} --dmg --output ${rom_file} ${object_file})
+      execute_process(COMMAND ${RGBFIX} --mbc-type ${test_MBC_TYPE} --title ${source} ${test_FIX_FLAGS} ${rom_file})
+      execute_process(COMMAND ${CMAKE_COMMAND} -E rm ${object_file})
+      # cmake-format: on
+    endforeach()
+  endfunction()
+
+  file(GLOB instructions CONFIGURE_DEPENDS
+       ${LR35902_TEST_DIR}/source/instructions/*.asm)
+
+  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions
+               MBC_TYPE ROM_ONLY SOURCE ${instructions})
 endif()
 
 if(VISUALIZE_TARGETS)
@@ -105,7 +123,7 @@ if(VISUALIZE_TARGETS)
   add_custom_target(
     graphviz ALL
     COMMAND ${CMAKE_COMMAND} --graphviz=tgt.dot ${LR35902_BINARY_DIR}
-    COMMAND dot -Tpng tgt.dot -o targets.png
+    COMMAND ${DOT} -Tpng tgt.dot -o targets.png
     WORKING_DIRECTORY ${LR35902_BINARY_DIR})
 endif()
 
