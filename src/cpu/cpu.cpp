@@ -658,7 +658,7 @@ void CPU::run() noexcept {
 // https://gbdev.io/pandocs/Power_Up_Sequence.html#cpu-registers
 void CPU::setPostBootValues() noexcept {
   A = 0x01;
-  F = {.z = 1, .n = 0, .h = 0, .c = 0};
+  F = {.z = 1, .n = 0, .h = 1, .c = 1};
 
   B = 0x00;
   C = 0x13;
@@ -666,7 +666,7 @@ void CPU::setPostBootValues() noexcept {
   D = 0x00;
   E = 0xd8;
 
-  H = 0xd1;
+  H = 0x01;
   L = 0x4d;
 
   PC.m_data = 0x0100;
