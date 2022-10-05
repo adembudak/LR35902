@@ -91,7 +91,7 @@ void PPU::coincidence(const bool b) noexcept {
   else  STAT &= 0b1111'1011;
 }
 
-bool PPU::interruptSource(const source s) const noexcept {
+bool PPU::interruptSourceEnabled(const source s) const noexcept {
   switch(s) {
   case source::hblank:      return STAT & 0b0000'1000; // bit 3
   case source::vblank:      return STAT & 0b0001'0000; // bit 4
@@ -254,9 +254,9 @@ void PPU::fetchSprites() noexcept {
   sprites_on_scanline = m_oam
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
                         | rg::to<std::vector> 
+                        | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::reverse
                         | ra::drop_while([&](const auto &o) { return o[0] < tile_size || LY < o[0] || LY >= o[0] + spriteHeight(); })
-                        | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::take(max_sprite_tile_viewport_x);
 
   for(const auto &obj : sprites_on_scanline) {
@@ -355,7 +355,7 @@ void PPU::update(const std::size_t cycles) noexcept {
         m_draw_period_counter = 0;
         mode(state::hblanking);
         m_drawCallback(m_screen);
-        if(interruptSource(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
+        if(interruptSourceEnabled(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
       }
       break;
 
@@ -364,23 +364,23 @@ void PPU::update(const std::size_t cycles) noexcept {
       m_hblank_period_counter += cycles;
 
       if(m_hblank_period_counter > hblank_period) {
-        const std::size_t left_over_cycles = m_hblank_period_counter - hblank_period;
+        const std::size_t leftover_cycles = m_hblank_period_counter - hblank_period;
 
         updateScanline();
         coincidence(checkCoincidence());
-        if(checkCoincidence() && interruptSource(source::coincidence))
+        if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
           intr.request(Interrupt::kind::lcd_stat);
 
         if(currentScanline() == vblank_start) {
-          m_vblank_period_counter += left_over_cycles;
+          m_vblank_period_counter += leftover_cycles;
 
           mode(state::vblanking);
           intr.request(Interrupt::kind::vblank);
         } else {
-          m_oam_search_period_counter += left_over_cycles;
+          m_oam_search_period_counter += leftover_cycles;
 
           mode(state::searching_oam);
-          if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+          if(interruptSourceEnabled(source::oam)) intr.request(Interrupt::kind::lcd_stat);
         }
 
         m_hblank_period_counter = 0;
@@ -395,7 +395,7 @@ void PPU::update(const std::size_t cycles) noexcept {
         m_scanline_period_counter -= scanline_period;
         updateScanline();
         coincidence(checkCoincidence());
-        if(checkCoincidence() && interruptSource(source::coincidence))
+        if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
           intr.request(Interrupt::kind::lcd_stat);
       }
 
@@ -403,7 +403,7 @@ void PPU::update(const std::size_t cycles) noexcept {
         resetScanline();
 
         mode(state::searching_oam);
-        if(interruptSource(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+        if(interruptSourceEnabled(source::oam)) intr.request(Interrupt::kind::lcd_stat);
 
         m_oam_search_period_counter += (m_vblank_period_counter - vblank_period);
         m_vblank_period_counter = 0;

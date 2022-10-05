@@ -145,7 +145,7 @@ private:
   [[nodiscard]] state mode() const noexcept;
   void mode(const state s) noexcept;
   void coincidence(const bool b) noexcept;
-  bool interruptSource(const source s) const noexcept;
+  bool interruptSourceEnabled(const source s) const noexcept;
 
   // scroll viewport by y/x amount
   byte &SCY;
