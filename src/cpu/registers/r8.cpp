@@ -157,4 +157,8 @@ byte operator-(const r8 r, const n8 n) noexcept {
   return r.data() - n.m_data;
 }
 
+byte operator~(const r8 r) noexcept {
+  return ~r.data();
+}
+
 }

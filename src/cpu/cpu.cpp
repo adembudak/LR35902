@@ -1543,7 +1543,7 @@ void CPU::ccf() noexcept { // ccf // - 0 0 c
 }
 
 void CPU::cpl() noexcept { // cpl // - 1 1 -
-  A = ~A.data();
+  A = ~A;
   F = {F.z, 1, 1, F.c};
 
   m_clock.cycle(1);
