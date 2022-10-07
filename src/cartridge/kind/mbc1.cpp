@@ -52,7 +52,7 @@ void mbc1::write(const std::size_t index, const byte b) noexcept {
   if(index < 0x2000) // [0x0000,0x1fff] WO. Ram enable, no ram in this cart, do nothing
     return;
 
-  else if(index < 0x4000) { // [0x0000, 0x3fff], WO. primary bank select
+  else if(index < 0x4000) { // [0x2000, 0x3fff], WO. primary bank select
     primary_bank = b & bank_normalize_mask;
     if(primary_bank == 0) // if bank number is 0, use 1 instead
       primary_bank = 1;
