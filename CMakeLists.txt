@@ -112,9 +112,12 @@ if(BUILD_TEST_ROMS)
 
   file(GLOB instructions CONFIGURE_DEPENDS
        ${LR35902_TEST_DIR}/source/instructions/*.asm)
-
   add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions
                MBC_TYPE ROM_ONLY SOURCE ${instructions})
+
+  file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
+  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE
+               ROM_ONLY SOURCE ${timer})
 endif()
 
 if(VISUALIZE_TARGETS)
