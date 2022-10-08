@@ -188,11 +188,11 @@ void PPU::fetchBackground() noexcept {
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
     const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
 
-    const std::size_t tile_attribute = m_vram[backgroundTilemapBaseAddress() + tile_index];
-
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
-    const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_attribute * tile_size) +
+    const std::size_t tile_address = m_vram[backgroundTilemapBaseAddress() + tile_index];
+
+    const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_address * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
 
     const byte tileline_upper = m_vram[tileline_address];
@@ -220,9 +220,9 @@ void PPU::fetchWindow() noexcept {
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
-    const std::size_t tile_attribute = m_vram[windowTilemapBaseAddress() + tile_index];
+    const std::size_t tile_address = m_vram[windowTilemapBaseAddress() + tile_index];
 
-    const std::size_t tileline_address = windowTilesetBaseAddress() + (tile_attribute * tile_size) +
+    const std::size_t tileline_address = windowTilesetBaseAddress() + (tile_address * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
 
     const byte tileline_upper = m_vram[tileline_address];
@@ -279,11 +279,12 @@ void PPU::fetchSprites() noexcept {
       else return currently_scanning_tileline;
     }();
 
-    const std::size_t tile_address =
-        (tile_index * tile_size) + (currently_scanning_tileline_position * tileline_size);
+    const std::size_t tile_address = tile_index * tile_size;
+    const std::size_t tileline_address =
+        tile_address + (currently_scanning_tileline_position * tileline_size);
 
-    const byte tileline_upper = m_vram[tile_address];
-    const byte tileline_lower = m_vram[tile_address + 1uz];
+    const byte tileline_upper = m_vram[tileline_address];
+    const byte tileline_lower = m_vram[tileline_address + 1uz];
 
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i) {
