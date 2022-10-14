@@ -42,8 +42,6 @@ if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
   find_package(fmt QUIET REQUIRED)
 
-  target_compile_definitions(lr35902 PUBLIC WITH_DEBUGGER)
-
   add_library(debugView src/debugView/debugView.cpp)
 
   add_library(
@@ -73,6 +71,9 @@ if(WITH_DEBUGGER)
   add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
   target_link_libraries(debugger PRIVATE debugView fmt::fmt)
   target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR})
+
+  set_target_properties(lr35902 debugView debugger
+                        PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 endif()
 
 if(WITH_TOOLS)

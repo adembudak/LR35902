@@ -8,7 +8,7 @@
 namespace LR35902 {
 
 auto CPU::fetchOpcode() noexcept -> byte {
-#if defined(WITH_DEBUGGER)
+#ifdef WITH_DEBUGGER
   immediate = std::monostate{};
   opcode = m_bus.read(PC++);
   return opcode;
@@ -17,7 +17,7 @@ auto CPU::fetchOpcode() noexcept -> byte {
 }
 
 auto CPU::fetchByte() noexcept -> byte {
-#if defined(WITH_DEBUGGER)
+#ifdef WITH_DEBUGGER
   immediate = m_bus.read(PC++);
   return std::get<byte>(immediate);
 #endif
@@ -27,7 +27,7 @@ auto CPU::fetchByte() noexcept -> byte {
 auto CPU::fetchWord() noexcept -> word {
   const byte lo = m_bus.read(PC++);
   const byte hi = m_bus.read(PC++);
-#if defined(WITH_DEBUGGER)
+#ifdef WITH_DEBUGGER
   immediate = word(hi << 8 | lo);
   return std::get<word>(immediate);
 #endif

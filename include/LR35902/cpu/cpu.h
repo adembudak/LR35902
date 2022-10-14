@@ -45,11 +45,11 @@ private:
 
   void handleInterrupts() noexcept;
 
-  //#if defined(WITH_DEBUGGER)
+#ifdef WITH_DEBUGGER
   using immediate_t = std::variant<std::monostate, byte, word>;
   byte opcode{};
   immediate_t immediate;
-  //#endif
+#endif
 
   // clang-format off
   struct AF_register_tag_t { explicit AF_register_tag_t() = default; } AF_register_tag;
