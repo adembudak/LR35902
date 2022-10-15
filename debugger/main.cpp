@@ -13,8 +13,11 @@
 
 #include <fmt/printf.h>
 
+#include <chrono>
 #include <filesystem>
+#include <ratio>
 #include <string_view>
+#include <thread>
 
 void pollEvent(GameBoy &emu) {
   for(SDL_Event event; SDL_PollEvent(&event);) {
@@ -106,6 +109,10 @@ int main(int argc, char **argv) {
   attaboy.skipboot(true);
   attaboy.plug(argv[1]);
 
+  using namespace std::chrono;
+  using frames = duration<int, std::ratio<1, 50>>; // 52Hz
+  auto nextFrame = system_clock::now();
+  auto lastFrame = nextFrame - frames{1};
   while(attaboy.isPowerOn()) {
     pollEvent(attaboy);
 
@@ -165,6 +172,10 @@ int main(int argc, char **argv) {
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(m_renderer);
+
+    std::this_thread::sleep_until(nextFrame);
+    lastFrame = nextFrame;
+    nextFrame += frames{1};
   }
 
   ImGui_ImplSDLRenderer_Shutdown();
