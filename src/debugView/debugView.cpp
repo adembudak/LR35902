@@ -138,10 +138,10 @@ void DebugView::showCPUState() noexcept {
   using namespace ImGui;
 
   if(_cpu_state) {
-    Begin("CPU State", &_cpu_state, ImGuiWindowFlags_NoResize);
+    Begin("CPU State", &_cpu_state);
     const auto &cpu = gameboy.cpu;
 
-    Text("Cycle: %lu", cpu.m_clock.m_data);
+    Text("Cycles: %lu\nLatest: %lu", cpu.m_clock.m_data, cpu.latestCycles());
 
     NewLine();
     Text("ime: %d", cpu.ime);
