@@ -20,7 +20,8 @@
 #include <thread>
 
 void pollEvent(GameBoy &emu) {
-  for(SDL_Event event; SDL_PollEvent(&event);) {
+  static SDL_Event event;
+  while(SDL_PollEvent(&event)) {
     ImGui_ImplSDL2_ProcessEvent(&event);
 
     switch(event.type) {
