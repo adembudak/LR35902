@@ -10,6 +10,7 @@
 #include <LR35902/ppu/ppu.h>
 #include <LR35902/timer/timer.h>
 
+#include <array>
 #include <cstdint>
 #include <functional>
 #include <string_view>
@@ -28,10 +29,10 @@ enum class button : std::uint8_t {
   start,
 };
 
-constexpr button directionButtons[]{button::right, button::left, button::up, button::down};
-constexpr button selectionButtons[]{button::a, button::b, button::select, button::start};
-
 enum class keyStatus : std::uint8_t { pressed, released };
+
+constexpr std::array<button, 4> directionButtons{button::right, button::left, button::up, button::down};
+constexpr std::array<button, 4> selectionButtons{button::a, button::b, button::select, button::start};
 
 namespace lr = LR35902;
 
