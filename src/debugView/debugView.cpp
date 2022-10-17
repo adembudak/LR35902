@@ -109,6 +109,11 @@ void DebugView::showDisassembly() noexcept {
   if(_disassembly) {
     Begin("Disassembly", &_disassembly);
 
+    if(static std::string label = "Pause"; Button(label.c_str())) {
+      gameboy.m_paused ^= true;
+      gameboy.m_paused ? label = "Cont." : label = "Pause";
+    }
+
     iv.insert_or_assign(gameboy.cpu.PC.m_data, std::pair{gameboy.cpu.opcode, gameboy.cpu.immediate});
 
     for(const auto &[PC, op] : iv) {
