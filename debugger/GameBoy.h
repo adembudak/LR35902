@@ -40,7 +40,6 @@ class [[nodiscard]] GameBoy final {
 public:
   using screen_t = lr::PPU::screen_t;
 
-private:
   lr::Cartridge cart;
   lr::BuiltIn builtIn;
   lr::IO io;
@@ -52,18 +51,19 @@ private:
   lr::Timer timer{io, intr};
   lr::CPU cpu{bus};
 
-  bool powered = false;
-  bool paused = false;
-  bool isRunning = false;
+  mutable bool m_power = false;
+  mutable bool m_paused = false;
+  mutable bool m_isRunning = false;
 
-  void render() noexcept;
-
-public:
   void setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) noexcept;
   void skipboot(bool b = true) noexcept;
+
   void plug(const std::string_view rom) noexcept;
+
   void update() noexcept;
+
   void reset() noexcept;
+  bool isPaused() noexcept;
   void pause() noexcept;
   void resume() noexcept;
 

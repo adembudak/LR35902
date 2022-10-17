@@ -10,7 +10,7 @@ void GameBoy::setDrawCallback(const std::function<void(const screen_t &)> &drawC
 }
 
 void GameBoy::skipboot(bool b) noexcept {
-  isRunning = true;
+  m_isRunning = true;
 
   if(b) {
     cpu.setPostBootValues();
@@ -27,8 +27,9 @@ void GameBoy::plug(const std::string_view rom) noexcept {
 }
 
 void GameBoy::update() noexcept {
-  if(!paused) {
-    const int one_scanline_period = 114;
+  if(!m_paused) {
+    const int one_scanline_period = 114 * 144;
+
     int cycles = 0;
     for(int i = 0; i < one_scanline_period; i += cycles) {
       cpu.run();
@@ -47,20 +48,24 @@ void GameBoy::reset() noexcept {
   intr.reset();
 }
 
+bool GameBoy::isPaused() noexcept {
+  return m_paused;
+}
+
 void GameBoy::pause() noexcept {
-  paused = true;
+  m_paused = true;
 }
 
 void GameBoy::resume() noexcept {
-  paused = false;
+  m_paused = false;
 }
 
 void GameBoy::stop() noexcept {
-  isRunning = false;
+  m_isRunning = false;
 }
 
 bool GameBoy::isPowerOn() const noexcept {
-  return isRunning == true;
+  return m_isRunning == true;
 }
 
 // link: https://gbdev.io/pandocs/Joypad_Input.html
