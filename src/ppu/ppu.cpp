@@ -156,11 +156,11 @@ std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
 }
 
 // WY/WX palette registers related members
-std::size_t PPU::window_y() const noexcept {
+int PPU::window_y() const noexcept {
   return WY;
 }
 
-std::size_t PPU::window_x() const noexcept {
+int PPU::window_x() const noexcept {
   return WX - 7;
 }
 

@@ -173,8 +173,8 @@ private:
   /// window y, x
   byte &WY;
   byte &WX;
-  std::size_t window_y() const noexcept;
-  std::size_t window_x() const noexcept;
+  int window_y() const noexcept;
+  int window_x() const noexcept;
 
   bool isVRAMAccessibleToCPU() const noexcept;
   bool isOAMAccessibleToCPU() const noexcept;
