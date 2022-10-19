@@ -2,22 +2,21 @@
 
 #include <LR35902/config.h>
 
-#include <array>
 #include <cstdint>
+#include <vector>
 
 namespace LR35902 {
 
 class rom_only {
-  std::array<byte, 32_KiB> m_rom{};
+  std::vector<byte> m_rom;
 
   byte dummy; // dummy byte to handle write static_ram
 
 public:
   explicit rom_only() = default;
 
-  explicit rom_only(auto begin, auto end) {
-    std::move(begin, end, m_rom.begin());
-  }
+  explicit rom_only(std::vector<byte> rom) :
+      m_rom(std::move(rom)) {}
 
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;

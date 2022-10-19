@@ -50,7 +50,7 @@ void Cartridge::load(const char *romfile) noexcept {
   const std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
   switch(const std::size_t cartridge_type = 0x147; dumpedGamePak[cartridge_type]) {
-  case 0x00: m_cart = rom_only(begin(dumpedGamePak), end(dumpedGamePak)); break;
+  case 0x00: m_cart = rom_only(dumpedGamePak); break;
   case 0x01: m_cart = mbc1(dumpedGamePak); break;
   case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
   default: assert(false && "this type of cart not supported (yet)"); break;
