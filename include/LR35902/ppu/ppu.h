@@ -23,7 +23,7 @@ namespace LR35902 {
 //  [------------------)[------------------)[------------------)[---------)[----------)
 //  0x8000              0x8800              0x9000              0x9800     0x9C00     0xA000
 //
-//  tile set or tileset: where to get from tiles
+//  tile set or tileset: where to get tiles from
 //  tile map or tilemap: where to put the tiles
 //
 //  tile structure, based on https://www.huderlem.com/demos/gameboy2bpp.html
