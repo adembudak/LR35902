@@ -4,12 +4,12 @@
 #include <LR35902/memory_map.h>
 #include <LR35902/ppu/ppu.h>
 
-#include <range/v3/action/drop_while.hpp>
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
+#include <range/v3/view/remove_if.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -248,22 +248,40 @@ void PPU::fetchSprites() noexcept {
   namespace rv = rg::views;
   namespace ra = rg::actions;
 
-  const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
+  const int tile_screen_offset_y = 16;
+  const int tile_screen_offset_x = 8; // when tile is on (8, 16), it's on left-top
+
+  const auto spriteHeight = [&] { //
+    return isBigSprite() ? (2 * tile_h) : tile_h;
+  };
+
+  const auto isTileOnScanline = [&](byte y) { //
+    const int tile_y_on_screen = y - tile_screen_offset_y;
+
+    return LY >= tile_y_on_screen && LY <= (tile_y_on_screen + spriteHeight());
+  };
+
+  const auto isSpriteVisible = [&](byte y, byte x) {
+    return x > 0 && x < (viewport_w + tile_screen_offset_x) && //
+           y > 8 && y < (viewport_h + tile_screen_offset_y);
+  };
+
   // clang-format off
+
   const auto 
   sprites_on_scanline = m_oam
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
+                        | rv::remove_if([&](const auto &o) { return !isSpriteVisible(o[0], o[1]) || !isTileOnScanline(o[0]);})
                         | rg::to<std::vector> 
                         | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::reverse
-                        | ra::drop_while([&](const auto &o) { return o[0] < tile_size || LY < o[0] || LY >= o[0] + spriteHeight(); })
                         | ra::take(max_sprite_tile_viewport_x);
 
   for(const auto &obj : sprites_on_scanline) {
-    const byte y =          obj[0];
-    const byte x =          obj[1];
+    const byte y =          obj[0] - 16; // 16 and 8 are screen offsets
+    const byte x =          obj[1] - 8;
     const byte tile_index = obj[2];
-    const byte atrb       = obj[3];
+    const byte atrb =       obj[3];
 
     const bool bgHasPriority =  atrb & 0b1000'0000;
     const bool yflip =          atrb & 0b0100'0000;
@@ -271,17 +289,9 @@ void PPU::fetchSprites() noexcept {
     const std::size_t palette = atrb & 0b0001'0000; // OBP0 or OBP1?
     // clang-format on
 
-    const std::size_t currently_scanning_tileline = currentScanline() - y;
-    if(currently_scanning_tileline >= spriteHeight()) continue;
-
-    const std::size_t currently_scanning_tileline_position = [&]() {
-      if(yflip) return spriteHeight() - 1uz - currently_scanning_tileline;
-      else return currently_scanning_tileline;
-    }();
-
+    const int currently_scanning_tileline = currentScanline() - y;
     const std::size_t tile_address = tile_index * tile_size;
-    const std::size_t tileline_address =
-        tile_address + (currently_scanning_tileline_position * tileline_size);
+    const std::size_t tileline_address = tile_address + (currently_scanning_tileline * tileline_size);
 
     const byte tileline_upper = m_vram[tileline_address];
     const byte tileline_lower = m_vram[tileline_address + 1uz];
@@ -453,5 +463,4 @@ void PPU::reset() noexcept {
   m_oam.fill(byte{});
   m_screen.fill(scanline_t{});
 }
-
 }

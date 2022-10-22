@@ -12,20 +12,20 @@ struct rgba32 {
 using palette_t = std::array<rgba32, 4>;
 
 constexpr palette_t original = {
-    rgba32{107, 166, 74}, //
-    rgba32{67,  122, 99}, //
-    rgba32{37,  89,  85}, //
+    rgba32{107, 166, 74},
+    rgba32{67,  122, 99},
+    rgba32{37,  89,  85},
     rgba32{18,  66,  76}
 };
 
-const palette_t cococola = {
-    rgba32{244, 0, 9}, //
-    rgba32{186, 0, 6}, //
-    rgba32{114, 0, 4}, //
+constexpr palette_t cococola = {
+    rgba32{244, 0, 9},
+    rgba32{186, 0, 6},
+    rgba32{114, 0, 4},
     rgba32{43,  0, 1}
 };
 
-const palette_t galata = {
+constexpr palette_t galata = {
     rgba32{117, 148, 166},
     rgba32{101, 130, 144},
     rgba32{32,  46,  72 },
