@@ -33,8 +33,8 @@ private:
   r8 H, L;
   r16 HL;
 
-  n16 SP;
-  n16 PC;
+  n16 SP; // stack pointer
+  n16 PC; // program counter
 
   flag ime{}; // interrupt master enable
   clock m_clock;
