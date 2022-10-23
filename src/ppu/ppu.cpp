@@ -17,6 +17,10 @@
 
 namespace LR35902 {
 
+namespace rg = ranges;
+namespace rv = rg::views;
+namespace ra = rg::actions;
+
 // LCDC register related members
 bool PPU::isLCDEnabled() const noexcept { // bit7
   return LCDC & 0b1000'0000;
@@ -200,14 +204,19 @@ void PPU::fetchBackground() noexcept {
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const std::size_t y = currentScanline();
-      const std::size_t x = (tile_nth * tile_w) + i;
+      const int y = currentScanline();
+      const int y_rel = y - SCY;
+
+      const int x = (tile_nth * tile_w) + i;
+      const int x_rel = x - SCX;
+
+      if(x_rel < 0 || y_rel < 0) continue;
 
       const bool lo = tileline_upper & mask; // the 2 bits in the
       const bool hi = tileline_lower & mask; // 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = original[bgp()[pi]];
+      m_screen[y_rel][x_rel] = original[bgp()[pi]];
     }
   }
 }
@@ -231,23 +240,19 @@ void PPU::fetchWindow() noexcept {
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const std::size_t x = (tile_nth * tile_w) + i;
-      if(x < window_x()) continue;
       const std::size_t y = currentScanline();
+      if((x + window_x()) > viewport_w) continue;
 
       const bool lo = tileline_upper & mask;
       const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = original[bgp()[pi]];
+      m_screen[y][x + window_x()] = original[bgp()[pi]];
     }
   }
 }
 
 void PPU::fetchSprites() noexcept {
-  namespace rg = ranges;
-  namespace rv = rg::views;
-  namespace ra = rg::actions;
-
   const int tile_screen_offset_y = 16;
   const int tile_screen_offset_x = 8; // when tile is on (8, 16), it's on left-top
 
@@ -255,7 +260,7 @@ void PPU::fetchSprites() noexcept {
     return isBigSprite() ? (2 * tile_h) : tile_h;
   };
 
-  const auto isTileOnScanline = [&](byte y) { //
+  const auto isSpriteOnScanline = [&](byte y) { //
     const int tile_y_on_screen = y - tile_screen_offset_y;
 
     return LY >= tile_y_on_screen && LY <= (tile_y_on_screen + spriteHeight());
@@ -271,7 +276,7 @@ void PPU::fetchSprites() noexcept {
   const auto 
   sprites_on_scanline = m_oam
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
-                        | rv::remove_if([&](const auto &o) { return !isSpriteVisible(o[0], o[1]) || !isTileOnScanline(o[0]);})
+                        | rv::remove_if([&](const auto &o) { return !isSpriteVisible(o[0], o[1]) || !isSpriteOnScanline(o[0]);})
                         | rg::to<std::vector> 
                         | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::reverse
@@ -354,7 +359,8 @@ void PPU::update(const std::size_t cycles) noexcept {
 
         m_draw_period_counter += (m_oam_search_period_counter - oam_search_period);
         m_oam_search_period_counter = 0;
-        mode(state::drawing);
+
+        mode(state::drawing); // 2 -> 3
       }
       break;
 
@@ -364,9 +370,11 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(m_draw_period_counter > draw_period) {
         m_hblank_period_counter += (m_draw_period_counter - draw_period);
         m_draw_period_counter = 0;
-        mode(state::hblanking);
-        m_drawCallback(m_screen);
-        if(interruptSourceEnabled(source::hblank)) intr.request(Interrupt::kind::lcd_stat);
+
+        mode(state::hblanking); // 3 -> 0
+
+        if(interruptSourceEnabled(source::hblank)) //
+          intr.request(Interrupt::kind::lcd_stat);
       }
       break;
 
@@ -385,13 +393,17 @@ void PPU::update(const std::size_t cycles) noexcept {
         if(currentScanline() == vblank_start) {
           m_vblank_period_counter += leftover_cycles;
 
-          mode(state::vblanking);
+          mode(state::vblanking); // 0 -> 1
+          m_drawCallback(m_screen);
+
           intr.request(Interrupt::kind::vblank);
         } else {
           m_oam_search_period_counter += leftover_cycles;
 
-          mode(state::searching_oam);
-          if(interruptSourceEnabled(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+          mode(state::searching_oam); // 0 -> 2
+
+          if(interruptSourceEnabled(source::oam)) //
+            intr.request(Interrupt::kind::lcd_stat);
         }
 
         m_hblank_period_counter = 0;
@@ -405,6 +417,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(m_scanline_period_counter > scanline_period) {
         m_scanline_period_counter -= scanline_period;
         updateScanline();
+
         coincidence(checkCoincidence());
         if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
           intr.request(Interrupt::kind::lcd_stat);
@@ -413,12 +426,13 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(m_vblank_period_counter > vblank_period) {
         resetScanline();
 
-        mode(state::searching_oam);
-        if(interruptSourceEnabled(source::oam)) intr.request(Interrupt::kind::lcd_stat);
+        mode(state::searching_oam); // 1 -> 2
 
         m_oam_search_period_counter += (m_vblank_period_counter - vblank_period);
-        m_vblank_period_counter = 0;
-        m_scanline_period_counter = 0;
+        m_vblank_period_counter -= vblank_period;
+
+        if(interruptSourceEnabled(source::oam)) //
+          intr.request(Interrupt::kind::lcd_stat);
       }
       break;
     }
