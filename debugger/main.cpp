@@ -35,9 +35,8 @@ void pollEvent(GameBoy &emu) {
 
     case SDL_EventType::SDL_KEYDOWN: {
       const Uint8 *const state = SDL_GetKeyboardState(NULL);
-      if(state[SDL_SCANCODE_P]) emu.pause();
-      if(state[SDL_SCANCODE_SPACE]) emu.resume();
-
+      if(state[SDL_SCANCODE_RETURN]) emu.joypad(button::select, keyStatus::pressed);
+      if(state[SDL_SCANCODE_SPACE]) emu.joypad(button::start, keyStatus::pressed);
       if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::pressed);
       if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::pressed);
       if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::pressed);
@@ -46,6 +45,8 @@ void pollEvent(GameBoy &emu) {
 
     case SDL_EventType::SDL_KEYUP: {
       const Uint8 *const state = SDL_GetKeyboardState(NULL);
+      if(state[SDL_SCANCODE_RETURN]) emu.joypad(button::select, keyStatus::released);
+      if(state[SDL_SCANCODE_SPACE]) emu.joypad(button::start, keyStatus::released);
       if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::released);
       if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::released);
       if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::released);
@@ -100,20 +101,23 @@ int main(int argc, char **argv) {
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
+  const SDL_Rect border{20, 20, 256, 256};
+
   auto cbk = [&](const GameBoy::screen_t &f) {
-    SDL_Rect rect{8, 40, 256, 256};
-    SDL_UpdateTexture(m_texture, &rect, f.data(), sizeof(LR35902::rgba32) * 256);
+    SDL_UpdateTexture(m_texture, &border, f.data(), sizeof(LR35902::rgba32) * 256);
   };
 
   attaboy.setDrawCallback(cbk);
 
+  //  attaboy.skipboot(true);
   attaboy.skipboot(true);
   attaboy.plug(argv[1]);
 
   using namespace std::chrono;
-  using frames = duration<int, std::ratio<1, 50>>; // 52Hz
-  auto nextFrame = system_clock::now();
+  using frames = duration<int, std::ratio<1, 60>>; // 52Hz
+  auto nextFrame = system_clock::now() + frames{0};
   auto lastFrame = nextFrame - frames{1};
+
   while(attaboy.isPowerOn()) {
     pollEvent(attaboy);
 
@@ -121,6 +125,7 @@ int main(int argc, char **argv) {
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
+    const SDL_Rect view{20, 20, 160, 144};
     if(ImGui::BeginMainMenuBar()) {
 
       if(ImGui::BeginMenu("File")) {
@@ -163,6 +168,7 @@ int main(int argc, char **argv) {
     attaboy.update();
 
     debugView.showMemoryPortions();
+
     debugView.showDisassembly();
     debugView.showCPUState();
     debugView.showRegisters();
@@ -171,6 +177,9 @@ int main(int argc, char **argv) {
     ImGui::Render();
     SDL_RenderClear(m_renderer);
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
+    SDL_SetRenderDrawColor(m_renderer, 0xff, 0xff, 0xff, 0xff);
+    SDL_RenderDrawRect(m_renderer, &border);
+    SDL_RenderDrawRect(m_renderer, &view);
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(m_renderer);
 
