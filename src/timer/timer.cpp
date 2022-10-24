@@ -45,7 +45,7 @@ void Timer::update(const std::size_t cycles) noexcept {
   div_counter += cycles;
 
   if(div_counter > div_increase_rate) {
-    div_counter = 0;
+    div_counter -= div_increase_rate;
     ++m_io.DIV;
   }
 
@@ -54,13 +54,12 @@ void Timer::update(const std::size_t cycles) noexcept {
     const std::size_t frequency = frequency_select[frequency_index];
 
     if(counter > frequency) {
-      counter = 0;
-      ++m_io.TIMA;
-    }
+      counter -= frequency;
 
-    if(m_io.TIMA == 0x00) {                   // 0xff->0x00 timer overflowed
-      m_intr.request(Interrupt::kind::timer); // request interrupt
-      m_io.TIMA = m_io.TMA;                   // load it to Timar Modulo Accumulator
+      if(++m_io.TIMA == 0x00) {                 // 0xff->0x00 timer overflowed
+        m_intr.request(Interrupt::kind::timer); // request interrupt
+        m_io.TIMA = m_io.TMA;                   // load it to Timar Modulo Accumulator
+      }
     }
   }
 }
