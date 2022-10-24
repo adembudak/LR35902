@@ -45,7 +45,33 @@ enum class mbc : std::uint8_t {
   // clang-format on
 };
 
+class bootROM {
+  std::optional<std::array<byte, 0x100_B>> m_data{};
+
+public:
+  void load() noexcept {
+    std::ifstream fin{"bootrom.gb"};
+
+    assert(fin.is_open() && "boot rom not found\n");
+
+    std::array<byte, 0x100_B> temp;
+    std::copy(std::istreambuf_iterator<char>{fin}, {}, temp.begin());
+
+    m_data = std::move(temp);
+  }
+
+  // clang-format off
+  void unmap() noexcept { m_data = std::nullopt; }
+  bool isBootOnGoing() noexcept { return m_data.has_value(); }
+  byte read(std::size_t index) const noexcept { return m_data.value()[index]; }
+  // clang-format on
+};
+
+bootROM bootrom;
+
 void Cartridge::load(const char *romfile) noexcept {
+  bootrom.load();
+
   std::ifstream fin{romfile};
   const std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
@@ -62,21 +88,28 @@ template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; }
 template <typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 byte Cartridge::readROM(const std::size_t index) const noexcept {
-  return std::visit(overloaded { [&](const rom_only &rom) { return rom.read(index);    },
+  if(bootrom.isBootOnGoing()) 
+    if(index <= 0x100)  
+     return bootrom.read(index);
+
+  return std::visit(overloaded { 
+                                 [&](const rom_only &rom) { return rom.read(index);    },
                                  [&](const rom_ram &rom)  { return rom.readROM(index); },
                                  [&](const mbc1 &rom)     { return rom.read(index); }
                                }, m_cart);
 }
 
 void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
-  std::visit(overloaded { [&](rom_only &rom) { rom.write(index, b);    },
-                          [&](rom_ram &rom)  { rom.writeROM(index, b); },
-                          [&](mbc1 &rom)     { rom.write(index, b); }
-                        }, m_cart);
+    std::visit(overloaded { 
+                            [&](rom_only &rom) { rom.write(index, b);    },
+                            [&](rom_ram &rom)  { rom.writeROM(index, b); },
+                            [&](mbc1 &rom)     { rom.write(index, b); }
+                          }, m_cart);
 }
 
 byte Cartridge::readSRAM(const std::size_t index) const noexcept {
-  return std::visit(overloaded { [&](const rom_only &)   { return random_byte();       },
+  return std::visit(overloaded { 
+                                 [&](const rom_only &)   { return random_byte();       },
                                  [&](const rom_ram &rom) { return rom.readSRAM(index); },
                                  [&](const mbc1 &)       { return random_byte(); }
                                }, m_cart);
@@ -84,7 +117,8 @@ byte Cartridge::readSRAM(const std::size_t index) const noexcept {
 
 
 void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
-  std::visit(overloaded { [&](rom_only &  ) {    /* do nothing */      }, // no ram in rom only carts
+  std::visit(overloaded { 
+                          [&](rom_only &  ) {    /* do nothing */      }, // no ram in rom only carts
                           [&](rom_ram &rom) { rom.writeSRAM(index, b); },
                           [&](mbc1 & )      {    /* do nothing */      }
                         }, m_cart);
@@ -97,14 +131,16 @@ byte &Cartridge::operator[](const std::size_t index) noexcept {
 }
 
 const byte *Cartridge::data() const noexcept {
-  return std::visit(overloaded { [&](const rom_only &rom) { return rom.data();  },
+  return std::visit(overloaded { 
+                                 [&](const rom_only &rom) { return rom.data();  },
                                  [&](const rom_ram &rom)  { return rom.data();  },
                                  [&](const mbc1 &rom)     { return rom.data();  }
                                }, m_cart);
 }
 
 std::size_t Cartridge::size() const noexcept {
-  return std::visit(overloaded { [&](const rom_only &rom) { return rom.size();  },
+  return std::visit(overloaded { 
+                                 [&](const rom_only &rom) { return rom.size();  },
                                  [&](const rom_ram &rom)  { return rom.size();  },
                                  [&](const mbc1 &rom)     { return rom.size();  }
                                }, m_cart);
@@ -112,7 +148,8 @@ std::size_t Cartridge::size() const noexcept {
 
 
 bool Cartridge::hasSRAM() const noexcept {
-  return std::visit(overloaded { [&](const rom_only &) { return false;  },
+  return std::visit(overloaded { 
+                                 [&](const rom_only &) { return false;  },
                                  [&](const rom_ram &)  { return true;   },
                                  [&](const mbc1 &)     { return false;  }
                                }, m_cart);
@@ -131,10 +168,15 @@ std::optional<const byte *> Cartridge::RAMData() const noexcept {
 }
 
 void Cartridge::reset() noexcept { // only resets SRAM
-  std::visit(overloaded { [&](rom_only &)    {                     },
+  std::visit(overloaded { 
+                          [&](rom_only &)    {                     },
                           [&](rom_ram &rom)  { return rom.reset(); },
                           [&](mbc1 &)        {                     }
                         }, m_cart);
+}
+
+void Cartridge::unmapBootROM() noexcept {
+  bootrom.unmap();
 }
 
 }

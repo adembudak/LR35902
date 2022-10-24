@@ -110,7 +110,7 @@ int main(int argc, char **argv) {
   attaboy.setDrawCallback(cbk);
 
   //  attaboy.skipboot(true);
-  attaboy.skipboot(true);
+  attaboy.skipboot(false);
   attaboy.plug(argv[1]);
 
   using namespace std::chrono;

@@ -119,6 +119,7 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < io_end) { 
     if(index == 0xff0f) interruptHandler.IF = b; 
     else if(index == 0xff46) m_dma.action(b);
+    else if(index == 0xff50) m_cart.unmapBootROM();
 
     m_io.writeIO(index - io, b); 
   } 
