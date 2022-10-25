@@ -219,20 +219,72 @@ void DebugView::showRegisters() noexcept {
       }
       // clang-format on
 
+      static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit  //
+                                     | ImGuiTableFlags_RowBg         //
+                                     | ImGuiTableFlags_Borders       //
+                                     | ImGuiTableFlags_NoHostExtendX //
+                                     | ImGuiTableFlags_Hideable;
+
+      const char *const kind[5]{"", "coincidence", "oam", "vblank", "hblank"};
+      if(BeginTable("Stat Interrupts", /*columns*/ 5, flags)) {
+        for(int i = 0; i < 5; ++i)
+          TableSetupColumn(kind[i]);
+        TableHeadersRow();
+
+        TableNextRow();
+        TableSetColumnIndex(0);
+        Text("%s", "Enabled: ");
+
+        TableSetColumnIndex(1);
+        Text("%d", bool(io.STAT & 0b0100'0000));
+
+        TableSetColumnIndex(2);
+        Text("%d", bool(io.STAT & 0b0010'0000));
+
+        TableSetColumnIndex(3);
+        Text("%d", bool(io.STAT & 0b0001'0000));
+
+        TableSetColumnIndex(4);
+        Text("%d", bool(io.STAT & 0b0000'1000));
+        ///////////
+        TableNextRow();
+        TableSetColumnIndex(0);
+        Text("%s", "Requested: ");
+
+        TableSetColumnIndex(1);
+        Text("%d", io.LY == io.LYC);
+
+        TableSetColumnIndex(2);
+        Text("%d", (io.STAT & 0b11) == 0b10);
+
+        TableSetColumnIndex(3);
+        Text("%d", (io.STAT & 0b11) == 0b01);
+
+        TableSetColumnIndex(4);
+        Text("%d", (io.STAT & 0b11) == 0b00);
+
+        EndTable();
+      }
+
+      NewLine();
       Text("SCY: %x", io.SCY);
       Text("SCX: %x", io.SCX);
 
+      NewLine();
+      Text("WY: %x", io.WY);
+      Text("WX: %x", io.WX);
+
+      NewLine();
       Text("LY:  %u", io.LY);
       Text("LYC: %u", io.LYC);
 
+      NewLine();
       Text("DMA: %x", io.DMA);
 
+      NewLine();
       Text("BGP: %x", io.BGP);
       Text("OBP0: %x", io.OBP0);
       Text("OBP1: %x", io.OBP1);
-
-      Text("WY: %x", io.WY);
-      Text("WX: %x", io.WX);
 
       Separator();
     }
