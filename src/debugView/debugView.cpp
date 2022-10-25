@@ -194,7 +194,20 @@ void DebugView::showRegisters() noexcept {
     const auto &ppu = gameboy.ppu;
 
     if(Checkbox("LCD", &showLCDRegisters); showLCDRegisters) {
-      Text("LCDC: %x", io.LCDC);
+      Text("LCDC: %x\n%s\n%s%s%s\n%s%s%s\n%s%s\n", io.LCDC,
+           io.LCDC & 0b1000'0000 ? "LCD enabled\n" : "LCD disabled\n",
+
+           io.LCDC & 0b0010'0000 ? "Win enabled\n" : "Win disabled\n",
+           io.LCDC & 0b0001'0000 ? "Win Tileset: 0x8000\n" : "Win Tileset: 0x8800\n",
+           io.LCDC & 0b0100'0000 ? "Win Tilemap: 0x9c00\n" : "Win Tilemap: 0x8800\n",
+
+           io.LCDC & 0b0000'0001 ? "Bg enabled\n" : "Bg disabled\n",
+           io.LCDC & 0b0001'0000 ? "Bg Tileset: 0x8000\n" : "Bg Tileset: 0x8800\n",
+           io.LCDC & 0b0000'1000 ? "Bg Tilemap: 0x9c00\n" : "Bg Tilemap: 0x9800\n",
+
+           io.LCDC & 0b0000'0010 ? "Sprites enabled\n" : "Sprites disabled\n",
+           io.LCDC & 0b0000'0100 ? "Sprite size: 16\n" : "Sprite size: 8\n");
+
       Text("STAT: %x", io.STAT);
 
       // clang-format off
