@@ -439,8 +439,12 @@ void PPU::update(const std::size_t cycles) noexcept {
   }
 
   else { // LDC is off
-    resetScanline();
-    mode(state::hblanking);
+    m_vblank_period_counter_when_lcd_off += cycles;
+    if(m_vblank_period_counter_when_lcd_off > vblank_period) {
+      m_vblank_period_counter_when_lcd_off -= vblank_period;
+      resetScanline();
+      mode(state::searching_oam);
+    }
   }
 }
 

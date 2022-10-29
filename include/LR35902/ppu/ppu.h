@@ -192,6 +192,7 @@ private:
   std::size_t m_hblank_period_counter{};
 
   std::size_t m_vblank_period_counter{};
+  std::size_t m_vblank_period_counter_when_lcd_off{};
   std::size_t m_scanline_period_counter{};
 
 public:
