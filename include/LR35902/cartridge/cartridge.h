@@ -33,7 +33,6 @@ public:
   [[nodiscard]] std::optional<const byte *> RAMData() const noexcept;
 
   void reset() noexcept;
-  void unmapBootROM() noexcept;
 
   friend class DebugView;
 };

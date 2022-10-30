@@ -29,6 +29,7 @@ add_library(
   src/cartridge/kind/rom_only.cpp
   src/cartridge/kind/rom_ram.cpp
   src/cartridge/kind/mbc1.cpp
+  src/bootrom/bootrom.cpp
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp
   src/io/io.cpp

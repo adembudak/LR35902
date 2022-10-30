@@ -45,35 +45,9 @@ enum class mbc : std::uint8_t {
   // clang-format on
 };
 
-class bootROM {
-  std::optional<std::array<byte, 0x100_B>> m_data{};
-
-public:
-  void load() noexcept {
-    std::ifstream fin{"bootrom.gb"};
-
-    assert(fin.is_open() && "boot rom not found\n");
-
-    std::array<byte, 0x100_B> temp;
-    std::copy(std::istreambuf_iterator<char>{fin}, {}, temp.begin());
-
-    m_data = std::move(temp);
-  }
-
-  // clang-format off
-  void unmap() noexcept { m_data = std::nullopt; }
-  bool isBootOnGoing() noexcept { return m_data.has_value(); }
-  byte read(std::size_t index) const noexcept { return m_data.value()[index]; }
-  // clang-format on
-};
-
-bootROM bootrom;
-
 void Cartridge::load(const char *romfile) noexcept {
-  bootrom.load();
-
   std::ifstream fin{romfile};
-  const std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
+  std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
   switch(const std::size_t cartridge_type = 0x147; dumpedGamePak[cartridge_type]) {
   case 0x00: m_cart = rom_only(dumpedGamePak); break;
@@ -88,10 +62,6 @@ template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; }
 template <typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
 byte Cartridge::readROM(const std::size_t index) const noexcept {
-  if(bootrom.isBootOnGoing()) 
-    if(index <= 0x100)  
-     return bootrom.read(index);
-
   return std::visit(overloaded { 
                                  [&](const rom_only &rom) { return rom.read(index);    },
                                  [&](const rom_ram &rom)  { return rom.readROM(index); },
@@ -173,10 +143,6 @@ void Cartridge::reset() noexcept { // only resets SRAM
                           [&](rom_ram &rom)  { return rom.reset(); },
                           [&](mbc1 &)        {                     }
                         }, m_cart);
-}
-
-void Cartridge::unmapBootROM() noexcept {
-  bootrom.unmap();
 }
 
 }
