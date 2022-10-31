@@ -56,6 +56,42 @@ void pollEvent(GameBoy &emu) {
   }
 }
 
+void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
+  if(ImGui::BeginMenu("File")) {
+    if(ImGui::MenuItem("Open", "Ctrl-O")) {
+    }
+    if(ImGui::MenuItem("Close", "Alt-<F4>")) {
+      attaboy.stop();
+    }
+    ImGui::EndMenu();
+  }
+
+  if(ImGui::BeginMenu("View")) {
+
+    if(ImGui::BeginMenu("Memory chunks", debugView._memory_portions)) {
+
+      ImGui::MenuItem("ROM", NULL, &debugView._memory_portions_rom);
+      ImGui::MenuItem("VRAM", NULL, &debugView._memory_portions_vram);
+      ImGui::MenuItem("SRAM", NULL, &debugView._memory_portions_sram);
+      ImGui::MenuItem("WRAM", NULL, &debugView._memory_portions_wram);
+      ImGui::MenuItem("echo", NULL, &debugView._memory_portions_echo);
+      ImGui::MenuItem("OAM", NULL, &debugView._memory_portions_oam);
+      ImGui::MenuItem("No usable area", NULL, &debugView._memory_portions_noUsable);
+      ImGui::MenuItem("IO", NULL, &debugView._memory_portions_io);
+      ImGui::MenuItem("HRAM", NULL, &debugView._memory_portions_hram);
+
+      ImGui::EndMenu();
+    }
+
+    ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
+    ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
+    ImGui::MenuItem("Registers", NULL, &debugView._registers);
+    ImGui::MenuItem("VRAM", NULL, &debugView._vram);
+
+    ImGui::EndMenu();
+  }
+}
+
 int main(int argc, char **argv) {
   constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
 
@@ -130,7 +166,7 @@ int main(int argc, char **argv) {
   attaboy.plug(argv[1]);
 
   using namespace std::chrono;
-  using frames = duration<int, std::ratio<1, 60>>; // 52Hz
+  using frames = duration<int, std::ratio<1, 60>>;
   auto nextFrame = system_clock::now() + frames{0};
   auto lastFrame = nextFrame - frames{1};
 
@@ -143,41 +179,7 @@ int main(int argc, char **argv) {
 
     const SDL_Rect view{20, 20, 160, 144};
     if(ImGui::BeginMainMenuBar()) {
-
-      if(ImGui::BeginMenu("File")) {
-        if(ImGui::MenuItem("Open", "Ctrl-O")) {
-        }
-        if(ImGui::MenuItem("Close", "Alt-<F4>")) {
-          attaboy.stop();
-        }
-        ImGui::EndMenu();
-      }
-
-      if(ImGui::BeginMenu("View")) {
-
-        if(ImGui::BeginMenu("Memory chunks", debugView._memory_portions)) {
-
-          ImGui::MenuItem("ROM", NULL, &debugView._memory_portions_rom);
-          ImGui::MenuItem("VRAM", NULL, &debugView._memory_portions_vram);
-          ImGui::MenuItem("SRAM", NULL, &debugView._memory_portions_sram);
-          ImGui::MenuItem("WRAM", NULL, &debugView._memory_portions_wram);
-          ImGui::MenuItem("echo", NULL, &debugView._memory_portions_echo);
-          ImGui::MenuItem("OAM", NULL, &debugView._memory_portions_oam);
-          ImGui::MenuItem("No usable area", NULL, &debugView._memory_portions_noUsable);
-          ImGui::MenuItem("IO", NULL, &debugView._memory_portions_io);
-          ImGui::MenuItem("HRAM", NULL, &debugView._memory_portions_hram);
-
-          ImGui::EndMenu();
-        }
-
-        ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
-        ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
-        ImGui::MenuItem("Registers", NULL, &debugView._registers);
-        ImGui::MenuItem("VRAM", NULL, &debugView._vram);
-
-        ImGui::EndMenu();
-      }
-
+      putMenuBar(attaboy, debugView);
       ImGui::EndMainMenuBar();
     }
 
