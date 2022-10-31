@@ -16,9 +16,7 @@ void GameBoy::skipboot(bool b) noexcept {
     cpu.setPostBootValues();
     bus.setPostBootValues();
   } else {
-    // implement this:
-    // ifstream take boot rom from file
-    // insert it into the cartridge
+    bus.loadBootROM();
   }
 }
 

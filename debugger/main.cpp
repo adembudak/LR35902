@@ -57,8 +57,15 @@ void pollEvent(GameBoy &emu) {
 }
 
 int main(int argc, char **argv) {
+  constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
+
   if(argc < 2) {
-    fmt::printf("Usage: debugger [game.gb]\n");
+    fmt::print("{}", help);
+    return 1;
+  }
+
+  if(std::string_view sv{argv[1]}; sv == "-h" || sv == "--help") {
+    fmt::print("{}", help);
     return 1;
   }
 
@@ -66,6 +73,11 @@ int main(int argc, char **argv) {
     fmt::printf("Not a rom file!\n");
     return 2;
   }
+
+  bool skipboot{};
+  if(argc == 3)
+    if(std::string_view sv{argv[2]}; sv == "-s" || sv == "--skipboot") //
+      skipboot = true;
 
   const auto w_win = 1280;
   const auto h_win = 720;
@@ -109,8 +121,12 @@ int main(int argc, char **argv) {
 
   attaboy.setDrawCallback(cbk);
 
-  //  attaboy.skipboot(true);
-  attaboy.skipboot(false);
+  if(skipboot) {
+    attaboy.skipboot();
+  } else {
+    attaboy.skipboot(false);
+  }
+
   attaboy.plug(argv[1]);
 
   using namespace std::chrono;
