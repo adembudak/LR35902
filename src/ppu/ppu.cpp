@@ -291,7 +291,7 @@ void PPU::fetchSprites() noexcept {
     const bool bgHasPriority =  atrb & 0b1000'0000;
     const bool yflip =          atrb & 0b0100'0000;
     const bool xflip =          atrb & 0b0010'0000;
-    const std::size_t palette = atrb & 0b0001'0000; // OBP0 or OBP1?
+    const bool palette =        atrb & 0b0001'0000; // OBP1 or OBP0?
     // clang-format on
 
     const int currently_scanning_tileline = currentScanline() - y;
@@ -310,9 +310,9 @@ void PPU::fetchSprites() noexcept {
       const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // transparent color
 
-      m_screen[y + currently_scanning_tileline][x + i] = bgHasPriority  ? original[bgp()[pi]]
-                                                         : palette == 0 ? original[obp0()[pi]]
-                                                                        : original[obp1()[pi]];
+      m_screen[y + currently_scanning_tileline][x + i] = bgHasPriority ? original[bgp()[pi]]
+                                                         : palette     ? original[obp1()[pi]]
+                                                                       : original[obp0()[pi]];
     }
   }
 }

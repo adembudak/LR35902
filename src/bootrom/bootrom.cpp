@@ -20,7 +20,7 @@ void bootROM::unmap() noexcept {
 }
 
 bool bootROM::isBootOnGoing() const noexcept {
-  return m_data.empty() == false;
+  return !m_data.empty();
 }
 
 byte &bootROM::read(std::size_t index) noexcept {
