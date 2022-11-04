@@ -12,13 +12,13 @@ inline constexpr std::size_t rom0 =          0x0000; // 32KB      Cartridge
 inline constexpr std::size_t rom0_end =      0x4000;
 
 inline constexpr std::size_t romx =          0x4000;
-inline constexpr std::size_t romx_end =      0x7FFF;
+inline constexpr std::size_t romx_end =      0x8000;
 
 inline constexpr std::size_t vram =          0x8000; // 8KB       PPU
 inline constexpr std::size_t vram_end =      0xA000;
 
 inline constexpr std::size_t sram =          0xA000; // 8KB       Cartridge
-inline constexpr std::size_t sram_end =      0xBFFF;
+inline constexpr std::size_t sram_end =      0xC000;
 
 inline constexpr std::size_t wram0 =         0xC000; // 8KB       Built-in
 inline constexpr std::size_t wram0_end =     0xD000;
