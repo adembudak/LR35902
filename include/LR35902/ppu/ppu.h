@@ -186,15 +186,6 @@ private:
   void fetchWindow() noexcept;
   void fetchSprites() noexcept;
 
-private:
-  std::size_t m_oam_search_period_counter{};
-  std::size_t m_draw_period_counter{};
-  std::size_t m_hblank_period_counter{};
-
-  std::size_t m_vblank_period_counter{};
-  std::size_t m_vblank_period_counter_when_lcd_off{};
-  std::size_t m_scanline_period_counter{};
-
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
 

@@ -346,105 +346,85 @@ LY = 0|           +-->---------------------->-+         |
                         +----------------+
 */
 
+static std::size_t ppu_cycles = 0;
+
 void PPU::update(const std::size_t cycles) noexcept {
-  if(isLCDEnabled()) {
-    switch(mode()) {
-    case state::searching_oam:
-      m_oam_search_period_counter += cycles;
+  ppu_cycles += cycles;
 
-      if(m_oam_search_period_counter > oam_search_period) {
-        if(isBackgroundEnabled()) fetchBackground();
-        if(isWindowEnabled()) fetchWindow();
-        if(isSpritesEnabled()) fetchSprites();
+  if(!isLCDEnabled()) { // LCD is off
+    ppu_cycles = 0;
+    resetScanline();
+    mode(state::searching_oam);
+    return;
+  }
 
-        m_draw_period_counter += (m_oam_search_period_counter - oam_search_period);
-        m_oam_search_period_counter = 0;
+  switch(mode()) {
+  case state::searching_oam:
+    if(ppu_cycles >= oam_search_period) {
+      ppu_cycles -= oam_search_period;
 
-        mode(state::drawing); // 2 -> 3
-      }
-      break;
+      if(isBackgroundEnabled()) fetchBackground();
+      if(isWindowEnabled()) fetchWindow();
+      if(isSpritesEnabled()) fetchSprites();
 
-    case state::drawing:
-      m_draw_period_counter += cycles;
+      mode(state::drawing); // 2 -> 3
+    }
+    break;
 
-      if(m_draw_period_counter > draw_period) {
-        m_hblank_period_counter += (m_draw_period_counter - draw_period);
-        m_draw_period_counter = 0;
+  case state::drawing:
+    if(ppu_cycles >= draw_period) {
+      ppu_cycles -= draw_period;
 
-        mode(state::hblanking); // 3 -> 0
+      mode(state::hblanking); // 3 -> 0
 
-        if(interruptSourceEnabled(source::hblank)) //
-          intr.request(Interrupt::kind::lcd_stat);
-      }
-      break;
+      if(interruptSourceEnabled(source::hblank)) //
+        intr.request(Interrupt::kind::lcd_stat);
+    }
+    break;
 
-    case state::hblanking:
+  case state::hblanking:
+    if(ppu_cycles >= hblank_period) {
+      ppu_cycles -= cycles;
 
-      m_hblank_period_counter += cycles;
+      updateScanline();
+      coincidence(checkCoincidence());
+      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
+        intr.request(Interrupt::kind::lcd_stat);
 
-      if(m_hblank_period_counter > hblank_period) {
-        const std::size_t leftover_cycles = m_hblank_period_counter - hblank_period;
+      if(currentScanline() == vblank_start) {
+        mode(state::vblanking); // 0 -> 1
+        m_drawCallback(m_screen);
 
-        updateScanline();
-        coincidence(checkCoincidence());
-        if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-          intr.request(Interrupt::kind::lcd_stat);
-
-        if(currentScanline() == vblank_start) {
-          m_vblank_period_counter += leftover_cycles;
-
-          mode(state::vblanking); // 0 -> 1
-          m_drawCallback(m_screen);
-
-          intr.request(Interrupt::kind::vblank);
-        } else {
-          m_oam_search_period_counter += leftover_cycles;
-
-          mode(state::searching_oam); // 0 -> 2
-
-          if(interruptSourceEnabled(source::oam)) //
-            intr.request(Interrupt::kind::lcd_stat);
-        }
-
-        m_hblank_period_counter = 0;
-      }
-      break;
-
-    case state::vblanking:
-      m_vblank_period_counter += cycles;
-      m_scanline_period_counter += cycles;
-
-      if(m_scanline_period_counter > scanline_period) {
-        m_scanline_period_counter -= scanline_period;
-        updateScanline();
-
-        coincidence(checkCoincidence());
-        if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-          intr.request(Interrupt::kind::lcd_stat);
-      }
-
-      if(m_vblank_period_counter > vblank_period) {
-        resetScanline();
-
-        mode(state::searching_oam); // 1 -> 2
-
-        m_oam_search_period_counter += (m_vblank_period_counter - vblank_period);
-        m_vblank_period_counter -= vblank_period;
+        intr.request(Interrupt::kind::vblank);
+      } else {
+        mode(state::searching_oam); // 0 -> 2
 
         if(interruptSourceEnabled(source::oam)) //
           intr.request(Interrupt::kind::lcd_stat);
       }
-      break;
     }
-  }
+    break;
 
-  else { // LDC is off
-    m_vblank_period_counter_when_lcd_off += cycles;
-    if(m_vblank_period_counter_when_lcd_off > vblank_period) {
-      m_vblank_period_counter_when_lcd_off -= vblank_period;
-      resetScanline();
-      mode(state::searching_oam);
+  case state::vblanking:
+    if(ppu_cycles >= scanline_period) {
+      ppu_cycles -= scanline_period;
+
+      updateScanline();
+
+      coincidence(checkCoincidence());
+      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
+        intr.request(Interrupt::kind::lcd_stat);
+
+      if(currentScanline() >= vblank_height) {
+        resetScanline();
+
+        mode(state::searching_oam); // 1 -> 2
+
+        if(interruptSourceEnabled(source::oam)) //
+          intr.request(Interrupt::kind::lcd_stat);
+      }
     }
+    break;
   }
 }
 
