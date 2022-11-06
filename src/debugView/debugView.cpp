@@ -210,14 +210,17 @@ void DebugView::showRegisters() noexcept {
 
       Text("STAT: %x", io.STAT);
 
+      /*
       // clang-format off
       switch(io.STAT & 0b11) {
-      case 0b00: Text("status : Horizontal Blank [%lu/%lu]" ,ppu.m_hblank_period_counter, PPU::hblank_period); break;
-      case 0b01: Text("status : Vertical Blank   [%lu/%lu]" ,ppu.m_vblank_period_counter, PPU::vblank_period); break;
-      case 0b10: Text("status : Searching OAM    [%lu/%lu]" ,ppu.m_oam_search_period_counter, PPU::oam_search_period); break;
-      case 0b11: Text("status : Draw             [%lu/%lu]" ,ppu.m_draw_period_counter, PPU::draw_period); break;
+      case 0b00: Text("status : Horizontal Blank [%lu/%lu]" ,ppu.m_hblank_period_counter, PPU::hblank_period);
+      break; case 0b01: Text("status : Vertical Blank   [%lu/%lu]" ,ppu.m_vblank_period_counter,
+      PPU::vblank_period); break; case 0b10: Text("status : Searching OAM    [%lu/%lu]"
+      ,ppu.m_oam_search_period_counter, PPU::oam_search_period); break; case 0b11: Text("status : Draw
+      [%lu/%lu]" ,ppu.m_draw_period_counter, PPU::draw_period); break;
       }
       // clang-format on
+      */
 
       static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit  //
                                      | ImGuiTableFlags_RowBg         //
