@@ -450,12 +450,6 @@ void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
   if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
 
-byte &PPU::operator[](const std::size_t index) noexcept {
-  if(index < vram_end) return m_vram[index - vram];
-  else if(index < oam_end) return m_oam[index - oam];
-  else assert(false);
-}
-
 void PPU::reset() noexcept {
   m_vram.fill(byte{});
   m_oam.fill(byte{});
