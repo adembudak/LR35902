@@ -21,7 +21,6 @@ public:
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
   [[nodiscard]] const byte *data() const noexcept;
   [[nodiscard]] std::size_t size() const noexcept;
 };
