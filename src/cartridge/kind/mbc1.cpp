@@ -78,29 +78,6 @@ void mbc1::write(const std::size_t index, const byte b) noexcept {
     assert(false);
 }
 
-byte &mbc1::operator[](std::size_t index) noexcept {
-  index &= 0b0011'1111'1111'1111; // 14 bit index is used
-
-  if(index < 0x4000) { // [0x0000,0x3fff], RO
-    if(secondary_bank.has_value() && secondary_bank_enabled)
-      return m_rom[((*secondary_bank << 5) * rom_bank_size) + index];
-    return m_rom[index];
-  }
-
-  else if(index < 0x8000) { // [0x4000,0x7fff], RO
-    if(primary_bank == 0) primary_bank = 1;
-
-    if(secondary_bank.has_value())
-      return m_rom[(((*secondary_bank << 5) | primary_bank) * rom_bank_size) + index];
-    return m_rom[(primary_bank * rom_bank_size) + index];
-  }
-
-  else if(index >= 0xa000 && index < 0xc000) // [0xa000, 0xbfff], R/W. No ram in this cart
-    return m_rom[0];
-
-  else assert(false);
-}
-
 const byte *mbc1::data() const noexcept {
   return m_rom.data();
 }
