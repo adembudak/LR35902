@@ -23,7 +23,7 @@ bool bootROM::isBootOnGoing() const noexcept {
   return !m_data.empty();
 }
 
-byte &bootROM::read(std::size_t index) noexcept {
+byte bootROM::read(const std::size_t index) const noexcept {
   return m_data[index];
 }
 
