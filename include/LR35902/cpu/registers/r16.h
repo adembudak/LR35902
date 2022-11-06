@@ -30,7 +30,7 @@ public:
   [[nodiscard]] r8 hi() const noexcept;
 
   [[nodiscard]] std::uint16_t data() const noexcept;
-  byte &operator*() noexcept;
+  [[nodiscard]] byte operator*() const noexcept;
 
   r16 &operator++() noexcept;
   r16 &operator--() noexcept;
