@@ -21,10 +21,6 @@ void IO::writeIO(const std::size_t index, const byte b) noexcept {
   m_data[index] = b;
 }
 
-byte &IO::operator[](const std::size_t index) noexcept {
-  return m_data[index - io];
-}
-
 auto IO::data() const noexcept -> decltype(m_data) {
   return m_data;
 }
