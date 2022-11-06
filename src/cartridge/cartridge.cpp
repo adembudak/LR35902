@@ -94,12 +94,6 @@ void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
                         }, m_cart);
 }
 
-byte &Cartridge::operator[](const std::size_t index) noexcept {
-  if(std::holds_alternative<rom_only>(m_cart))     { return std::get<rom_only>(m_cart)[index]; }
-  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart)[index]; }
-  else                                             { return std::get<mbc1>(m_cart)[index];  }
-}
-
 const byte *Cartridge::data() const noexcept {
   return std::visit(overloaded { 
                                  [&](const rom_only &rom) { return rom.data();  },
