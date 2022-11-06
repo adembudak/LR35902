@@ -62,26 +62,6 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else assert(false);
 }
 
-byte &Bus::read_write(const std::size_t index) noexcept {
-  if(index < romx_end) {
-    if(bootrom.isBootOnGoing())
-      if(index <= 0x100) return bootrom.read(index);
-    return m_cart[index];
-  }
-
-  else if(index < vram_end)
-    return m_ppu[index];
-  else if(index < sram_end) return m_cart[index];
-  else if(index < wramx_end) return m_builtIn[index];
-  else if(index < echo_end) return m_builtIn[index];
-  else if(index < oam_end) return m_ppu[index];
-  else if(index < noUsable_end) return m_builtIn[index];
-  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF : m_io[index];
-  else if(index < hram_end) return m_builtIn[index];
-  else if(index == IE) return interruptHandler.IE;
-  else assert(false);
-}
-
 // https://gbdev.io/pandocs/Power_Up_Sequence.html#hardware-registers
 void Bus::setPostBootValues() noexcept {
   write(0xff00 /* P1 */, 0xcf);

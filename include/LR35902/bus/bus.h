@@ -27,8 +27,6 @@ public:
   [[nodiscard]] byte read(const std::size_t index) const noexcept;
   void write(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte &read_write(const std::size_t index) noexcept;
-
   void setPostBootValues() noexcept;
   void loadBootROM() noexcept;
 };
