@@ -20,12 +20,6 @@ void rom_ram::writeSRAM(const std::size_t index, const byte b) noexcept {
   m_sram[index] = b;
 }
 
-byte &rom_ram::operator[](const std::size_t index) noexcept {
-  if(index < romx_end) //
-    return m_rom[index];
-  return m_sram[index - sram];
-}
-
 const byte *rom_ram::data() const noexcept {
   return m_rom.data();
 }
