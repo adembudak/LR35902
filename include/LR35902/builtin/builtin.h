@@ -26,8 +26,6 @@ public:
   [[nodiscard]] byte readHRAM(const std::size_t index) const noexcept;
   void writeHRAM(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte &operator[](const std::size_t index) noexcept;
-
   void reset() noexcept;
 
   friend class DebugView;

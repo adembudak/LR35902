@@ -39,14 +39,6 @@ void BuiltIn::writeHRAM(const std::size_t index, const byte b) noexcept {
   m_hram[index] = b;
 }
 
-byte &BuiltIn::operator[](const std::size_t index) noexcept {
-  if(index < wramx_end) return m_wram[index - wram0];
-  else if(index < echo_end) return m_echo[index - echo];
-  else if(index < noUsable_end) return m_noUsable[index - noUsable];
-  else if(index < hram_end) return m_hram[index - hram];
-  else assert(false);
-}
-
 void BuiltIn::reset() noexcept {
   m_wram.fill(byte{});
   m_echo.fill(byte{});
