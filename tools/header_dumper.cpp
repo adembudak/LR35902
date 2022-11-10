@@ -1,29 +1,32 @@
 // Cartridge header ([0x100, 0x150)) decoder, DMG only
 // Based on: https://gbdev.io/pandocs/The_Cartridge_Header.html#the-cartridge-header
 
-#include <algorithm> // for std::replace, std::equal
+#include <algorithm> // for std::equal
 #include <array>
 #include <cstdint> // for std::size_t
 #include <filesystem>
 #include <fstream>
 #include <numeric> // for std::accumulate
-#include <string_view>
+#include <string>
 #include <unordered_map>
+#include <vector>
 
-#include <fmt/format.h>
-#include <fmt/ostream.h>
-#include <fmt/printf.h>
+#include <CLI/CLI.hpp>
+#include <fmt/core.h>
+
+using namespace std::string_literals;
+namespace fs = std::filesystem;
 
 using byte = std::uint8_t;
+
+namespace {
 
 constexpr std::size_t cartridge_header_begin = 0x100;
 constexpr std::size_t cartridge_header_end = 0x14f + 1;
 
-constexpr std::size_t nintendo_logo_begin = 0x104;
-constexpr std::size_t nintendo_logo_end = 0x133 + 1;
-static_assert((0x134 - 0x104) == 48);
-
-constexpr std::array<byte, 48> nintendo_logo{
+constexpr std::size_t logo_begin = 0x104;
+constexpr std::size_t logo_end = 0x133 + 1;
+constexpr std::array<byte, logo_end - logo_begin> nintendo_logo{
     0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d,
     0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e, 0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99,
     0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
@@ -36,45 +39,43 @@ constexpr std::size_t color_gameboy_support = 0x143;
 constexpr std::size_t new_licensee_code0 = 0x144;
 constexpr std::size_t new_licensee_code1 = 0x145;
 constexpr std::size_t super_gameboy_support = 0x146;
-constexpr std::size_t mbc_type = 0x147;
+constexpr std::size_t mbc_code = 0x147;
 constexpr std::size_t rom_size = 0x148;
 constexpr std::size_t ram_size = 0x149;
 constexpr std::size_t destination_code = 0x14a;
 constexpr std::size_t old_licensee_code = 0x14b;
 constexpr std::size_t game_version = 0x14c;
 
-constexpr std::size_t header_checksum_begin = 0x134;
-constexpr std::size_t header_checksum_end = 0x14c + 1;
-constexpr std::size_t header_checksum_result = 0x14d;
+constexpr std::size_t checksum_begin = 0x134;
+constexpr std::size_t checksum_end = 0x14c + 1;
+constexpr std::size_t checksum_result = 0x14d;
 
-namespace {
-
-std::string_view destination(const byte b) {
+std::string destination_name(const byte b) {
   switch(b) {
-  case 0x00: return "JP";
-  case 0x01: return "Other";
-  default: return "Unknown";
+  case 0x00: return "jp";
+  case 0x01: return "other";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view sgb_support(const byte b) {
+std::string sgb_support(const byte b) {
   switch(b) {
   case 0x00: return "compatible";
   case 0x03: return "need sgb functionalities";
-  default: return "";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view cgb_support(const byte b) {
+std::string cgb_support(const byte b) {
   switch(b) {
   case 0x00: return "dmg-only";
   case 0x80: return "dmg-compatible";
   case 0xc0: return "cgb-only";
-  default: return "";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view mbc(const byte b) {
+std::string mbc_type(const byte b) {
   switch(b) {
   case 0x00: return "rom_only";
   case 0x01: return "mbc1";
@@ -84,31 +85,31 @@ std::string_view mbc(const byte b) {
   case 0x06: return "mbc2+battery";
   case 0x08: return "rom+ram";
   case 0x09: return "rom+ram+battery";
-  case 0x0B: return "mmm01";
-  case 0x0C: return "mmm01+ram";
-  case 0x0D: return "mmm01+ram+battery";
-  case 0x0F: return "mbc3+timer+battery";
+  case 0x0b: return "mmm01";
+  case 0x0c: return "mmm01+ram";
+  case 0x0d: return "mmm01+ram+battery";
+  case 0x0f: return "mbc3+timer+battery";
   case 0x10: return "mbc3+timer+ram+battery";
   case 0x11: return "mbc3";
   case 0x12: return "mbc3+ram";
   case 0x13: return "mbc3+ram+battery";
   case 0x19: return "mbc5";
-  case 0x1A: return "mbc5+ram";
-  case 0x1B: return "mbc5+ram+battery";
-  case 0x1C: return "mbc5+rumble";
-  case 0x1D: return "mbc5+rumble+ram";
-  case 0x1E: return "mbc5+rumble+ram+battery";
+  case 0x1a: return "mbc5+ram";
+  case 0x1b: return "mbc5+ram+battery";
+  case 0x1c: return "mbc5+rumble";
+  case 0x1d: return "mbc5+rumble+ram";
+  case 0x1e: return "mbc5+rumble+ram+battery";
   case 0x20: return "mbc6";
   case 0x22: return "mbc7+sensor+rumble+ram+battery";
-  case 0xFC: return "pocket camera";
-  case 0xFD: return "bandai tama5";
-  case 0xFE: return "HuC3";
-  case 0xFF: return "HuC1+ram+battery";
-  default: return "";
+  case 0xfc: return "pocket camera";
+  case 0xfd: return "bandai tama5";
+  case 0xfe: return "HuC3";
+  case 0xff: return "HuC1+ram+battery";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view rom(const byte b) {
+std::string rom_type(const byte b) {
   switch(b) {
   case 0x00: return "32_kb";
   case 0x01: return "64_kb";
@@ -122,92 +123,91 @@ std::string_view rom(const byte b) {
   case 0x52: return "1.1_mb";
   case 0x53: return "1.2_mb";
   case 0x54: return "1.5_mb";
-  default: return "";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view ram(const byte b) {
+std::string ram_type(const byte b) {
   switch(b) {
-  case 0x00: return "0_kb";
+  case 0x00: return "No RAM";
   case 0x01: return "-";
   case 0x02: return "8_kb";
   case 0x03: return "32_kb";
   case 0x04: return "128_kb";
   case 0x05: return "64_kb";
-  default: return "";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
 
-std::string_view new_licensee(const byte a, const byte c) {
-  const char str[3]{static_cast<char>(a), static_cast<char>(c), '\0'};
-  const std::string_view sv{str};
+std::string new_licensee_name(const byte a, const byte c) {
+  const std::string s{static_cast<char>(a), static_cast<char>(c)};
 
-  if(sv == "00") return "None";
-  else if(sv == "01") return "Nintendo";
-  else if(sv == "08") return "Capcom";
-  else if(sv == "13") return "Electronic arts";
-  else if(sv == "18") return "Hudsonsoft";
-  else if(sv == "19") return "B-ai";
-  else if(sv == "20") return "Kss";
-  else if(sv == "22") return "Pow";
-  else if(sv == "24") return "Pcm complete";
-  else if(sv == "25") return "San-x";
-  else if(sv == "28") return "Kemco japan";
-  else if(sv == "29") return "Seta";
-  else if(sv == "30") return "Viacom";
-  else if(sv == "31") return "Nintendo";
-  else if(sv == "32") return "Bandia";
-  else if(sv == "33") return "Ocean/acclaim";
-  else if(sv == "34") return "Konami";
-  else if(sv == "35") return "Hector";
-  else if(sv == "37") return "Taito";
-  else if(sv == "38") return "Hudson";
-  else if(sv == "39") return "Banpresto";
-  else if(sv == "41") return "Ubi soft";
-  else if(sv == "42") return "Atlus";
-  else if(sv == "44") return "Malibu";
-  else if(sv == "46") return "Angel";
-  else if(sv == "47") return "Pullet-proof";
-  else if(sv == "49") return "Irem";
-  else if(sv == "50") return "Absolute";
-  else if(sv == "51") return "Acclaim";
-  else if(sv == "52") return "Activision";
-  else if(sv == "53") return "American sammy";
-  else if(sv == "54") return "Konami";
-  else if(sv == "55") return "Hi tech entertainment";
-  else if(sv == "56") return "Ljn";
-  else if(sv == "57") return "Matchbox";
-  else if(sv == "58") return "Mattel";
-  else if(sv == "59") return "Milton bradley";
-  else if(sv == "60") return "Titus";
-  else if(sv == "61") return "Virgin";
-  else if(sv == "64") return "Lucasarts";
-  else if(sv == "67") return "Ocean";
-  else if(sv == "69") return "Electronic arts";
-  else if(sv == "70") return "Infogrames";
-  else if(sv == "71") return "Interplay";
-  else if(sv == "72") return "Broderbund";
-  else if(sv == "73") return "Sculptured";
-  else if(sv == "75") return "Sci";
-  else if(sv == "78") return "T*hq";
-  else if(sv == "79") return "Accolade";
-  else if(sv == "80") return "Misawa";
-  else if(sv == "83") return "Lozc";
-  else if(sv == "86") return "Tokuma shoten i*";
-  else if(sv == "87") return "Tsukuda original";
-  else if(sv == "91") return "Chun soft";
-  else if(sv == "92") return "Video system";
-  else if(sv == "93") return "Ocean/acclaim";
-  else if(sv == "95") return "Varie";
-  else if(sv == "96") return "Yonezawa/s'pal";
-  else if(sv == "97") return "Kaneko";
-  else if(sv == "99") return "Pack in soft";
-  else if(sv == "A4") return "Konami (Yu-Gi-Oh!)";
+  if(s == "00") return "None";
+  else if(s == "01") return "Nintendo";
+  else if(s == "08") return "Capcom";
+  else if(s == "13") return "Electronic arts";
+  else if(s == "18") return "Hudsonsoft";
+  else if(s == "19") return "B-ai";
+  else if(s == "20") return "Kss";
+  else if(s == "22") return "Pow";
+  else if(s == "24") return "Pcm complete";
+  else if(s == "25") return "San-x";
+  else if(s == "28") return "Kemco japan";
+  else if(s == "29") return "Seta";
+  else if(s == "30") return "Viacom";
+  else if(s == "31") return "Nintendo";
+  else if(s == "32") return "Bandia";
+  else if(s == "33") return "Ocean/acclaim";
+  else if(s == "34") return "Konami";
+  else if(s == "35") return "Hector";
+  else if(s == "37") return "Taito";
+  else if(s == "38") return "Hudson";
+  else if(s == "39") return "Banpresto";
+  else if(s == "41") return "Ubi soft";
+  else if(s == "42") return "Atlus";
+  else if(s == "44") return "Malibu";
+  else if(s == "46") return "Angel";
+  else if(s == "47") return "Pullet-proof";
+  else if(s == "49") return "Irem";
+  else if(s == "50") return "Absolute";
+  else if(s == "51") return "Acclaim";
+  else if(s == "52") return "Activision";
+  else if(s == "53") return "American sammy";
+  else if(s == "54") return "Konami";
+  else if(s == "55") return "Hi tech entertainment";
+  else if(s == "56") return "Ljn";
+  else if(s == "57") return "Matchbox";
+  else if(s == "58") return "Mattel";
+  else if(s == "59") return "Milton bradley";
+  else if(s == "60") return "Titus";
+  else if(s == "61") return "Virgin";
+  else if(s == "64") return "Lucasarts";
+  else if(s == "67") return "Ocean";
+  else if(s == "69") return "Electronic arts";
+  else if(s == "70") return "Infogrames";
+  else if(s == "71") return "Interplay";
+  else if(s == "72") return "Broderbund";
+  else if(s == "73") return "Sculptured";
+  else if(s == "75") return "Sci";
+  else if(s == "78") return "T*hq";
+  else if(s == "79") return "Accolade";
+  else if(s == "80") return "Misawa";
+  else if(s == "83") return "Lozc";
+  else if(s == "86") return "Tokuma shoten i*";
+  else if(s == "87") return "Tsukuda original";
+  else if(s == "91") return "Chun soft";
+  else if(s == "92") return "Video system";
+  else if(s == "93") return "Ocean/acclaim";
+  else if(s == "95") return "Varie";
+  else if(s == "96") return "Yonezawa/s'pal";
+  else if(s == "97") return "Kaneko";
+  else if(s == "99") return "Pack in soft";
+  else if(s == "A4") return "Konami (Yu-Gi-Oh!)";
   else return "Unknown";
 }
 
-std::string_view licensee(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte d) {
-  if(b == 0x33) return new_licensee(c, d);
+std::string licensee_name(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte d) {
+  if(b == 0x33) return new_licensee_name(c, d);
 
   switch(b) {
   case 0x00: return "None";
@@ -356,59 +356,92 @@ std::string_view licensee(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte
   case 0xf0: return "A wave";
   case 0xf3: return "Extreme entertainment";
   case 0xff: return "Ljn";
-  default: return "";
+  default: return "unknown value: "s.append(std::to_string(b));
   }
 }
+
 }
 
 int main(int argc, const char *const argv[]) {
-  if(argc < 2) return 1;
+  CLI::App app;
 
-  std::ofstream fout{"cart.data", std::ios_base::app /*append*/};
-  std::ifstream fin;
+  std::vector<fs::directory_entry> romEntries;
+  app.add_option("rom.gb", romEntries, "rom file or directory");
 
-  for(const auto &e : std::filesystem::directory_iterator{argv[1]}) {
-    if(!e.path().string().ends_with(".gb")) continue;
+  std::array<bool, 9> options{};
+  app.add_flag("-t,--title", options[0], "Print cart title");
+  app.add_flag("-m,--memory", options[1], "Print rom/ram size");
+  app.add_flag("-c,--mbc", options[2], "Print memory bank controller type");
+  app.add_flag("--destination", options[3], "Print cart destination");
+  app.add_flag("--cgb", options[4], "Print color gameboy support");
+  app.add_flag("--sgb", options[5], "Print super gameboy support");
+  app.add_flag("--checksums", options[6], "Print cart version");
+  app.add_flag("--publisher", options[7], "Print cart publisher");
+  app.add_flag("--version", options[8], "Print cart version");
 
-    fin.open(e.path());
+  CLI11_PARSE(app, argc, argv);
 
-    std::array<byte, cartridge_header_end> dump;
-    fin.read((char *)dump.data(), cartridge_header_end); // read till cartridge header end
+  if(std::ranges::none_of(options, [](bool b) { return b; })) options.fill(true);
+
+  for(const auto &e : romEntries) {
+    if(!e.exists() || e.path().extension() != ".gb") continue;
+
+    std::array<byte, cartridge_header_end> headerDump{};
+
+    std::ifstream fin{e.path()};
+    fin.read(std::bit_cast<char *>(headerDump.data()),
+             cartridge_header_end); // read till cartridge header end
     fin.close();
 
-    fmt::print(fout,
-               "Name                : {}\n"                                            //
-               "Title               : {}\n"                                            //
-               "Nintendo logo check : {}\n"                                            //
-               "Physical size       : {}\n"                                            //
-               "ROM                 : {}\n"                                            //
-               "RAM                 : {}\n"                                            //
-               "MBC                 : {}\n"                                            //
-               "Destination         : {}\n"                                            //
-               "Color GB support    : {}\n"                                            //
-               "Super GB support    : {}\n"                                            //
-               "Publisher           : {}\n"                                            //
-               "Version             : {}\n"                                            //
-               "Header checksum     : {}\n\n",                                         //
-               e.path().filename().string(),                                           //
-               std::string_view(&(char &)dump[title_begin], &(char &)dump[title_end]), //
-               std::equal(&dump[nintendo_logo_begin], &dump[nintendo_logo_end], nintendo_logo.begin())
-                   ? "Passed"
-                   : "Failed",
-               e.file_size(),
-               rom(dump[rom_size]),                      //
-               ram(dump[ram_size]),                      //
-               mbc(dump[mbc_type]),                      //
-               destination(dump[destination_code]),      //
-               cgb_support(dump[color_gameboy_support]), //
-               sgb_support(dump[super_gameboy_support]), //
-               licensee(dump[old_licensee_code], dump[new_licensee_code0], dump[new_licensee_code1]),
-               dump[game_version],
-               std::accumulate(&dump[header_checksum_begin], &dump[header_checksum_end], 0,
-                               [](byte x, byte y) { return x - y - 1; }) == dump[header_checksum_result]
-                   ? "Passed"
-                   : "Failed");
-  }
+    if(options[0]) {
+      fmt::print("File name :       {}\n", e.path().filename().string());
+      fmt::print("Title :           {}\n", std::string(&headerDump[title_begin], &headerDump[title_end]));
+    }
 
-  return 0;
+    if(options[1]) {
+      fmt::print("Physical size :   {}\n", e.file_size());
+      fmt::print("ROM :             {}\n", rom_type(headerDump[rom_size]));
+      fmt::print("RAM :             {}\n", ram_type(headerDump[ram_size]));
+    }
+
+    if(options[2]) {
+      fmt::print("MBC :             {}\n", mbc_type(headerDump[mbc_code]));
+    }
+
+    if(options[3]) {
+      fmt::print("Destination :     {}\n", destination_name(headerDump[destination_code]));
+    }
+
+    if(options[4]) {
+      fmt::print("Color GB :        {}\n", cgb_support(headerDump[color_gameboy_support]));
+    }
+
+    if(options[5]) {
+      fmt::print("Super GB :        {}\n", sgb_support(headerDump[super_gameboy_support]));
+    }
+
+    if(options[6]) {
+      const bool logo_check =
+          std::equal(&headerDump[logo_begin], &headerDump[logo_end], nintendo_logo.begin());
+
+      fmt::print("Logo check :      {}\n", logo_check ? "Passed" : "Failed");
+
+      const int checksum = std::accumulate(&headerDump[checksum_begin], &headerDump[checksum_end], 0,
+                                           [](byte x, byte y) { return x - y - 1; });
+
+      fmt::print("Header checksum : {}\n", checksum == headerDump[checksum_result] ? "Passed" : "Failed");
+    }
+
+    if(options[7]) {
+      fmt::print("Publisher :       {}\n",
+                 licensee_name(headerDump[old_licensee_code], headerDump[new_licensee_code0],
+                               headerDump[new_licensee_code1]));
+    }
+
+    if(options[8]) {
+      fmt::print("Version :         {}\n", headerDump[game_version]);
+    }
+
+    fmt::print("\n");
+  }
 }

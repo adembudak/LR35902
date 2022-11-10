@@ -79,9 +79,10 @@ endif()
 
 if(WITH_TOOLS)
   find_package(fmt QUIET REQUIRED)
+  find_package(CLI11 QUIET REQUIRED)
 
   add_executable(header_dumper tools/header_dumper.cpp)
-  target_link_libraries(header_dumper PRIVATE fmt::fmt)
+  target_link_libraries(header_dumper PRIVATE fmt::fmt CLI11::CLI11)
 endif()
 
 if(BUILD_TEST_ROMS)
