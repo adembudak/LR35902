@@ -54,9 +54,8 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < io_end) {
     if(index == 0xff0f) interruptHandler.IF = b;
     else if(index == 0xff46) m_dma.action(b);
-    else if(index == 0xff50 && (b == 0x01)) bootrom.unmap();
-
-    m_io.writeIO(index - io, b);
+    else if(index == 0xff50) bootrom.unmap();
+    else m_io.writeIO(index - io, b);
   } else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
   else if(index == IE) interruptHandler.IE = b;
   else assert(false);
