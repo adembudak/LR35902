@@ -2,8 +2,7 @@
 
 #include <LR35902/config.h>
 
-#include <cstdint>
-#include <optional>
+#include <cstddef>
 #include <vector>
 
 namespace LR35902 {
@@ -11,21 +10,39 @@ namespace LR35902 {
 class mbc1 {
   std::vector<byte> m_rom;
 
-  // registers are zero by default;
-  mutable std::size_t primary_bank = 0x0;          // 5 bit register, but depends on cart size
-  std::optional<std::size_t> secondary_bank = 0x0; // 2 bit register, only exist when carts size >= 512 kb
+  struct {
+    void setPrimaryBank(const byte b) noexcept {
+      primary = b & 0b1'1111;
 
-  bool secondary_bank_enabled = false;
-  std::size_t bank_normalize_mask;
+      if(primary == 0) ++primary; // added, can't select rom0
+    }
+
+    void setSecondaryBank(const byte b) noexcept {
+      secondary = b & 0b11;
+    }
+
+    std::size_t value() const noexcept {
+      return (secondary << 5) | primary;
+    }
+
+  private:
+    std::size_t primary = 1;
+    std::size_t secondary = 0;
+  } bank;
 
 public:
-  explicit mbc1(std::vector<byte> rom);
+  mbc1(std::vector<byte> another);
 
-  [[nodiscard]] byte read(std::size_t index) const noexcept;
-  void write(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
+  void writeROM(const std::size_t index, const byte b) noexcept;
+
+  [[nodiscard]] byte readRAM(const std::size_t index) const noexcept;
+  void writeRAM(const std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] const byte *data() const noexcept;
-  [[nodiscard]] std::size_t size() const noexcept;
+  [[nodiscard]] const std::size_t size() const noexcept;
+
+  friend class cartridge;
 };
 
 }
