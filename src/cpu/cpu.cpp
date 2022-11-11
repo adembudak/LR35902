@@ -89,7 +89,10 @@ void CPU::run() noexcept {
   switch(fetchOpcode()) {
   case 0x00: nop(); break;
   case 0x01: ld(BC, n16{fetchWord()}); break;
-  case 0x02: ld(*BC, register_to_memory); break;
+  case 0x02:
+    m_bus.write(BC.data(), A.data());
+    m_clock.cycle(2);
+    break;
   case 0x03: inc(BC); break;
   case 0x04: inc(B); break;
   case 0x05: dec(B); break;
@@ -97,9 +100,11 @@ void CPU::run() noexcept {
   case 0x07: rlca(); break;
   case 0x08: {
     const n16 nn{fetchWord()};
-    byte &hi = m_bus.read_write(nn.m_data + 1);
-    byte &lo = m_bus.read_write(nn.m_data);
-    ld(lo, hi, SP_register_tag);
+
+    m_bus.write(nn.m_data + 1, SP.hi());
+    m_bus.write(nn.m_data, SP.lo());
+
+    m_clock.cycle(5);
     break;
   }
   case 0x09: add(HL_register_tag, BC); break;
@@ -111,7 +116,11 @@ void CPU::run() noexcept {
   case 0x0f: rrca(); break;
   case 0x10: stop(); break;
   case 0x11: ld(DE, n16{fetchWord()}); break;
-  case 0x12: ld(*DE, register_to_memory); break;
+  case 0x12:
+    m_bus.write(DE.data(), A.data());
+    m_clock.cycle(2);
+    break;
+
   case 0x13: inc(DE); break;
   case 0x14: inc(D); break;
   case 0x15: dec(D); break;
@@ -127,7 +136,11 @@ void CPU::run() noexcept {
   case 0x1f: rra(); break;
   case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x21: ld(HL, n16{fetchWord()}); break;
-  case 0x22: ld(HLi_tag, register_to_memory); break;
+  case 0x22:
+    m_bus.write(HL.data(), A.data());
+    ++HL;
+    m_clock.cycle(2);
+    break;
   case 0x23: inc(HL); break;
   case 0x24: inc(H); break;
   case 0x25: dec(H); break;
@@ -143,11 +156,18 @@ void CPU::run() noexcept {
   case 0x2f: cpl(); break;
   case 0x30: jr(cc::nc, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x31: ld(SP_register_tag, n16{fetchWord()}); break;
-  case 0x32: ld(HLd_tag, register_to_memory); break;
+  case 0x32:
+    m_bus.write(HL.data(), A.data());
+    --HL;
+    m_clock.cycle(2);
+    break;
   case 0x33: inc(SP_register_tag); break;
   case 0x34: inc(*HL); break;
   case 0x35: dec(*HL); break;
-  case 0x36: ld(*HL, n8{fetchByte()}); break;
+  case 0x36:
+    m_bus.write(HL.data(), fetchByte());
+    m_clock.cycle(3);
+    break;
   case 0x37: scf(); break;
   case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0x39: add(HL_register_tag, SP_register_tag); break;
@@ -210,14 +230,19 @@ void CPU::run() noexcept {
   case 0x6d: ld(L, L); break;
   case 0x6e: ld(L, *HL); break;
   case 0x6f: ld(L, A); break;
-  case 0x70: ld(*HL, B); break;
-  case 0x71: ld(*HL, C); break;
-  case 0x72: ld(*HL, D); break;
-  case 0x73: ld(*HL, E); break;
-  case 0x74: ld(*HL, H); break;
-  case 0x75: ld(*HL, L); break;
+  // clang-format off
+  case 0x70: m_bus.write(HL.data(), B.data()); m_clock.cycle(2); break;
+  case 0x71: m_bus.write(HL.data(), C.data()); m_clock.cycle(2); break;
+  case 0x72: m_bus.write(HL.data(), D.data()); m_clock.cycle(2); break;
+  case 0x73: m_bus.write(HL.data(), E.data()); m_clock.cycle(2); break;
+  case 0x74: m_bus.write(HL.data(), H.data()); m_clock.cycle(2); break;
+  case 0x75: m_bus.write(HL.data(), L.data()); m_clock.cycle(2); break;
+  // clang-format on
   case 0x76: halt(); break;
-  case 0x77: ld(*HL, register_to_memory); break;
+  case 0x77:
+    m_bus.write(HL.data(), A.data());
+    m_clock.cycle(2);
+    break;
   case 0x78: ld(A, B); break;
   case 0x79: ld(A, C); break;
   case 0x7a: ld(A, D); break;
@@ -612,8 +637,9 @@ void CPU::run() noexcept {
   case 0xe9: jp(HL_register_tag); break;
   case 0xea: {
     const n16 nn{fetchWord()};
-    byte &b = m_bus.read_write(nn.m_data);
-    ld(b, register_to_memory, tag);
+    m_bus.write(nn.m_data, A.data());
+
+    m_clock.cycle(4);
     break;
   }
   case 0xeb: unused(); break;
@@ -641,10 +667,10 @@ void CPU::run() noexcept {
   case 0xf7: rst(0x30); break;
   case 0xf8: ld(HL_register_tag, SP_register_tag, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xf9: ld(SP_register_tag, HL_register_tag); break;
-  case 0xfa: {
+  case 0xfa: { // ld A,[n16]
     const n16 nn{fetchWord()};
-    const byte b = m_bus.read(nn.m_data);
-    ld(memory_to_register, b, tag);
+    A = m_bus.read(nn.m_data);
+    m_clock.cycle(4);
     break;
   }
   case 0xfb: ei(); break;
@@ -803,8 +829,9 @@ void CPU::dec(r8 &r) noexcept { // dec r8 // z 1 h -
   m_clock.cycle(1);
 }
 
-void CPU::dec(byte &b) noexcept { // dec [HL] // z 1 h -
+void CPU::dec(byte b) noexcept { // dec [HL] // z 1 h -
   --b;
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 1, (b & 0b0000'1111) == 0b0000'1111, F.c};
 
@@ -819,8 +846,9 @@ void CPU::inc(r8 &r) noexcept { // inc r8 // z 0 h -
   m_clock.cycle(1);
 }
 
-void CPU::inc(byte &b) noexcept { // inc [HL]
+void CPU::inc(byte b) noexcept { // inc [HL]
   ++b;
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, (b & 0b1111'0000) == 0, F.c};
 
@@ -966,9 +994,10 @@ void CPU::res(const u3 u, r8 &r) noexcept { // res u3,r8
   m_clock.cycle(2);
 }
 
-void CPU::res(const u3 u, byte &b) noexcept { // res u3,[HL]
+void CPU::res(const u3 u, byte b) noexcept { // res u3,[HL]
   const byte mask = ~byte(0b1 << u.m_data);
   b &= mask;
+  m_bus.write(HL.data(), b);
 
   m_clock.cycle(4);
 }
@@ -980,9 +1009,10 @@ void CPU::set(const u3 u, r8 &r) noexcept { // set u3,r8
   m_clock.cycle(2);
 }
 
-void CPU::set(const u3 u, byte &b) noexcept { // set u3,[HL]
+void CPU::set(const u3 u, byte b) noexcept { // set u3,[HL]
   const byte mask = byte(0b1 << u.m_data);
   b |= mask;
+  m_bus.write(HL.data(), b);
 
   m_clock.cycle(4);
 }
@@ -994,8 +1024,11 @@ void CPU::swap(r8 &r) noexcept { // swap r8 // z 0 0 0
   m_clock.cycle(2);
 }
 
-void CPU::swap(byte &b) noexcept { // swap [HL]
+void CPU::swap(byte b) noexcept { // swap [HL]
   b = byte(((b & 0b000'1111) << 4) | ((b & 0b1111'0000) >> 4));
+
+  m_bus.write(HL.data(), b);
+
   F = {b == 0, 0, 0, 0};
 
   m_clock.cycle(4);
@@ -1014,12 +1047,13 @@ void CPU::rl(r8 &r) noexcept { // rl r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::rl(byte &b) noexcept { // rl [HL]
+void CPU::rl(byte b) noexcept { // rl [HL]
   const flag old_carry = F.c;
   F.c = 0b1000'0000 & b;
 
   b <<= 1;
   b |= old_carry;
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1051,12 +1085,14 @@ void CPU::rlc(r8 &r) noexcept { // rlc r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::rlc(byte &b) noexcept { // rlc [HL]
+void CPU::rlc(byte b) noexcept { // rlc [HL]
   const flag old_7th_bit = b & 0b1000'0000;
   F.c = old_7th_bit;
 
   b <<= 1;
   b |= old_7th_bit;
+
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1088,12 +1124,13 @@ void CPU::rr(r8 &r) noexcept { // rr r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::rr(byte &b) noexcept { // rr [HL]
+void CPU::rr(byte b) noexcept { // rr [HL]
   const flag old_carry = F.c;
   F.c = b & 0b0000'0001;
 
   b >>= 1;
   b |= byte(old_carry << 7);
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1122,9 +1159,11 @@ void CPU::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::rrc(byte &b) noexcept { // rrc [HL]
+void CPU::rrc(byte b) noexcept { // rrc [HL]
   F.c = b & 0b0000'0001;
   b >>= 1;
+
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1150,9 +1189,11 @@ void CPU::sla(r8 &r) noexcept { // sla r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::sla(byte &b) noexcept { // sla [HL]
+void CPU::sla(byte b) noexcept { // sla [HL]
   F.c = b & 0b1000'0000;
   b <<= 1;
+
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1171,12 +1212,14 @@ void CPU::sra(r8 &r) noexcept { // sra r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::sra(byte &b) noexcept { // sra [HL]
+void CPU::sra(byte b) noexcept { // sra [HL]
   const flag old_7th_bit = b & 0b1000'0000;
   F.c = b & 0b0000'0001;
 
   b >>= 1;
   b |= byte(old_7th_bit << 7);
+
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1193,9 +1236,11 @@ void CPU::srl(r8 &r) noexcept { // srl r8 // z 0 0 c
   m_clock.cycle(2);
 }
 
-void CPU::srl(byte &b) noexcept { // srl [HL]
+void CPU::srl(byte b) noexcept { // srl [HL]
   F.c = b & 0b0000'0001;
   b >>= 1;
+
+  m_bus.write(HL.data(), b);
 
   F = {b == 0, 0, 0, F.c};
 
@@ -1221,46 +1266,16 @@ void CPU::ld(r16 &rr, const n16 nn) noexcept { // ld r16,n16
   m_clock.cycle(3);
 }
 
-void CPU::ld(byte &b, const r8 r) noexcept { // ld [HL],r8
-  b = r.data();
-
-  m_clock.cycle(2);
-}
-
-void CPU::ld(byte &b, const n8 n) noexcept { // ld [HL],n8
-  b = n.m_data;
-
-  m_clock.cycle(3);
-}
-
 void CPU::ld(r8 &r, const byte b) noexcept { // ld r8,[HL]
   r = b;
 
   m_clock.cycle(2);
 }
 
-void CPU::ld(byte &b, register_to_memory_t) noexcept { // ld [r16],A
-  b = A.data();
-
-  m_clock.cycle(2);
-}
-
-void CPU::ld(byte &b, register_to_memory_t, tag_t) noexcept { // ld [n16],A
-  b = A.data();
-
-  m_clock.cycle(4);
-}
-
 void CPU::ld(memory_to_register_t, const byte b) noexcept { // ld A,[r16]
   A = b;
 
   m_clock.cycle(2);
-}
-
-void CPU::ld(memory_to_register_t, const byte b, tag_t) noexcept { // ld A,[n16]
-  A = b;
-
-  m_clock.cycle(4);
 }
 
 void CPU::ldh(const std::size_t index, register_to_memory_t) noexcept { // ldh [n16],A
@@ -1283,20 +1298,6 @@ void CPU::ldh(memory_to_register_t, const byte b) noexcept { // ldh A,[n16]
 
 void CPU::ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept { // ldh A,[C]
   A = b;
-
-  m_clock.cycle(2);
-}
-
-void CPU::ld(HLi_tag_t, register_to_memory_t) noexcept { // ld [HLI],A
-  *HL = A.data();
-  ++HL;
-
-  m_clock.cycle(2);
-}
-
-void CPU::ld(HLd_tag_t, register_to_memory_t) noexcept { // ld [HLD],A
-  *HL = A.data();
-  --HL;
 
   m_clock.cycle(2);
 }
@@ -1473,13 +1474,6 @@ void CPU::ld(SP_register_tag_t, const n16 nn) noexcept { // ld SP,n16
   SP = nn;
 
   m_clock.cycle(3);
-}
-
-void CPU::ld(byte &lo, byte &hi, SP_register_tag_t) noexcept { // ld [n16],SP
-  lo = SP.lo();
-  hi = SP.hi();
-
-  m_clock.cycle(5);
 }
 
 void CPU::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld HL,SP+e8 // 0 0 h c

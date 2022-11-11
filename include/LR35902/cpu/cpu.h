@@ -62,7 +62,6 @@ private:
 
   struct register_to_memory_t { explicit register_to_memory_t() = default; } register_to_memory;
   struct memory_to_register_t { explicit memory_to_register_t() = default; } memory_to_register;
-  struct tag_t { explicit tag_t() = default; } tag;
   // clang-format on
 
 public:
@@ -97,11 +96,11 @@ private:
   void cp(const byte b) noexcept; // cp A,[HL]
   void cp(const n8 n) noexcept;   // cp A,n8
 
-  void dec(r8 &r) noexcept;   // dec r8
-  void dec(byte &b) noexcept; // dec [HL]
+  void dec(r8 &r) noexcept;  // dec r8
+  void dec(byte b) noexcept; // dec [HL]
 
-  void inc(r8 &r) noexcept;   // inc r8
-  void inc(byte &b) noexcept; // inc [HL]
+  void inc(r8 &r) noexcept;  // inc r8
+  void inc(byte b) noexcept; // inc [HL]
 
   void or_(const r8 r) noexcept;   // or A,r8
   void or_(const byte b) noexcept; // or A,[HL]
@@ -128,54 +127,54 @@ private:
   void bit(const u3 u, const r8 r) noexcept;   // bit u3,r8
   void bit(const u3 u, const byte b) noexcept; // bit u3,[HL]
 
-  void res(const u3 u, r8 &r) noexcept;   // res u3,r8
-  void res(const u3 u, byte &b) noexcept; // res u3,[HL]
+  void res(const u3 u, r8 &r) noexcept;  // res u3,r8
+  void res(const u3 u, byte b) noexcept; // res u3,[HL]
 
-  void set(const u3 u, r8 &r) noexcept;   // set u3,r8
-  void set(const u3 u, byte &b) noexcept; // set u3,[HL]
+  void set(const u3 u, r8 &r) noexcept;  // set u3,r8
+  void set(const u3 u, byte b) noexcept; // set u3,[HL]
 
-  void swap(r8 &r) noexcept;   // swap r8
-  void swap(byte &b) noexcept; // swap [HL]
+  void swap(r8 &r) noexcept;  // swap r8
+  void swap(byte b) noexcept; // swap [HL]
 
   // Bit Shift Instructions
-  void rl(r8 &r) noexcept;   // rl r8
-  void rl(byte &b) noexcept; // rl [HL]
-  void rla() noexcept;       // rla
+  void rl(r8 &r) noexcept;  // rl r8
+  void rl(byte b) noexcept; // rl [HL]
+  void rla() noexcept;      // rla
 
-  void rlc(r8 &r) noexcept;   // rlc r8
-  void rlc(byte &b) noexcept; // rlc [HL]
-  void rlca() noexcept;       // rlca
+  void rlc(r8 &r) noexcept;  // rlc r8
+  void rlc(byte b) noexcept; // rlc [HL]
+  void rlca() noexcept;      // rlca
 
-  void rr(r8 &r) noexcept;   // rr r8
-  void rr(byte &b) noexcept; // rr [HL]
-  void rra() noexcept;       // rra
+  void rr(r8 &r) noexcept;  // rr r8
+  void rr(byte b) noexcept; // rr [HL]
+  void rra() noexcept;      // rra
 
-  void rrc(r8 &r) noexcept;   // rrc r8
-  void rrc(byte &b) noexcept; // rrc [HL]
-  void rrca() noexcept;       // rrca
+  void rrc(r8 &r) noexcept;  // rrc r8
+  void rrc(byte b) noexcept; // rrc [HL]
+  void rrca() noexcept;      // rrca
 
-  void sla(r8 &r) noexcept;   // sla r8
-  void sla(byte &b) noexcept; // sla [HL]
+  void sla(r8 &r) noexcept;  // sla r8
+  void sla(byte b) noexcept; // sla [HL]
 
-  void sra(r8 &r) noexcept;   // sra r8
-  void sra(byte &b) noexcept; // sra [HL]
+  void sra(r8 &r) noexcept;  // sra r8
+  void sra(byte b) noexcept; // sra [HL]
 
-  void srl(r8 &r) noexcept;   // srl r8
-  void srl(byte &b) noexcept; // srl [HL]
+  void srl(r8 &r) noexcept;  // srl r8
+  void srl(byte b) noexcept; // srl [HL]
 
   // Load Instructions
   void ld(r8 &to, const r8 from) noexcept; // ld r8,r8
   void ld(r8 &r, const n8 n) noexcept;     // ld r8,n8
   void ld(r16 &rr, const n16 nn) noexcept; // ld r16,n16
-  void ld(byte &b, const r8 r) noexcept;   // ld [HL],r8
-  void ld(byte &b, const n8 n) noexcept;   // ld [HL],n8
+                                           // ld [HL],r8
+                                           // ld [HL],n8
   void ld(r8 &r, const byte b) noexcept;   // ld r8,[HL]
   //
-  void ld(byte &b, register_to_memory_t) noexcept;        // ld [r16],A
-  void ld(byte &b, register_to_memory_t, tag_t) noexcept; // ld [n16],A
+  // ld [r16],A
+  // ld [n16],A
   //
-  void ld(memory_to_register_t, const byte b) noexcept;        // ld A,[r16]
-  void ld(memory_to_register_t, const byte b, tag_t) noexcept; // ld A,[n16]
+  void ld(memory_to_register_t, const byte b) noexcept; // ld A,[r16]
+  // ld A,[n16]
   //
   void ldh(const std::size_t index, register_to_memory_t) noexcept;                   // ldh [n16],A
   void ldh(const std::size_t index, register_to_memory_t, C_register_tag_t) noexcept; // ldh [C],A
@@ -183,8 +182,8 @@ private:
   void ldh(memory_to_register_t, const byte b) noexcept;                   // ldh A,[n16]
   void ldh(memory_to_register_t, const byte b, C_register_tag_t) noexcept; // ldh A,[C]
   //
-  void ld(HLi_tag_t, register_to_memory_t) noexcept; // ld [HLI],A
-  void ld(HLd_tag_t, register_to_memory_t) noexcept; // ld [HLD],A
+  // ld [HLI],A
+  // ld [HLD],A
 
   void ld(memory_to_register_t, HLi_tag_t) noexcept; // ld A,[HLI]
   void ld(memory_to_register_t, HLd_tag_t) noexcept; // ld A,[HLD]
@@ -209,7 +208,7 @@ private:
   void inc(SP_register_tag_t) noexcept;                    // inc SP
 
   void ld(SP_register_tag_t, const n16 nn) noexcept;                  // ld SP,n16
-  void ld(byte &lo, byte &hi, SP_register_tag_t) noexcept;            // ld [n16],SP
+                                                                      // ld [n16],SP
   void ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept; // ld HL,SP+e8
   void ld(SP_register_tag_t, HL_register_tag_t) noexcept;             // ld SP,HL
 
