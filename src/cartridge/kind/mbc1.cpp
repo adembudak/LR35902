@@ -7,6 +7,21 @@ namespace LR35902 {
 
 constexpr std::size_t rom_bank_size = 0x4000;
 
+void mbc1::bank_t::setPrimaryBank(const byte b) noexcept {
+  primary = b & 0b1'1111;
+
+  if(primary == 0) ++primary;
+}
+
+void mbc1::bank_t::setSecondaryBank(const byte b) noexcept {
+  secondary = b & 0b11;
+}
+
+std::size_t mbc1::bank_t::value() const noexcept {
+  const std::size_t effective_bank = (secondary << 5) | primary;
+  return effective_bank * rom_bank_size;
+}
+
 mbc1::mbc1(std::vector<byte> another) :
     m_rom{std::move(another)} {}
 
@@ -17,7 +32,7 @@ byte mbc1::readROM(const std::size_t index) const noexcept {
 
   else if(index < 0x8000) {
     const std::size_t index_normalized = index % rom_bank_size;
-    return m_rom[(bank.value() * rom_bank_size) + index_normalized];
+    return m_rom[bank.value() + index_normalized];
   }
 
   else if(index >= 0xa000 && index < 0xc000) {

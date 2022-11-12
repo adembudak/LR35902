@@ -10,20 +10,10 @@ namespace LR35902 {
 class mbc1 {
   std::vector<byte> m_rom;
 
-  struct {
-    void setPrimaryBank(const byte b) noexcept {
-      primary = b & 0b1'1111;
-
-      if(primary == 0) ++primary; // added, can't select rom0
-    }
-
-    void setSecondaryBank(const byte b) noexcept {
-      secondary = b & 0b11;
-    }
-
-    std::size_t value() const noexcept {
-      return (secondary << 5) | primary;
-    }
+  struct bank_t {
+    void setPrimaryBank(const byte b) noexcept;
+    void setSecondaryBank(const byte b) noexcept;
+    [[nodiscard]] std::size_t value() const noexcept;
 
   private:
     std::size_t primary = 1;
