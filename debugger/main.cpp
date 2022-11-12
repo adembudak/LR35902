@@ -11,13 +11,15 @@
 #include <imgui/backends/imgui_impl_sdlrenderer.h>
 #include <imgui/imgui.h>
 
-#include <fmt/printf.h>
+#include <fmt/core.h>
 
 #include <chrono>
 #include <filesystem>
 #include <ratio>
 #include <string_view>
 #include <thread>
+
+namespace fs = std::filesystem;
 
 void pollEvent(GameBoy &emu) {
   static SDL_Event event;
@@ -93,6 +95,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
 }
 
 int main(int argc, char **argv) {
+
   constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
 
   if(argc < 2) {
@@ -102,12 +105,17 @@ int main(int argc, char **argv) {
 
   if(std::string_view sv{argv[1]}; sv == "-h" || sv == "--help") {
     fmt::print("{}", help);
-    return 1;
+    return 2;
   }
 
   if(std::string_view sv{argv[1]}; !sv.ends_with(".gb")) {
-    fmt::printf("Not a rom file!\n");
-    return 2;
+    fmt::print("Not a rom file!\n");
+    return 3;
+  }
+
+  if(!fs::exists({argv[1]})) {
+    fmt::print("No such file {} is found!\n", argv[1]);
+    return 4;
   }
 
   bool skipboot{};
@@ -134,7 +142,6 @@ int main(int argc, char **argv) {
 
   ImGuiIO &io = ImGui::GetIO();
 
-  namespace fs = std::filesystem;
   if(fs::path font_path{"../misc/font"}; fs::exists(font_path)) {
     io.Fonts->AddFontFromFileTTF((font_path / "source-code-pro/TTF/SourceCodePro-Regular.ttf").c_str(),
                                  14.0f);
