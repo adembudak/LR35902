@@ -73,15 +73,6 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-byte mbc1::readRAM(const std::size_t index) const noexcept {
-  return random_byte();
-}
-
-void mbc1::writeRAM(const std::size_t index, const byte b) noexcept {
-  (void)index;
-  (void)b;
-}
-
 const byte *mbc1::data() const noexcept {
   return m_rom.data();
 }
