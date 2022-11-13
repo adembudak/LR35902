@@ -28,6 +28,7 @@ public:
 
   void reset() noexcept;
 
+  friend class DMA;
   friend class DebugView;
 };
 
