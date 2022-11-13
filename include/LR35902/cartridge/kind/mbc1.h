@@ -18,6 +18,11 @@ class mbc1 {
   private:
     std::size_t primary = 1;
     std::size_t secondary = 0;
+
+    std::size_t primary_bank_mask = 0b1'1111;
+    std::size_t secondary_bank_mask = 0b11;
+
+    friend class mbc1;
   } bank;
 
 public:
