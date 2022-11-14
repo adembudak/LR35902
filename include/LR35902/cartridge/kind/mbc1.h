@@ -26,7 +26,7 @@ class mbc1 {
   } bank;
 
 public:
-  mbc1(std::vector<byte> another);
+  mbc1(std::vector<byte> other);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

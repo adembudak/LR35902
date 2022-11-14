@@ -23,8 +23,8 @@ std::size_t mbc1::bank_t::value() const noexcept {
   return effective_bank * rom_bank_size;
 }
 
-mbc1::mbc1(std::vector<byte> another) :
-    m_rom{std::move(another)} {
+mbc1::mbc1(std::vector<byte> other) :
+    m_rom{std::move(other)} {
 
   switch(std::size(m_rom)) {
   case 2_MiB: //
