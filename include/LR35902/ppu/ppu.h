@@ -107,7 +107,7 @@ public:
 
   static constexpr std::size_t vblank_start = 144;
   static constexpr std::size_t vblank_end =
-      vblank_start + vblank_height; // when LY is in [144, 154) vblanking
+      vblank_start + vblank_height - 1; // when LY is in [144, 154) vblanking
 
 public:
   using palette_index = uint8_t;

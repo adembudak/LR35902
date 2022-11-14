@@ -191,11 +191,9 @@ void PPU::fetchBackground() const noexcept {
 
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
     const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
-
-    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-
     const std::size_t tile_address = m_vram[backgroundTilemapBaseAddress() + tile_index];
 
+    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
     const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_address * tile_size) +
                                          (currently_scanning_tileline * tileline_size);
 
@@ -358,6 +356,10 @@ void PPU::update(const std::size_t cycles) noexcept {
     return;
   }
 
+  coincidence(checkCoincidence());
+  if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
+    intr.request(Interrupt::kind::lcd_stat);
+
   switch(mode()) {
   case state::searching_oam:
     if(ppu_cycles >= oam_search_period) {
@@ -415,7 +417,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
         intr.request(Interrupt::kind::lcd_stat);
 
-      if(currentScanline() >= vblank_height) {
+      if(currentScanline() > vblank_end) {
         resetScanline();
 
         mode(state::searching_oam); // 1 -> 2
