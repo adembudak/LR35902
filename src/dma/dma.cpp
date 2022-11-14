@@ -1,5 +1,6 @@
 #include <LR35902/builtin/builtin.h>
 #include <LR35902/cartridge/cartridge.h>
+#include <LR35902/cpu/clock/clock.h>
 #include <LR35902/dma/dma.h>
 #include <LR35902/memory_map.h>
 #include <LR35902/ppu/ppu.h>
@@ -10,10 +11,11 @@
 
 namespace LR35902 {
 
-DMA::DMA(Cartridge &cart, PPU &ppu, BuiltIn &builtIn) :
+DMA::DMA(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, Clock &clock) :
     m_cart{cart},
     m_ppu{ppu},
-    m_builtIn{builtIn} {}
+    m_builtIn{builtIn},
+    m_clock{clock} {}
 
 constexpr std::size_t amount = 0xa0; // 40 * 32 bit == 160 byte
 
@@ -36,7 +38,7 @@ void DMA::action(const byte n) noexcept {
   else {
     // ignore write
   }
-  // clock.cycle(160);
+  m_clock.cycle(160);
 }
 
 }

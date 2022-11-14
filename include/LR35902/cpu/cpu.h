@@ -37,7 +37,7 @@ private:
   n16 PC; // program counter
 
   flag ime{}; // interrupt master enable
-  clock m_clock;
+  Clock &m_clock;
 
   auto fetchOpcode() noexcept -> byte;
   auto fetchByte() noexcept -> byte;
@@ -65,11 +65,12 @@ private:
   // clang-format on
 
 public:
-  explicit CPU(Bus bus) noexcept :
+  explicit CPU(Bus bus, Clock &clock) noexcept :
       m_bus{std::move(bus)},
       BC{m_bus, B, C},
       DE{m_bus, D, E},
-      HL{m_bus, H, L} {}
+      HL{m_bus, H, L},
+      m_clock{clock} {}
 
   void run() noexcept;
   void setPostBootValues() noexcept;

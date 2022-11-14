@@ -4,16 +4,14 @@
 
 namespace LR35902 {
 
-class clock {
+class Clock {
   std::size_t m_data{};
   std::size_t m_latest{};
 
 public:
   void cycle(const std::size_t m) {
     m_latest = m;
-
-    for(std::size_t i = 0; i < m; ++i)
-      ++m_data;
+    m_data += m;
   }
 
   [[nodiscard]] auto data() const noexcept -> std::size_t {

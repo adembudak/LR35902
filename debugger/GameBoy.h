@@ -40,16 +40,17 @@ class [[nodiscard]] GameBoy final {
 public:
   using screen_t = lr::PPU::screen_t;
 
+  lr::Clock clock;
   lr::Cartridge cart;
   lr::BuiltIn builtIn;
   lr::IO io;
   lr::Interrupt intr;
   lr::PPU ppu{intr, io};
 
-  lr::DMA dma{cart, ppu, builtIn};
+  lr::DMA dma{cart, ppu, builtIn, clock};
   lr::Bus bus{cart, ppu, builtIn, dma, io, intr};
   lr::Timer timer{io, intr};
-  lr::CPU cpu{bus};
+  lr::CPU cpu{bus, clock};
 
   mutable bool m_power = false;
   mutable bool m_paused = false;
