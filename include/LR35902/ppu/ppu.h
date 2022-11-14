@@ -180,11 +180,11 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
 private:
-  screen_t m_screen;
+  mutable screen_t m_screen;
 
-  void fetchBackground() noexcept;
-  void fetchWindow() noexcept;
-  void fetchSprites() noexcept;
+  void fetchBackground() const noexcept;
+  void fetchWindow() const noexcept;
+  void fetchSprites() const noexcept;
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;

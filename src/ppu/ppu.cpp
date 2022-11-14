@@ -187,7 +187,7 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
   return mode() == state::hblanking || mode() == state::vblanking;
 }
 
-void PPU::fetchBackground() noexcept {
+void PPU::fetchBackground() const noexcept {
 
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
     const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
@@ -221,7 +221,7 @@ void PPU::fetchBackground() noexcept {
   }
 }
 
-void PPU::fetchWindow() noexcept {
+void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
   for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
@@ -252,7 +252,7 @@ void PPU::fetchWindow() noexcept {
   }
 }
 
-void PPU::fetchSprites() noexcept {
+void PPU::fetchSprites() const noexcept {
   const int tile_screen_offset_y = 16;
   const int tile_screen_offset_x = 8; // when tile is on (8, 16), it's on left-top
 
