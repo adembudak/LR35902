@@ -1,5 +1,6 @@
 #include <LR35902/cartridge/kind/mbc1.h>
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 
 #include <cassert>
 #include <cstddef>
@@ -64,16 +65,16 @@ mbc1::mbc1(std::vector<byte> other) :
 }
 
 byte mbc1::readROM(const std::size_t index) const noexcept {
-  if(index < 0x4000) {
+  if(index < rom0_end) {
     return m_rom[index];
   }
 
-  else if(index < 0x8000) {
+  else if(index < romx_end) {
     const std::size_t index_normalized = index % rom_bank_size;
     return m_rom[bank.value() + index_normalized];
   }
 
-  else if(index >= 0xa000 && index < 0xc000) {
+  else if(index >= sram && index < sram_end) {
     return random_byte();
   }
 
@@ -101,7 +102,7 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
     (void)b;
   }
 
-  else if(index >= 0xa000 && index < 0xc000) {
+  else if(index >= sram && index < sram_end) {
     (void)index;
     (void)b;
   }
