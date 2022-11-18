@@ -32,10 +32,15 @@ void DebugView::showMemoryPortions() noexcept {
         EndTabItem();
       }
 
-      if(BeginTabItem("romX", &_memory_portions_rom)) {
-        memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data() + rom_bank_size),
-                                   gameboy.cart.size() - rom_bank_size, romx);
-        EndTabItem();
+      const int number_of_banks = gameboy.cart.size() / rom_bank_size;
+      for(int i = 1; i <= number_of_banks; ++i) {
+        const std::string label = "rom" + std::to_string(i);
+
+        if(BeginTabItem(label.c_str(), &_memory_portions_rom)) {
+          memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data() + (i * rom_bank_size)),
+                                     rom_bank_size, romx);
+          EndTabItem();
+        }
       }
 
       if(BeginTabItem("vram", &_memory_portions_vram)) {
@@ -46,11 +51,18 @@ void DebugView::showMemoryPortions() noexcept {
       }
 
       if(gameboy.cart.RAMSize()) {
-        if(BeginTabItem("sram", &_memory_portions_sram)) {
-          memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), *gameboy.cart.RAMSize(),
-                                     sram);
+        constexpr std::size_t sram_bank_size = 8_KiB;
+        const int number_of_banks = *gameboy.cart.RAMSize() / sram_bank_size;
 
-          EndTabItem();
+        for(int i = 0; i < number_of_banks; ++i) {
+          const std::string label = "sram" + std::to_string(i);
+
+          if(BeginTabItem(label.c_str(), &_memory_portions_sram)) {
+            memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data() + (i * sram_bank_size)),
+                                       sram_bank_size, sram);
+
+            EndTabItem();
+          }
         }
       }
 
