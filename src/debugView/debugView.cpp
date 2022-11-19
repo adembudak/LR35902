@@ -17,6 +17,33 @@ DebugView::DebugView(const GameBoy &gameboy) :
   _memory_portions_sram = gameboy.cart.hasSRAM();
 }
 
+void DebugView::showCartHeader() noexcept {
+  using namespace ImGui;
+
+  if(_header) {
+    Begin("Cartridge Header", &_header);
+
+    Text("Title:      : %s\n", gameboy.cart.header.decode_title().c_str());
+    Text("Destination : %s\n", gameboy.cart.header.decode_destination_name().c_str());
+
+    Text("CGB Support : %s\n", gameboy.cart.header.decode_cgb_support().c_str());
+    Text("SGB Support : %s\n", gameboy.cart.header.decode_sgb_support().c_str());
+
+    Text("Logo Check  : %s\n", gameboy.cart.header.is_logocheck_ok() ? "Pass" : "Fail");
+    Text("Checksum    : %s\n", gameboy.cart.header.is_checksum_ok() ? "Pass" : "Fail");
+
+    Text("MBC type    : %s\n", gameboy.cart.header.decode_mbc_type().first.c_str());
+
+    Text("ROM Size    : %s\n", gameboy.cart.header.decode_rom_size().first.c_str());
+    Text("RAM Size    : %s\n", gameboy.cart.header.decode_ram_size().first.c_str());
+
+    Text("Publisher   : %s\n", gameboy.cart.header.decode_licensee_name().c_str());
+    Text("Version     : %lu\n", gameboy.cart.header.decode_version());
+
+    End();
+  }
+}
+
 void DebugView::showMemoryPortions() noexcept {
   using namespace ImGui;
 

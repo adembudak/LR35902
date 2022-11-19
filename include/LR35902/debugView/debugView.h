@@ -25,6 +25,7 @@ public:
   bool _memory_portions_io = true;
   bool _memory_portions_hram = true;
 
+  bool _header = true;
   bool _disassembly = true;
   bool _cpu_state = true;
   bool _registers = true;
@@ -42,6 +43,7 @@ public:
   DebugView(DebugView &&) = delete;
   DebugView &operator=(DebugView &&) = delete;
 
+  void showCartHeader() noexcept;
   void showMemoryPortions() noexcept;
   void showDisassembly() noexcept;
   void showCPUState() noexcept;

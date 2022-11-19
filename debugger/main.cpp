@@ -85,6 +85,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
       ImGui::EndMenu();
     }
 
+    ImGui::MenuItem("Cart Header", NULL, &debugView._header);
     ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
     ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
     ImGui::MenuItem("Registers", NULL, &debugView._registers);
@@ -164,11 +165,8 @@ int main(int argc, char **argv) {
 
   attaboy.setDrawCallback(cbk);
 
-  if(skipboot) {
-    attaboy.skipboot();
-  } else {
-    attaboy.skipboot(false);
-  }
+  if(skipboot) attaboy.skipboot();
+  else attaboy.skipboot(false);
 
   attaboy.plug(argv[1]);
 
@@ -192,6 +190,7 @@ int main(int argc, char **argv) {
 
     attaboy.update();
 
+    debugView.showCartHeader();
     debugView.showMemoryPortions();
 
     debugView.showDisassembly();
