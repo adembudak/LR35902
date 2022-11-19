@@ -2,49 +2,45 @@
 
 #include <LR35902/config.h>
 
+#include <array>
 #include <string>
 
-namespace LR35902::header {
+namespace LR35902 {
 
 enum class mbc : std::uint8_t;
 
 constexpr std::size_t cartridge_header_begin = 0x100;
 constexpr std::size_t cartridge_header_end = 0x14f + 1;
 
-constexpr std::size_t logo_begin = 0x104;
-constexpr std::size_t logo_end = 0x133 + 1;
-constexpr std::size_t title_begin = 0x134;
-constexpr std::size_t title_end = 0x143 + 1;
-constexpr std::size_t manufacturer_code_begin = 0x13f;
-constexpr std::size_t manufacturer_code_end = 0x142 + 1;
-constexpr std::size_t color_gameboy_support = 0x143;
-constexpr std::size_t new_licensee_code0 = 0x144;
-constexpr std::size_t new_licensee_code1 = 0x145;
-constexpr std::size_t super_gameboy_support = 0x146;
-constexpr std::size_t mbc_code = 0x147;
-constexpr std::size_t rom_code = 0x148;
-constexpr std::size_t ram_code = 0x149;
-constexpr std::size_t destination_code = 0x14a;
-constexpr std::size_t old_licensee_code = 0x14b;
-constexpr std::size_t game_version = 0x14c;
+class header_t {
+  std::array<byte, cartridge_header_end> m_data;
 
-constexpr std::size_t checksum_begin = 0x134;
-constexpr std::size_t checksum_end = 0x14c + 1;
-constexpr std::size_t checksum_result = 0x14d;
+public:
+  header_t() = default;
+  header_t(std::array<byte, cartridge_header_end> n) :
+      m_data(std::move(n)) {}
 
-std::string destination_name(const byte b) noexcept;
+  void assign(std::array<byte, cartridge_header_end> &&t) {
+    m_data = std::move(t);
+  }
 
-std::string sgb_support(const byte b) noexcept;
-std::string cgb_support(const byte b) noexcept;
+  [[nodiscard]] std::string decode_title() const noexcept;
+  [[nodiscard]] std::string decode_destination_name() const noexcept;
 
-std::string mbc_type(const byte b) noexcept;
+  [[nodiscard]] std::string decode_sgb_support() const noexcept;
+  [[nodiscard]] std::string decode_cgb_support() const noexcept;
 
-std::size_t ram_size(const byte b) noexcept;
+  [[nodiscard]] bool is_logocheck_ok() const noexcept;
+  [[nodiscard]] bool is_checksum_ok() const noexcept;
 
-std::string rom_type(const byte b) noexcept;
-std::string ram_type(const byte b) noexcept;
+  [[nodiscard]] std::pair<std::string, byte> decode_mbc_type() const noexcept;
 
-std::string new_licensee_name(const byte a, const byte c) noexcept;
-std::string licensee_name(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte d) noexcept;
+  [[nodiscard]] std::pair<std::string, std::size_t> decode_rom_size() const noexcept;
+  [[nodiscard]] std::pair<std::string, std::size_t> decode_ram_size() const noexcept;
+
+  [[nodiscard]] std::string decode_licensee_name() const noexcept;
+
+  [[nodiscard]] std::size_t decode_version() const noexcept;
+};
 
 }

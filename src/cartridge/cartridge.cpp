@@ -5,6 +5,7 @@
 #include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
 
+#include <algorithm>
 #include <cassert>
 #include <cstdint>
 #include <fstream>
@@ -17,14 +18,38 @@ void Cartridge::load(const char *romfile) noexcept {
   std::ifstream fin{romfile};
   std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
-  switch(dumpedGamePak[header::mbc_code]) {
+  std::array<byte, cartridge_header_end> buf;
+  std::copy_n(dumpedGamePak.begin(), cartridge_header_end, buf.begin());
+  this->header.assign(std::move(buf));
+
+  switch(header.decode_mbc_type().second) {
   case 0x00: m_cart = std::move(rom_only(dumpedGamePak)); break;
   case 0x01: m_cart = std::move(mbc1(dumpedGamePak)); break;
-  case 0x02:
-    m_cart = std::move(mbc1_ram(dumpedGamePak, header::ram_size(dumpedGamePak[header::ram_code])));
-    break;
-  case 0x03: m_cart = std::move(mbc1_ram(dumpedGamePak, header::ram_size(dumpedGamePak[0x149]))); break;
+  case 0x02: m_cart = std::move(mbc1_ram(dumpedGamePak, header.decode_ram_size().second)); break;
+  case 0x03: m_cart = std::move(mbc1_ram(dumpedGamePak, header.decode_ram_size().second)); break;
+  case 0x05: /* mbc2 */ break;
+  case 0x06: /* mbc2_battery */ break;
   case 0x08: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
+  case 0x09: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
+  case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
+  case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
+  case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
+  case 0x10: /* mbc3_timer_ram_battery         */ [[fallthrough]]; //// Implement //////
+  case 0x11: /* mbc3                           */ [[fallthrough]]; //// these //////////
+  case 0x12: /* mbc3_ram                       */ [[fallthrough]]; //// cartridges /////
+  case 0x13: /* mbc3_ram_battery               */ [[fallthrough]]; /////////////////////
+  case 0x19: /* mbc5                           */ [[fallthrough]]; /////////////////////
+  case 0x1a: /* mbc5_ram                       */ [[fallthrough]]; /////////////////////
+  case 0x1b: /* mbc5_ram_battery               */ [[fallthrough]]; /////////////////////
+  case 0x1c: /* mbc5_rumble                    */ [[fallthrough]]; /////////////////////
+  case 0x1d: /* mbc5_rumble_ram                */ [[fallthrough]]; /////////////////////
+  case 0x1e: /* mbc5_rumble_ram_battery        */ [[fallthrough]]; /////////////////////
+  case 0x20: /* mbc6                           */ [[fallthrough]]; /////////////////////
+  case 0x22: /* mbc7_sensor_rumble_ram_battery */ [[fallthrough]]; /////////////////////
+  case 0xfc: /* pocketCamera                   */ [[fallthrough]]; /////////////////////
+  case 0xfd: /* bandaiTama5                    */ [[fallthrough]]; /////////////////////
+  case 0xfe: /* huc3                           */ [[fallthrough]]; /////////////////////
+  case 0xff: /* huc1_ram_battery               */ [[fallthrough]]; /////////////////////
   default: assert(false && "this type of cart not supported (yet)"); break;
   };
 }
