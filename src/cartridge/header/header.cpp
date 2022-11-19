@@ -216,7 +216,7 @@ std::string new_licensee_name(const byte a, const byte c) noexcept {
   else return "Unknown";
 }
 
-std::string licensee_name(byte b, [[maybe_unused]] byte c, [[maybe_unused]] byte d) noexcept {
+std::string licensee_name(byte b, byte c, byte d) noexcept {
   if(b == 0x33) return new_licensee_name(c, d);
 
   switch(b) {
