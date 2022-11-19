@@ -4,8 +4,14 @@
 
 - implement halt instruction
 
-- write the bootrom and set it up to run it on upfront before execute rom
-
 - setup Github Actions
 
-- get rid of op* in type r16 and read_write() functions
+- write a custom boot rom
+
+- create stand-alone tools
+   vram dumper
+   tile designer
+   disassembler
+   assembler
+   linker
+   header fixer
