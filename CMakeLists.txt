@@ -26,9 +26,11 @@ add_library(
   src/cpu/registers/r8.cpp
   src/bus/bus.cpp
   src/cartridge/cartridge.cpp
+  src/cartridge/header/header.cpp
   src/cartridge/kind/rom_only.cpp
   src/cartridge/kind/rom_ram.cpp
   src/cartridge/kind/mbc1.cpp
+  src/cartridge/kind/mbc1_ram.cpp
   src/bootrom/bootrom.cpp
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp
