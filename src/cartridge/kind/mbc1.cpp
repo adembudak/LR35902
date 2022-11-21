@@ -112,11 +112,4 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-const byte *mbc1::data() const noexcept {
-  return m_rom.data();
-}
-
-const std::size_t mbc1::size() const noexcept {
-  return m_rom.size();
-}
 }

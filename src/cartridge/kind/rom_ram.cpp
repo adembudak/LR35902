@@ -20,24 +20,4 @@ void rom_ram::writeSRAM(const std::size_t index, const byte b) noexcept {
   m_sram[index] = b;
 }
 
-const byte *rom_ram::data() const noexcept {
-  return m_rom.data();
-}
-
-std::size_t rom_ram::size() const noexcept {
-  return m_rom.size();
-}
-
-[[nodiscard]] std::size_t rom_ram::RAMSize() const noexcept {
-  return m_sram.size();
-}
-
-[[nodiscard]] const byte *rom_ram::RAMData() const noexcept {
-  return m_sram.data();
-}
-
-void rom_ram::reset() noexcept {
-  m_sram.fill(byte{});
-}
-
 }

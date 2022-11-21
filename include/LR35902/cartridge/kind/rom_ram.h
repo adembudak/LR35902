@@ -21,15 +21,7 @@ public:
   [[nodiscard]] byte readSRAM(const std::size_t index) const noexcept;
   void writeSRAM(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] const byte *data() const noexcept;
-  [[nodiscard]] std::size_t size() const noexcept;
-
-  [[nodiscard]] std::size_t RAMSize() const noexcept;
-  [[nodiscard]] const byte *RAMData() const noexcept;
-
-  void reset() noexcept;
-
-  friend class DebugView;
+  friend class Cartridge;
 };
 
 }

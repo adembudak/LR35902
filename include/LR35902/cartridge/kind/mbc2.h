@@ -2,36 +2,31 @@
 
 #include <LR35902/config.h>
 
-#include <cstddef>
+#include <array>
+#include <cstdint>
 #include <vector>
 
 namespace LR35902 {
 
-class mbc1_ram {
+class mbc2 {
   std::vector<byte> m_rom;
-  std::vector<byte> m_sram;
+  std::array<byte, 512_KiB> m_sram{};
 
   struct bank_t {
     void setPrimaryBank(const byte b) noexcept;
-    void setSecondaryBank(const byte b) noexcept;
     [[nodiscard]] std::size_t value() const noexcept;
 
   private:
     std::size_t primary = 1;
-    std::size_t secondary = 0;
     bool ramg = false;
 
-    std::size_t primary_bank_mask = 0b1'1111;
-    std::size_t secondary_bank_mask = 0b11;
+    std::size_t primary_bank_mask = 0b1111;
 
-    friend class mbc1_ram;
+    friend class mbc2;
   } bank;
 
-  enum class mode_t : bool { rom_banking, ram_banking };
-  mode_t mode = mode_t::rom_banking;
-
 public:
-  mbc1_ram(std::vector<byte> other, const std::size_t ram_size);
+  explicit mbc2(std::vector<byte> rom);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

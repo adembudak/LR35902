@@ -2,7 +2,6 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
 
@@ -116,21 +115,6 @@ byte mbc1_ram::readSRAM(const std::size_t index) const noexcept {
 
 void mbc1_ram::writeSRAM(const std::size_t index, const byte b) noexcept {
   writeROM(index, b);
-}
-
-const byte *mbc1_ram::data() const noexcept {
-  return m_rom.data();
-}
-
-const std::size_t mbc1_ram::size() const noexcept {
-  return m_rom.size();
-}
-
-std::size_t mbc1_ram::RAMSize() const noexcept {
-  return m_sram.size();
-}
-void mbc1_ram::reset() noexcept {
-  std::ranges::fill(m_sram, byte{});
 }
 
 }

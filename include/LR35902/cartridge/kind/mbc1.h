@@ -31,10 +31,7 @@ public:
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;
 
-  [[nodiscard]] const byte *data() const noexcept;
-  [[nodiscard]] const std::size_t size() const noexcept;
-
-  friend class cartridge;
+  friend class Cartridge;
 };
 
 }
