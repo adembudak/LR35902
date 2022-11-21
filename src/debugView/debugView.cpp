@@ -60,7 +60,7 @@ void DebugView::showMemoryPortions() noexcept {
       }
 
       const int number_of_banks = gameboy.cart.size() / rom_bank_size;
-      for(int i = 1; i <= number_of_banks; ++i) {
+      for(int i = 1; i < number_of_banks; ++i) {
         const std::string label = "rom" + std::to_string(i);
 
         if(BeginTabItem(label.c_str(), &_memory_portions_rom)) {
@@ -248,18 +248,6 @@ void DebugView::showRegisters() noexcept {
            io.LCDC & 0b0000'0100 ? "Sprite size: 16\n" : "Sprite size: 8\n");
 
       Text("STAT: %x", io.STAT);
-
-      /*
-      // clang-format off
-      switch(io.STAT & 0b11) {
-      case 0b00: Text("status : Horizontal Blank [%lu/%lu]" ,ppu.m_hblank_period_counter, PPU::hblank_period);
-      break; case 0b01: Text("status : Vertical Blank   [%lu/%lu]" ,ppu.m_vblank_period_counter,
-      PPU::vblank_period); break; case 0b10: Text("status : Searching OAM    [%lu/%lu]"
-      ,ppu.m_oam_search_period_counter, PPU::oam_search_period); break; case 0b11: Text("status : Draw
-      [%lu/%lu]" ,ppu.m_draw_period_counter, PPU::draw_period); break;
-      }
-      // clang-format on
-      */
 
       static ImGuiTableFlags flags = ImGuiTableFlags_SizingFixedFit  //
                                      | ImGuiTableFlags_RowBg         //
@@ -469,7 +457,6 @@ void DebugView::visualizeVRAM() noexcept {
           tileline_nth += PPU::tileline_size, ++y) {
 
         byte mask = 0b1000'0000;
-        // iterate a single tile tileline
         for(std::size_t pixel_nth = 0; pixel_nth < PPU::tile_w; ++pixel_nth, mask >>= 1) { // iterates 0->7
           const bool index_1 = (tile_x[tileline_nth] & mask) >> (7 - pixel_nth); // scan tileline left to rght
           const bool index_0 = (tile_x[tileline_nth + 1] & mask) >> (7 - pixel_nth);
