@@ -699,10 +699,6 @@ void CPU::setPostBootValues() noexcept {
   SP.m_data = 0xfffe;
 }
 
-std::size_t CPU::latestCycles() const noexcept {
-  return m_clock.latest();
-}
-
 void CPU::reset() noexcept {
   A = byte{};
   F = flags{};

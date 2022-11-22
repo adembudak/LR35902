@@ -27,11 +27,10 @@ void GameBoy::plug(const std::string_view rom) noexcept {
 void GameBoy::update() noexcept {
   if(!m_paused) {
     const int one_scanline_period = 114 * 144;
-
     int cycles = 0;
     for(int i = 0; i < one_scanline_period; i += cycles) {
       cpu.run();
-      cycles = cpu.latestCycles();
+      cycles = clock.latest();
       ppu.update(cycles);
       timer.update(cycles);
     }

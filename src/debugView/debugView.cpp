@@ -180,7 +180,7 @@ void DebugView::showCPUState() noexcept {
     Begin("CPU State", &_cpu_state);
     const auto &cpu = gameboy.cpu;
 
-    Text("Cycles: %lu\nLatest: %lu", cpu.m_clock.m_data, cpu.latestCycles());
+    Text("Cycles: %lu\nLatest: %lu", cpu.m_clock.m_data, gameboy.clock.m_latest);
 
     NewLine();
     Text("ime: %d", cpu.ime);

@@ -74,7 +74,6 @@ public:
 
   void run() noexcept;
   void setPostBootValues() noexcept;
-  std::size_t latestCycles() const noexcept;
   void reset() noexcept;
 
   friend class DebugView;
