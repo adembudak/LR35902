@@ -412,6 +412,11 @@ void DebugView::showRegisters() noexcept {
   }
 }
 
+constexpr std::size_t tile_size = 16;
+constexpr std::size_t tile_w = 8;
+constexpr std::size_t tileline_size = 2;
+constexpr std::size_t tilemap_size = 2_KiB;
+
 void DebugView::visualizeVRAM() noexcept {
   using namespace ImGui;
 
@@ -439,25 +444,24 @@ void DebugView::visualizeVRAM() noexcept {
       draw_list->AddRectFilled({p.x + x, p.y + y}, {p.x + x + 1, p.y + y + 1}, color_);
     };
 
-    using tile = std::array<byte, PPU::tile_size>;
+    using tile = std::array<byte, tile_size>;
     tile tile_x{};
     ///////////////////////
 
     // iterate tile
     // 0 -> 6144, += 16  (6144 == 6_KiB == tilemap size)
     int x = 0;
-    for(std::size_t tile_nth = 0; tile_nth < PPU::tilemap_size; tile_nth += PPU::tile_size, x += 8) {
-      std::copy_n(gameboy.ppu.m_vram.begin() + tile_nth, PPU::tile_size, tile_x.begin());
+    for(std::size_t tile_nth = 0; tile_nth < tilemap_size; tile_nth += tile_size, x += 8) {
+      std::copy_n(gameboy.ppu.m_vram.begin() + tile_nth, tile_size, tile_x.begin());
       if(std::all_of(begin(tile_x), end(tile_x), [](byte b) { return b == 0; })) continue;
 
       int y = 0;
       // iterate tilelines
       // 0 -> 16, += 2
-      for(std::size_t tileline_nth = 0; tileline_nth < PPU::tile_size;
-          tileline_nth += PPU::tileline_size, ++y) {
+      for(std::size_t tileline_nth = 0; tileline_nth < tile_size; tileline_nth += tileline_size, ++y) {
 
         byte mask = 0b1000'0000;
-        for(std::size_t pixel_nth = 0; pixel_nth < PPU::tile_w; ++pixel_nth, mask >>= 1) { // iterates 0->7
+        for(std::size_t pixel_nth = 0; pixel_nth < tile_w; ++pixel_nth, mask >>= 1) { // iterates 0->7
           const bool index_1 = (tile_x[tileline_nth] & mask) >> (7 - pixel_nth); // scan tileline left to rght
           const bool index_0 = (tile_x[tileline_nth + 1] & mask) >> (7 - pixel_nth);
 
