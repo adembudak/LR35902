@@ -21,6 +21,191 @@ namespace rg = ranges;
 namespace rv = rg::views;
 namespace ra = rg::actions;
 
+constexpr std::size_t tile_w = 8; // in px
+constexpr std::size_t tile_h = 8;
+
+constexpr std::size_t max_tiles_on_screen_x = 32;
+constexpr std::size_t max_tiles_on_screen_y = 32;
+
+constexpr std::size_t screen_w = tile_w * max_tiles_on_screen_x; // in px
+constexpr std::size_t screen_h = tile_h * max_tiles_on_screen_y;
+
+constexpr std::size_t max_tiles_on_viewport_x = 20;
+constexpr std::size_t max_tiles_on_viewport_y = 18;
+
+constexpr std::size_t viewport_w = tile_w * max_tiles_on_viewport_x; // in px
+constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
+
+constexpr std::size_t max_sprites_on_viewport_x = 10;
+
+constexpr std::size_t tileset_size = 6_KiB;
+constexpr std::size_t tilemap_size = 2_KiB;
+
+constexpr std::size_t tileline_size = 2_B;
+constexpr std::size_t tile_size = tileline_size * tile_h;
+
+constexpr std::size_t oam_search_period = 20; // [0, 20)
+constexpr std::size_t draw_period = 43;       // [20, 63)
+constexpr std::size_t hblank_period = 51;     // [63,114)
+
+constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
+static_assert(scanline_period == 114);
+
+constexpr std::size_t vblank_height = 10;
+constexpr std::size_t vblank_period = vblank_height * scanline_period;
+static_assert(vblank_period == 1140);
+
+constexpr std::size_t vblank_start = 144; // when LY in [144, 154)
+constexpr std::size_t vblank_end = vblank_start + vblank_height - 1;
+
+PPU::PPU(Interrupt &intr, IO &io) noexcept :
+    intr{intr},
+    LCDC{io.LCDC},
+    STAT{io.STAT},
+    SCY{io.SCY},
+    SCX{io.SCX},
+    LY{io.LY},
+    LYC{io.LYC},
+    BGP{io.BGP},
+    OBP0{io.OBP0},
+    OBP1{io.OBP1},
+    WY{io.WY},
+    WX{io.WX} {}
+
+byte PPU::readVRAM(const std::size_t index) const noexcept {
+  if(isVRAMAccessibleToCPU()) return m_vram[index];
+  return 0xff;
+}
+
+void PPU::writeVRAM(const std::size_t index, const byte b) noexcept {
+  if(isVRAMAccessibleToCPU()) m_vram[index] = b;
+}
+
+byte PPU::readOAM(const std::size_t index) const noexcept {
+  if(isOAMAccessibleToCPU()) return m_oam[index];
+  else return 0xff;
+}
+
+void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
+  if(isOAMAccessibleToCPU()) m_oam[index] = b;
+}
+
+enum class PPU::state : std::uint8_t {
+  searching_oam = 0b10,
+  drawing = 0b11,
+  hblanking = 0b00,
+  vblanking = 0b01
+};
+
+enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
+
+/*
++----------------+       +-------------+       +--------------+
+| searching_oam  |------>|   drawing   |------>|  hblanking   |
++----------------+       +-------------+       +--------------+
+      ^                                                 | ++LY
+      |                                                 v
+      |-<--------------------------------------<---No---| LY == 144
+      |                                                Yes
+LY = 0|           +-->---------------------->-+         |
+      |           No                          |         |
+      | LY == 154 |     +----------------+    |         |
+      ^-------<-Yes--<--|   vblanking    |<---v---------v
+                        +----------------+
+*/
+
+static std::size_t ppu_cycles = 0;
+void PPU::update(const std::size_t cycles) noexcept {
+  ppu_cycles += cycles;
+
+  if(!isLCDEnabled()) { // LCD is off
+    ppu_cycles = 0;
+    resetScanline();
+    mode(state::searching_oam);
+    return;
+  }
+
+  coincidence(checkCoincidence());
+  if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
+    intr.request(Interrupt::kind::lcd_stat);
+
+  switch(mode()) {
+  case state::searching_oam:
+    if(ppu_cycles >= oam_search_period) {
+      ppu_cycles -= oam_search_period;
+
+      if(isBackgroundEnabled()) fetchBackground();
+      if(isWindowEnabled()) fetchWindow();
+      if(isSpritesEnabled()) fetchSprites();
+
+      mode(state::drawing); // 2 -> 3
+    }
+    break;
+
+  case state::drawing:
+    if(ppu_cycles >= draw_period) {
+      ppu_cycles -= draw_period;
+
+      mode(state::hblanking); // 3 -> 0
+
+      if(interruptSourceEnabled(source::hblank)) //
+        intr.request(Interrupt::kind::lcd_stat);
+    }
+    break;
+
+  case state::hblanking:
+    if(ppu_cycles >= hblank_period) {
+      ppu_cycles -= cycles;
+
+      updateScanline();
+
+      if(currentScanline() == vblank_start) {
+        mode(state::vblanking); // 0 -> 1
+        m_drawCallback(m_screen);
+
+        intr.request(Interrupt::kind::vblank);
+      } else {
+        mode(state::searching_oam); // 0 -> 2
+
+        if(interruptSourceEnabled(source::oam)) //
+          intr.request(Interrupt::kind::lcd_stat);
+      }
+    }
+    break;
+
+  case state::vblanking:
+    if(ppu_cycles >= scanline_period) {
+      ppu_cycles -= scanline_period;
+
+      updateScanline();
+
+      coincidence(checkCoincidence());
+      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
+        intr.request(Interrupt::kind::lcd_stat);
+
+      if(currentScanline() > vblank_end) {
+        resetScanline();
+
+        mode(state::searching_oam); // 1 -> 2
+
+        if(interruptSourceEnabled(source::oam)) //
+          intr.request(Interrupt::kind::lcd_stat);
+      }
+    }
+    break;
+  }
+}
+
+void PPU::setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept {
+  m_drawCallback = drawCallback;
+}
+
+void PPU::reset() noexcept {
+  m_vram.fill(byte{});
+  m_oam.fill(byte{});
+  m_screen.fill(scanline_t{});
+}
+
 // LCDC register related members
 bool PPU::isLCDEnabled() const noexcept { // bit7
   return LCDC & 0b1000'0000;
@@ -62,15 +247,6 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
 }
 
 // STAT register related members
-enum class PPU::state : std::uint8_t {
-  searching_oam = 0b10,
-  drawing = 0b11,
-  hblanking = 0b00,
-  vblanking = 0b01
-};
-
-enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
-
 PPU::state PPU::mode() const noexcept { // bit0, bit1
   switch(STAT & 0b0000'0011) {
   case 0b00: return state::hblanking;
@@ -104,15 +280,6 @@ bool PPU::interruptSourceEnabled(const source s) const noexcept {
   }
 }
 // clang-format on
-
-// SCY/SCX registers related members
-std::size_t PPU::viewport_y() const noexcept {
-  return SCY % viewport_h;
-}
-
-std::size_t PPU::viewport_x() const noexcept {
-  return SCX % viewport_w;
-}
 
 // LY/LYC registers related members
 byte PPU::currentScanline() const noexcept {
@@ -189,8 +356,8 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 
 void PPU::fetchBackground() const noexcept {
 
-  for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
-    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
+  for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
+    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tiles_on_screen_x) + tile_nth;
     const std::size_t tile_address = m_vram[backgroundTilemapBaseAddress() + tile_index];
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
@@ -222,8 +389,8 @@ void PPU::fetchBackground() const noexcept {
 void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
-  for(std::size_t tile_nth = 0; tile_nth < max_tile_screen_x; ++tile_nth) {
-    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tile_screen_x) + tile_nth;
+  for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
+    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tiles_on_screen_x) + tile_nth;
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
@@ -278,7 +445,7 @@ void PPU::fetchSprites() const noexcept {
                         | rg::to<std::vector> 
                         | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::reverse
-                        | ra::take(max_sprite_tile_viewport_x);
+                        | ra::take(max_sprites_on_viewport_x);
 
   for(const auto &obj : sprites_on_scanline) {
     const byte y =          obj[0] - 16; // 16 and 8 are screen offsets
@@ -315,146 +482,4 @@ void PPU::fetchSprites() const noexcept {
   }
 }
 
-PPU::PPU(Interrupt &intr, IO &io) noexcept :
-    intr{intr},
-    LCDC{io.LCDC},
-    STAT{io.STAT},
-    SCY{io.SCY},
-    SCX{io.SCX},
-    LY{io.LY},
-    LYC{io.LYC},
-    BGP{io.BGP},
-    OBP0{io.OBP0},
-    OBP1{io.OBP1},
-    WY{io.WY},
-    WX{io.WX} {}
-
-/*
-+----------------+      +----------------+      +----------------+
-| searching_oam  |----->|   drawing      |----->|   hblanking    |
-+----------------+      +----------------+      +----------------+
-      ^                                                 | ++LY
-      |                                                 v
-      |-<--------------------------------------<---No---| LY == 144
-      |                                                Yes
-LY = 0|           +-->---------------------->-+         |
-      |           No                          |         |
-      | LY == 154 |     +----------------+    |         |
-      ^-------<-Yes--<--|   vblanking    |<---v---------v
-                        +----------------+
-*/
-
-static std::size_t ppu_cycles = 0;
-
-void PPU::update(const std::size_t cycles) noexcept {
-  ppu_cycles += cycles;
-
-  if(!isLCDEnabled()) { // LCD is off
-    ppu_cycles = 0;
-    resetScanline();
-    mode(state::searching_oam);
-    return;
-  }
-
-  coincidence(checkCoincidence());
-  if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-    intr.request(Interrupt::kind::lcd_stat);
-
-  switch(mode()) {
-  case state::searching_oam:
-    if(ppu_cycles >= oam_search_period) {
-      ppu_cycles -= oam_search_period;
-
-      if(isBackgroundEnabled()) fetchBackground();
-      if(isWindowEnabled()) fetchWindow();
-      if(isSpritesEnabled()) fetchSprites();
-
-      mode(state::drawing); // 2 -> 3
-    }
-    break;
-
-  case state::drawing:
-    if(ppu_cycles >= draw_period) {
-      ppu_cycles -= draw_period;
-
-      mode(state::hblanking); // 3 -> 0
-
-      if(interruptSourceEnabled(source::hblank)) //
-        intr.request(Interrupt::kind::lcd_stat);
-    }
-    break;
-
-  case state::hblanking:
-    if(ppu_cycles >= hblank_period) {
-      ppu_cycles -= cycles;
-
-      updateScanline();
-      coincidence(checkCoincidence());
-      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-        intr.request(Interrupt::kind::lcd_stat);
-
-      if(currentScanline() == vblank_start) {
-        mode(state::vblanking); // 0 -> 1
-        m_drawCallback(m_screen);
-
-        intr.request(Interrupt::kind::vblank);
-      } else {
-        mode(state::searching_oam); // 0 -> 2
-
-        if(interruptSourceEnabled(source::oam)) //
-          intr.request(Interrupt::kind::lcd_stat);
-      }
-    }
-    break;
-
-  case state::vblanking:
-    if(ppu_cycles >= scanline_period) {
-      ppu_cycles -= scanline_period;
-
-      updateScanline();
-
-      coincidence(checkCoincidence());
-      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-        intr.request(Interrupt::kind::lcd_stat);
-
-      if(currentScanline() > vblank_end) {
-        resetScanline();
-
-        mode(state::searching_oam); // 1 -> 2
-
-        if(interruptSourceEnabled(source::oam)) //
-          intr.request(Interrupt::kind::lcd_stat);
-      }
-    }
-    break;
-  }
-}
-
-void PPU::setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept {
-  m_drawCallback = drawCallback;
-}
-
-byte PPU::readVRAM(const std::size_t index) const noexcept {
-  if(isVRAMAccessibleToCPU()) return m_vram[index];
-  return 0xff;
-}
-
-void PPU::writeVRAM(const std::size_t index, const byte b) noexcept {
-  if(isVRAMAccessibleToCPU()) m_vram[index] = b;
-}
-
-byte PPU::readOAM(const std::size_t index) const noexcept {
-  if(isOAMAccessibleToCPU()) return m_oam[index];
-  else return 0xff;
-}
-
-void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
-  if(isOAMAccessibleToCPU()) m_oam[index] = b;
-}
-
-void PPU::reset() noexcept {
-  m_vram.fill(byte{});
-  m_oam.fill(byte{});
-  m_screen.fill(scanline_t{});
-}
 }

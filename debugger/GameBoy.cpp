@@ -78,13 +78,11 @@ void GameBoy::joypad(button btn, keyStatus s) noexcept {
     // selection button
     // Implementation expects a selection button to be pressed. If the pressed button isn't one of them,
     // skip it
-    if(buttonKind == 0b01 &&
-       std::none_of(begin(selectionButtons), end(selectionButtons), [=](button b) { return btn == b; }))
+    if(buttonKind == 0b01 && std::ranges::none_of(selectionButtons, [=](button b) { return btn == b; }))
       return;
 
     // direction button
-    if(buttonKind == 0b10 &&
-       std::none_of(begin(directionButtons), end(directionButtons), [=](button b) { return btn == b; }))
+    if(buttonKind == 0b10 && std::ranges::none_of(directionButtons, [=](button b) { return btn == b; }))
       return;
   }
 
