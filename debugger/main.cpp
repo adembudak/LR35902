@@ -157,10 +157,9 @@ int main(int argc, char **argv) {
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
-  const SDL_Rect border{20, 20, 256, 256};
-
-  auto cbk = [&](const GameBoy::screen_t &f) {
-    SDL_UpdateTexture(m_texture, &border, f.data(), sizeof(LR35902::rgba32) * 256);
+  SDL_Rect rect{30, 30, 160, 144};
+  auto cbk = [&](const GameBoy::screen_t &framebuffer) {
+    SDL_UpdateTexture(m_texture, &rect, framebuffer.data(), sizeof(LR35902::rgba32) * 160);
   };
 
   attaboy.setDrawCallback(cbk);
@@ -182,7 +181,6 @@ int main(int argc, char **argv) {
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
-    const SDL_Rect view{20, 20, 160, 144};
     if(ImGui::BeginMainMenuBar()) {
       putMenuBar(attaboy, debugView);
       ImGui::EndMainMenuBar();
@@ -202,8 +200,6 @@ int main(int argc, char **argv) {
     SDL_RenderClear(m_renderer);
     SDL_RenderCopy(m_renderer, m_texture, nullptr, nullptr);
     SDL_SetRenderDrawColor(m_renderer, 0xff, 0xff, 0xff, 0xff);
-    SDL_RenderDrawRect(m_renderer, &border);
-    SDL_RenderDrawRect(m_renderer, &view);
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
     SDL_RenderPresent(m_renderer);
 
