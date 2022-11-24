@@ -3,6 +3,7 @@
 
 #include <CLI/CLI.hpp>
 #include <fmt/core.h>
+#include <range/v3/view/filter.hpp>
 
 #include <algorithm>
 #include <array>
@@ -32,12 +33,15 @@ int main(int argc, const char *const argv[]) {
 
   if(std::ranges::none_of(options, [](bool b) { return b; })) options.fill(true);
 
-  for(const auto &e : romEntries) {
-    if(!e.exists() || e.path().extension() != ".gb") continue;
+  auto validEntry = [](const std::filesystem::directory_entry &e) noexcept -> bool {
+    return exists(e.path()) && e.path().extension() == ".gb" && !is_empty(e.path());
+  };
 
+  for(const auto &e : romEntries | ranges::views::filter(validEntry)) {
     std::array<byte, cartridge_header_end> headerDump{};
+    std::ifstream fin;
 
-    std::ifstream fin{e.path()};
+    fin.open(e.path());
     fin.read(std::bit_cast<char *>(headerDump.data()), cartridge_header_end);
     fin.close();
 
