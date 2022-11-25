@@ -9,7 +9,9 @@
 #include <range/v3/action/take.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
+#include <range/v3/view/counted.hpp>
 #include <range/v3/view/remove_if.hpp>
+#include <range/v3/view/reverse.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -83,7 +85,7 @@ void PPU::writeVRAM(const std::size_t index, const byte b) noexcept {
 
 byte PPU::readOAM(const std::size_t index) const noexcept {
   if(isOAMAccessibleToCPU()) return m_oam[index];
-  else return 0xff;
+  return 0xff;
 }
 
 void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
@@ -121,7 +123,7 @@ void PPU::update(const std::size_t cycles) noexcept {
   if(!isLCDEnabled()) { // LCD is off
     ppu_cycles = 0;
     resetScanline();
-    mode(state::searching_oam);
+    mode(state::vblanking);
     return;
   }
 
@@ -356,32 +358,35 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 
 void PPU::fetchBackground() const noexcept {
 
+  const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), 4_KiB) //
+                       | rv::chunk(tile_size);
+
+  const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), 1_KiB) //
+                       | rv::chunk(max_tiles_on_screen_x);
+
   for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
-    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tiles_on_screen_x) + tile_nth;
-    const std::size_t tile_address = m_vram[backgroundTilemapBaseAddress() + tile_index];
+
+    const std::size_t row = currentScanline() / tile_h;
+    const std::size_t tile_address = tilemap[row][tile_nth];
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-    const std::size_t tileline_address = backgroundTilesetBaseAddress() + (tile_address * tile_size) +
-                                         (currently_scanning_tileline * tileline_size);
 
-    const byte tileline_upper = m_vram[tileline_address];
-    const byte tileline_lower = m_vram[tileline_address + 1uz];
+    const byte tileline_upper = tileset[tile_address][currently_scanning_tileline * 2];
+    const byte tileline_lower = tileset[tile_address][currently_scanning_tileline * 2 + 1];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const int y = currentScanline();
-      const int y_rel = y - SCY;
+      const int x = (tile_nth * tile_w) - SCX + i;
+      if(x < 0 || x >= viewport_w) continue;
 
-      const int x = (tile_nth * tile_w) + i;
-      const int x_rel = x - SCX;
-
-      if(x_rel < 0 || y_rel < 0) continue;
+      const int y = currentScanline() - SCY;
+      if(y < 0 || y >= viewport_h) continue;
 
       const bool lo = tileline_upper & mask; // the 2 bits in the
       const bool hi = tileline_lower & mask; // 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y_rel][x_rel] = original[bgp()[pi]];
+      m_screen[y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -389,30 +394,33 @@ void PPU::fetchBackground() const noexcept {
 void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
+  const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), 4_KiB) //
+                       | rv::chunk(tile_size);
+
+  const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), 1_KiB) //
+                       | rv::chunk(max_tiles_on_screen_x);
+
   for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
-    const std::size_t tile_index = ((currentScanline() / tile_h) * max_tiles_on_screen_x) + tile_nth;
+    const std::size_t row = currentScanline() / tile_h;
+    const std::size_t tile_address = tilemap[row][tile_nth];
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
-    const std::size_t tile_address = m_vram[windowTilemapBaseAddress() + tile_index];
-
-    const std::size_t tileline_address = windowTilesetBaseAddress() + (tile_address * tile_size) +
-                                         (currently_scanning_tileline * tileline_size);
-
-    const byte tileline_upper = m_vram[tileline_address];
-    const byte tileline_lower = m_vram[tileline_address + 1uz];
+    const byte tileline_upper = tileset[tile_address][currently_scanning_tileline * 2];
+    const byte tileline_lower = tileset[tile_address][currently_scanning_tileline * 2 + 1];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const std::size_t x = (tile_nth * tile_w) + i;
+      const std::size_t x = (tile_nth * tile_w) + window_x() + i;
+      if(x > viewport_w) continue;
+
       const std::size_t y = currentScanline();
-      if((x + window_x()) > viewport_w) continue;
 
       const bool lo = tileline_upper & mask;
       const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x + window_x()] = original[bgp()[pi]];
+      m_screen[y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -459,12 +467,19 @@ void PPU::fetchSprites() const noexcept {
     const bool palette =        atrb & 0b0001'0000; // OBP1 or OBP0?
     // clang-format on
 
-    const int currently_scanning_tileline = currentScanline() - y;
     const std::size_t tile_address = tile_index * tile_size;
+
+    const int currently_scanning_tileline = currentScanline() - y;
     const std::size_t tileline_address = tile_address + (currently_scanning_tileline * tileline_size);
 
-    const byte tileline_upper = m_vram[tileline_address];
-    const byte tileline_lower = m_vram[tileline_address + 1uz];
+    const auto sprite = rv::counted(m_vram.begin() + tile_address, spriteHeight());
+
+    if(yflip) {
+      rv::reverse(sprite);
+    }
+
+    const byte tileline_upper = sprite[currently_scanning_tileline * 2];
+    const byte tileline_lower = sprite[currently_scanning_tileline * 2 + 1];
 
     std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i) {
