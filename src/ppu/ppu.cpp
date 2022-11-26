@@ -10,6 +10,7 @@
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
+#include <range/v3/view/iota.hpp>
 #include <range/v3/view/remove_if.hpp>
 #include <range/v3/view/reverse.hpp>
 
@@ -58,7 +59,7 @@ constexpr std::size_t vblank_period = vblank_height * scanline_period;
 static_assert(vblank_period == 1140);
 
 constexpr std::size_t vblank_start = 144; // when LY in [144, 154)
-constexpr std::size_t vblank_end = vblank_start + vblank_height - 1;
+constexpr std::size_t vblank_end = vblank_start + vblank_height;
 
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
@@ -185,7 +186,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
         intr.request(Interrupt::kind::lcd_stat);
 
-      if(currentScanline() > vblank_end) {
+      if(currentScanline() >= vblank_end) {
         resetScanline();
 
         mode(state::searching_oam); // 1 -> 2
@@ -364,8 +365,7 @@ void PPU::fetchBackground() const noexcept {
   const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), 1_KiB) //
                        | rv::chunk(max_tiles_on_screen_x);
 
-  for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
-
+  for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
     const std::size_t tile_address = tilemap[row][tile_nth];
 
@@ -400,7 +400,7 @@ void PPU::fetchWindow() const noexcept {
   const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), 1_KiB) //
                        | rv::chunk(max_tiles_on_screen_x);
 
-  for(std::size_t tile_nth = 0; tile_nth < max_tiles_on_viewport_x; ++tile_nth) {
+  for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
     const std::size_t tile_address = tilemap[row][tile_nth];
 
