@@ -13,16 +13,16 @@ struct Interrupt {
   byte IE{}; // 0xffff, enable (controlled by the game, not emu)
 
   [[nodiscard]] bool isThereAnAwaitingInterrupt() const noexcept {
-    return 0b0001'1111 & IF & IE;
+    return IE & IF & 0b0001'1111;
   }
 
   // clang-format off
   [[nodiscard]] kind get() const noexcept {
-    if     (IF & IE & 0b0000'0001) return kind::vblank;
-    else if(IF & IE & 0b0000'0010) return kind::lcd_stat;
-    else if(IF & IE & 0b0000'0100) return kind::timer;
-    else if(IF & IE & 0b0000'1000) return kind::serial;
-    else if(IF & IE & 0b0001'0000) return kind::joypad;
+    if     (IE & IF & 0b0000'0001) return kind::vblank;
+    else if(IE & IF & 0b0000'0010) return kind::lcd_stat;
+    else if(IE & IF & 0b0000'0100) return kind::timer;
+    else if(IE & IF & 0b0000'1000) return kind::serial;
+    else if(IE & IF & 0b0001'0000) return kind::joypad;
   }
 
   void request(const kind k) noexcept {
