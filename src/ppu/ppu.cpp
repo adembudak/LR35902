@@ -41,8 +41,15 @@ constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
 
 constexpr std::size_t max_sprites_on_viewport_x = 10;
 
-constexpr std::size_t tileset_size = 6_KiB;
-constexpr std::size_t tilemap_size = 2_KiB;
+constexpr std::size_t tileset_block_size = 4_KiB;
+constexpr std::size_t tileset_size = 2 * tileset_block_size - 2_KiB; // -2_KiB because blocks are overlapping
+static_assert(tileset_size == 6_KiB);
+
+constexpr std::size_t tilemap_block_size = 32 * 32 * 1_B;
+constexpr std::size_t tilemap_size = 2 * tilemap_block_size;
+static_assert(tilemap_size == 2_KiB);
+
+static_assert(tileset_size + tilemap_size == 8_KiB /* == VRAM size */);
 
 constexpr std::size_t tileline_size = 2_B;
 constexpr std::size_t tile_size = tileline_size * tile_h;
@@ -358,11 +365,10 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 }
 
 void PPU::fetchBackground() const noexcept {
-
-  const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), 4_KiB) //
+  const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
                        | rv::chunk(tile_size);
 
-  const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), 1_KiB) //
+  const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
 
   for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
@@ -394,10 +400,10 @@ void PPU::fetchBackground() const noexcept {
 void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
-  const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), 4_KiB) //
+  const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
                        | rv::chunk(tile_size);
 
-  const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), 1_KiB) //
+  const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
 
   for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
@@ -456,8 +462,8 @@ void PPU::fetchSprites() const noexcept {
                         | ra::take(max_sprites_on_viewport_x);
 
   for(const auto &obj : sprites_on_scanline) {
-    const byte y =          obj[0] - 16; // 16 and 8 are screen offsets
-    const byte x =          obj[1] - 8;
+    const byte y =          obj[0] - tile_screen_offset_y;
+    const byte x =          obj[1] - tile_screen_offset_x;
     const byte tile_index = obj[2];
     const byte atrb =       obj[3];
 
