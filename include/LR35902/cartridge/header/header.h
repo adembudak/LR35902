@@ -7,8 +7,6 @@
 
 namespace LR35902 {
 
-enum class mbc : std::uint8_t;
-
 constexpr std::size_t cartridge_header_begin = 0x100;
 constexpr std::size_t cartridge_header_end = 0x14f + 1;
 
