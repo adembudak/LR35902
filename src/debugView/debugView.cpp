@@ -14,7 +14,7 @@ namespace LR35902 {
 
 DebugView::DebugView(const GameBoy &gameboy) :
     gameboy{gameboy} {
-  _memory_portions_sram = gameboy.cart.hasSRAM();
+  _memory_portions_sram = gameboy.cart.SRAMSize().has_value();
 }
 
 void DebugView::showCartHeader() noexcept {
@@ -77,16 +77,17 @@ void DebugView::showMemoryPortions() noexcept {
         EndTabItem();
       }
 
-      if(gameboy.cart.RAMSize()) {
+      if(gameboy.cart.SRAMSize()) {
         constexpr std::size_t sram_bank_size = 8_KiB;
-        const int number_of_banks = *gameboy.cart.RAMSize() / sram_bank_size;
+        const int number_of_banks = *gameboy.cart.SRAMSize() / sram_bank_size;
 
         for(int i = 0; i < number_of_banks; ++i) {
           const std::string label = "sram" + std::to_string(i);
 
           if(BeginTabItem(label.c_str(), &_memory_portions_sram)) {
-            memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data() + (i * sram_bank_size)),
-                                       sram_bank_size, sram);
+            memory_editor.DrawContents(
+                std::bit_cast<void *>(gameboy.cart.SRAMData().value() + (i * sram_bank_size)), sram_bank_size,
+                sram);
 
             EndTabItem();
           }

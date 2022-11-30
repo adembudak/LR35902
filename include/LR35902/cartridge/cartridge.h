@@ -32,9 +32,8 @@ public:
   [[nodiscard]] const byte *data() const noexcept;
   [[nodiscard]] std::size_t size() const noexcept;
 
-  [[nodiscard]] bool hasSRAM() const noexcept;
-  [[nodiscard]] std::optional<std::size_t> RAMSize() const noexcept;
-  [[nodiscard]] std::optional<const byte *> RAMData() const noexcept;
+  [[nodiscard]] std::optional<const byte *> SRAMData() const noexcept;
+  [[nodiscard]] std::optional<std::size_t> SRAMSize() const noexcept;
 
   void reset() noexcept;
 

@@ -127,18 +127,17 @@ std::size_t Cartridge::size() const noexcept {
                                }, m_cart);
 }
 
-bool Cartridge::hasSRAM() const noexcept {
-  return std::visit(overloaded { 
-                                 [&](const rom_only &) { return false; },
-                                 [&](const rom_ram &)  { return true;  },
-                                 [&](const mbc1& )     { return false; },
-                                 [&](const mbc1_ram &) { return true; },
-                                 [&](const mbc2     &) { return true; },
-                                 [&](const mbc5& )     { return false; },
-                               }, m_cart);
+std::optional<const byte *> Cartridge::SRAMData() const noexcept {
+  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                             }
+  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).m_sram.data();      }
+  else if(std::holds_alternative<mbc1>(m_cart))    { return std::nullopt;                             }  
+  else if(std::holds_alternative<mbc1_ram>(m_cart)){ return std::get<mbc1_ram>(m_cart).m_sram.data(); }  
+  else if(std::holds_alternative<mbc2>(m_cart))    { return std::get<mbc2>(m_cart).m_sram.data();     }
+  else if(std::holds_alternative<mbc5>(m_cart))    { return std::nullopt;                             }  
+  else                                             { return std::nullopt;                             }
 }
 
-std::optional<std::size_t> Cartridge::RAMSize() const noexcept {
+std::optional<std::size_t> Cartridge::SRAMSize() const noexcept {
   if(std::holds_alternative<rom_only>(m_cart))      { return std::nullopt;                                }
   else if(std::holds_alternative<rom_ram>(m_cart))  { return std::get<rom_ram>(m_cart).m_sram.size();  }
   else if(std::holds_alternative<mbc1>(m_cart))     { return std::nullopt;                                }  
@@ -148,15 +147,6 @@ std::optional<std::size_t> Cartridge::RAMSize() const noexcept {
   else                                              { return std::nullopt;                                }
 }
 
-std::optional<const byte *> Cartridge::RAMData() const noexcept {
-  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                             }
-  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).m_sram.data();      }
-  else if(std::holds_alternative<mbc1>(m_cart))    { return std::nullopt;                             }  
-  else if(std::holds_alternative<mbc1_ram>(m_cart)){ return std::get<mbc1_ram>(m_cart).m_sram.data(); }  
-  else if(std::holds_alternative<mbc2>(m_cart))    { return std::get<mbc2>(m_cart).m_sram.data();     }
-  else if(std::holds_alternative<mbc5>(m_cart))    { return std::nullopt;                             }  
-  else                                             { return std::nullopt;                             }
-}
 
 void Cartridge::reset() noexcept { // only resets SRAM
   std::visit(overloaded { 
