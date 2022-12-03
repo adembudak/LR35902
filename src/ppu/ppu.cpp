@@ -99,10 +99,10 @@ void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
 }
 
 enum class PPU::state : std::uint8_t {
-  searching_oam = 0b10,
-  drawing = 0b11,
-  hblanking = 0b00,
-  vblanking = 0b01
+  searching = 0b10, // 2
+  drawing = 0b11,   // 3
+  hblanking = 0b00, // 0
+  vblanking = 0b01  // 1
 };
 
 enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
@@ -115,7 +115,7 @@ enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
       |                                                 v
       |-<--------------------------------------<---No---| LY == 144
       |                                                Yes
-LY = 0|           +-->---------------------->-+         |
+LY = 0|           +-->------- ++LY --------->-+         |
       |           No                          |         |
       | LY == 154 |     +----------------+    |         |
       ^-------<-Yes--<--|   vblanking    |<---v---------v
@@ -138,7 +138,7 @@ void PPU::update(const std::size_t cycles) noexcept {
     intr.request(Interrupt::kind::lcd_stat);
 
   switch(mode()) {
-  case state::searching_oam:
+  case state::searching:
     if(ppu_cycles >= oam_search_period) {
       ppu_cycles -= oam_search_period;
 
@@ -173,7 +173,7 @@ void PPU::update(const std::size_t cycles) noexcept {
 
         intr.request(Interrupt::kind::vblank);
       } else {
-        mode(state::searching_oam); // 0 -> 2
+        mode(state::searching); // 0 -> 2
 
         if(interruptSourceEnabled(source::oam)) //
           intr.request(Interrupt::kind::lcd_stat);
@@ -194,7 +194,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(currentScanline() >= vblank_end) {
         resetScanline();
 
-        mode(state::searching_oam); // 1 -> 2
+        mode(state::searching); // 1 -> 2
 
         if(interruptSourceEnabled(source::oam)) //
           intr.request(Interrupt::kind::lcd_stat);
@@ -259,7 +259,7 @@ PPU::state PPU::mode() const noexcept { // bit0, bit1
   switch(STAT & 0b0000'0011) {
   case 0b00: return state::hblanking;
   case 0b01: return state::vblanking;
-  case 0b10: return state::searching_oam;
+  case 0b10: return state::searching;
   case 0b11: return state::drawing;
   }
 }
@@ -267,10 +267,10 @@ PPU::state PPU::mode() const noexcept { // bit0, bit1
 // clang-format off
 void PPU::mode(const state s) noexcept { // bit0, bit1
   switch(s) {
-  case state::hblanking:      STAT &= 0b1111'1100;          break;
-  case state::vblanking:     (STAT &= 0b1111'1100) |= 0b01; break;
-  case state::searching_oam: (STAT &= 0b1111'1100) |= 0b10; break;
-  case state::drawing:        STAT |= 0b0000'0011;          break;
+  case state::hblanking:  STAT &= 0b1111'1100;          break;
+  case state::vblanking: (STAT &= 0b1111'1100) |= 0b01; break;
+  case state::searching: (STAT &= 0b1111'1100) |= 0b10; break;
+  case state::drawing:    STAT |= 0b0000'0011;          break;
   }
 }
 
