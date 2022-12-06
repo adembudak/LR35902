@@ -433,14 +433,14 @@ void PPU::fetchSprites() const noexcept {
   const auto tile_screen_offset_y = 16uz;
   const auto tile_screen_offset_x = 8uz; // when a sprite is on (8, 16), it appears on top-left
 
-  const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
+  const auto spriteHeight = [&] [[nodiscard]] { return isBigSprite() ? (2 * tile_h) : tile_h; };
 
-  const auto isSpriteVisible = [&](byte y, byte x) -> bool {
+  const auto isSpriteVisible = [&] [[nodiscard]] (const byte y, const byte x) -> bool {
     return x > 0 && x < (viewport_w + tile_screen_offset_x - 1uz) && // x is in [1, 166]
            y > 8 && y < (viewport_h + tile_screen_offset_y - 1uz);   // y is in [8, 158]
   };
 
-  const auto isSpriteOnScanline = [&](const byte y) -> bool {
+  const auto isSpriteOnScanline = [&] [[nodiscard]] (const byte y) -> bool {
     const int tile_y_on_screen = y - tile_screen_offset_y;
 
     return LY >= tile_y_on_screen && LY < (tile_y_on_screen + spriteHeight());
