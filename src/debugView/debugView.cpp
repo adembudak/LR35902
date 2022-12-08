@@ -370,8 +370,8 @@ void DebugView::showRegisters() noexcept {
     }
 
     if(Checkbox("Interrupts", &showInterruptRegisters); showInterruptRegisters) {
-      const auto &IE = gameboy.intr.IE;
-      const auto &IF = gameboy.intr.IF;
+      const auto &IE = gameboy.intr._IE;
+      const auto &IF = gameboy.intr._IF;
 
       Text("IME: %d ", gameboy.cpu.ime); // interrupt master enable
       Text("IE: %x ", IE);

@@ -6,18 +6,31 @@
 
 namespace LR35902 {
 
-struct Interrupt {
+class Interrupt {
+public:
   enum class kind : std::uint8_t { vblank, lcd_stat, timer, serial, joypad };
 
-  byte IF{}; // 0xff0f, request
-  byte IE{}; // 0xffff, enable (controlled by the game, not emu)
+private:
+  byte _IF{}; // 0xff0f, interrupt request
+  byte _IE{}; // 0xffff, interrupt enable (controlled by the game dev, not emu)
 
+public:
   [[nodiscard]] bool isThereAnAwaitingInterrupt() const noexcept;
 
+  [[nodiscard]] byte IF() const noexcept;
+  void IF(const byte b) noexcept;
+
+  [[nodiscard]] byte IE() const noexcept;
+  void IE(const byte b) noexcept;
+
   [[nodiscard]] kind get() const noexcept;
+
   void request(const kind k) noexcept;
+  void serve(const kind k) noexcept;
 
   void reset() noexcept;
+
+  friend class DebugView;
 };
 
 }

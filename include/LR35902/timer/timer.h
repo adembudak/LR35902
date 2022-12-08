@@ -6,7 +6,7 @@
 namespace LR35902 {
 
 class IO;
-struct Interrupt;
+class Interrupt;
 
 class Timer {
   IO &m_io;

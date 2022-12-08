@@ -52,27 +52,27 @@ void CPU::handleInterrupts() noexcept {
     using enum Interrupt::kind;
   case vblank:
     PC.m_data = 0x40;
-    m_bus.interruptHandler.IF &= 0b1111'1110;
+    m_bus.interruptHandler.serve(vblank);
     break;
 
   case lcd_stat:
     PC.m_data = 0x48;
-    m_bus.interruptHandler.IF &= 0b1111'1101;
+    m_bus.interruptHandler.serve(lcd_stat);
     break;
 
   case timer:
     PC.m_data = 0x50;
-    m_bus.interruptHandler.IF &= 0b1111'1011;
+    m_bus.interruptHandler.serve(timer);
     break;
 
   case serial:
     PC.m_data = 0x58;
-    m_bus.interruptHandler.IF &= 0b1111'0111;
+    m_bus.interruptHandler.serve(serial);
     break;
 
   case joypad:
     PC.m_data = 0x60;
-    m_bus.interruptHandler.IF &= 0b1110'1111;
+    m_bus.interruptHandler.serve(joypad);
     break;
   }
 
@@ -81,6 +81,33 @@ void CPU::handleInterrupts() noexcept {
 
 // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
 void CPU::run() noexcept {
+
+  /*
+printf("A:%02X "
+   "F:%02X "
+   "B:%02X "
+   "C:%02X "
+   "D:%02X "
+   "E:%02X "
+   "H:%02X "
+   "L:%02X "
+   "SP:%04X "
+   "PC:%04X "
+   "PCMEM:%02X,%02X,%02X,%02X\n",
+   A.data(), //
+   F.data(), //
+   B.data(), //
+   C.data(), //
+   D.data(), //
+   E.data(), //
+   H.data(), //
+   L.data(), //
+   SP.m_data, PC.m_data,
+   m_bus.read(PC.m_data),     //
+   m_bus.read(PC.m_data + 1), //
+   m_bus.read(PC.m_data + 2), //
+   m_bus.read(PC.m_data + 3));
+   */
 
   if(ime && m_bus.interruptHandler.isThereAnAwaitingInterrupt()) {
     handleInterrupts();
@@ -648,15 +675,13 @@ void CPU::run() noexcept {
   case 0xee: xor_(n8{fetchByte()}); break;
   case 0xef: rst(0x28); break;
   case 0xf0: {
-    const n16 nn{static_cast<uint16_t>(0xFF00 + fetchByte())};
-    const byte b = m_bus.read(nn.m_data);
+    const byte b = m_bus.read(0xff00 + fetchByte());
     ldh(memory_to_register, b);
     break;
   }
   case 0xf1: pop(AF_register_tag); break;
   case 0xf2: {
-    const n16 nn{static_cast<uint16_t>(0xFF00 + C.data())};
-    const byte b = m_bus.read(nn.m_data);
+    const byte b = m_bus.read(0xFF00 + C.data());
     ldh(memory_to_register, b, C_register_tag);
     break;
   }
@@ -875,7 +900,7 @@ void CPU::or_(const n8 n) noexcept { // or A,n8
 void CPU::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
                                      // A = A - r - F.c
   const flag c = (r.data() + F.c) > A;
-  const flag h = (r.lowNibble() & 0b0000'1111) > (A.lowNibble() - F.c);
+  const flag h = (r.lowNibble() + F.c) > A.lowNibble();
 
   A = A - r - F.c;
   F = {A == 0, 1, h, c};
@@ -885,7 +910,7 @@ void CPU::sbc(const r8 r) noexcept { // sbc A,r8 // z 1 h c
 
 void CPU::sbc(const byte b) noexcept { // sbc A,[HL]
   const flag c = (b + F.c) > A;
-  const flag h = (b & 0b0000'1111) > (A.lowNibble() - F.c);
+  const flag h = ((b & 0b0000'1111) + F.c) > A.lowNibble();
 
   A = A - b - F.c;
   F = {A == 0, 1, h, c};
@@ -895,7 +920,7 @@ void CPU::sbc(const byte b) noexcept { // sbc A,[HL]
 
 void CPU::sbc(const n8 n) noexcept { // sbc A,n8
   const flag c = (n.m_data + F.c) > A;
-  const flag h = (n.m_data & 0b0000'1111) > (A.lowNibble() - F.c);
+  const flag h = ((n.m_data & 0b0000'1111) + F.c) > A.lowNibble();
 
   A = A - n - F.c;
   F = {A == 0, 1, h, c};

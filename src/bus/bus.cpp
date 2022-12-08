@@ -37,9 +37,9 @@ byte Bus::read(const std::size_t index) const noexcept {
   else if(index < echo_end) return m_builtIn.readEcho(index - echo);
   else if(index < oam_end) return m_ppu.readOAM(index - oam);
   else if(index < noUsable_end) return m_builtIn.readNoUsable(index - noUsable);
-  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF : m_io.readIO(index - io);
+  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF() : m_io.readIO(index - io);
   else if(index < hram_end) return m_builtIn.readHRAM(index - hram);
-  else if(index == IE) return interruptHandler.IE;
+  else if(index == IE) return interruptHandler.IE();
   else assert(false);
 }
 
@@ -52,12 +52,12 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < oam_end) m_ppu.writeOAM(index - oam, b);
   else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
   else if(index < io_end) {
-    if(index == 0xff0f) interruptHandler.IF = b;
+    if(index == 0xff0f) interruptHandler.IF(b);
     else if(index == 0xff46) m_dma.action(b);
     else if(index == 0xff50) bootrom.unmap();
     else m_io.writeIO(index - io, b);
   } else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
-  else if(index == IE) interruptHandler.IE = b;
+  else if(index == IE) interruptHandler.IE(b);
   else assert(false);
 }
 

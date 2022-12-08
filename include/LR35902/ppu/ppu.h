@@ -67,7 +67,7 @@ namespace LR35902 {
 
 // clang-format on
 
-struct Interrupt;
+class Interrupt;
 class IO;
 
 class PPU {
