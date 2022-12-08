@@ -30,34 +30,34 @@ byte Bus::read(const std::size_t index) const noexcept {
     return m_cart.readROM(index);
   }
 
-  else if(index < vram_end)
-    return m_ppu.readVRAM(index - vram);
-  else if(index < sram_end) return m_cart.readSRAM(index - sram);
-  else if(index < wramx_end) return m_builtIn.readWRAM(index - wram0);
-  else if(index < echo_end) return m_builtIn.readEcho(index - echo);
-  else if(index < oam_end) return m_ppu.readOAM(index - oam);
+  // clang-format off
+  else if(index < vram_end)     return m_ppu.readVRAM(index - vram);
+  else if(index < sram_end)     return m_cart.readSRAM(index - sram);
+  else if(index < wramx_end)    return m_builtIn.readWRAM(index - wram0);
+  else if(index < echo_end)     return m_builtIn.readEcho(index - echo);
+  else if(index < oam_end)      return m_ppu.readOAM(index - oam);
   else if(index < noUsable_end) return m_builtIn.readNoUsable(index - noUsable);
-  else if(index < io_end) return index == 0xff0f ? interruptHandler.IF() : m_io.readIO(index - io);
-  else if(index < hram_end) return m_builtIn.readHRAM(index - hram);
-  else if(index == IE) return interruptHandler.IE();
+  else if(index < io_end)       return m_io.readIO(index - io);
+  else if(index < hram_end)     return m_builtIn.readHRAM(index - hram);
+  else if(index == IE)          return interruptHandler.IE();
   else assert(false);
 }
 
+
 void Bus::write(const std::size_t index, const byte b) noexcept {
-  if(index < romx_end) m_cart.writeROM(index, b);
-  else if(index < vram_end) m_ppu.writeVRAM(index - vram, b);
-  else if(index < sram_end) m_cart.writeSRAM(index - sram, b);
-  else if(index < wramx_end) m_builtIn.writeWRAM(index - wram0, b);
-  else if(index < echo_end) m_builtIn.writeEcho(index - echo, b);
-  else if(index < oam_end) m_ppu.writeOAM(index - oam, b);
+  if(index < romx_end)          m_cart.writeROM(index, b);
+  else if(index < vram_end)     m_ppu.writeVRAM(index - vram, b);
+  else if(index < sram_end)     m_cart.writeSRAM(index - sram, b);
+  else if(index < wramx_end)    m_builtIn.writeWRAM(index - wram0, b);
+  else if(index < echo_end)     m_builtIn.writeEcho(index - echo, b);
+  else if(index < oam_end)      m_ppu.writeOAM(index - oam, b);
   else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
-  else if(index < io_end) {
-    if(index == 0xff0f) interruptHandler.IF(b);
-    else if(index == 0xff46) m_dma.action(b);
-    else if(index == 0xff50) bootrom.unmap();
-    else m_io.writeIO(index - io, b);
-  } else if(index < hram_end) m_builtIn.writeHRAM(index - hram, b);
-  else if(index == IE) interruptHandler.IE(b);
+  else if(index < io_end)
+            (index == 0xff46) ? m_dma.action(b) 
+          : (index == 0xff50) ? bootrom.unmap() 
+                              : m_io.writeIO(index - io, b);
+  else if(index < hram_end)     m_builtIn.writeHRAM(index - hram, b);
+  else if(index == IE)          interruptHandler.IE(b);
   else assert(false);
 }
 

@@ -6,19 +6,20 @@
 
 namespace LR35902 {
 
+class IO;
+
 class Interrupt {
 public:
   enum class kind : std::uint8_t { vblank, lcd_stat, timer, serial, joypad };
 
 private:
-  byte _IF{}; // 0xff0f, interrupt request
-  byte _IE{}; // 0xffff, interrupt enable (controlled by the game dev, not emu)
+  IO &m_io;
+  byte _IE{};
 
 public:
-  [[nodiscard]] bool isThereAnAwaitingInterrupt() const noexcept;
+  explicit Interrupt(IO &io);
 
-  [[nodiscard]] byte IF() const noexcept;
-  void IF(const byte b) noexcept;
+  [[nodiscard]] bool isThereAnAwaitingInterrupt() const noexcept;
 
   [[nodiscard]] byte IE() const noexcept;
   void IE(const byte b) noexcept;

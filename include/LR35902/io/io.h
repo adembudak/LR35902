@@ -58,7 +58,7 @@ public:
   byte &SVBK = m_data[0x7f];
 
   // interrupt registers
-  byte &IF = m_data[0x0f];
+  byte &IF = m_data[0x0f]; // interrupt request
 
   // LCD registers
   byte &LCDC = m_data[0x40];

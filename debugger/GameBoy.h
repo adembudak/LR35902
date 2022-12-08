@@ -44,7 +44,7 @@ public:
   lr::Cartridge cart;
   lr::BuiltIn builtIn;
   lr::IO io;
-  lr::Interrupt intr;
+  lr::Interrupt intr{io};
   lr::PPU ppu{intr, io};
 
   lr::DMA dma{cart, ppu, builtIn, clock};
