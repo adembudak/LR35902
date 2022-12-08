@@ -38,7 +38,8 @@ add_library(
   src/builtin/builtin.cpp
   src/io/io.cpp
   src/dma/dma.cpp
-  src/timer/timer.cpp)
+  src/timer/timer.cpp
+  src/interrupt/interrupt.cpp)
 
 target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
