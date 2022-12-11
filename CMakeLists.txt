@@ -37,6 +37,7 @@ add_library(
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp
   src/io/io.cpp
+  src/joypad/joypad.cpp
   src/dma/dma.cpp
   src/timer/timer.cpp
   src/interrupt/interrupt.cpp)

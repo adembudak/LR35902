@@ -19,45 +19,6 @@
 #include <string_view>
 #include <thread>
 
-namespace fs = std::filesystem;
-
-void pollEvent(GameBoy &emu) {
-  static SDL_Event event;
-  while(SDL_PollEvent(&event)) {
-    ImGui_ImplSDL2_ProcessEvent(&event);
-
-    switch(event.type) {
-    case SDL_EventType::SDL_QUIT: //
-      emu.stop();
-      break;
-
-    case SDL_EventType::SDL_WINDOWEVENT:
-      if(event.window.event == SDL_WINDOWEVENT_CLOSE) emu.stop();
-      break;
-
-    case SDL_EventType::SDL_KEYDOWN: {
-      const Uint8 *const state = SDL_GetKeyboardState(NULL);
-      if(state[SDL_SCANCODE_RETURN]) emu.joypad(button::select, keyStatus::pressed);
-      if(state[SDL_SCANCODE_SPACE]) emu.joypad(button::start, keyStatus::pressed);
-      if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::pressed);
-      if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::pressed);
-      if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::pressed);
-      if(state[SDL_SCANCODE_A]) emu.joypad(button::left, keyStatus::pressed);
-    } break;
-
-    case SDL_EventType::SDL_KEYUP: {
-      const Uint8 *const state = SDL_GetKeyboardState(NULL);
-      if(state[SDL_SCANCODE_RETURN]) emu.joypad(button::select, keyStatus::released);
-      if(state[SDL_SCANCODE_SPACE]) emu.joypad(button::start, keyStatus::released);
-      if(state[SDL_SCANCODE_W]) emu.joypad(button::up, keyStatus::released);
-      if(state[SDL_SCANCODE_D]) emu.joypad(button::right, keyStatus::released);
-      if(state[SDL_SCANCODE_S]) emu.joypad(button::down, keyStatus::released);
-      if(state[SDL_SCANCODE_A]) emu.joypad(button::left, keyStatus::released);
-    } break;
-    }
-  }
-}
-
 void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
@@ -96,6 +57,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
 }
 
 int main(int argc, char **argv) {
+  namespace fs = std::filesystem;
 
   constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
 
@@ -175,7 +137,42 @@ int main(int argc, char **argv) {
   auto lastFrame = nextFrame - frames{1};
 
   while(attaboy.isPowerOn()) {
-    pollEvent(attaboy);
+    SDL_Event event;
+
+    while(SDL_PollEvent(&event)) {
+      ImGui_ImplSDL2_ProcessEvent(&event);
+      switch(event.type) {
+      case SDL_EventType::SDL_QUIT: attaboy.stop(); break;
+
+      // clang-format off
+      case SDL_EventType::SDL_KEYDOWN:
+        switch(event.key.keysym.sym) {
+        case SDL_KeyCode::SDLK_a:      attaboy.joypad.update(lr::button::a,      lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_b:      attaboy.joypad.update(lr::button::b,      lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_RETURN: attaboy.joypad.update(lr::button::select, lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_SPACE:  attaboy.joypad.update(lr::button::start,  lr::keystatus::pressed); break;
+
+        case SDL_KeyCode::SDLK_UP:     attaboy.joypad.update(lr::button::up,     lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_RIGHT:  attaboy.joypad.update(lr::button::right,  lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_DOWN:   attaboy.joypad.update(lr::button::down,   lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_LEFT:   attaboy.joypad.update(lr::button::left,   lr::keystatus::pressed); break;
+        } break;
+
+      case SDL_EventType::SDL_KEYUP:
+        switch(event.key.keysym.sym) {
+        case SDL_KeyCode::SDLK_a:      attaboy.joypad.update(lr::button::a,      lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_b:      attaboy.joypad.update(lr::button::b,      lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_RETURN: attaboy.joypad.update(lr::button::select, lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_SPACE:  attaboy.joypad.update(lr::button::start,  lr::keystatus::released); break;
+
+        case SDL_KeyCode::SDLK_UP:     attaboy.joypad.update(lr::button::up,     lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_RIGHT:  attaboy.joypad.update(lr::button::right,  lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_DOWN:   attaboy.joypad.update(lr::button::down,   lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_LEFT:   attaboy.joypad.update(lr::button::left,   lr::keystatus::released); break;
+        } break;
+        // clang-format on
+      }
+    }
 
     ImGui_ImplSDLRenderer_NewFrame();
     ImGui_ImplSDL2_NewFrame();

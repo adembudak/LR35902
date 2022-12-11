@@ -7,32 +7,13 @@
 #include <LR35902/dma/dma.h>
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
+#include <LR35902/joypad/joypad.h>
 #include <LR35902/ppu/ppu.h>
 #include <LR35902/timer/timer.h>
 
-#include <array>
 #include <cstdint>
 #include <functional>
 #include <string_view>
-
-enum class button : std::uint8_t {
-  // direction keys
-  right,
-  left,
-  up,
-  down,
-
-  // selection keys
-  a,
-  b,
-  select,
-  start,
-};
-
-enum class keyStatus : std::uint8_t { pressed, released };
-
-constexpr std::array<button, 4> directionButtons{button::right, button::left, button::up, button::down};
-constexpr std::array<button, 4> selectionButtons{button::a, button::b, button::select, button::start};
 
 namespace lr = LR35902;
 
@@ -45,10 +26,11 @@ public:
   lr::BuiltIn builtIn;
   lr::IO io;
   lr::Interrupt intr{io};
+  lr::Joypad joypad{io, intr};
   lr::PPU ppu{intr, io};
 
   lr::DMA dma{cart, ppu, builtIn, clock};
-  lr::Bus bus{cart, ppu, builtIn, dma, io, intr};
+  lr::Bus bus{cart, ppu, builtIn, dma, io, intr, joypad};
   lr::Timer timer{io, intr};
   lr::CPU cpu{bus, clock};
 
@@ -70,8 +52,6 @@ public:
 
   void stop() noexcept;
   bool isPowerOn() const noexcept;
-
-  void joypad(button b, keyStatus s) noexcept;
 
   friend class lr::DebugView;
 };
