@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-class rom_only {
+class rom_only final {
   std::vector<byte> m_rom;
 
   byte dummy; // dummy byte to handle write static_ram

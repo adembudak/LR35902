@@ -6,7 +6,7 @@
 
 namespace LR35902 {
 
-class rom_ram {
+class rom_ram final {
   std::array<byte, 32_KiB> m_rom{};
   std::array<byte, 8_KiB> m_sram{};
 

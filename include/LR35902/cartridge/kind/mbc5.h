@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-class mbc5 {
+class mbc5 final {
   std::vector<byte> m_rom;
 
   struct bank_t {
@@ -26,7 +26,7 @@ class mbc5 {
   } bank;
 
 public:
-  mbc5(std::vector<byte> other);
+  explicit mbc5(std::vector<byte> other);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

@@ -16,12 +16,12 @@
 namespace LR35902 {
 
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
-class Cartridge {
+class Cartridge final {
   header_t header;
   std::variant<rom_only, rom_ram, mbc1, mbc1_ram, mbc2, mbc5> m_cart;
 
 public:
-  void load(const char *romfile) noexcept;
+  void load(const char *const romfile) noexcept;
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

@@ -8,7 +8,7 @@
 
 namespace LR35902 {
 
-class mbc2 {
+class mbc2 final {
   std::vector<byte> m_rom;
   std::array<byte, 512_KiB> m_sram{};
 

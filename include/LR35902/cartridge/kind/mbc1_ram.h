@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-class mbc1_ram {
+class mbc1_ram final {
   std::vector<byte> m_rom;
   std::vector<byte> m_sram;
 
