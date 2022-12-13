@@ -8,6 +8,24 @@ namespace LR35902 {
 // GameBoy memory layout                    [half closed range)
 //                                          address |  size  |   located in
 // -------------------------------------------------------------------------
+inline constexpr std::size_t rst_00 =        0x0000; // reset vectors
+inline constexpr std::size_t rst_08 =        0x0008;
+inline constexpr std::size_t rst_10 =        0x0010;
+inline constexpr std::size_t rst_18 =        0x0018;
+inline constexpr std::size_t rst_20 =        0x0020;
+inline constexpr std::size_t rst_28 =        0x0028;
+inline constexpr std::size_t rst_30 =        0x0030;
+inline constexpr std::size_t rst_38 =        0x0038;
+
+inline constexpr std::size_t vblank =        0x0040; // interrupt vectors
+inline constexpr std::size_t lcd_stat =      0x0048;
+inline constexpr std::size_t timer =         0x0050;
+inline constexpr std::size_t serial =        0x0058;
+inline constexpr std::size_t joypad =        0x0060;
+
+inline constexpr std::size_t header_start =  0x0100;
+inline constexpr std::size_t header_end =    0x0150;
+                                                     
 inline constexpr std::size_t rom0 =          0x0000; // 32KB      Cartridge
 inline constexpr std::size_t rom0_end =      0x4000;
 
