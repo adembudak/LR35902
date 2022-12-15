@@ -4,6 +4,8 @@
 
 - implement halt instruction
 
+- implement stat interrupt queue
+
 - setup Github Actions
 
 - write a custom boot rom
