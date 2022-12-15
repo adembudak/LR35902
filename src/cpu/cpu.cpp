@@ -1612,7 +1612,7 @@ void CPU::scf() noexcept { // scf - 0 0 1
 void CPU::stop() noexcept { // stop
   /* implement this */
   // Enter low power mode
-  // Reset Time.DIV register
+  m_bus.write(0xff04, 0); // Reset Time.DIV register
 }
 
 void CPU::unused() noexcept {
