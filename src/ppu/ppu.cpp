@@ -380,11 +380,12 @@ void PPU::fetchBackground() const noexcept {
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const int x = (tile_nth * tile_w) - SCX + i;
-      if(x < 0 || x >= viewport_w) continue;
-
       const int y = currentScanline() - SCY;
-      if(y < 0 || y >= viewport_h) continue;
+      if(y < 0 || y >= viewport_h) return;
+
+      const int x = (tile_nth * tile_w) - SCX + i;
+      if(x < 0) continue;
+      if(x >= viewport_w) return;
 
       const bool lo = tileline_upper & mask; // the 2 bits in the
       const bool hi = tileline_lower & mask; // 2bpp format
@@ -416,7 +417,7 @@ void PPU::fetchWindow() const noexcept {
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const std::size_t x = (tile_nth * tile_w) + window_x() + i;
-      if(x > viewport_w) continue;
+      if(x >= viewport_w) return;
 
       const std::size_t y = currentScanline();
 
@@ -489,6 +490,9 @@ void PPU::fetchSprites() const noexcept {
 
       const byte y = y_on_screen + currently_scanning_tileline;
       const byte x = x_on_screen + i;
+
+      if(y >= viewport_h) assert(false);
+      if(x >= viewport_w) break;
 
       m_screen[y][x] = bgHasPriority ? original[bgp()[pi]]
                        : palette     ? original[obp1()[pi]]
