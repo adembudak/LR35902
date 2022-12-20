@@ -15,7 +15,7 @@ int main(int argc, const char *const argv[]) {
   CLI::App app;
 
   std::vector<std::filesystem::directory_entry> romEntries;
-  app.add_option("rom.gb", romEntries, "rom file or directory");
+  app.add_option("rom.gb", romEntries, "rom files");
 
   std::array<bool, 9> options{};
   app.add_flag("-t,--title", options[0], "Print cart title");
