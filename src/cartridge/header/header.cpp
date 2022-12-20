@@ -115,18 +115,18 @@ std::pair<std::string, byte> header_t::decode_mbc_type() const noexcept {
 
 std::pair<std::string, std::size_t> header_t::decode_rom_size() const noexcept {
   switch(const byte b = m_data[rom_code]; b) {
-  case 0x00: return {"32_kb", 32_KiB};
-  case 0x01: return {"64_kb", 64_KiB};
-  case 0x02: return {"128_kb", 128_KiB};
-  case 0x03: return {"256_kb", 256_KiB};
-  case 0x04: return {"512_kb", 512_KiB};
-  case 0x05: return {"1_mb", 1_MiB};
-  case 0x06: return {"2_mb", 2_MiB};
-  case 0x07: return {"4_mb", 4_MiB};
-  case 0x08: return {"8_mb", 8_MiB};
-  case 0x52: return {"1.1_mb", 1_MiB + 128_KiB};
-  case 0x53: return {"1.2_mb", 1_MiB + 256_KiB};
-  case 0x54: return {"1.5_mb", 1_MiB + 512_KiB};
+  case 0x00: return {"32_kb (2 banks)", 32_KiB};
+  case 0x01: return {"64_kb (4 banks)", 64_KiB};
+  case 0x02: return {"128_kb (8 banks)", 128_KiB};
+  case 0x03: return {"256_kb (16 banks)", 256_KiB};
+  case 0x04: return {"512_kb (32 banks)", 512_KiB};
+  case 0x05: return {"1_mb (64 banks)", 1_MiB};
+  case 0x06: return {"2_mb (128 banks)", 2_MiB};
+  case 0x07: return {"4_mb (256 banks)", 4_MiB};
+  case 0x08: return {"8_mb (512 banks)", 8_MiB};
+  case 0x52: return {"1.1_mb (72 banks)", 1_MiB + 128_KiB};
+  case 0x53: return {"1.2_mb (80 banks)", 1_MiB + 256_KiB};
+  case 0x54: return {"1.5_mb (96 banks)", 1_MiB + 512_KiB};
   default: return {"unknown value: "s.append(std::to_string(b)), b};
   }
 }
@@ -135,10 +135,10 @@ std::pair<std::string, std::size_t> header_t::decode_ram_size() const noexcept {
   switch(const byte b = m_data[ram_code]; b) {
   case 0x00: return {"No RAM", 0};
   case 0x01: return {"-", 0};
-  case 0x02: return {"8_kb", 8_KiB};
-  case 0x03: return {"32_kb", 32_KiB};
-  case 0x04: return {"128_kb", 128_KiB};
-  case 0x05: return {"64_kb", 64_KiB};
+  case 0x02: return {"8_kb (1 bank)", 8_KiB};
+  case 0x03: return {"32_kb (4 banks)", 32_KiB};
+  case 0x04: return {"128_kb (16 banks)", 128_KiB};
+  case 0x05: return {"64_kb (8 banks)", 64_KiB};
   default: return {"unknown value: "s.append(std::to_string(b)), b};
   }
 }
