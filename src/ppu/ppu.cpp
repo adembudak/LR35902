@@ -7,6 +7,7 @@
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
+#include <range/v3/algorithm/fill.hpp>
 #include <range/v3/to_container.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
@@ -169,7 +170,6 @@ void PPU::update(const std::size_t cycles) noexcept {
 
       if(currentScanline() == vblank_start) {
         mode(state::vblanking); // 0 -> 1
-        m_drawCallback(m_screen);
 
         intr.request(Interrupt::kind::vblank);
       } else {
@@ -204,14 +204,15 @@ void PPU::update(const std::size_t cycles) noexcept {
   }
 }
 
-void PPU::setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept {
-  m_drawCallback = drawCallback;
+auto PPU::GetFrameBuffer() noexcept -> const std::array<screen_t, 3> & {
+  return m_framebuffer;
 }
 
 void PPU::reset() noexcept {
-  m_vram.fill(byte{});
-  m_oam.fill(byte{});
-  m_screen.fill(scanline_t{});
+  rg::fill(m_vram, byte{});
+  rg::fill(m_oam, byte{});
+  for(auto &e : m_framebuffer)
+    rg::fill(e, scanline_t{});
 }
 
 // LCDC register related members
@@ -391,7 +392,7 @@ void PPU::fetchBackground() const noexcept {
       const bool hi = tileline_lower & mask; // 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = original[bgp()[pi]];
+      m_framebuffer[0][y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -425,7 +426,7 @@ void PPU::fetchWindow() const noexcept {
       const bool hi = tileline_lower & mask;
       const palette_index pi = (hi << 1) | lo;
 
-      m_screen[y][x] = original[bgp()[pi]];
+      m_framebuffer[1][y][x] = original[bgp()[pi]];
     }
   }
 }
@@ -494,11 +495,10 @@ void PPU::fetchSprites() const noexcept {
       if(y >= viewport_h) assert(false);
       if(x >= viewport_w) break;
 
-      m_screen[y][x] = bgHasPriority ? original[bgp()[pi]]
-                       : palette     ? original[obp1()[pi]]
-                                     : original[obp0()[pi]];
+      m_framebuffer[2][y][x] = bgHasPriority ? original[bgp()[pi]]
+                               : palette     ? original[obp1()[pi]]
+                                             : original[obp0()[pi]];
     }
   }
 }
-
 }

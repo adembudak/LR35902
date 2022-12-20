@@ -5,10 +5,6 @@
 #include <cassert>
 #include <string_view>
 
-void GameBoy::setDrawCallback(const std::function<void(const screen_t &)> &drawCallback) noexcept {
-  ppu.setDrawCallback(drawCallback);
-}
-
 void GameBoy::skipboot(bool b) noexcept {
   m_isRunning = true;
 

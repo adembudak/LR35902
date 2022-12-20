@@ -58,6 +58,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
 
 int main(int argc, char **argv) {
   namespace fs = std::filesystem;
+  namespace chrono = std::chrono;
 
   constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
 
@@ -119,22 +120,18 @@ int main(int argc, char **argv) {
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
-  SDL_Rect rect{30, 30, 160, 144};
-  auto cbk = [&](const GameBoy::screen_t &framebuffer) {
-    SDL_UpdateTexture(m_texture, &rect, framebuffer.data(), sizeof(LR35902::rgba32) * 160);
-  };
-
-  attaboy.setDrawCallback(cbk);
-
   if(skipboot) attaboy.skipboot();
   else attaboy.skipboot(false);
 
   attaboy.plug(argv[1]);
 
-  using namespace std::chrono;
-  using frames = duration<int, std::ratio<1, 60>>;
-  auto nextFrame = system_clock::now() + frames{0};
+  using frames = chrono::duration<int, std::ratio<1, 30>>;
+  auto nextFrame = chrono::system_clock::now() + frames{0};
   auto lastFrame = nextFrame - frames{1};
+
+  bool show_bg = true;
+  bool show_win = true;
+  bool show_obj = true;
 
   while(attaboy.isPowerOn()) {
     SDL_Event event;
@@ -184,6 +181,35 @@ int main(int argc, char **argv) {
     }
 
     attaboy.update();
+
+    ImGui::Begin("Emu");
+    ImGui::Checkbox("Background", &show_bg);
+    ImGui::SameLine();
+    ImGui::Checkbox("Window", &show_win);
+    ImGui::SameLine();
+    ImGui::Checkbox("Sprites", &show_obj);
+    ImGui::NewLine();
+
+    const auto &[bg, win, obj] = attaboy.ppu.GetFrameBuffer();
+    ImDrawList *const drawlist = ImGui::GetWindowDrawList();
+    const ImVec2 base = ImGui::GetCursorScreenPos();
+
+    for(int y = 0; y < bg.size(); ++y) {
+      for(int x = 0; x < bg[0].size(); ++x) {
+
+        if(show_obj)
+          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
+                                  ImColor{obj[y][x].r, obj[y][x].g, obj[y][x].b, obj[y][x].a});
+        if(show_win)
+          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
+                                  ImColor{win[y][x].r, win[y][x].g, win[y][x].b, win[y][x].a});
+        if(show_bg)
+          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
+                                  ImColor{bg[y][x].r, bg[y][x].g, bg[y][x].b, bg[y][x].a});
+      }
+    }
+
+    ImGui::End();
 
     debugView.showCartHeader();
     debugView.showMemoryPortions();

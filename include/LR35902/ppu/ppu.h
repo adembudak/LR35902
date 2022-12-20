@@ -4,7 +4,6 @@
 #include <LR35902/ppu/palettes.h>
 
 #include <array>
-#include <functional>
 
 namespace LR35902 {
 
@@ -87,7 +86,7 @@ public:
 
   void update(const std::size_t cycles) noexcept;
 
-  void setDrawCallback(const std::function<void(const screen_t &framebuffer)> &drawCallback) noexcept;
+  auto GetFrameBuffer() noexcept -> const std::array<screen_t, 3> &;
   void reset() noexcept;
 
 private:
@@ -148,8 +147,7 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
   // drawing
-  std::function<void(const screen_t &)> m_drawCallback;
-  mutable screen_t m_screen{};
+  mutable std::array<screen_t, 3> m_framebuffer{};
 
   void fetchBackground() const noexcept;
   void fetchWindow() const noexcept;
