@@ -2,6 +2,7 @@
 #include <LR35902/config.h>
 #include <LR35902/cpu/cpu.h>
 #include <LR35902/interrupt/interrupt.h>
+#include <LR35902/memory_map.h>
 
 #include <cstdint>
 
@@ -51,27 +52,27 @@ void CPU::handleInterrupts() noexcept {
   switch(m_bus.interruptHandler.get()) {
     using enum Interrupt::kind;
   case vblank:
-    PC.m_data = 0x40;
+    PC.m_data = mmap::vblank;
     m_bus.interruptHandler.serve(vblank);
     break;
 
   case lcd_stat:
-    PC.m_data = 0x48;
+    PC.m_data = mmap::lcd_stat;
     m_bus.interruptHandler.serve(lcd_stat);
     break;
 
   case timer:
-    PC.m_data = 0x50;
+    PC.m_data = mmap::timer;
     m_bus.interruptHandler.serve(timer);
     break;
 
   case serial:
-    PC.m_data = 0x58;
+    PC.m_data = mmap::serial;
     m_bus.interruptHandler.serve(serial);
     break;
 
   case joypad:
-    PC.m_data = 0x60;
+    PC.m_data = mmap::joypad;
     m_bus.interruptHandler.serve(joypad);
     break;
   }
@@ -357,7 +358,7 @@ printf("A:%02X "
   case 0xc4: call(cc::nz, n16{fetchWord()}); break;
   case 0xc5: push(BC); break;
   case 0xc6: add(n8{fetchByte()}); break;
-  case 0xc7: rst(0x00); break;
+  case 0xc7: rst(mmap::rst_00); break;
   case 0xc8: ret(cc::z); break;
   case 0xc9: ret(); break;
   case 0xca: jp(cc::z, n16{fetchWord()}); break;
@@ -635,7 +636,7 @@ printf("A:%02X "
   case 0xcc: call(cc::z, n16{fetchWord()}); break;
   case 0xcd: call(n16{fetchWord()}); break;
   case 0xce: adc(n8{fetchByte()}); break;
-  case 0xcf: rst(0x08); break;
+  case 0xcf: rst(mmap::rst_08); break;
   case 0xd0: ret(cc::nc); break;
   case 0xd1: pop(DE); break;
   case 0xd2: jp(cc::nc, n16{fetchWord()}); break;
@@ -643,7 +644,7 @@ printf("A:%02X "
   case 0xd4: call(cc::nc, n16{fetchWord()}); break;
   case 0xd5: push(DE); break;
   case 0xd6: sub(n8{fetchByte()}); break;
-  case 0xd7: rst(0x10); break;
+  case 0xd7: rst(mmap::rst_10); break;
   case 0xd8: ret(cc::c); break;
   case 0xd9: reti(); break;
   case 0xda: jp(cc::c, n16{fetchWord()}); break;
@@ -651,7 +652,7 @@ printf("A:%02X "
   case 0xdc: call(cc::c, n16{fetchWord()}); break;
   case 0xdd: unused(); break;
   case 0xde: sbc(n8{fetchByte()}); break;
-  case 0xdf: rst(0x18); break;
+  case 0xdf: rst(mmap::rst_18); break;
   case 0xe0: ldh(0xFF00 + fetchByte(), register_to_memory); break;
   case 0xe1: pop(HL); break;
   case 0xe2: ldh(0xFF00 + C.data(), register_to_memory, C_register_tag); break;
@@ -659,7 +660,7 @@ printf("A:%02X "
   case 0xe4: unused(); break;
   case 0xe5: push(HL); break;
   case 0xe6: and_(n8{fetchByte()}); break;
-  case 0xe7: rst(0x20); break;
+  case 0xe7: rst(mmap::rst_20); break;
   case 0xe8: add(SP_register_tag, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xe9: jp(HL_register_tag); break;
   case 0xea: {
@@ -673,7 +674,7 @@ printf("A:%02X "
   case 0xec: unused(); break;
   case 0xed: unused(); break;
   case 0xee: xor_(n8{fetchByte()}); break;
-  case 0xef: rst(0x28); break;
+  case 0xef: rst(mmap::rst_28); break;
   case 0xf0: {
     const byte b = m_bus.read(0xff00 + fetchByte());
     ldh(memory_to_register, b);
@@ -689,7 +690,7 @@ printf("A:%02X "
   case 0xf4: unused(); break;
   case 0xf5: push(AF_register_tag); break;
   case 0xf6: or_(n8{fetchByte()}); break;
-  case 0xf7: rst(0x30); break;
+  case 0xf7: rst(mmap::rst_30); break;
   case 0xf8: ld(HL_register_tag, SP_register_tag, e8{static_cast<int8_t>(fetchByte())}); break;
   case 0xf9: ld(SP_register_tag, HL_register_tag); break;
   case 0xfa: { // ld A,[n16]
@@ -702,7 +703,7 @@ printf("A:%02X "
   case 0xfc: unused(); break;
   case 0xfd: unused(); break;
   case 0xfe: cp(n8{fetchByte()}); break;
-  case 0xff: rst(0x38); break;
+  case 0xff: rst(mmap::rst_38); break;
   }
 }
 
