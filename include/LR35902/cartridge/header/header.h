@@ -1,24 +1,22 @@
 #pragma once
 
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 
 #include <array>
 #include <string>
 
 namespace LR35902 {
 
-constexpr std::size_t cartridge_header_begin = 0x100;
-constexpr std::size_t cartridge_header_end = 0x14f + 1;
-
 class header_t {
-  std::array<byte, cartridge_header_end> m_data;
+  std::array<byte, mmap::header_end> m_data;
 
 public:
   header_t() = default;
-  header_t(std::array<byte, cartridge_header_end> n) :
+  header_t(std::array<byte, mmap::header_end> n) :
       m_data(std::move(n)) {}
 
-  void assign(std::array<byte, cartridge_header_end> &&t) {
+  void assign(std::array<byte, mmap::header_end> &&t) {
     m_data = std::move(t);
   }
 

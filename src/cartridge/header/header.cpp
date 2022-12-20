@@ -1,5 +1,6 @@
 #include <LR35902/cartridge/header/header.h>
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 
 #include <algorithm>
 #include <array>
@@ -10,6 +11,7 @@ namespace LR35902 {
 
 using namespace std::string_literals;
 
+/*
 constexpr std::size_t logo_begin = 0x104;
 constexpr std::size_t logo_end = 0x133 + 1;
 constexpr std::size_t title_begin = 0x134;
@@ -30,21 +32,22 @@ constexpr std::size_t game_version = 0x14c;
 constexpr std::size_t checksum_begin = 0x134;
 constexpr std::size_t checksum_end = 0x14c + 1;
 constexpr std::size_t checksum_result = 0x14d;
+*/
 
-constexpr std::array<byte, logo_end - logo_begin> nintendo_logo{
+constexpr std::array<byte, mmap::logo_end - mmap::logo_begin> nintendo_logo{
     0xce, 0xed, 0x66, 0x66, 0xcc, 0x0d, 0x00, 0x0b, 0x03, 0x73, 0x00, 0x83, 0x00, 0x0c, 0x00, 0x0d,
     0x00, 0x08, 0x11, 0x1f, 0x88, 0x89, 0x00, 0x0e, 0xdc, 0xcc, 0x6e, 0xe6, 0xdd, 0xdd, 0xd9, 0x99,
     0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
 
 std::string header_t::decode_title() const noexcept {
-  auto title = std::string(&m_data[title_begin], &m_data[title_end]);
+  auto title = std::string(&m_data[mmap::title_begin], &m_data[mmap::title_end]);
   std::ranges::replace_if(
       title, [](char c) { return !isprint(c); }, ' ');
   return title;
 }
 
 std::string header_t::decode_destination_name() const noexcept {
-  switch(const byte b = m_data[destination_code]; b) {
+  switch(const byte b = m_data[mmap::destination]; b) {
   case 0x00: return "jp";
   case 0x01: return "other";
   default: return "unknown value: "s.append(std::to_string(b));
@@ -52,7 +55,7 @@ std::string header_t::decode_destination_name() const noexcept {
 }
 
 std::string header_t::decode_sgb_support() const noexcept {
-  switch(const byte b = m_data[super_gameboy_support]; b) {
+  switch(const byte b = m_data[mmap::sgb_support]; b) {
   case 0x00: return "compatible";
   case 0x03: return "need sgb functionalities";
   default: return "unknown value: "s.append(std::to_string(b));
@@ -60,18 +63,18 @@ std::string header_t::decode_sgb_support() const noexcept {
 }
 
 bool header_t::is_logocheck_ok() const noexcept {
-  return std::equal(&m_data[logo_begin], &m_data[logo_end], nintendo_logo.begin());
+  return std::equal(&m_data[mmap::logo_begin], &m_data[mmap::logo_end], nintendo_logo.begin());
 }
 
 bool header_t::is_checksum_ok() const noexcept {
-  const int checksum = std::accumulate(&m_data[checksum_begin], &m_data[checksum_end], 0,
+  const int checksum = std::accumulate(&m_data[mmap::csum_begin], &m_data[mmap::csum_end], 0,
                                        [](byte x, byte y) { return x - y - 1; });
 
-  return checksum == m_data[checksum_result];
+  return checksum == m_data[mmap::csum_result];
 }
 
 std::string header_t::decode_cgb_support() const noexcept {
-  switch(const byte b = m_data[color_gameboy_support]; b) {
+  switch(const byte b = m_data[mmap::cgb_support]; b) {
   case 0x00: return "dmg-only";
   case 0x80: return "dmg-compatible";
   case 0xc0: return "cgb-only";
@@ -80,7 +83,7 @@ std::string header_t::decode_cgb_support() const noexcept {
 }
 
 std::pair<std::string, byte> header_t::decode_mbc_type() const noexcept {
-  switch(const byte b = m_data[mbc_code]; b) {
+  switch(const byte b = m_data[mmap::mbc_code]; b) {
   case 0x00: return {"rom_only", 0x00};
   case 0x01: return {"mbc1", 0x01};
   case 0x02: return {"mbc1+ram", 0x02};
@@ -114,7 +117,7 @@ std::pair<std::string, byte> header_t::decode_mbc_type() const noexcept {
 }
 
 std::pair<std::string, std::size_t> header_t::decode_rom_size() const noexcept {
-  switch(const byte b = m_data[rom_code]; b) {
+  switch(const byte b = m_data[mmap::rom_code]; b) {
   case 0x00: return {"32_kb (2 banks)", 32_KiB};
   case 0x01: return {"64_kb (4 banks)", 64_KiB};
   case 0x02: return {"128_kb (8 banks)", 128_KiB};
@@ -132,7 +135,7 @@ std::pair<std::string, std::size_t> header_t::decode_rom_size() const noexcept {
 }
 
 std::pair<std::string, std::size_t> header_t::decode_ram_size() const noexcept {
-  switch(const byte b = m_data[ram_code]; b) {
+  switch(const byte b = m_data[mmap::ram_code]; b) {
   case 0x00: return {"No RAM", 0};
   case 0x01: return {"-", 0};
   case 0x02: return {"8_kb (1 bank)", 8_KiB};
@@ -145,9 +148,9 @@ std::pair<std::string, std::size_t> header_t::decode_ram_size() const noexcept {
 
 std::string header_t::decode_licensee_name() const noexcept {
 
-  if(const byte a = m_data[old_licensee_code]; a == 0x33) {
-    const std::string s{static_cast<char>(m_data[new_licensee_code0]),
-                        static_cast<char>(m_data[new_licensee_code1])};
+  if(const byte a = m_data[mmap::old_licensee]; a == 0x33) {
+    const std::string s{static_cast<char>(m_data[mmap::new_licensee0]),
+                        static_cast<char>(m_data[mmap::new_licensee1])};
     if(s == "00") return "None";
     else if(s == "01") return "Nintendo";
     else if(s == "08") return "Capcom";
@@ -364,7 +367,7 @@ std::string header_t::decode_licensee_name() const noexcept {
 }
 
 std::size_t header_t::decode_version() const noexcept {
-  return m_data[game_version];
+  return m_data[mmap::game_version];
 }
 
 }

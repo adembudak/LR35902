@@ -42,14 +42,14 @@ mbc1_ram::mbc1_ram(std::vector<byte> other, const std::size_t ram_size) :
 }
 
 byte mbc1_ram::readROM(const std::size_t index) const noexcept {
-  if(index < rom0_end) {
+  if(index < mmap::rom0_end) {
     if(mode == mode_t::ram_banking) //
       return m_rom[((bank.secondary << 5) * rom_bank_size) + index];
 
     return m_rom[index];
   }
 
-  else if(index < romx_end) {
+  else if(index < mmap::romx_end) {
     const std::size_t index_normalized = index % rom_bank_size;
 
     if(mode == mode_t::rom_banking) //
@@ -58,7 +58,7 @@ byte mbc1_ram::readROM(const std::size_t index) const noexcept {
       return m_rom[(bank.primary * rom_bank_size) + index_normalized];
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     if(bank.ramg) {
       const std::size_t index_normalized = index % ram_bank_size;
       if(mode == mode_t::ram_banking) //
@@ -91,7 +91,7 @@ void mbc1_ram::writeROM(const std::size_t index, const byte b) noexcept {
     mode = (b & 0b0000'0001) ? mode_t::ram_banking : mode_t::rom_banking;
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     if(bank.ramg) {
       const std::size_t index_normalized = index % ram_bank_size;
       if(mode == mode_t::ram_banking) //

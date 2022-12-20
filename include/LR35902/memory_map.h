@@ -3,7 +3,7 @@
 #include <cstddef>
 // clang-format off
 
-namespace LR35902 {
+namespace LR35902::mmap {
 
 // GameBoy memory layout                    [half closed range)
 //                                          address |  size  |   located in

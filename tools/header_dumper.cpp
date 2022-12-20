@@ -1,4 +1,3 @@
-
 #include <LR35902/cartridge/header/header.h>
 
 #include <CLI/CLI.hpp>
@@ -38,11 +37,11 @@ int main(int argc, const char *const argv[]) {
   };
 
   for(const auto &e : romEntries | ranges::views::filter(validEntry)) {
-    std::array<byte, cartridge_header_end> headerDump{};
+    std::array<byte, mmap::header_end> headerDump{};
     std::ifstream fin;
 
     fin.open(e.path());
-    fin.read(std::bit_cast<char *>(headerDump.data()), cartridge_header_end);
+    fin.read(std::bit_cast<char *>(headerDump.data()), mmap::header_end);
     fin.close();
 
     LR35902::header_t header{headerDump};

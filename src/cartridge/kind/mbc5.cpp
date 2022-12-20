@@ -74,16 +74,16 @@ mbc5::mbc5(std::vector<byte> other) :
 }
 
 byte mbc5::readROM(const std::size_t index) const noexcept {
-  if(index < rom0_end) {
+  if(index < mmap::rom0_end) {
     return m_rom[index];
   }
 
-  else if(index < romx_end) {
+  else if(index < mmap::romx_end) {
     const std::size_t index_normalized = index % rom_bank_size;
     return m_rom[bank.value() + index_normalized];
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     return random_byte();
   }
 
@@ -111,7 +111,7 @@ void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
     (void)b;
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     (void)index;
     (void)b;
   }

@@ -27,40 +27,40 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
     m_joypad(joypad) {}
 
 byte Bus::read(const std::size_t index) const noexcept {
-  if(index < romx_end) {
+  if(index < mmap::romx_end) {
     if(bootrom.isBootOnGoing())
       if(index <= 0x100) return bootrom.read(index);
     return m_cart.readROM(index);
   }
 
   // clang-format off
-  else if(index < vram_end)     return m_ppu.readVRAM(index - vram);
-  else if(index < sram_end)     return m_cart.readSRAM(index - sram);
-  else if(index < wramx_end)    return m_builtIn.readWRAM(index - wram0);
-  else if(index < echo_end)     return m_builtIn.readEcho(index - echo);
-  else if(index < oam_end)      return m_ppu.readOAM(index - oam);
-  else if(index < noUsable_end) return m_builtIn.readNoUsable(index - noUsable);
-  else if(index < io_end)       return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index - io);
-  else if(index < hram_end)     return m_builtIn.readHRAM(index - hram);
-  else if(index == IE)          return interruptHandler.IE();
+  else if(index < mmap::vram_end)     return m_ppu.readVRAM(index - mmap::vram);
+  else if(index < mmap::sram_end)     return m_cart.readSRAM(index - mmap::sram);
+  else if(index < mmap::wramx_end)    return m_builtIn.readWRAM(index - mmap::wram0);
+  else if(index < mmap::echo_end)     return m_builtIn.readEcho(index - mmap::echo);
+  else if(index < mmap::oam_end)      return m_ppu.readOAM(index - mmap::oam);
+  else if(index < mmap::noUsable_end) return m_builtIn.readNoUsable(index - mmap::noUsable);
+  else if(index < mmap::io_end)       return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index - mmap::io);
+  else if(index < mmap::hram_end)     return m_builtIn.readHRAM(index - mmap::hram);
+  else if(index == mmap::IE)          return interruptHandler.IE();
   else assert(false);
 }
 
 
 void Bus::write(const std::size_t index, const byte b) noexcept {
-  if(index < romx_end)          m_cart.writeROM(index, b);
-  else if(index < vram_end)     m_ppu.writeVRAM(index - vram, b);
-  else if(index < sram_end)     m_cart.writeSRAM(index - sram, b);
-  else if(index < wramx_end)    m_builtIn.writeWRAM(index - wram0, b);
-  else if(index < echo_end)     m_builtIn.writeEcho(index - echo, b);
-  else if(index < oam_end)      m_ppu.writeOAM(index - oam, b);
-  else if(index < noUsable_end) m_builtIn.writeNoUsable(index - noUsable, b);
-  else if(index < io_end)
+  if(index < mmap::romx_end)          m_cart.writeROM(index, b);
+  else if(index < mmap::vram_end)     m_ppu.writeVRAM(index - mmap::vram, b);
+  else if(index < mmap::sram_end)     m_cart.writeSRAM(index - mmap::sram, b);
+  else if(index < mmap::wramx_end)    m_builtIn.writeWRAM(index - mmap::wram0, b);
+  else if(index < mmap::echo_end)     m_builtIn.writeEcho(index - mmap::echo, b);
+  else if(index < mmap::oam_end)      m_ppu.writeOAM(index - mmap::oam, b);
+  else if(index < mmap::noUsable_end) m_builtIn.writeNoUsable(index - mmap::noUsable, b);
+  else if(index < mmap::io_end)
             (index == 0xff46) ? m_dma.action(b) 
           : (index == 0xff50) ? bootrom.unmap() 
-                              : m_io.writeIO(index - io, b);
-  else if(index < hram_end)     m_builtIn.writeHRAM(index - hram, b);
-  else if(index == IE)          interruptHandler.IE(b);
+                              : m_io.writeIO(index - mmap::io, b);
+  else if(index < mmap::hram_end)     m_builtIn.writeHRAM(index - mmap::hram, b);
+  else if(index == mmap::IE)          interruptHandler.IE(b);
   else assert(false);
 }
 

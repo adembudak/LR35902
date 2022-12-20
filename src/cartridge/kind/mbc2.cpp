@@ -29,16 +29,16 @@ mbc2::mbc2(std::vector<byte> rom) :
 }
 
 byte mbc2::readROM(const std::size_t index) const noexcept {
-  if(index < rom0_end) {
+  if(index < mmap::rom0_end) {
     return m_rom[index];
   }
 
-  else if(index < romx_end) {
+  else if(index < mmap::romx_end) {
     const std::size_t normalized_index = index % rom_bank_size;
     return m_rom[bank.value() + normalized_index];
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     if(bank.ramg) {
       const std::size_t normalized_index = (index % rom_bank_size) % 0x200;
       return m_sram[normalized_index];
@@ -53,7 +53,7 @@ byte mbc2::readROM(const std::size_t index) const noexcept {
 }
 
 void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
-  if(index < rom0_end) {
+  if(index < mmap::rom0_end) {
     if(index & 0b1'0000'0000) //
       bank.setPrimaryBank(b);
     else //
@@ -61,7 +61,7 @@ void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
 
   }
 
-  else if(index >= sram && index < sram_end) {
+  else if(index >= mmap::sram && index < mmap::sram_end) {
     if(bank.ramg) {
       const std::size_t normalized_index = (index % rom_bank_size) % 0x200;
       const byte normalized_value = b & 0b0000'1111;

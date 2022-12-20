@@ -6,6 +6,7 @@
 #include <LR35902/cartridge/kind/rom_only.h>
 #include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 
 #include <algorithm>
 #include <cassert>
@@ -20,8 +21,8 @@ void Cartridge::load(const char *romfile) noexcept {
   std::ifstream fin{romfile};
   std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
 
-  std::array<byte, cartridge_header_end> buf;
-  std::copy_n(dumpedGamePak.begin(), cartridge_header_end, buf.begin());
+  std::array<byte, mmap::header_end> buf;
+  std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
   this->header.assign(std::move(buf));
 
   switch(header.decode_mbc_type().second) {
