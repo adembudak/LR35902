@@ -26,7 +26,8 @@ public:
   Joypad(IO &io, Interrupt &intr) noexcept;
 
   void update(button btn, keystatus status) noexcept;
-  byte read() const noexcept;
+  [[nodiscard]] byte read() const noexcept;
+  [[nodiscard]] bool isBlocked() const noexcept;
 };
 
 

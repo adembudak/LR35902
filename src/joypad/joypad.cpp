@@ -12,18 +12,20 @@ Joypad::Joypad(IO &io, Interrupt &intr) noexcept :
     m_io{io},
     m_intr{intr} {}
 
+// clang-format off
 /*
   Bit 7 - Not used
   Bit 6 - Not used
-  Bit 5 - P15 Select Button Keys (0=Select)
-  Bit 4 - P14 Select Direction Keys (0=Select)
-  Bit 3 - P13 Input Down or Start (0=Pressed) (Read Only)
-  Bit 2 - P12 Input Up or Select (0=Pressed) (Read Only)
-  Bit 1 - P11 Input Left or Button B (0=Pressed) (Read Only)
-  Bit 0 - P10 Input Right or Button A (0=Pressed) (Read Only)
+  Bit 5 - P15 Select Button Keys     (0=Select)
+  Bit 4 - P14 Select Direction Keys  (0=Select)
+  Bit 3 - P13 Input  Down  or Start  (0=Pressed) (Read Only)
+  Bit 2 - P12 Input  Up    or Select (0=Pressed) (Read Only)
+  Bit 1 - P11 Input  Left  or B      (0=Pressed) (Read Only)
+  Bit 0 - P10 Input  Right or A      (0=Pressed) (Read Only)
 */
 
 void Joypad::update(button btn, keystatus status) noexcept {
+
   const auto isDirectionButton = [] [[nodiscard]] (const button btn) -> bool {
     using enum button;
     return btn == up || btn == right || btn == down || btn == left;
@@ -35,7 +37,6 @@ void Joypad::update(button btn, keystatus status) noexcept {
   };
 
   const auto isPressed = [this] [[nodiscard]] (const button btn) -> bool {
-    // clang-format off
     switch(btn) {
     case button::right:  return !(m_state & 0b0000'0001);
     case button::left:   return !(m_state & 0b0000'0010);
@@ -57,7 +58,7 @@ void Joypad::update(button btn, keystatus status) noexcept {
 
     // clang-format off
     switch(btn) {
-    case button::right:  m_state &= 0b1111'1110; break; // <- percolate down with this
+    case button::right:  m_state &= 0b1111'1110; break;
     case button::left:   m_state &= 0b1111'1101; break;
     case button::up:     m_state &= 0b1111'1011; break;
     case button::down:   m_state &= 0b1111'0111; break;
@@ -69,9 +70,6 @@ void Joypad::update(button btn, keystatus status) noexcept {
 
     const bool expectingDirectionPress = !(m_io.P1 & 0b0001'0000);
     const bool expectingSelectionPress = !(m_io.P1 & 0b0010'0000);
-
-    if(expectingDirectionPress && expectingSelectionPress) // both selected
-      return;                                              // do nothing
 
     if(isInterruptRequired)
       if((isDirectionButton(btn) && expectingDirectionPress) ||
@@ -99,7 +97,6 @@ byte Joypad::read() const noexcept {
   byte result = m_io.P1 ^ 0xff;
 
   const bool expectingDirectionPress = !(m_io.P1 & 0b0001'0000);
-  const bool expectingSelectionPress = !(m_io.P1 & 0b0010'0000);
 
   if(expectingDirectionPress) {
     const byte topJoypad = ((m_state & 0xf0) >> 4) | 0xf0;
@@ -107,11 +104,15 @@ byte Joypad::read() const noexcept {
     return result;
   }
 
-  else if(expectingSelectionPress) {
+  else { 
     const byte bottomJoypad = (m_state & 0x0f) | 0xf0;
     result &= bottomJoypad;
     return result;
   }
+}
+
+bool Joypad::isBlocked() const noexcept {
+  return (m_io.P1 & 0b1100'0000) == 0b11;
 }
 
 }
