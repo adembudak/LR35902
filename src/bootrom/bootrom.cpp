@@ -19,6 +19,7 @@ void bootROM::load() noexcept {
 
 void bootROM::unmap() noexcept {
   m_data.clear();
+  m_data.shrink_to_fit();
 }
 
 bool bootROM::isBootOnGoing() const noexcept {
