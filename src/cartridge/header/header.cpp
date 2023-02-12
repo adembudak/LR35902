@@ -189,7 +189,7 @@ std::string header_t::decode_licensee_name() const noexcept {
     else if(s == "97") return "Kaneko";
     else if(s == "99") return "Pack in soft";
     else if(s == "A4") return "Konami (Yu-Gi-Oh!)";
-    else return "Unknown";
+    else return "unknown value: "s.append(s);
   } else {
     switch(a) {
     case 0x00: return "None";
