@@ -15,7 +15,7 @@ using word = std::uint16_t;
 }
 
 [[nodiscard]] consteval unsigned long long operator"" _KiB(const unsigned long long l) noexcept {
-  return 1024 * l;
+  return 1024_B * l;
 }
 
 [[nodiscard]] consteval unsigned long long operator"" _MiB(const unsigned long long l) noexcept {
