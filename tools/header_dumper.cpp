@@ -41,49 +41,51 @@ int main(int argc, const char *const argv[]) {
     std::ifstream fin;
 
     fin.open(e.path());
-    fin.read(std::bit_cast<char *>(headerDump.data()), mmap::header_end);
+    fin.read(reinterpret_cast<char *>(headerDump.data()), mmap::header_end);
     fin.close();
 
     LR35902::header_t header{headerDump};
 
+    fmt::print("\n");
+
     if(options[0]) {
-      fmt::print("File name :       {}\n", e.path().filename().string());
-      fmt::print("Title :           {}\n", header.decode_title());
+      fmt::print("  File name :       {}\n", e.path().filename().string());
+      fmt::print("  Title :           {}\n", header.decode_title());
     }
 
     if(options[1]) {
-      fmt::print("Physical size :   {}\n", e.file_size());
-      fmt::print("ROM :             {}\n", header.decode_rom_size().first);
-      fmt::print("RAM :             {}\n", header.decode_ram_size().first);
+      fmt::print("  Physical size :   {}\n", e.file_size());
+      fmt::print("  ROM :             {}\n", header.decode_rom_size().first);
+      fmt::print("  RAM :             {}\n", header.decode_ram_size().first);
     }
 
     if(options[2]) {
-      fmt::print("MBC :             {}\n", header.decode_mbc_type().first);
+      fmt::print("  MBC :             {}\n", header.decode_mbc_type().first);
     }
 
     if(options[3]) {
-      fmt::print("Destination :     {}\n", header.decode_destination_name());
+      fmt::print("  Destination :     {}\n", header.decode_destination_name());
     }
 
     if(options[4]) {
-      fmt::print("Color GB :        {}\n", header.decode_cgb_support());
+      fmt::print("  Color GB :        {}\n", header.decode_cgb_support());
     }
 
     if(options[5]) {
-      fmt::print("Super GB :        {}\n", header.decode_sgb_support());
+      fmt::print("  Super GB :        {}\n", header.decode_sgb_support());
     }
 
     if(options[6]) {
-      fmt::print("Logo check :      {}\n", header.is_logocheck_ok() ? "Passed" : "Failed");
-      fmt::print("Header checksum : {}\n", header.is_checksum_ok() ? "Passed" : "Failed");
+      fmt::print("  Logo check :      {}\n", header.is_logocheck_ok() ? "Passed" : "Failed");
+      fmt::print("  Header checksum : {}\n", header.is_checksum_ok() ? "Passed" : "Failed");
     }
 
     if(options[7]) {
-      fmt::print("Publisher :       {}\n", header.decode_licensee_name());
+      fmt::print("  Publisher :       {}\n", header.decode_licensee_name());
     }
 
     if(options[8]) {
-      fmt::print("Version :         {}\n", header.decode_version());
+      fmt::print("  Version :         {}\n", header.decode_version());
     }
 
     fmt::print("\n");
