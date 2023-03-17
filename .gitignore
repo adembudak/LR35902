@@ -18,3 +18,4 @@ tryouts/
 tests/test_roms/
 imgui.ini
 compile_commands.json
+/.vs
