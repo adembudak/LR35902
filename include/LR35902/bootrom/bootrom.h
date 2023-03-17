@@ -11,11 +11,9 @@ class bootROM {
 
 public:
   void load() noexcept;
-
   byte read(const std::size_t index) const noexcept;
-
-  void unmap() noexcept;
   bool isBootOnGoing() const noexcept;
+  void unmap() noexcept;
 };
 
 }
