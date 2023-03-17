@@ -17,6 +17,10 @@ void bootROM::load() noexcept {
   m_data.resize(bootrom_size);
 }
 
+byte bootROM::read(const std::size_t index) const noexcept {
+  return m_data[index];
+}
+
 void bootROM::unmap() noexcept {
   m_data.clear();
   m_data.shrink_to_fit();
@@ -24,10 +28,6 @@ void bootROM::unmap() noexcept {
 
 bool bootROM::isBootOnGoing() const noexcept {
   return !m_data.empty();
-}
-
-byte bootROM::read(const std::size_t index) const noexcept {
-  return m_data[index];
 }
 
 }
