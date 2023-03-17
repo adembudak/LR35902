@@ -3,6 +3,7 @@
 #include <LR35902/memory_map.h>
 
 #include <algorithm>
+#include <numeric>
 #include <array>
 #include <cstdint>
 #include <string>
