@@ -38,7 +38,7 @@ void DebugView::showCartHeader() noexcept {
     im::Text("RAM Size    : %s\n", gameboy.cart.header.decode_ram_size().first.c_str());
 
     im::Text("Publisher   : %s\n", gameboy.cart.header.decode_licensee_name().c_str());
-    im::Text("Version     : %lu\n", gameboy.cart.header.decode_version());
+    im::Text("Version     : %llu\n", gameboy.cart.header.decode_version());
 
     im::End();
   }
@@ -175,7 +175,7 @@ void DebugView::showCPUState() noexcept {
     im::Begin("CPU State", &_cpu_state);
     const auto &cpu = gameboy.cpu;
 
-    im::Text("Cycles: %lu\nLatest: %lu", cpu.m_clock.m_data, gameboy.clock.m_latest);
+    im::Text("Cycles: %llu\nLatest: %llu", cpu.m_clock.m_data, gameboy.clock.m_latest);
 
     im::NewLine();
     im::Text("ime: %d", cpu.ime);
