@@ -20,7 +20,7 @@ option(STATIC_ANALYSIS "" OFF)
 find_package(range-v3 QUIET REQUIRED)
 
 add_library(
-  lr35902
+  lr35902 
   src/cpu/cpu.cpp
   src/cpu/registers/r16.cpp
   src/cpu/registers/r8.cpp
@@ -48,11 +48,9 @@ target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 if(WITH_DEBUGGER)
   find_package(SDL2 QUIET REQUIRED)
   find_package(fmt QUIET REQUIRED)
-
-  add_library(debugView src/debugView/debugView.cpp)
-
+   
   add_library(
-    Dear_ImGui EXCLUDE_FROM_ALL
+    Dear_ImGui EXCLUDE_FROM_ALL 
     3rdparty/imgui/imgui.cpp
     3rdparty/imgui/imgui_demo.cpp
     3rdparty/imgui/imgui_draw.cpp
@@ -61,23 +59,24 @@ if(WITH_DEBUGGER)
     3rdparty/imgui/backends/imgui_impl_sdl.cpp
     3rdparty/imgui/backends/imgui_impl_sdlrenderer.cpp)
 
-  target_include_directories(Dear_ImGui PUBLIC imgui)
-  target_link_libraries(Dear_ImGui PRIVATE SDL2::SDL2 SDL2::SDL2-static)
+  target_include_directories(Dear_ImGui PUBLIC ${LR35902_SOURCE_DIR}/3rdparty)
+  target_link_libraries(Dear_ImGui PRIVATE SDL2::SDL2)
+
   add_library(imgui::imgui ALIAS Dear_ImGui)
 
   add_library(imgui_memory_editor INTERFACE)
-  target_include_directories(imgui_memory_editor INTERFACE 3rdparty/imgui_club)
+  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
+  add_library(debugView src/debugView/debugView.cpp)
+  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} 3rdparty 3rdparty/imgui_club)
   target_link_libraries(debugView PRIVATE imgui::imgui
-                                          imgui::imgui_memory_editor lr35902)
-
-  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} 3rdparty
-                                              3rdparty/imgui_club)
-
+                                          imgui::imgui_memory_editor SDL2::SDL2 lr35902)
+                                              
   add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
-  target_link_libraries(debugger PRIVATE debugView fmt::fmt)
   target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR})
+  target_link_libraries(debugger PRIVATE debugView fmt::fmt SDL2::SDL2-static SDL2::SDL2main)
 
   set_target_properties(lr35902 debugView debugger
                         PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
