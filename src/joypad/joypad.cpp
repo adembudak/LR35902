@@ -111,7 +111,7 @@ byte Joypad::read() const noexcept {
 }
 
 bool Joypad::isBlocked() const noexcept {
-  return (m_io.P1 & 0b1100'0000) == 0b11;
+  return (m_io.P1 & 0b1100'0000) == 0b1100'0000;
 }
 
 }
