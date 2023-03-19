@@ -8,7 +8,7 @@
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
 #include <range/v3/algorithm/fill.hpp>
-#include <range/v3/to_container.hpp>
+#include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
 #include <range/v3/view/iota.hpp>
@@ -16,6 +16,7 @@
 
 #include <cstddef>
 #include <functional>
+#include <cassert>
 
 namespace LR35902 {
 
@@ -370,7 +371,7 @@ void PPU::fetchBackground() const noexcept {
   const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
 
-  for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
+  for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
     const std::size_t tile_address = tilemap[row][tile_nth];
 
@@ -406,7 +407,7 @@ void PPU::fetchWindow() const noexcept {
   const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
 
-  for(const std::size_t tile_nth : rv::iota(0uz, max_tiles_on_viewport_x)) {
+  for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
     const std::size_t tile_address = tilemap[row][tile_nth];
 
@@ -432,17 +433,17 @@ void PPU::fetchWindow() const noexcept {
 }
 
 void PPU::fetchSprites() const noexcept {
-  const auto tile_screen_offset_y = 16uz;
-  const auto tile_screen_offset_x = 8uz; // when a sprite is on (8, 16), it appears on top-left
+  const auto tile_screen_offset_y = 16;
+  const auto tile_screen_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
 
-  const auto spriteHeight = [&] [[nodiscard]] { return isBigSprite() ? (2 * tile_h) : tile_h; };
+  const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
 
-  const auto isSpriteVisible = [&] [[nodiscard]] (const byte y, const byte x) -> bool {
-    return x > 0 && x < (viewport_w + tile_screen_offset_x - 1uz) && // x is in [1, 166]
-           y > 8 && y < (viewport_h + tile_screen_offset_y - 1uz);   // y is in [8, 158]
+  const auto isSpriteVisible = [&] (const byte y, const byte x) -> bool {
+    return x > 0 && x < (viewport_w + tile_screen_offset_x - 1) && // x is in [1, 166]
+           y > 8 && y < (viewport_h + tile_screen_offset_y - 1);   // y is in [8, 158]
   };
 
-  const auto isSpriteOnScanline = [&] [[nodiscard]] (const byte y) -> bool {
+  const auto isSpriteOnScanline = [&] (const byte y) -> bool {
     const int tile_y_on_screen = y - tile_screen_offset_y;
 
     return LY >= tile_y_on_screen && LY < (tile_y_on_screen + spriteHeight());
