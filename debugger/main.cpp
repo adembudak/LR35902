@@ -105,10 +105,13 @@ int main(int argc, char *argv[]) {
   ImGui::CreateContext();
 
   ImGuiIO &io = ImGui::GetIO();
-
- 
-
   ImGui::StyleColorsDark();
+
+  if(fs::path font_path{"../misc/font"}; fs::exists(font_path)) {
+    font_path /= "source-code-pro/TTF/SourceCodePro-Regular.ttf";
+    io.Fonts->AddFontFromFileTTF(font_path.string().c_str(), 14.0f);
+    io.Fonts->Build();
+  }
 
   ImGui_ImplSDL2_InitForSDLRenderer(m_window, m_renderer);
   ImGui_ImplSDLRenderer_Init(m_renderer);
@@ -135,9 +138,11 @@ int main(int argc, char *argv[]) {
     while(SDL_PollEvent(&event)) {
       ImGui_ImplSDL2_ProcessEvent(&event);
       switch(event.type) {
-      case SDL_EventType::SDL_QUIT: attaboy.stop(); break;
+      case SDL_EventType::SDL_QUIT:
+        attaboy.stop();
+        break;
 
-      // clang-format off
+        // clang-format off
       case SDL_EventType::SDL_KEYDOWN:
         if(!attaboy.joypad.isBlocked()) {
           switch(event.key.keysym.sym) {
