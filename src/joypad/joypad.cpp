@@ -26,17 +26,15 @@ Joypad::Joypad(IO &io, Interrupt &intr) noexcept :
 
 void Joypad::update(button btn, keystatus status) noexcept {
 
-  const auto isDirectionButton = [] [[nodiscard]] (const button btn) -> bool {
-    using enum button;
-    return btn == up || btn == right || btn == down || btn == left;
+  const auto isDirectionButton = [] (const button btn) -> bool {
+    return btn == button::up || btn == button::right || btn == button::down || btn == button::left;
   };
 
-  const auto isSelectionButton = [] [[nodiscard]] (const button btn) -> bool {
-    using enum button;
-    return btn == a || btn == b || btn == select || btn == start;
+  const auto isSelectionButton = [] (const button btn) -> bool {
+    return btn == button::a || btn == button::b || btn == button::select || btn == button::start;
   };
 
-  const auto isPressed = [this] [[nodiscard]] (const button btn) -> bool {
+  const auto isPressed = [this] (const button btn) -> bool {
     switch(btn) {
     case button::right:  return !(m_state & 0b0000'0001);
     case button::left:   return !(m_state & 0b0000'0010);
@@ -79,7 +77,7 @@ void Joypad::update(button btn, keystatus status) noexcept {
   } break;
 
     // clang-format off
-  case keystatus::released:
+  case keystatus::released: {
     switch(btn) {
     case button::right:  m_state |= 0b0000'0001; break;
     case button::left:   m_state |= 0b0000'0010; break;
@@ -90,6 +88,7 @@ void Joypad::update(button btn, keystatus status) noexcept {
     case button::start:  m_state |= 0b0100'0000; break;
     case button::select: m_state |= 0b1000'0000; break;
     }
+  } break;
   }
 }
 
