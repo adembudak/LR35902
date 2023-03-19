@@ -56,7 +56,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
   }
 }
 
-int main(int argc, char **argv) {
+int main(int argc, char *argv[]) {
   namespace fs = std::filesystem;
   namespace chrono = std::chrono;
 
@@ -106,11 +106,7 @@ int main(int argc, char **argv) {
 
   ImGuiIO &io = ImGui::GetIO();
 
-  if(fs::path font_path{"../misc/font"}; fs::exists(font_path)) {
-    io.Fonts->AddFontFromFileTTF((font_path / "source-code-pro/TTF/SourceCodePro-Regular.ttf").c_str(),
-                                 14.0f);
-    io.Fonts->Build();
-  }
+ 
 
   ImGui::StyleColorsDark();
 
