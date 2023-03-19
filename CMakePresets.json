@@ -1,4 +1,4 @@
-{
+{ 
   "version": 4,
   "cmakeMinimumRequired": {
     "major": 3,
@@ -9,107 +9,53 @@
     {
       "name": "linux",
       "hidden": true,
-      "generator": "Ninja",
+      "generator": "Ninja Multi-Config",
       "cacheVariables": {
-         "WITH_DEBUGGER" : "ON",
-         "CMAKE_CXX_STANDARD" : "23",
-         "CMAKE_CXX_EXTENSIONS" : "OFF",
-         "CMAKE_CXX_STANDARD_REQUIRED" : "ON"
+        "WITH_DEBUGGER": "ON",
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_CXX_EXTENSIONS": "OFF",
+        "CMAKE_CXX_STANDARD_REQUIRED": "ON"
       }
     },
 
     {
-      "name": "debug-gcc-linux",
+      "name": "gcc_linux",
       "inherits": "linux",
-      "description": "Build with GCC and debug information",
+      "binaryDir": "${sourceDir}/build/${presetName}",
 
-      "binaryDir": "${sourceDir}/debug_gcc_build",
       "cacheVariables": {
-         "CMAKE_BUILD_TYPE" : "Debug",
-         "CMAKE_CXX_FLAGS" : "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Wall -Wextra -Waddress -Wuninitialized -Wreorder -Wconversion -Warith-conversion"
+        "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Wall -Wextra -Waddress -Wuninitialized -Wreorder -Wconversion -Warith-conversion"
       },
       "environment": {
-         "CXX" : "g++"
+        "CXX": "g++"
       }
     },
 
     {
-      "name": "release-gcc-linux",
+      "name": "clang_linux",
       "inherits": "linux",
-      "description": "Build with GCC in release mode",
 
-      "binaryDir": "${sourceDir}/release_gcc_build",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "cacheVariables": {
-         "CMAKE_BUILD_TYPE" : "Release"
-      },
-      "environment": {
-         "CXX" : "g++"
-      }
-    }, 
-
-    {
-      "name": "debug-clang-linux",
-      "inherits": "linux",
-      "description": "Build with Clang and debug information",
-
-      "binaryDir": "${sourceDir}/debug_clang_build",
-      "cacheVariables": {
-         "CMAKE_BUILD_TYPE" : "Debug",
-         "CMAKE_CXX_FLAGS" : "-stdlib=libc++ -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Waddress -Wuninitialized -Wreorder-ctor -Wall -Wextra -Wconversion"
+        "CMAKE_CXX_FLAGS": "-stdlib=libc++ -fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Waddress -Wuninitialized -Wreorder-ctor -Wall -Wextra -Wconversion"
       },
 
       "environment": {
-         "CXX" : "clang++-15"
+        "CXX": "clang++-15"
       }
     },
 
     {
-      "name": "release-clang-linux",
-      "inherits": "linux",
-      "description": "Build with Clang in release mode",
-
-      "binaryDir": "${sourceDir}/release_clang_build",
-      "cacheVariables": {
-         "CMAKE_BUILD_TYPE" : "Release",
-         "CMAKE_CXX_FLAGS" : "-stdlib=libc++"
-      },
-      "environment": {
-         "CXX" : "clang++-15"
-      }
-    },
-
-    {
-      "name": "msvc-debug",
-      "displayName": "Windows x64 Debug",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "name": "msvc",
+      "generator": "Visual Studio 17 2022",
+      "binaryDir": "${sourceDir}/build/${presetName}",
       "architecture": {
         "value": "x64",
         "strategy": "external"
       },
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Debug",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
-      },
-      "vendor": {
-        "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ]
-        }
-      }
-    },  
-
-    {
-      "name": "msvc-release",
-      "displayName": "Windows x64 Release",
-      "generator": "Ninja",
-      "binaryDir": "${sourceDir}/out/build/${presetName}",
-      "architecture": {
-        "value": "x64",
-        "strategy": "external"
-      },
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "Release",
-        "CMAKE_INSTALL_PREFIX": "${sourceDir}/out/install/${presetName}"
+        "CMAKE_CXX_STANDARD": "20",
+        "CMAKE_INSTALL_PREFIX": "${sourceDir}/install/${presetName}"
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
@@ -121,7 +67,7 @@
     {
       "name":"cppcheck",
       "hidden":true,
-      "inherits": "debug-gcc-linux",
+      "inherits": "gcc_linux",
       "binaryDir": "build_static_analysis",
       "cacheVariables":{
         "CMAKE_CXX_CPPCHECK":"cppcheck;--language=c++;--std=c++20;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build_static_analysis"
@@ -131,7 +77,7 @@
     {
       "name":"clang-tidy",
       "hidden":true,
-      "inherits": "debug-gcc-linux",
+      "inherits": "gcc_linux",
       "binaryDir": "build_static_analysis",
       "cacheVariables":{
         "CMAKE_CXX_CLANG_TIDY":"clang-tidy-14;-checks=-*,bugprone-*,performance-*,portability-*"
@@ -148,7 +94,8 @@
         "clang-tidy"
       ],
       "cacheVariables": {
-         "STATIC_ANALYSIS" : "ON"
+        "CMAKE_BUILD_TYPE": "Debug",
+        "STATIC_ANALYSIS": "ON"
       }
 
     }
