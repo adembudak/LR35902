@@ -29,7 +29,7 @@ public:
   bool _disassembly = true;
   bool _cpu_state = true;
   bool _registers = true;
-  bool _vram = true;
+  bool _vram = false;
 
 public:
   DebugView() = delete;
