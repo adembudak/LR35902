@@ -7,16 +7,20 @@
 #include <range/v3/action/reverse.hpp>
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
+#include <range/v3/action/transform.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
 #include <range/v3/view/iota.hpp>
+#include <range/v3/view/join.hpp>
 #include <range/v3/view/remove_if.hpp>
+#include <range/v3/view/reverse.hpp>
+#include <range/v3/view/slice.hpp>
 
+#include <cassert>
 #include <cstddef>
 #include <functional>
-#include <cassert>
 
 namespace LR35902 {
 
@@ -235,7 +239,8 @@ std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
-// window and background share the same memory space, so this member does the same thing as above
+// window and background share the same memory space, so this member does the
+// same thing above
 std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
   return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
@@ -366,7 +371,8 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 
 void PPU::fetchBackground() const noexcept {
   const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
-                       | rv::chunk(tile_size);
+                       | rv::chunk(tileline_size)                                                       //
+                       | rv::chunk(tile_h);
 
   const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
@@ -374,23 +380,22 @@ void PPU::fetchBackground() const noexcept {
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
     const std::size_t tile_address = tilemap[row][tile_nth];
-
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-
-    const byte tileline_upper = tileset[tile_address][currently_scanning_tileline * 2];
-    const byte tileline_lower = tileset[tile_address][currently_scanning_tileline * 2 + 1];
+    const auto tileline = tileset[tile_address][currently_scanning_tileline];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
+
       const int y = currentScanline() - SCY;
+
       if(y < 0 || y >= viewport_h) return;
 
       const int x = (tile_nth * tile_w) - SCX + i;
       if(x < 0) continue;
       if(x >= viewport_w) return;
 
-      const bool lo = tileline_upper & mask; // the 2 bits in the
-      const bool hi = tileline_lower & mask; // 2bpp format
+      const bool lo = tileline[0] & mask; // upper byte of tileline
+      const bool hi = tileline[1] & mask; // lower byte of tileline
       const palette_index pi = (hi << 1) | lo;
 
       m_framebuffer[0][y][x] = original[bgp()[pi]];
@@ -402,7 +407,8 @@ void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
   const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
-                       | rv::chunk(tile_size);
+                       | rv::chunk(tileline_size)                                                   //
+                       | rv::chunk(tile_h);                                                         //
 
   const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
@@ -413,18 +419,18 @@ void PPU::fetchWindow() const noexcept {
 
     const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
 
-    const byte tileline_upper = tileset[tile_address][currently_scanning_tileline * 2];
-    const byte tileline_lower = tileset[tile_address][currently_scanning_tileline * 2 + 1];
+    const auto tileline = tileset[tile_address][currently_scanning_tileline];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
+
       const std::size_t x = (tile_nth * tile_w) + window_x() + i;
       if(x >= viewport_w) return;
 
       const std::size_t y = currentScanline();
 
-      const bool lo = tileline_upper & mask;
-      const bool hi = tileline_lower & mask;
+      const bool lo = tileline[0] & mask; // lo and hi are the
+      const bool hi = tileline[1] & mask; // 2 bits in 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
       m_framebuffer[1][y][x] = original[bgp()[pi]];
@@ -432,24 +438,101 @@ void PPU::fetchWindow() const noexcept {
   }
 }
 
+/*
+class sprite_t final {
+public:
+  static constexpr size_t tile_screen_offset_y{16}; // when a sprite is on (8, 16), it appears on top-left
+  static constexpr size_t tile_screen_offset_x{8};
+
+private:
+  byte _x, _y;
+  byte _index;
+  bool _bgHasPriority, _yFlip, _xFlip, _palette;
+
+  std::vector<byte> _sprite_bytes;
+
+public:
+  // clang-format off
+  sprite_t(auto &&subrange) :
+      _x{subrange[0]},
+      _y{subrange[1]},
+      _index{subrange[2]},
+      _bgHasPriority(subrange[3] & 0b1000'0000),
+      _yFlip        (subrange[3] & 0b0100'0000),
+      _xFlip        (subrange[3] & 0b0010'0000),
+      _palette      (subrange[3] & 0b0001'0000)
+  {
+
+     _sprite_bytes = rv::slice(m_vram, _index * tile_size, numberOfBytesToFetch());
+
+     if(_yFlip) { // sprite will be rendered upside down
+       _sprite_bytes = _sprite_bytes
+                       | rv::chunk(tileline_size)
+                       | rv::reverse
+                       | rv::join
+                       | rg::to<std::vector<byte>>;
+     } // clang-format on
+
+    if(_xFlip) { // sprite is mirrored by x axis
+      // Reverse the bits in a byte, no idea how it works...stolen from:
+      // https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith64BitsDiv
+      ra::transform(_sprite_bytes, [](byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; });
+    }
+  }
+
+  bool isVisibleOnViewport() const noexcept;
+  bool isVisibleToScanline() const noexcept;
+
+  byte x() const noexcept;
+  byte y() const noexcept;
+
+  bool bgHasPriority() const noexcept;
+  size_t palette() const noexcept;
+
+private:
+  // Convert the pixels outside of viewport to "transparent"
+  // In effect, assigns these pixel bits to 0b00
+  void autoCorrect() noexcept {}
+
+  const auto spriteHeight() const {
+    return isBigSprite() ? (2 * tile_h) : tile_h;
+  };
+  const auto numberOfBytesToFetch() const {
+    return spriteHeight() * tileline_size;
+  };
+};
+*/
+
 void PPU::fetchSprites() const noexcept {
   const auto tile_screen_offset_y = 16;
   const auto tile_screen_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
 
   const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
-
-  const auto isSpriteVisible = [&] (const byte y, const byte x) -> bool {
+  const auto numberOfBytesToFetch = [&] { return spriteHeight() * tileline_size; };
+  const auto isSpriteVisible = [&](const byte y, const byte x) -> bool {
     return x > 0 && x < (viewport_w + tile_screen_offset_x - 1) && // x is in [1, 166]
            y > 8 && y < (viewport_h + tile_screen_offset_y - 1);   // y is in [8, 158]
   };
 
-  const auto isSpriteOnScanline = [&] (const byte y) -> bool {
+  const auto isSpriteOnScanline = [&](const byte y) -> bool {
     const int tile_y_on_screen = y - tile_screen_offset_y;
 
     return LY >= tile_y_on_screen && LY < (tile_y_on_screen + spriteHeight());
   };
 
   // clang-format off
+  /*
+  std::vector<sprite_t> sprites_on_scanline2; 
+
+  if(LY % 8 == 0) {
+    sprites_on_scanline2 = m_oam
+                           | rv::chunk(4) // [y, x, tile_index, atrb] x 40
+                           | rg::to<std::vector<sprite_t>> 
+                           | ra::sort([](const auto &a, const auto &b) { return a.x() < b.x(); })
+                           | ra::reverse;
+  }
+  */
+
   const auto 
   sprites_on_scanline = m_oam
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
@@ -457,7 +540,8 @@ void PPU::fetchSprites() const noexcept {
                         | rg::to<std::vector> 
                         | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
                         | ra::reverse
-                        | ra::take(max_sprites_on_viewport_x);
+                        | ra::take(max_sprites_on_viewport_x) 
+                        | rg::to<std::vector>;
 
   for(const auto &obj : sprites_on_scanline) {
     const byte y =          obj[0];
@@ -474,18 +558,26 @@ void PPU::fetchSprites() const noexcept {
     const byte x_on_screen = x - tile_screen_offset_x;
 
     const std::size_t tile_address = tile_index * tile_size;
-    auto sprite = rv::counted(m_vram.begin() + tile_address, 2 * spriteHeight()) | rg::to<std::vector>;
-    if(yflip) rg::reverse(sprite);
+    auto sprite = rv::counted(m_vram.begin() + tile_address, numberOfBytesToFetch()) | rg::to<std::vector>;
+
+    if(yflip)
+      sprite = sprite                     //
+               | rv::chunk(tileline_size) //
+               | rv::reverse              //
+               | rv::join                 //
+               | rg::to<std::vector<byte>>;
+
+    if(xflip) //
+      ra::transform(sprite, [](byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; });
 
     const std::size_t currently_scanning_tileline = currentScanline() - y_on_screen;
     const byte tileline_upper = sprite[currently_scanning_tileline * 2];
     const byte tileline_lower = sprite[currently_scanning_tileline * 2 + 1];
 
-    std::uint8_t mask = xflip ? 0b0000'0001 : 0b1000'0000;
-    for(std::size_t i = 0; i != tile_w; ++i) {
+    std::uint8_t mask = 0b1000'0000;
+    for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
       const bool lo = tileline_upper & mask;
       const bool hi = tileline_lower & mask;
-      xflip ? mask <<= 1 : mask >>= 1;
 
       const palette_index pi = (hi << 1) | lo;
       if(pi == 0b00) continue; // "transparent" color
@@ -493,7 +585,7 @@ void PPU::fetchSprites() const noexcept {
       const byte y = y_on_screen + currently_scanning_tileline;
       const byte x = x_on_screen + i;
 
-      if(y >= viewport_h) assert(false);
+      if(y >= viewport_h) break;
       if(x >= viewport_w) break;
 
       m_framebuffer[2][y][x] = bgHasPriority ? original[bgp()[pi]]
@@ -502,4 +594,4 @@ void PPU::fetchSprites() const noexcept {
     }
   }
 }
-}
+} // namespace LR35902
