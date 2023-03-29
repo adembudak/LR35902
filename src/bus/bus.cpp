@@ -23,8 +23,8 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
     m_builtIn{builtIn},
     m_dma{dma},
     m_io{io},
-    interruptHandler{interrupt},
-    m_joypad(joypad) {}
+    m_joypad(joypad),
+    interruptHandler{interrupt} {}
 
 byte Bus::read(const std::size_t index) const noexcept {
   if(index < mmap::romx_end) {
