@@ -17,10 +17,10 @@ option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 option(STATIC_ANALYSIS "" OFF)
 
-find_package(range-v3 QUIET REQUIRED)
+find_package(range-v3 QUIET REQUIRED CONFIG)
 
 add_library(
-  lr35902 
+  lr35902
   src/cpu/cpu.cpp
   src/cpu/registers/r16.cpp
   src/cpu/registers/r8.cpp
@@ -46,40 +46,40 @@ target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
-  find_package(SDL2 QUIET REQUIRED)
-  find_package(fmt QUIET REQUIRED)
-   
-  add_library(
-    Dear_ImGui EXCLUDE_FROM_ALL 
-    3rdparty/imgui/imgui.cpp
-    3rdparty/imgui/imgui_demo.cpp
-    3rdparty/imgui/imgui_draw.cpp
-    3rdparty/imgui/imgui_tables.cpp
-    3rdparty/imgui/imgui_widgets.cpp
-    3rdparty/imgui/backends/imgui_impl_sdl.cpp
-    3rdparty/imgui/backends/imgui_impl_sdlrenderer.cpp)
-
-  target_include_directories(Dear_ImGui PUBLIC ${LR35902_SOURCE_DIR}/3rdparty)
-  target_link_libraries(Dear_ImGui PRIVATE SDL2::SDL2)
-
-  add_library(imgui::imgui ALIAS Dear_ImGui)
+  find_package(SDL2 QUIET REQUIRED CONFIG)
+  find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
+  find_package(imgui CONFIG REQUIRED)
+  find_package(ImGui-SFML QUIET REQUIRED CONFIG)
+  find_package(fmt QUIET REQUIRED CONFIG)
 
   add_library(imgui_memory_editor INTERFACE)
-  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+  target_include_directories(
+    imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
 
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
   add_library(debugView src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} 3rdparty 3rdparty/imgui_club)
-  target_link_libraries(debugView PRIVATE imgui::imgui
-                                          imgui::imgui_memory_editor SDL2::SDL2 lr35902)
-                                              
-  add_executable(debugger debugger/main.cpp debugger/GameBoy.cpp)
-  target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR})
-  target_link_libraries(debugger PRIVATE debugView fmt::fmt SDL2::SDL2-static SDL2::SDL2main)
+  target_include_directories(
+    debugView PUBLIC ${LR35902_INCLUDE_DIR}
+                     ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
 
-  set_target_properties(lr35902 debugView debugger
+  target_link_libraries(debugView PRIVATE imgui::imgui
+                                          imgui::imgui_memory_editor lr35902)
+
+  add_executable(debugger_sdl debugger/sdl/main.cpp debugger/GameBoy.cpp)
+  target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
+  target_link_libraries(debugger_sdl PRIVATE debugView fmt::fmt imgui::imgui
+                                             SDL2::SDL2-static SDL2::SDL2main)
+
+  add_executable(debugger_sfml debugger/sfml/main.cpp debugger/GameBoy.cpp)
+  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
+  target_link_libraries(
+    debugger_sfml PRIVATE debugView fmt::fmt imgui::imgui sfml-graphics
+                          ImGui-SFML::ImGui-SFML)
+
+  set_target_properties(lr35902 debugView debugger_sdl debugger_sfml
                         PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+
 endif()
 
 if(WITH_TOOLS)
