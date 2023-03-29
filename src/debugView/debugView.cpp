@@ -3,7 +3,7 @@
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>
 
-#include <imgui/imgui.h>
+#include <imgui.h>
 #include <imgui_memory_editor/imgui_memory_editor.h>
 
 #include <algorithm>
@@ -452,7 +452,7 @@ void DebugView::visualizeVRAM() noexcept {
 
         byte mask = 0b1000'0000;
         for(std::size_t pixel_nth = 0; pixel_nth < tile_w; ++pixel_nth, mask >>= 1) { // iterates 0->7
-          const bool index_1 = (tile_x[tileline_nth] & mask) >> (7 - pixel_nth); // scan tileline left to rght
+          const bool index_1 = (tile_x[tileline_nth] & mask) >> (7 - pixel_nth);      // scan tileline left to rght
           const bool index_0 = (tile_x[tileline_nth + 1] & mask) >> (7 - pixel_nth);
 
           const std::size_t palette_index = (index_1 << 1) | index_0;
