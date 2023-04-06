@@ -71,7 +71,7 @@ class IO;
 
 class PPU {
 public:
-  using palette_index = uint8_t;
+  using palette_index = std::uint8_t;
   using scanline_t = std::array<rgba32, 160>;
   using screen_t = std::array<scanline_t, 144>;
 
@@ -95,7 +95,7 @@ private:
 
   Interrupt &intr;
 
-  // lcd controller
+  /// lcd controller
   byte &LCDC;
   [[nodiscard]] bool isLCDEnabled() const noexcept;
   [[nodiscard]] std::size_t windowTilemapBaseAddress() const noexcept;
@@ -107,7 +107,7 @@ private:
   [[nodiscard]] bool isSpritesEnabled() const noexcept;
   [[nodiscard]] bool isBackgroundEnabled() const noexcept;
 
-  // lcd status
+  /// lcd status
   enum class state : std::uint8_t;
   enum class source : std::uint8_t;
 
@@ -117,11 +117,11 @@ private:
   void coincidence(const bool b) noexcept;
   bool interruptSourceEnabled(const source s) const noexcept;
 
-  // scroll viewport by y/x amount
+  /// scroll viewport by y/x amount
   byte &SCY;
   byte &SCX;
 
-  // currently drawing scanline
+  /// currently drawing scanline
   byte &LY;
   byte &LYC;
   byte currentScanline() const noexcept;
@@ -146,7 +146,7 @@ private:
   bool isVRAMAccessibleToCPU() const noexcept;
   bool isOAMAccessibleToCPU() const noexcept;
 
-  // drawing
+  /// drawing
   mutable std::array<screen_t, 3> m_framebuffer{};
 
   void fetchBackground() const noexcept;
