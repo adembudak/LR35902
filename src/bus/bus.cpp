@@ -16,8 +16,7 @@ namespace LR35902 {
 
 bootROM bootrom;
 
-Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt,
-         Joypad &joypad) :
+Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt, Joypad &joypad) :
     m_cart{cart},
     m_ppu{ppu},
     m_builtIn{builtIn},
@@ -28,8 +27,8 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
 
 byte Bus::read(const std::size_t index) const noexcept {
   if(index < mmap::romx_end) {
-    if(bootrom.isBootOnGoing())
-      if(index <= 0x100) return bootrom.read(index);
+    if(bootrom.isBootOnGoing() && index < 0x100) //
+      return bootrom.read(index);
     return m_cart.readROM(index);
   }
 
@@ -56,9 +55,9 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
   else if(index < mmap::oam_end)      m_ppu.writeOAM(index - mmap::oam, b);
   else if(index < mmap::noUsable_end) m_builtIn.writeNoUsable(index - mmap::noUsable, b);
   else if(index < mmap::io_end)
-            (index == 0xff46) ? m_dma.action(b) 
-          : (index == 0xff50) ? bootrom.unmap() 
-                              : m_io.writeIO(index - mmap::io, b);
+    if     (index == 0xff46) m_dma.action(b);
+    else if(index == 0xff50) bootrom.unmap();
+    else                     m_io.writeIO(index - mmap::io, b);
   else if(index < mmap::hram_end)     m_builtIn.writeHRAM(index - mmap::hram, b);
   else if(index == mmap::IE)          interruptHandler.IE(b);
   else assert(false);
