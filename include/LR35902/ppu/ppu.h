@@ -37,8 +37,8 @@ namespace LR35902 {
 //              = 16 byte
 //  a pixel
 //    v
-//  |lo |
-//  |hi | -> specifies palette[(hi<<1) | lo]
+//  |lo |                                                | tile line upper |
+//  |hi | -> specifies palette[(hi<<1) | lo]             | tile line lower |
 //    v  
 //  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | <- 2 byte creates a line of the tile                                   
 //  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | // 0x00  | each pixels of this tileline use palette[0b01] == palette[1]    ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓
@@ -72,8 +72,7 @@ class IO;
 class PPU {
 public:
   using palette_index = std::uint8_t;
-  using scanline_t = std::array<rgba32, 160>;
-  using screen_t = std::array<scanline_t, 144>;
+  using framebuffer_t = std::array<palette_index, 144 * 160 * 1_B>;
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
@@ -86,7 +85,7 @@ public:
 
   void update(const std::size_t cycles) noexcept;
 
-  auto GetFrameBuffer() noexcept -> const std::array<screen_t, 3> &;
+  [[nodiscard]] auto getFrameBuffer() noexcept -> const framebuffer_t &;
   void reset() noexcept;
 
 private:
@@ -147,7 +146,7 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
   /// drawing
-  mutable std::array<screen_t, 3> m_framebuffer{};
+  mutable framebuffer_t m_framebuffer{};
 
   void fetchBackground() const noexcept;
   void fetchWindow() const noexcept;
