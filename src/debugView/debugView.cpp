@@ -436,10 +436,7 @@ void DebugView::visualizeVRAM() noexcept {
 
     using tile = std::array<byte, tile_size>;
     tile tile_x{};
-    ///////////////////////
 
-    // iterate tile
-    // 0 -> 6144, += 16  (6144 == 6_KiB == tilemap size)
     int x = 0;
     for(std::size_t tile_nth = 0; tile_nth < tilemap_size; tile_nth += tile_size, x += 8) {
       std::copy_n(gameboy.ppu.m_vram.begin() + tile_nth, tile_size, tile_x.begin());
