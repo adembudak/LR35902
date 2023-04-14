@@ -72,8 +72,6 @@ int main(int argc, char *argv[]) {
     return debugger.exit(e);
   }
 
-  CLI11_PARSE(debugger, argc, argv);
-
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
@@ -87,6 +85,9 @@ int main(int argc, char *argv[]) {
   ImGui::SFML::Init(window);
 
   sf::Texture texture;
+  texture.create(160, 144);
+
+  std::array<sf::Uint8, 160 * 144 * 4> pixels;
 
   sf::Clock deltaClock;
   while(attaboy.isPowerOn()) {
@@ -145,7 +146,6 @@ int main(int argc, char *argv[]) {
     }
 
     attaboy.update();
-
     ImGui::SFML::Update(window, deltaClock.restart());
 
     if(ImGui::BeginMainMenuBar()) {
@@ -161,8 +161,42 @@ int main(int argc, char *argv[]) {
     debugView.showRegisters();
     debugView.visualizeVRAM();
 
-    const auto &framebuffer = attaboy.ppu.GetFrameBuffer();
+    const auto &framebuffer = attaboy.ppu.getFrameBuffer();
+    for(int i = 0; auto e : framebuffer) {
+      switch(e) {
+      case 0:
+        pixels[i++] = 107;
+        pixels[i++] = 166;
+        pixels[i++] = 74;
+        pixels[i++] = 255;
+        break;
+      case 1:
+        pixels[i++] = 67;
+        pixels[i++] = 122;
+        pixels[i++] = 99;
+        pixels[i++] = 255;
+        break;
+      case 2:
+        pixels[i++] = 37;
+        pixels[i++] = 89;
+        pixels[i++] = 85;
+        pixels[i++] = 255;
+        break;
+      case 3:
+        pixels[i++] = 18;
+        pixels[i++] = 66;
+        pixels[i++] = 76;
+        pixels[i++] = 255;
+        break;
+      }
+    }
 
+    texture.update(pixels.data());
+    sf::Sprite sprite(texture);
+
+    sprite.setPosition(30, 30);
+
+    window.draw(sprite);
     ImGui::SFML::Render(window);
     window.display();
   }
