@@ -83,33 +83,6 @@ void CPU::handleInterrupts() noexcept {
 // opcode table generated from: https://github.com/izik1/gbops/blob/master/dmgops.json
 void CPU::run() noexcept {
 
-  /*
-printf("A:%02X "
-   "F:%02X "
-   "B:%02X "
-   "C:%02X "
-   "D:%02X "
-   "E:%02X "
-   "H:%02X "
-   "L:%02X "
-   "SP:%04X "
-   "PC:%04X "
-   "PCMEM:%02X,%02X,%02X,%02X\n",
-   A.data(), //
-   F.data(), //
-   B.data(), //
-   C.data(), //
-   D.data(), //
-   E.data(), //
-   H.data(), //
-   L.data(), //
-   SP.m_data, PC.m_data,
-   m_bus.read(PC.m_data),     //
-   m_bus.read(PC.m_data + 1), //
-   m_bus.read(PC.m_data + 2), //
-   m_bus.read(PC.m_data + 3));
-   */
-
   if(ime && m_bus.interruptHandler.isThereAnAwaitingInterrupt()) {
     handleInterrupts();
   }
