@@ -34,6 +34,7 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0x06: m_cart = std::move(mbc2(dumpedGamePak)); break;
   case 0x08: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
   case 0x09: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
+  case 0x19: m_cart = std::move(mbc5(dumpedGamePak)); break;       /////////////////////
   case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
   case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
   case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
@@ -41,7 +42,6 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0x11: /* mbc3                           */ [[fallthrough]]; //// these //////////
   case 0x12: /* mbc3_ram                       */ [[fallthrough]]; //// cartridges /////
   case 0x13: /* mbc3_ram_battery               */ [[fallthrough]]; /////////////////////
-  case 0x19: m_cart = std::move(mbc5(dumpedGamePak)); break;       /////////////////////
   case 0x1a: /* mbc5_ram                       */ [[fallthrough]]; /////////////////////
   case 0x1b: /* mbc5_ram_battery               */ [[fallthrough]]; /////////////////////
   case 0x1c: /* mbc5_rumble                    */ [[fallthrough]]; /////////////////////
