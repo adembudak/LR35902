@@ -19,8 +19,6 @@ namespace lr = LR35902;
 
 class [[nodiscard]] GameBoy final {
 public:
-  using screen_t = lr::PPU::screen_t;
-
   lr::Clock clock;
   lr::Cartridge cart;
   lr::BuiltIn builtIn;
