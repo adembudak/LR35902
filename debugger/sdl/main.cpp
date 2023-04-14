@@ -13,6 +13,8 @@
 
 #include <fmt/core.h>
 
+#include <CLI/CLI.hpp>
+
 #include <chrono>
 #include <filesystem>
 #include <ratio>
@@ -60,32 +62,19 @@ int main(int argc, char *argv[]) {
   namespace fs = std::filesystem;
   namespace chrono = std::chrono;
 
-  constexpr std::string_view help{"Usage: debugger [game.gb] [--skipboot, -s]\n"};
+  CLI::App debugger{"LR35902 debugger", "debugger_sfml"};
 
-  if(argc < 2) {
-    fmt::print("{}", help);
-    return 1;
+  bool skipboot;
+  std::string romFile;
+  debugger.add_flag("-s,--skipboot", skipboot, "Skip boot");
+  debugger.add_option("[rom].gb", romFile)->required()->check(CLI::ExistingFile);
+
+  try {
+    debugger.parse(argc, argv);
   }
-
-  if(std::string_view sv{argv[1]}; sv == "-h" || sv == "--help") {
-    fmt::print("{}", help);
-    return 2;
+  catch(const CLI::ParseError &e) {
+    return debugger.exit(e);
   }
-
-  if(std::string_view sv{argv[1]}; !sv.ends_with(".gb")) {
-    fmt::print("Not a rom file!\n");
-    return 3;
-  }
-
-  if(!fs::exists({argv[1]})) {
-    fmt::print("No such file {} is found!\n", argv[1]);
-    return 4;
-  }
-
-  bool skipboot{};
-  if(argc == 3)
-    if(std::string_view sv{argv[2]}; sv == "-s" || sv == "--skipboot") //
-      skipboot = true;
 
   const auto w_win = 1280;
   const auto h_win = 720;
@@ -186,34 +175,7 @@ int main(int argc, char *argv[]) {
 
     attaboy.update();
 
-    ImGui::Begin("Emu");
-    ImGui::Checkbox("Background", &show_bg);
-    ImGui::SameLine();
-    ImGui::Checkbox("Window", &show_win);
-    ImGui::SameLine();
-    ImGui::Checkbox("Sprites", &show_obj);
-    ImGui::NewLine();
-
-    const auto &[bg, win, obj] = attaboy.ppu.GetFrameBuffer();
-    ImDrawList *const drawlist = ImGui::GetWindowDrawList();
-    const ImVec2 base = ImGui::GetCursorScreenPos();
-
-    for(int y = 0; y < bg.size(); ++y) {
-      for(int x = 0; x < bg[0].size(); ++x) {
-
-        if(show_obj)
-          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
-                                  ImColor{obj[y][x].r, obj[y][x].g, obj[y][x].b, obj[y][x].a});
-        if(show_win)
-          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
-                                  ImColor{win[y][x].r, win[y][x].g, win[y][x].b, win[y][x].a});
-        if(show_bg)
-          drawlist->AddRectFilled(ImVec2{base.x + x, base.y + y}, ImVec2{base.x + x + 1, base.y + y + 1},
-                                  ImColor{bg[y][x].r, bg[y][x].g, bg[y][x].b, bg[y][x].a});
-      }
-    }
-
-    ImGui::End();
+    const auto &framebuffer = attaboy.ppu.getFrameBuffer();
 
     debugView.showCartHeader();
     debugView.showMemoryPortions();
