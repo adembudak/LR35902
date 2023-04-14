@@ -12,11 +12,11 @@
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
+#include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
 #include <range/v3/view/join.hpp>
 #include <range/v3/view/remove_if.hpp>
 #include <range/v3/view/reverse.hpp>
-#include <range/v3/view/slice.hpp>
 
 #include <cassert>
 #include <cstddef>
@@ -42,6 +42,8 @@ constexpr std::size_t max_tiles_on_viewport_y = 18;
 
 constexpr std::size_t viewport_w = tile_w * max_tiles_on_viewport_x; // in px
 constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
+static_assert(viewport_w == 160);
+static_assert(viewport_h == 144);
 
 constexpr std::size_t max_sprites_on_viewport_x = 10;
 
@@ -57,20 +59,6 @@ static_assert(tileset_size + tilemap_size == 8_KiB /* == VRAM size */);
 
 constexpr std::size_t tileline_size = 2_B;
 constexpr std::size_t tile_size = tileline_size * tile_h;
-
-constexpr std::size_t oam_search_period = 20; // [0, 20)
-constexpr std::size_t draw_period = 43;       // [20, 63)
-constexpr std::size_t hblank_period = 51;     // [63,114)
-
-constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
-static_assert(scanline_period == 114);
-
-constexpr std::size_t vblank_height = 10;
-constexpr std::size_t vblank_period = vblank_height * scanline_period;
-static_assert(vblank_period == 1140);
-
-constexpr std::size_t vblank_start = 144; // when LY in [144, 154)
-constexpr std::size_t vblank_end = vblank_start + vblank_height;
 
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
@@ -113,19 +101,42 @@ enum class PPU::state : std::uint8_t {
 
 enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
 
+constexpr std::size_t oam_search_period = 20; // [0, 20)
+constexpr std::size_t draw_period = 43;       // [20, 63)
+constexpr std::size_t hblank_period = 51;     // [63,114)
+
+constexpr std::size_t scanline_period = oam_search_period + draw_period + hblank_period;
+static_assert(scanline_period == 114);
+
+constexpr std::size_t vblank_height = 10;
+constexpr std::size_t vblank_period = vblank_height * scanline_period;
+static_assert(vblank_period == 1140);
+
+constexpr std::size_t vblank_start = 144; // when LY in [144, 154)
+constexpr std::size_t vblank_end = vblank_start + vblank_height;
+
 /*
-+----------------+       +-------------+       +--------------+
-| searching_oam  |------>|   drawing   |------>|  hblanking   |
-+----------------+       +-------------+       +--------------+
-      ^                                                 | ++LY
-      |                                                 v
-      |-<--------------------------------------<---No---| LY == 144
-      |                                                Yes
-LY = 0|           +-->------- ++LY --------->-+         |
-      |           No                          |         |
-      | LY == 154 |     +----------------+    |         |
-      ^-------<-Yes--<--|   vblanking    |<---v---------v
-                        +----------------+
+                                 total 114 cycles
+             +-------------------------------------------------------+
+                 20 cycles           43 cycles            51 cycles
+             +--------------+     +-------------+     +--------------+
+             0-------------19     20-----------62     63-----------113
+             |  searching   |---->|   drawing   |---->|  hblanking   |  ++LY
+             +--------------+     +-------------+     +--------------+
+             ^                                                       v
+             |-<-----------------------------No, Scan a line again---| LY == 144?
+             |                                                      Yes, Entering VBlank
+   LY = 144  +--------------------------->---------------------------v   ++LY
+   LY = 145  L-->------------------------>---------------------------v   ++LY
+   LY = 146  L-->------------------------>---------------------------v   ++LY
+   LY = 147  L-->------------------------>---------------------------v   ++LY
+   LY = 148  L-->------------------------>---------------------------v   ++LY
+   LY = 149  L-->------------------------>---------------------------v   ++LY
+   LY = 150  L-->------------------------>---------------------------v   ++LY
+   LY = 151  L-->------------------------>---------------------------v   ++LY
+   LY = 152  L-->------------------------>---------------------------v   ++LY
+   LY = 153  L-->------------------------>---------------------------+   ++LY
+   LY = 0
 */
 
 std::size_t ppu_cycles = 0;
@@ -135,13 +146,11 @@ void PPU::update(const std::size_t cycles) noexcept {
   if(!isLCDEnabled()) { // LCD is off
     ppu_cycles = 0;
     resetScanline();
-    mode(state::vblanking);
     return;
   }
 
   coincidence(checkCoincidence());
-  if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-    intr.request(Interrupt::kind::lcd_stat);
+  if(checkCoincidence() && interruptSourceEnabled(source::coincidence)) intr.request(Interrupt::kind::lcd_stat);
 
   switch(mode()) {
   case state::searching:
@@ -152,7 +161,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(isWindowEnabled()) fetchWindow();
       if(isSpritesEnabled()) fetchSprites();
 
-      mode(state::drawing); // 2 -> 3
+      mode(state::drawing);
     }
     break;
 
@@ -160,7 +169,7 @@ void PPU::update(const std::size_t cycles) noexcept {
     if(ppu_cycles >= draw_period) {
       ppu_cycles -= draw_period;
 
-      mode(state::hblanking); // 3 -> 0
+      mode(state::hblanking);
 
       if(interruptSourceEnabled(source::hblank)) //
         intr.request(Interrupt::kind::lcd_stat);
@@ -174,11 +183,11 @@ void PPU::update(const std::size_t cycles) noexcept {
       updateScanline();
 
       if(currentScanline() == vblank_start) {
-        mode(state::vblanking); // 0 -> 1
+        mode(state::vblanking);
 
         intr.request(Interrupt::kind::vblank);
       } else {
-        mode(state::searching); // 0 -> 2
+        mode(state::searching);
 
         if(interruptSourceEnabled(source::oam)) //
           intr.request(Interrupt::kind::lcd_stat);
@@ -199,7 +208,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(currentScanline() >= vblank_end) {
         resetScanline();
 
-        mode(state::searching); // 1 -> 2
+        mode(state::searching);
 
         if(interruptSourceEnabled(source::oam)) //
           intr.request(Interrupt::kind::lcd_stat);
@@ -209,15 +218,14 @@ void PPU::update(const std::size_t cycles) noexcept {
   }
 }
 
-auto PPU::GetFrameBuffer() noexcept -> const std::array<screen_t, 3> & {
+auto PPU::getFrameBuffer() noexcept -> const framebuffer_t & {
   return m_framebuffer;
 }
 
 void PPU::reset() noexcept {
   rg::fill(m_vram, byte{});
   rg::fill(m_oam, byte{});
-  for(auto &e : m_framebuffer)
-    rg::fill(e, scanline_t{});
+  rg::fill(m_framebuffer, palette_index{});
 }
 
 // LCDC register related members
@@ -230,8 +238,8 @@ std::size_t PPU::windowTilemapBaseAddress() const noexcept { // bit6
 }
 
 bool PPU::isWindowEnabled() const noexcept { // bit5
-  if(!isBackgroundEnabled())                 //
-    return false;
+                                             // if(!isBackgroundEnabled())                 //
+                                             //    return false;
   return LCDC & 0b0010'0000;
 }
 
@@ -370,12 +378,12 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 }
 
 void PPU::fetchBackground() const noexcept {
-  const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
-                       | rv::chunk(tileline_size)                                                       //
-                       | rv::chunk(tile_h);
+  static const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
+                              | rv::chunk(tileline_size)                                                       //
+                              | rv::chunk(tile_h);
 
-  const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
-                       | rv::chunk(max_tiles_on_screen_x);
+  static const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
+                              | rv::chunk(max_tiles_on_screen_x);
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
@@ -398,7 +406,7 @@ void PPU::fetchBackground() const noexcept {
       const bool hi = tileline[1] & mask; // lower byte of tileline
       const palette_index pi = (hi << 1) | lo;
 
-      m_framebuffer[0][y][x] = original[bgp()[pi]];
+      m_framebuffer[y * viewport_w + x] = bgp()[pi];
     }
   }
 }
@@ -406,12 +414,12 @@ void PPU::fetchBackground() const noexcept {
 void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
-  const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
-                       | rv::chunk(tileline_size)                                                   //
-                       | rv::chunk(tile_h);                                                         //
+  static const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
+                              | rv::chunk(tileline_size)                                                   //
+                              | rv::chunk(tile_h);                                                         //
 
-  const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
-                       | rv::chunk(max_tiles_on_screen_x);
+  static const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
+                              | rv::chunk(max_tiles_on_screen_x);
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
     const std::size_t row = currentScanline() / tile_h;
@@ -433,132 +441,91 @@ void PPU::fetchWindow() const noexcept {
       const bool hi = tileline[1] & mask; // 2 bits in 2bpp format
       const palette_index pi = (hi << 1) | lo;
 
-      m_framebuffer[1][y][x] = original[bgp()[pi]];
+      m_framebuffer[y * viewport_w + x] = bgp()[pi];
     }
   }
 }
 
 /*
-class sprite_t final {
-public:
-  static constexpr size_t tile_screen_offset_y{16}; // when a sprite is on (8, 16), it appears on top-left
-  static constexpr size_t tile_screen_offset_x{8};
+                      normal
+0xff, 0x00,      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
+0x7e, 0xff,      ▒▒░░░░░░░░░░░░▒▒
+0x85, 0x81,      ░░████████▓▓██░░
+0x89, 0x83,      ░░██████▓▓██▒▒░░
+0x93, 0x85,      ░░████▓▓██▒▒▓▓░░
+0xa5, 0x8b,      ░░██▓▓██▒▒▓▓▒▒░░
+0xc9, 0x97,      ░░▓▓██▒▒▓▓▒▒▒▒░░
+0x7e, 0xff       ▒▒░░░░░░░░░░░░▒▒
 
-private:
-  byte _x, _y;
-  byte _index;
-  bool _bgHasPriority, _yFlip, _xFlip, _palette;
+                   y flipped                          then x flipped
+                  (tile lines are reversed)           (bytes are reversed)
+                  the tile becomes upside down        e.g:    0x93 == reverseBits(0xc9)
+                                                       0b1001'0011 == reverseBits(0b1100'1001)
 
-  std::vector<byte> _sprite_bytes;
-
-public:
-  // clang-format off
-  sprite_t(auto &&subrange) :
-      _x{subrange[0]},
-      _y{subrange[1]},
-      _index{subrange[2]},
-      _bgHasPriority(subrange[3] & 0b1000'0000),
-      _yFlip        (subrange[3] & 0b0100'0000),
-      _xFlip        (subrange[3] & 0b0010'0000),
-      _palette      (subrange[3] & 0b0001'0000)
-  {
-
-     _sprite_bytes = rv::slice(m_vram, _index * tile_size, numberOfBytesToFetch());
-
-     if(_yFlip) { // sprite will be rendered upside down
-       _sprite_bytes = _sprite_bytes
-                       | rv::chunk(tileline_size)
-                       | rv::reverse
-                       | rv::join
-                       | rg::to<std::vector<byte>>;
-     } // clang-format on
-
-    if(_xFlip) { // sprite is mirrored by x axis
-      // Reverse the bits in a byte, no idea how it works...stolen from:
-      // https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith64BitsDiv
-      ra::transform(_sprite_bytes, [](byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; });
-    }
-  }
-
-  bool isVisibleOnViewport() const noexcept;
-  bool isVisibleToScanline() const noexcept;
-
-  byte x() const noexcept;
-  byte y() const noexcept;
-
-  bool bgHasPriority() const noexcept;
-  size_t palette() const noexcept;
-
-private:
-  // Convert the pixels outside of viewport to "transparent"
-  // In effect, assigns these pixel bits to 0b00
-  void autoCorrect() noexcept {}
-
-  const auto spriteHeight() const {
-    return isBigSprite() ? (2 * tile_h) : tile_h;
-  };
-  const auto numberOfBytesToFetch() const {
-    return spriteHeight() * tileline_size;
-  };
-};
+0x7e, 0xff       ▒▒░░░░░░░░░░░░▒▒   |   0x7e, 0xff,  ▒▒░░░░░░░░░░░░▒▒
+0xc9, 0x97,      ░░▓▓██▒▒▓▓▒▒▒▒░░   |   0x93, 0xe9,  ░░▒▒▒▒▓▓▒▒██▓▓░░
+0xa5, 0x8b,      ░░██▓▓██▒▒▓▓▒▒░░   |   0xa5, 0xd1,  ░░▒▒▓▓▒▒██▓▓██░░
+0x93, 0x85,      ░░████▓▓██▒▒▓▓░░   |   0xc9, 0xa1,  ░░▓▓▒▒██▓▓████░░
+0x89, 0x83,      ░░██████▓▓██▒▒░░   |   0x91, 0xc1,  ░░▒▒██▓▓██████░░
+0x85, 0x81,      ░░████████▓▓██░░   |   0xa1, 0x81,  ░░██▓▓████████░░
+0x7e, 0xff,      ▒▒░░░░░░░░░░░░▒▒   |   0x7e, 0xff,  ▒▒░░░░░░░░░░░░▒▒
+0xff, 0x00,      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   |   0xff, 0x00   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 */
 
 void PPU::fetchSprites() const noexcept {
-  const auto tile_screen_offset_y = 16;
-  const auto tile_screen_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
+  const byte sprite_viewport_offset_y = 16;
+  const byte sprite_viewport_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
+
+  const auto sprite_starts_visible_x = 1;
+  const auto sprite_ends_visible_x = 168;
+
+  const auto sprite_ends_visible_y = 160;
+  const auto sprite_starts_visible_y = 9;
 
   const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
   const auto numberOfBytesToFetch = [&] { return spriteHeight() * tileline_size; };
-  const auto isSpriteVisible = [&](const byte y, const byte x) -> bool {
-    return x > 0 && x < (viewport_w + tile_screen_offset_x - 1) && // x is in [1, 166]
-           y > 8 && y < (viewport_h + tile_screen_offset_y - 1);   // y is in [8, 158]
+
+  const auto isSpriteOutsideOfTheViewport = [&](const byte x, const byte y) -> bool {
+    return x < sprite_starts_visible_x || //
+           x >= sprite_ends_visible_x ||  //
+           y < sprite_starts_visible_y || //
+           y >= sprite_ends_visible_y;
   };
 
-  const auto isSpriteOnScanline = [&](const byte y) -> bool {
-    const int tile_y_on_screen = y - tile_screen_offset_y;
+  const auto isSpriteVisibleToScanline = [&](const byte y) -> bool {
+    const int viewport_y = y - sprite_viewport_offset_y;
 
-    return LY >= tile_y_on_screen && LY < (tile_y_on_screen + spriteHeight());
+    return LY >= viewport_y && LY < (viewport_y + spriteHeight());
   };
+
+  // No idea how the lambda body works below...
+  // link: https://graphics.stanford.edu/~seander/bithacks.html#ReverseByteWith64BitsDiv
+  const auto reverseBits = [](const byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; };
 
   // clang-format off
-  /*
-  std::vector<sprite_t> sprites_on_scanline2; 
-
-  if(LY % 8 == 0) {
-    sprites_on_scanline2 = m_oam
-                           | rv::chunk(4) // [y, x, tile_index, atrb] x 40
-                           | rg::to<std::vector<sprite_t>> 
-                           | ra::sort([](const auto &a, const auto &b) { return a.x() < b.x(); })
-                           | ra::reverse;
-  }
-  */
-
   const auto 
   sprites_on_scanline = m_oam
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
-                        | rv::remove_if([&](const auto &o) { return !isSpriteVisible(o[0], o[1]) || !isSpriteOnScanline(o[0]);})
+                        | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
+                        | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
                         | rg::to<std::vector> 
-                        | ra::sort([](const auto &a, const auto &b) { return a[1] < b[1]; })
-                        | ra::reverse
-                        | ra::take(max_sprites_on_viewport_x) 
-                        | rg::to<std::vector>;
+                        | ra::sort([](const auto &a, const auto &b) { return a[1] > b[1]; })
+                        | ra::take(max_sprites_on_viewport_x); 
 
-  for(const auto &obj : sprites_on_scanline) {
-    const byte y =          obj[0];
-    const byte x =          obj[1];
-    const byte tile_index = obj[2];
-    const byte atrb       = obj[3];
+  for(const auto &obj : sprites_on_scanline) { // scan a line from each tiles
+    const byte y     = obj[0];
+    const byte x     = obj[1];
+    const byte index = obj[2];
+    const byte atrb  = obj[3];
 
     const bool bgHasPriority = atrb & 0b1000'0000;
-    const bool yflip =         atrb & 0b0100'0000;
-    const bool xflip =         atrb & 0b0010'0000;
-    const bool palette =       atrb & 0b0001'0000; // OBP1 or OBP0?
+    const bool yflip         = atrb & 0b0100'0000;
+    const bool xflip         = atrb & 0b0010'0000;
+    const bool palette       = atrb & 0b0001'0000; // OBP1 or OBP0?
     // clang-format on
-    const byte y_on_screen = y - tile_screen_offset_y;
-    const byte x_on_screen = x - tile_screen_offset_x;
 
-    const std::size_t tile_address = tile_index * tile_size;
-    auto sprite = rv::counted(m_vram.begin() + tile_address, numberOfBytesToFetch()) | rg::to<std::vector>;
+    const std::size_t tile_address = index * tile_size;
+    auto sprite = rv::counted(m_vram.begin() + tile_address, numberOfBytesToFetch()) | rg::to<std::vector<byte>>;
 
     if(yflip)
       sprite = sprite                     //
@@ -567,30 +534,29 @@ void PPU::fetchSprites() const noexcept {
                | rv::join                 //
                | rg::to<std::vector<byte>>;
 
-    if(xflip) //
-      ra::transform(sprite, [](byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; });
+    if(xflip) ra::transform(sprite, reverseBits);
 
-    const std::size_t currently_scanning_tileline = currentScanline() - y_on_screen;
-    const byte tileline_upper = sprite[currently_scanning_tileline * 2];
-    const byte tileline_lower = sprite[currently_scanning_tileline * 2 + 1];
+    const int viewport_y = y - sprite_viewport_offset_y;
+    const int viewport_x = x - sprite_viewport_offset_x;
+    const int currently_scanning_spriteline = currentScanline() - viewport_y;
+
+    const auto spriteLines = sprite | rv::chunk(tileline_size);
+    const auto spriteLine_to_scan = spriteLines[currently_scanning_spriteline];
 
     std::uint8_t mask = 0b1000'0000;
     for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-      const bool lo = tileline_upper & mask;
-      const bool hi = tileline_lower & mask;
+      if(viewport_x + i < sprite_starts_visible_x) continue;
+      if(viewport_x + i >= sprite_ends_visible_x) break;
+
+      const bool lo = spriteLine_to_scan[0] & mask;
+      const bool hi = spriteLine_to_scan[1] & mask;
 
       const palette_index pi = (hi << 1) | lo;
-      if(pi == 0b00) continue; // "transparent" color
+      if(pi == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
 
-      const byte y = y_on_screen + currently_scanning_tileline;
-      const byte x = x_on_screen + i;
-
-      if(y >= viewport_h) break;
-      if(x >= viewport_w) break;
-
-      m_framebuffer[2][y][x] = bgHasPriority ? original[bgp()[pi]]
-                               : palette     ? original[obp1()[pi]]
-                                             : original[obp0()[pi]];
+      m_framebuffer[LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[pi]  //
+                                                        : palette     ? obp1()[pi] //
+                                                                      : obp0()[pi];
     }
   }
 }
