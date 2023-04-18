@@ -24,7 +24,7 @@ int main(int argc, const char *const argv[]) {
   app.add_flag("--destination", options[3], "Print cart destination");
   app.add_flag("--cgb", options[4], "Print color gameboy support");
   app.add_flag("--sgb", options[5], "Print super gameboy support");
-  app.add_flag("--checksums", options[6], "Print cart version");
+  app.add_flag("--checksums", options[6], "Print logo check and header checksum");
   app.add_flag("--publisher", options[7], "Print cart publisher");
   app.add_flag("--version", options[8], "Print cart version");
 
