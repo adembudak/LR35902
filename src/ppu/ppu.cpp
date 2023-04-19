@@ -36,6 +36,8 @@ constexpr std::size_t max_tiles_on_screen_y = 32;
 
 constexpr std::size_t screen_w = tile_w * max_tiles_on_screen_x; // in px
 constexpr std::size_t screen_h = tile_h * max_tiles_on_screen_y;
+static_assert(screen_w == 256);
+static_assert(screen_h == 256);
 
 constexpr std::size_t max_tiles_on_viewport_x = 20;
 constexpr std::size_t max_tiles_on_viewport_y = 18;
