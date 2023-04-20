@@ -1146,21 +1146,23 @@ void CPU::rra() noexcept { // rra // // 0 0 0 c
 
 void CPU::rrc(r8 &r) noexcept { // rrc r8 // z 0 0 c
                                 // [0] -> [7 -> 0] -> C
-  F.c = r.data() & 0b0000'0001;
+  const bool carry = r.data() & 0b0000'0001;
   r >>= 1;
+  r |= (carry << 7);
 
-  F = {r == 0, 0, 0, F.c};
+  F = {r == 0, 0, 0, carry};
 
   m_clock.cycle(2);
 }
 
 void CPU::rrc(byte b) noexcept { // rrc [HL]
-  F.c = b & 0b0000'0001;
+  const bool carry = b & 0b0000'0001;
   b >>= 1;
+  b |= (carry << 7);
 
   m_bus.write(HL.data(), b);
 
-  F = {b == 0, 0, 0, F.c};
+  F = {b == 0, 0, 0, carry};
 
   m_clock.cycle(4);
 }
