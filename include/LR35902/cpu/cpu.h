@@ -40,13 +40,14 @@ private:
   Clock &m_clock;
 
   auto fetchOpcode() noexcept -> byte;
+  auto fetchsByte() noexcept -> sbyte;
   auto fetchByte() noexcept -> byte;
   auto fetchWord() noexcept -> word;
 
   void handleInterrupts() noexcept;
 
 #ifdef WITH_DEBUGGER
-  using immediate_t = std::variant<std::monostate, byte, word>;
+  using immediate_t = std::variant<std::monostate, byte, sbyte, word>;
   byte opcode{};
   immediate_t immediate;
 #endif

@@ -160,6 +160,8 @@ void DebugView::showDisassembly() noexcept {
       if(PC != 0)
         if(std::holds_alternative<byte>(immediate))
           im::TextColored(color, "%04x  %02x %02x", PC - 2, opcode, std::get<byte>(immediate));
+        else if(std::holds_alternative<sbyte>(immediate))
+          im::TextColored(color, "%04x  %02x %02x", PC - 2, opcode, std::get<sbyte>(immediate));
         else if(std::holds_alternative<word>(immediate))
           im::TextColored(color, "%04x  %02x %02x", PC - 3, opcode, std::get<word>(immediate));
         else im::TextColored(color, "%04x  %02x", PC - 1, opcode);

@@ -17,6 +17,14 @@ auto CPU::fetchOpcode() noexcept -> byte {
   return m_bus.read(PC++);
 }
 
+auto CPU::fetchsByte() noexcept -> sbyte {
+#ifdef WITH_DEBUGGER
+  immediate = static_cast<std::int8_t>(m_bus.read(PC++));
+  return std::get<sbyte>(immediate);
+#endif
+  return m_bus.read(PC++);
+};
+
 auto CPU::fetchByte() noexcept -> byte {
 #ifdef WITH_DEBUGGER
   immediate = m_bus.read(PC++);
@@ -127,7 +135,7 @@ void CPU::run() noexcept {
   case 0x15: dec(D); break;
   case 0x16: ld(D, n8{fetchByte()}); break;
   case 0x17: rla(); break;
-  case 0x18: jr(e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x18: jr(e8{fetchsByte()}); break;
   case 0x19: add(HL_register_tag, DE); break;
   case 0x1a: ld(memory_to_register, *DE); break;
   case 0x1b: dec(DE); break;
@@ -135,7 +143,7 @@ void CPU::run() noexcept {
   case 0x1d: dec(E); break;
   case 0x1e: ld(E, n8{fetchByte()}); break;
   case 0x1f: rra(); break;
-  case 0x20: jr(cc::nz, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x20: jr(cc::nz, e8{fetchsByte()}); break;
   case 0x21: ld(HL, n16{fetchWord()}); break;
   case 0x22:
     m_bus.write(HL.data(), A.data());
@@ -147,7 +155,7 @@ void CPU::run() noexcept {
   case 0x25: dec(H); break;
   case 0x26: ld(H, n8{fetchByte()}); break;
   case 0x27: daa(); break;
-  case 0x28: jr(cc::z, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x28: jr(cc::z, e8{fetchsByte()}); break;
   case 0x29: add(HL_register_tag, HL); break;
   case 0x2a: ld(memory_to_register, HLi_tag); break;
   case 0x2b: dec(HL); break;
@@ -155,7 +163,7 @@ void CPU::run() noexcept {
   case 0x2d: dec(L); break;
   case 0x2e: ld(L, n8{fetchByte()}); break;
   case 0x2f: cpl(); break;
-  case 0x30: jr(cc::nc, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x30: jr(cc::nc, e8{fetchsByte()}); break;
   case 0x31: ld(SP_register_tag, n16{fetchWord()}); break;
   case 0x32:
     m_bus.write(HL.data(), A.data());
@@ -170,7 +178,7 @@ void CPU::run() noexcept {
     m_clock.cycle(3);
     break;
   case 0x37: scf(); break;
-  case 0x38: jr(cc::c, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0x38: jr(cc::c, e8{fetchsByte()}); break;
   case 0x39: add(HL_register_tag, SP_register_tag); break;
   case 0x3a: ld(memory_to_register, HLd_tag); break;
   case 0x3b: dec(SP_register_tag); break;
@@ -634,7 +642,7 @@ void CPU::run() noexcept {
   case 0xe5: push(HL); break;
   case 0xe6: and_(n8{fetchByte()}); break;
   case 0xe7: rst(mmap::rst_20); break;
-  case 0xe8: add(SP_register_tag, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0xe8: add(SP_register_tag, e8{fetchsByte()}); break;
   case 0xe9: jp(HL_register_tag); break;
   case 0xea: {
     const n16 nn{fetchWord()};
@@ -664,7 +672,7 @@ void CPU::run() noexcept {
   case 0xf5: push(AF_register_tag); break;
   case 0xf6: or_(n8{fetchByte()}); break;
   case 0xf7: rst(mmap::rst_30); break;
-  case 0xf8: ld(HL_register_tag, SP_register_tag, e8{static_cast<int8_t>(fetchByte())}); break;
+  case 0xf8: ld(HL_register_tag, SP_register_tag, e8{fetchsByte()}); break;
   case 0xf9: ld(SP_register_tag, HL_register_tag); break;
   case 0xfa: { // ld A,[n16]
     const n16 nn{fetchWord()};
