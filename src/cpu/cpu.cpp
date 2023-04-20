@@ -1168,10 +1168,11 @@ void CPU::rrc(byte b) noexcept { // rrc [HL]
 }
 
 void CPU::rrca() noexcept { // rrca // 0 0 0 c
-  F.c = A.data() & 0b0000'0001;
+  const bool carry = A.data() & 0b0000'0001;
   A >>= 1;
+  A |= (carry << 7);
 
-  F = {0, 0, 0, F.c};
+  F = {0, 0, 0, carry};
 
   m_clock.cycle(1);
 }
