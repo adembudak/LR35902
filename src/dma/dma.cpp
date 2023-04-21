@@ -22,19 +22,27 @@ constexpr std::size_t numberOfBytesToTransfer = 160_B; // 40 * 32 bits == 40 * 4
 
 void DMA::action(const byte n) noexcept {
 
-  if(const std::size_t destination = n * 0x100; destination < mmap::romx_end)
+  if(std::size_t offset = n * 0x100; offset < mmap::romx_end) {
+    offset -= mmap::rom0;
     for(std::size_t i = 0; i < numberOfBytesToTransfer; ++i)
-      m_ppu.m_oam[i] = m_cart.readROM(i);
+      m_ppu.m_oam[i] = m_cart.readROM(offset + i);
+  }
 
-  else if(destination < mmap::vram_end) //
-    std::ranges::copy_n(m_ppu.m_vram.begin(), numberOfBytesToTransfer, m_ppu.m_oam.begin());
+  else if(offset < mmap::vram_end) {
+    offset -= mmap::vram;
+    std::ranges::copy_n(m_ppu.m_vram.begin() + offset, numberOfBytesToTransfer, m_ppu.m_oam.begin());
+  }
 
-  else if(destination < mmap::sram_end)
+  else if(offset < mmap::sram_end) {
+    offset -= mmap::sram;
     for(std::size_t i = 0; i < numberOfBytesToTransfer; ++i)
-      m_ppu.m_oam[i] = m_cart.readSRAM(i);
+      m_ppu.m_oam[i] = m_cart.readSRAM(offset + i);
+  }
 
-  else if(destination < mmap::wramx_end) //
-    std::ranges::copy_n(m_builtIn.m_wram.begin(), numberOfBytesToTransfer, m_ppu.m_oam.begin());
+  else if(offset < mmap::wramx_end) {
+    offset -= mmap::wram0;
+    std::ranges::copy_n(m_builtIn.m_wram.begin() + offset, numberOfBytesToTransfer, m_ppu.m_oam.begin());
+  }
 
   else {
     // ignore write
