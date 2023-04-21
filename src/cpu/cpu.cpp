@@ -1488,6 +1488,7 @@ void CPU::ld(HL_register_tag_t, SP_register_tag_t, const e8 e) noexcept { // ld 
 
   SP.m_data += e.m_data;
   HL = SP;
+  SP.m_data -= e.m_data;
 
   F = {0, 0, h, c};
 
