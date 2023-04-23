@@ -26,15 +26,15 @@ void Cartridge::load(const char *romfile) noexcept {
   this->header.assign(std::move(buf));
 
   switch(header.decode_mbc_type().second) {
-  case 0x00: m_cart = std::move(rom_only(dumpedGamePak)); break;
-  case 0x01: m_cart = std::move(mbc1(dumpedGamePak)); break;
-  case 0x02: m_cart = std::move(mbc1_ram(dumpedGamePak, header.decode_ram_size().second)); break;
-  case 0x03: m_cart = std::move(mbc1_ram(dumpedGamePak, header.decode_ram_size().second)); break;
-  case 0x05: m_cart = std::move(mbc2(dumpedGamePak)); break;
-  case 0x06: m_cart = std::move(mbc2(dumpedGamePak)); break;
-  case 0x08: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
-  case 0x09: m_cart = std::move(rom_ram(begin(dumpedGamePak), end(dumpedGamePak))); break;
-  case 0x19: m_cart = std::move(mbc5(dumpedGamePak)); break;       /////////////////////
+  case 0x00: m_cart = rom_only(dumpedGamePak); break;
+  case 0x01: m_cart = mbc1(dumpedGamePak); break;
+  case 0x02: m_cart = mbc1_ram(dumpedGamePak, header.decode_ram_size().second); break;
+  case 0x03: m_cart = mbc1_ram(dumpedGamePak, header.decode_ram_size().second); break;
+  case 0x05: m_cart = mbc2(dumpedGamePak); break;
+  case 0x06: m_cart = mbc2(dumpedGamePak); break;
+  case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
+  case 0x09: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
+  case 0x19: m_cart = mbc5(dumpedGamePak); break;                  /////////////////////
   case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
   case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
   case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
