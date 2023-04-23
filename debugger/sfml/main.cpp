@@ -104,9 +104,9 @@ int main(int argc, char *argv[]) {
         switch(event.key.code) {
         default: break;
         case sf::Keyboard::A:      attaboy.joypad.update(lr::button::a,      lr::keystatus::pressed); break;
-        case sf::Keyboard::B:      attaboy.joypad.update(lr::button::b,      lr::keystatus::pressed); break;
-        case sf::Keyboard::Return: attaboy.joypad.update(lr::button::select, lr::keystatus::pressed); break;
-        case sf::Keyboard::Space:  attaboy.joypad.update(lr::button::start,  lr::keystatus::pressed); break;
+        case sf::Keyboard::D:      attaboy.joypad.update(lr::button::b,      lr::keystatus::pressed); break;
+        case sf::Keyboard::S:      attaboy.joypad.update(lr::button::select, lr::keystatus::pressed); break;
+        case sf::Keyboard::W:      attaboy.joypad.update(lr::button::start,  lr::keystatus::pressed); break;
 
         case sf::Keyboard::Up:     attaboy.joypad.update(lr::button::up,     lr::keystatus::pressed); break;
         case sf::Keyboard::Right:  attaboy.joypad.update(lr::button::right,  lr::keystatus::pressed); break;
@@ -119,9 +119,9 @@ int main(int argc, char *argv[]) {
         switch(event.key.code) {
         default: break;
         case sf::Keyboard::A:      attaboy.joypad.update(lr::button::a,      lr::keystatus::released); break;
-        case sf::Keyboard::B:      attaboy.joypad.update(lr::button::b,      lr::keystatus::released); break;
-        case sf::Keyboard::Return: attaboy.joypad.update(lr::button::select, lr::keystatus::released); break;
-        case sf::Keyboard::Space:  attaboy.joypad.update(lr::button::start,  lr::keystatus::released); break;
+        case sf::Keyboard::D:      attaboy.joypad.update(lr::button::b,      lr::keystatus::released); break;
+        case sf::Keyboard::S:      attaboy.joypad.update(lr::button::select, lr::keystatus::released); break;
+        case sf::Keyboard::W:      attaboy.joypad.update(lr::button::start,  lr::keystatus::released); break;
 
         case sf::Keyboard::Up:     attaboy.joypad.update(lr::button::up,     lr::keystatus::released); break;
         case sf::Keyboard::Right:  attaboy.joypad.update(lr::button::right,  lr::keystatus::released); break;
