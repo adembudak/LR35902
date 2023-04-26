@@ -96,13 +96,6 @@ void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
   if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
 
-enum class PPU::state : std::uint8_t {
-  searching = 0b10, // 2
-  drawing = 0b11,   // 3
-  hblanking = 0b00, // 0
-  vblanking = 0b01  // 1
-};
-
 enum class PPU::source : std::uint8_t { hblank, vblank, oam, coincidence };
 
 constexpr std::size_t oam_search_period = 20; // [0, 20)
@@ -144,7 +137,6 @@ constexpr std::size_t vblank_end = vblank_start + vblank_height;
 */
 
 std::size_t ppu_cycles = 0;
-int scanline_counter = 0;
 void PPU::update(const std::size_t cycles) noexcept {
   ppu_cycles += cycles;
 
@@ -209,9 +201,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
         intr.request(Interrupt::kind::lcd_stat);
 
-      // if(currentScanline() >= vblank_end) {
-      if(++scanline_counter == vblank_height) {
-        scanline_counter = 0;
+      if(currentScanline() >= vblank_end) {
         resetScanline();
 
         mode(state::searching);
@@ -232,6 +222,16 @@ void PPU::reset() noexcept {
   rg::fill(m_vram, byte{});
   rg::fill(m_oam, byte{});
   rg::fill(m_framebuffer, palette_index{});
+}
+
+PPU::state PPU::mode() const noexcept { // bit0, bit1
+  switch(STAT & 0b0000'0011) {
+  default: break;
+  case 0b00: return state::hblanking;
+  case 0b01: return state::vblanking;
+  case 0b10: return state::searching;
+  case 0b11: return state::drawing;
+  }
 }
 
 // LCDC register related members
@@ -276,18 +276,11 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
 }
 
 // STAT register related members
-PPU::state PPU::mode() const noexcept { // bit0, bit1
-  switch(STAT & 0b0000'0011) {
-  case 0b00: return state::hblanking;
-  case 0b01: return state::vblanking;
-  case 0b10: return state::searching;
-  case 0b11: return state::drawing;
-  }
-}
 
 // clang-format off
 void PPU::mode(const state s) noexcept { // bit0, bit1
   switch(s) {
+  default: break;
   case state::hblanking:  STAT &= 0b1111'1100;          break;
   case state::vblanking: (STAT &= 0b1111'1100) |= 0b01; break;
   case state::searching: (STAT &= 0b1111'1100) |= 0b10; break;
@@ -302,6 +295,7 @@ void PPU::coincidence(const bool b) noexcept {
 
 bool PPU::interruptSourceEnabled(const source s) const noexcept {
   switch(s) {
+  default: break;
   case source::hblank:      return STAT & 0b0000'1000; // bit 3
   case source::vblank:      return STAT & 0b0001'0000; // bit 4
   case source::oam:         return STAT & 0b0010'0000; // bit 5

@@ -87,6 +87,15 @@ public:
   [[nodiscard]] auto getFrameBuffer() noexcept -> const framebuffer_t &;
   void reset() noexcept;
 
+  enum class state : std::uint8_t {
+    searching = 0b10, // 2
+    drawing = 0b11,   // 3
+    hblanking = 0b00, // 0
+    vblanking = 0b01  // 1
+  };
+
+  [[nodiscard]] state mode() const noexcept;
+
 private:
   std::array<byte, 8_KiB> m_vram{};
   std::array<byte, 160_B> m_oam{};
@@ -106,11 +115,9 @@ private:
   [[nodiscard]] bool isBackgroundEnabled() const noexcept;
 
   /// lcd status
-  enum class state : std::uint8_t;
   enum class source : std::uint8_t;
 
   byte &STAT;
-  [[nodiscard]] state mode() const noexcept;
   void mode(const state s) noexcept;
   void coincidence(const bool b) noexcept;
   bool interruptSourceEnabled(const source s) const noexcept;
