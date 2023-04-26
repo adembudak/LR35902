@@ -20,12 +20,20 @@ void GameBoy::plug(const std::string_view rom) noexcept {
   cart.load(rom.data());
 }
 
-constexpr int one_frame_cycles = 114 * 144;
+constexpr int vblank_period_cycles = 1140;
+
 void GameBoy::update() noexcept {
   if(m_paused) return;
 
+  while(ppu.mode() != lr::PPU::state::vblanking) {
+    cpu.run();
+    const int cycles = clock.latest();
+    ppu.update(cycles);
+    timer.update(cycles);
+  }
+
   int cycles = 0;
-  for(int i = 0; i < one_frame_cycles; i += cycles) {
+  for(int i = 0; i < vblank_period_cycles; i += cycles) {
     cpu.run();
     cycles = clock.latest();
     ppu.update(cycles);
