@@ -11,6 +11,9 @@ set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
 set(LR35902_TEST_DIR ${LR35902_SOURCE_DIR}/tests)
 
 option(WITH_DEBUGGER "" OFF)
+option(SFML_FRONTEND "" OFF)
+option(SDL2_FRONTEND "" OFF)
+
 option(WITH_TOOLS "" OFF)
 option(BUILD_TEST_ROMS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
@@ -46,39 +49,38 @@ target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
-  find_package(SDL2 QUIET REQUIRED CONFIG)
-  find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
   find_package(imgui CONFIG REQUIRED)
-  find_package(ImGui-SFML QUIET REQUIRED CONFIG)
   find_package(fmt QUIET REQUIRED CONFIG)
 
   add_library(imgui_memory_editor INTERFACE)
-  target_include_directories(
-    imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
-
+  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
   add_library(debugView src/debugView/debugView.cpp)
-  target_include_directories(
-    debugView PUBLIC ${LR35902_INCLUDE_DIR}
-                     ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor lr35902)
 
-  target_link_libraries(debugView PRIVATE imgui::imgui
-                                          imgui::imgui_memory_editor lr35902)
+  set_target_properties(lr35902 debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  if(SFML_FRONTEND)
+    find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
+    find_package(ImGui-SFML QUIET REQUIRED CONFIG)
 
-  add_executable(debugger_sdl debugger/sdl/main.cpp debugger/GameBoy.cpp)
-  target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
-  target_link_libraries(debugger_sdl PRIVATE debugView fmt::fmt imgui::imgui
-                                             SDL2::SDL2-static SDL2::SDL2main)
+    add_executable(debugger_sfml debugger/sfml/main.cpp debugger/GameBoy.cpp)
+    target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
+    target_link_libraries(debugger_sfml PRIVATE debugView fmt::fmt imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
 
-  add_executable(debugger_sfml debugger/sfml/main.cpp debugger/GameBoy.cpp)
-  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
-  target_link_libraries(
-    debugger_sfml PRIVATE debugView fmt::fmt imgui::imgui sfml-graphics
-                          ImGui-SFML::ImGui-SFML)
+    set_target_properties(debugger_sfml PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  endif()
 
-  set_target_properties(lr35902 debugView debugger_sdl debugger_sfml
-                        PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  if(SDL2_FRONTEND)
+    find_package(SDL2 QUIET REQUIRED CONFIG)
+
+    add_executable(debugger_sdl debugger/sdl/main.cpp debugger/GameBoy.cpp)
+    target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
+    target_link_libraries(debugger_sdl PRIVATE debugView fmt::fmt imgui::imgui SDL2::SDL2-static SDL2::SDL2main)
+
+    set_target_properties(debugger_sdl PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  endif()
 
 endif()
 
@@ -96,8 +98,8 @@ if(BUILD_TEST_ROMS)
   find_program(RGBFIX rgbfix REQUIRED)
 
   function(add_test_rom)
-    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE"
-                          "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE" ${ARGN})
+    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE"
+                          ${ARGN})
 
     file(MAKE_DIRECTORY ${test_OUTPUT_DIRECTORY})
 
@@ -118,14 +120,11 @@ if(BUILD_TEST_ROMS)
     endforeach()
   endfunction()
 
-  file(GLOB instructions CONFIGURE_DEPENDS
-       ${LR35902_TEST_DIR}/source/instructions/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions
-               MBC_TYPE ROM_ONLY SOURCE ${instructions})
+  file(GLOB instructions CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/instructions/*.asm)
+  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE ${instructions})
 
   file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE
-               ROM_ONLY SOURCE ${timer})
+  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
 endif()
 
 if(VISUALIZE_TARGETS)
@@ -144,7 +143,6 @@ if(CACHE_BUILD)
 endif()
 
 if(STATIC_ANALYSIS)
-  find_program(CLANG_TIDY NAMES clang-tidy-15 clang-tidy-14 clang-tidy-13
-                                clang-tidy REQUIRED)
+  find_program(CLANG_TIDY NAMES clang-tidy-15 clang-tidy-14 clang-tidy-13 clang-tidy REQUIRED)
   find_program(CPPCHECK cppcheck REQUIRED)
 endif()
