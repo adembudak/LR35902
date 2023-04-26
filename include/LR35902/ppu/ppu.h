@@ -1,7 +1,6 @@
 #pragma once
 
 #include <LR35902/config.h>
-#include <LR35902/ppu/palettes.h>
 
 #include <array>
 
