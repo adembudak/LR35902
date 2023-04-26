@@ -52,7 +52,6 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
     ImGui::MenuItem("Disassembly", NULL, &debugView._disassembly);
     ImGui::MenuItem("CPU State", NULL, &debugView._cpu_state);
     ImGui::MenuItem("Registers", NULL, &debugView._registers);
-    ImGui::MenuItem("VRAM", NULL, &debugView._vram);
 
     ImGui::EndMenu();
   }

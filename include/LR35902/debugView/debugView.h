@@ -48,7 +48,6 @@ public:
   void showDisassembly() noexcept;
   void showCPUState() noexcept;
   void showRegisters() noexcept;
-  void visualizeVRAM() noexcept;
 };
 
 }
