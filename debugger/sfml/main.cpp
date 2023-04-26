@@ -1,4 +1,6 @@
 #include "../GameBoy.h"
+#include "palettes.h"
+
 #include <LR35902/debugView/debugView.h>
 
 #include <SFML/Graphics/RenderTexture.hpp>
@@ -58,6 +60,7 @@ void putMenuBar(GameBoy &gb, LR35902::DebugView &dv) {
 }
 
 int main(int argc, char *argv[]) {
+  // command line handling
   CLI::App debugger{"LR35902 debugger", "debugger_sfml"};
 
   bool skipboot;
@@ -72,6 +75,7 @@ int main(int argc, char *argv[]) {
     return debugger.exit(e);
   }
 
+  // emu
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
 
@@ -84,13 +88,18 @@ int main(int argc, char *argv[]) {
 
   ImGui::SFML::Init(window);
 
+  palette_t palette = original;
+
   sf::Texture texture;
   texture.create(160, 144);
 
   std::array<sf::Uint8, 160 * 144 * 4> pixels;
 
+  // game loop
   sf::Clock deltaClock;
   while(attaboy.isPowerOn()) {
+
+    // input loop
     sf::Event event;
     while(window.pollEvent(event)) {
       ImGui::SFML::ProcessEvent(window, event);
@@ -159,34 +168,47 @@ int main(int argc, char *argv[]) {
     debugView.showDisassembly();
     debugView.showCPUState();
     debugView.showRegisters();
-    debugView.visualizeVRAM();
+
+    ImGui::Begin("palette");
+    static int selected = 0;
+
+    ImGui::SetNextItemWidth(100.0f);
+
+    const char *items[]{"Original", "Coco'Cola", "Galata"};
+    ImGui::Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
+    switch(selected) {
+    case 0: palette = original; break;
+    case 1: palette = cococola; break;
+    case 2: palette = galata; break;
+    }
+    ImGui::End();
 
     const auto &framebuffer = attaboy.ppu.getFrameBuffer();
     for(int i = 0; auto e : framebuffer) {
       switch(e) {
       case 0:
-        pixels[i++] = 107;
-        pixels[i++] = 166;
-        pixels[i++] = 74;
-        pixels[i++] = 255;
+        pixels[i++] = palette[0].r;
+        pixels[i++] = palette[0].g;
+        pixels[i++] = palette[0].b;
+        pixels[i++] = palette[0].a;
         break;
       case 1:
-        pixels[i++] = 67;
-        pixels[i++] = 122;
-        pixels[i++] = 99;
-        pixels[i++] = 255;
+        pixels[i++] = palette[1].r;
+        pixels[i++] = palette[1].g;
+        pixels[i++] = palette[1].b;
+        pixels[i++] = palette[1].a;
         break;
       case 2:
-        pixels[i++] = 37;
-        pixels[i++] = 89;
-        pixels[i++] = 85;
-        pixels[i++] = 255;
+        pixels[i++] = palette[2].r;
+        pixels[i++] = palette[2].g;
+        pixels[i++] = palette[2].b;
+        pixels[i++] = palette[2].a;
         break;
       case 3:
-        pixels[i++] = 18;
-        pixels[i++] = 66;
-        pixels[i++] = 76;
-        pixels[i++] = 255;
+        pixels[i++] = palette[3].r;
+        pixels[i++] = palette[3].g;
+        pixels[i++] = palette[3].b;
+        pixels[i++] = palette[3].a;
         break;
       }
     }
