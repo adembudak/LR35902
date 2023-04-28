@@ -244,8 +244,6 @@ std::size_t PPU::windowTilemapBaseAddress() const noexcept { // bit6
 }
 
 bool PPU::isWindowEnabled() const noexcept { // bit5
-                                             // if(!isBackgroundEnabled())                 //
-                                             //    return false;
   return LCDC & 0b0010'0000;
 }
 
