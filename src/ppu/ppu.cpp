@@ -377,22 +377,22 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
   return mode() == state::hblanking || mode() == state::vblanking;
 }
 
+struct tile_line_decoder_t {
+  std::array<PPU::palette_index, tile_w> m_data;
+
+  tile_line_decoder_t(byte lo, byte hi) {
+    for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
+      e = (bool(lo & mask) << 1) | bool(hi & mask);
+      mask >>= 1;
+    }
+  }
+
+  const PPU::palette_index operator[](const std::size_t i) const {
+    return m_data[i];
+  }
+};
+
 void PPU::fetchBackground() const noexcept {
-  struct tile_line_decoder_t {
-    std::array<palette_index, tile_w> m_data;
-
-    tile_line_decoder_t(byte lo, byte hi) {
-      for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
-        e = (bool(lo & mask) << 1) | bool(hi & mask);
-        mask >>= 1;
-      }
-    }
-
-    const palette_index operator[](const std::size_t i) const {
-      return m_data[i];
-    }
-  };
-
   const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
                        | rv::chunk(tileline_size)                                                       //
                        | rv::chunk(tile_h);
@@ -436,28 +436,18 @@ void PPU::fetchWindow() const noexcept {
   const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
                        | rv::chunk(max_tiles_on_screen_x);
 
-  for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_viewport_x)) {
-    const std::size_t row = currentScanline() / tile_h;
+  const std::size_t row = currentScanline() / tile_h;
+  const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
+  const std::size_t window_x_ = (window_x() < 0) ? 0 : window_x();
+
+  for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
     const std::size_t tile_index = tilemap[row][tile_nth];
-
-    const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-
     const auto tileline = tileset[tile_index][currently_scanning_tileline];
+    const auto decoded = tile_line_decoder_t{tileline[0], tileline[1]};
 
-    std::uint8_t mask = 0b1000'0000;
-    for(std::size_t i = 0; i != tile_w; ++i, mask >>= 1) {
-
-      const int window_x_ = (window_x() < 0) ? 0 : window_x();
-      const int x = (tile_nth * tile_w) + window_x_ + i;
-      if(x >= viewport_w) return;
-
-      const int y = currentScanline();
-
-      const bool lo = tileline[0] & mask; // lo and hi are the
-      const bool hi = tileline[1] & mask; // 2 bits in 2bpp format
-      const palette_index pi = (hi << 1) | lo;
-
-      m_framebuffer[y * viewport_w + x] = bgp()[pi];
+    for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
+      const std::size_t x = (tile_nth * tile_w) + i;
+      m_framebuffer[LY * viewport_w + x] = bgp()[decoded[i]];
     }
   }
 }
@@ -558,21 +548,17 @@ void PPU::fetchSprites() const noexcept {
 
     const auto spriteLines = sprite | rv::chunk(tileline_size);
     const auto spriteLine_to_scan = spriteLines[currently_scanning_spriteline];
+    const auto decoded = tile_line_decoder_t{spriteLine_to_scan[0], spriteLine_to_scan[1]};
 
-    std::uint8_t mask = 0b1000'0000;
-    for(int i = 0; i != tile_w; ++i, mask >>= 1) {
+    for(const int i : rv::iota(std::size_t{0}, tile_w)) {
       if(viewport_x + i < 0) continue;
       if(viewport_x + i >= sprite_ends_visible_x) break;
 
-      const bool lo = spriteLine_to_scan[0] & mask;
-      const bool hi = spriteLine_to_scan[1] & mask;
+      if(decoded[i] == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
 
-      const palette_index pi = (hi << 1) | lo;
-      if(pi == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
-
-      m_framebuffer[LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[pi]  //
-                                                        : palette     ? obp1()[pi] //
-                                                                      : obp0()[pi];
+      m_framebuffer[LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
+                                                        : palette     ? obp1()[decoded[i]] //
+                                                                      : obp0()[decoded[i]];
     }
   }
 }
