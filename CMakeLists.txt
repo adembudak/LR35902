@@ -36,6 +36,7 @@ add_library(
   src/cartridge/header/header.cpp
   src/cartridge/kind/rom_only.cpp
   src/cartridge/kind/rom_ram.cpp
+  src/cartridge/kind/mbc1_64kb.cpp
   src/cartridge/kind/mbc1_128kb.cpp
   src/cartridge/kind/mbc1_1mb.cpp
   src/cartridge/kind/mbc1_2mb.cpp
