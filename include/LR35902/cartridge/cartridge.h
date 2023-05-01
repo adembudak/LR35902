@@ -1,7 +1,7 @@
 #pragma once
 
 #include <LR35902/cartridge/header/header.h>
-#include <LR35902/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/mbc1_1mb.h>
 #include <LR35902/cartridge/kind/mbc1_ram.h>
 #include <LR35902/cartridge/kind/mbc2.h>
 #include <LR35902/cartridge/kind/mbc5.h>
@@ -18,7 +18,7 @@ namespace LR35902 {
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge final {
   header_t header;
-  std::variant<rom_only, rom_ram, mbc1, mbc1_ram, mbc2, mbc5> m_cart;
+  std::variant<rom_only, rom_ram, mbc1_1mb, mbc1_ram, mbc2, mbc5> m_cart;
 
 public:
   void load(const char *const romfile) noexcept;
