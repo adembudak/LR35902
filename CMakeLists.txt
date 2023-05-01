@@ -5,6 +5,8 @@ project(
   HOMEPAGE_URL https://github.com/adembudak/LR35902
   LANGUAGES CXX)
 
+include(CTest)
+
 set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
@@ -15,7 +17,9 @@ option(SFML_FRONTEND "" OFF)
 option(SDL2_FRONTEND "" OFF)
 
 option(WITH_TOOLS "" OFF)
-option(BUILD_TEST_ROMS "" OFF)
+option(BUILD_TESTS "" OFF)
+option(ROM_TESTS "" OFF)
+option(UNIT_TESTS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 option(STATIC_ANALYSIS "" OFF)
@@ -32,6 +36,7 @@ add_library(
   src/cartridge/header/header.cpp
   src/cartridge/kind/rom_only.cpp
   src/cartridge/kind/rom_ram.cpp
+  src/cartridge/kind/mbc1_128kb.cpp
   src/cartridge/kind/mbc1_1mb.cpp
   src/cartridge/kind/mbc1_2mb.cpp
   src/cartridge/kind/mbc1_ram.cpp
@@ -93,39 +98,48 @@ if(WITH_TOOLS)
   target_link_libraries(header_dumper PRIVATE lr35902 fmt::fmt CLI11::CLI11)
 endif()
 
-if(BUILD_TEST_ROMS)
-  find_program(RGBASM rgbasm REQUIRED)
-  find_program(RGBLINK rgblink REQUIRED)
-  find_program(RGBFIX rgbfix REQUIRED)
+if(BUILD_TESTS)
+  if(ROM_TESTS)
+    find_program(RGBASM rgbasm REQUIRED)
+    find_program(RGBLINK rgblink REQUIRED)
+    find_program(RGBFIX rgbfix REQUIRED)
 
-  function(add_test_rom)
-    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE"
-                          ${ARGN})
+    function(add_test_rom)
+      cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE"
+                            ${ARGN})
 
-    file(MAKE_DIRECTORY ${test_OUTPUT_DIRECTORY})
+      file(MAKE_DIRECTORY ${test_OUTPUT_DIRECTORY})
 
-    foreach(e IN LISTS test_SOURCE)
-      cmake_path(GET e STEM LAST_ONLY source)
-      cmake_path(GET e PARENT_PATH source_dir)
+      foreach(e IN LISTS test_SOURCE)
+        cmake_path(GET e STEM LAST_ONLY source)
+        cmake_path(GET e PARENT_PATH source_dir)
 
-      set(assembly_file ${source_dir}/${source}.asm)
-      set(object_file ${test_OUTPUT_DIRECTORY}/${source}.o)
-      set(rom_file ${test_OUTPUT_DIRECTORY}/${source}.gb)
+        set(assembly_file ${source_dir}/${source}.asm)
+        set(object_file ${test_OUTPUT_DIRECTORY}/${source}.o)
+        set(rom_file ${test_OUTPUT_DIRECTORY}/${source}.gb)
 
-      # cmake-format: off
+        # cmake-format: off
       execute_process(COMMAND ${RGBASM} ${test_COMPILE_FLAGS} --output ${object_file} ${assembly_file})
       execute_process(COMMAND ${RGBLINK} ${test_LINK_FLAGS} --dmg --output ${rom_file} ${object_file})
       execute_process(COMMAND ${RGBFIX} --mbc-type ${test_MBC_TYPE} --title ${source} ${test_FIX_FLAGS} ${rom_file})
       execute_process(COMMAND ${CMAKE_COMMAND} -E rm ${object_file})
       # cmake-format: on
-    endforeach()
-  endfunction()
+      endforeach()
+    endfunction()
 
-  file(GLOB instructions CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/instructions/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE ${instructions})
+    file(GLOB instructions CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/instructions/*.asm)
+    add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE ${instructions})
 
-  file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
+    file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
+    add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
+  endif()
+
+  if(UNIT_TESTS)
+    enable_testing()
+
+    add_executable(mbc1_1mb.test tests/unit/mbc1_1mb.test.cpp)
+    add_test(mbc1_1mb.test mbc1_1mb.test)
+  endif()
 endif()
 
 if(VISUALIZE_TARGETS)
