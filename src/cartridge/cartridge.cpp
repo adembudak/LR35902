@@ -4,6 +4,7 @@
 #include <LR35902/cartridge/kind/mbc1_1mb.h>
 #include <LR35902/cartridge/kind/mbc1_2mb.h>
 #include <LR35902/cartridge/kind/mbc1_32kb.h>
+#include <LR35902/cartridge/kind/mbc1_512kb.h>
 #include <LR35902/cartridge/kind/mbc1_64kb.h>
 #include <LR35902/cartridge/kind/mbc2.h>
 #include <LR35902/cartridge/kind/mbc5.h>
@@ -37,6 +38,7 @@ void Cartridge::load(const char *romfile) noexcept {
     case(32_KiB): m_cart = mbc1_32kb(dumpedGamePak); break;
     case(64_KiB): m_cart = mbc1_64kb(dumpedGamePak); break;
     case(128_KiB): m_cart = mbc1_128kb(dumpedGamePak); break;
+    case(512_KiB): m_cart = mbc1_512kb(dumpedGamePak); break;
     case(1_MiB): m_cart = mbc1_1mb(dumpedGamePak); break;
     case(2_MiB): m_cart = mbc1_2mb(dumpedGamePak); break;
     }
@@ -81,6 +83,7 @@ byte Cartridge::readROM(const std::size_t index) const noexcept {
                                  [&](const mbc1_32kb &rom)  { return rom.readROM(index); },
                                  [&](const mbc1_64kb &rom)  { return rom.readROM(index); },
                                  [&](const mbc1_128kb &rom) { return rom.readROM(index); },
+                                 [&](const mbc1_512kb &rom) { return rom.readROM(index); },
                                  [&](const mbc1_1mb &rom)   { return rom.readROM(index); },
                                  [&](const mbc1_2mb &rom)   { return rom.readROM(index); },
                                  [&](const mbc1_ram &rom)   { return rom.readROM(index); },
@@ -96,6 +99,7 @@ void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
                             [&](mbc1_32kb &rom)  { rom.writeROM(index, b); },
                             [&](mbc1_64kb &rom)  { rom.writeROM(index, b); },
                             [&](mbc1_128kb &rom) { rom.writeROM(index, b); },
+                            [&](mbc1_512kb &rom) { rom.writeROM(index, b); },
                             [&](mbc1_1mb &rom)   { rom.writeROM(index, b); },
                             [&](mbc1_2mb &rom)   { rom.writeROM(index, b); },
                             [&](mbc1_ram &rom)   { rom.writeROM(index, b); },
@@ -111,6 +115,7 @@ byte Cartridge::readSRAM(const std::size_t index) const noexcept {
                                  [&](const mbc1_32kb &)   { return random_byte();       },
                                  [&](const mbc1_64kb &)   { return random_byte();       },
                                  [&](const mbc1_128kb &)  { return random_byte();       },
+                                 [&](const mbc1_512kb &)  { return random_byte();       },
                                  [&](const mbc1_1mb &)    { return random_byte();       },
                                  [&](const mbc1_2mb &)    { return random_byte();       },
                                  [&](const mbc1_ram &rom) { return rom.readSRAM(index); },
@@ -127,6 +132,7 @@ void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
                           [&](mbc1_32kb &)   {    /* do nothing */      } ,
                           [&](mbc1_64kb &)   {    /* do nothing */      } ,
                           [&](mbc1_128kb &)  {    /* do nothing */      } ,
+                          [&](mbc1_512kb &)  {    /* do nothing */      } ,
                           [&](mbc1_1mb &)    {    /* do nothing */      } ,
                           [&](mbc1_2mb &)    {    /* do nothing */      } ,
                           [&](mbc1_ram &rom) { rom.writeSRAM(index, b); },
@@ -142,6 +148,7 @@ const byte *Cartridge::data() const noexcept {
                                  [&](const mbc1_32kb &rom)  { return rom.m_rom.data(); },
                                  [&](const mbc1_64kb &rom)  { return rom.m_rom.data(); },
                                  [&](const mbc1_128kb &rom) { return rom.m_rom.data(); },
+                                 [&](const mbc1_512kb &rom) { return rom.m_rom.data(); },
                                  [&](const mbc1_1mb &rom)   { return rom.m_rom.data(); },
                                  [&](const mbc1_2mb &rom)   { return rom.m_rom.data(); },
                                  [&](const mbc1_ram &rom)   { return rom.m_rom.data(); },
@@ -157,6 +164,7 @@ std::size_t Cartridge::size() const noexcept {
                                  [&](const mbc1_32kb &rom)  { return rom.m_rom.size(); },
                                  [&](const mbc1_64kb &rom)  { return rom.m_rom.size(); },
                                  [&](const mbc1_128kb &rom) { return rom.m_rom.size(); },
+                                 [&](const mbc1_512kb &rom) { return rom.m_rom.size(); },
                                  [&](const mbc1_1mb &rom)   { return rom.m_rom.size(); },
                                  [&](const mbc1_2mb &rom)   { return rom.m_rom.size(); },
                                  [&](const mbc1_ram &rom)   { return rom.m_rom.size(); },
@@ -170,6 +178,7 @@ std::optional<const byte *> Cartridge::SRAMData() const noexcept {
   else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.data();  }
   else if(std::holds_alternative<mbc1_64kb>(m_cart))  { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_128kb>(m_cart)) { return std::nullopt;                             }
+  else if(std::holds_alternative<mbc1_512kb>(m_cart)) { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_1mb>(m_cart))   { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_2mb>(m_cart))   { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_ram>(m_cart))   { return std::get<mbc1_ram>(m_cart).m_sram.data(); }
@@ -183,6 +192,7 @@ std::optional<std::size_t> Cartridge::SRAMSize() const noexcept {
   else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.size();  }
   else if(std::holds_alternative<mbc1_64kb>(m_cart))  { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_128kb>(m_cart)) { return std::nullopt;                             }
+  else if(std::holds_alternative<mbc1_512kb>(m_cart)) { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_1mb>(m_cart))   { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_2mb>(m_cart))   { return std::nullopt;                             }
   else if(std::holds_alternative<mbc1_ram>(m_cart))   { return std::get<mbc1_ram>(m_cart).m_sram.size(); }
@@ -199,6 +209,7 @@ void Cartridge::reset() noexcept { // only resets SRAM
                           [&](mbc1_32kb &)   {      /* no sram */                     },
                           [&](mbc1_64kb &)   {      /* no sram */                     },
                           [&](mbc1_128kb &)  {      /* no sram */                     },
+                          [&](mbc1_512kb &)  {      /* no sram */                     },
                           [&](mbc1_1mb &)    {      /* no sram */                     },
                           [&](mbc1_2mb &)    {      /* no sram */                     },
                           [&](mbc1_ram &rom) { std::ranges::fill(rom.m_sram, byte{}); },

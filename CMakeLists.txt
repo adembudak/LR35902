@@ -35,6 +35,7 @@ add_library(
   src/cartridge/kind/mbc1_32kb.cpp
   src/cartridge/kind/mbc1_64kb.cpp
   src/cartridge/kind/mbc1_128kb.cpp
+  src/cartridge/kind/mbc1_512kb.cpp
   src/cartridge/kind/mbc1_1mb.cpp
   src/cartridge/kind/mbc1_2mb.cpp
   src/cartridge/kind/mbc1_ram.cpp
@@ -92,8 +93,11 @@ if(WITH_TOOLS)
   find_package(fmt QUIET REQUIRED)
   find_package(CLI11 QUIET REQUIRED)
 
-  add_executable(header_dumper tools/header_dumper.cpp)
-  target_link_libraries(header_dumper PRIVATE lr35902 fmt::fmt CLI11::CLI11)
+  add_executable(gb.hd tools/header_dumper.cpp)
+  target_link_libraries(gb.hd PRIVATE lr35902 fmt::fmt CLI11::CLI11)
+
+  add_executable(gb.hf tools/header_fixer.cpp)
+  target_link_libraries(gb.hf PRIVATE fmt::fmt CLI11::CLI11)
 endif()
 
 if(ROM_TESTS)
