@@ -35,6 +35,7 @@ add_library(
   src/cartridge/kind/mbc1_32kb.cpp
   src/cartridge/kind/mbc1_64kb.cpp
   src/cartridge/kind/mbc1_128kb.cpp
+  src/cartridge/kind/mbc1_256kb.cpp
   src/cartridge/kind/mbc1_512kb.cpp
   src/cartridge/kind/mbc1_1mb.cpp
   src/cartridge/kind/mbc1_2mb.cpp
