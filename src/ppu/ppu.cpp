@@ -8,8 +8,8 @@
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
 #include <range/v3/action/transform.hpp>
-#include <range/v3/algorithm/copy_n.hpp>
 #include <range/v3/algorithm/fill.hpp>
+#include <range/v3/algorithm/rotate_copy.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
@@ -414,14 +414,8 @@ void PPU::fetchBackground() const noexcept {
     }
   }
 
-  if(SCX + viewport_w > screen_w) {
-    const auto offset = screen_w - SCX;
-    rg::copy_n(buffer.begin() + SCX, offset, m_framebuffer.begin() + LY * viewport_w);
-
-    rg::copy_n(buffer.begin(), viewport_w - offset, m_framebuffer.begin() + LY * viewport_w + offset);
-  } else {
-    rg::copy_n(buffer.begin() + SCX, viewport_w, m_framebuffer.begin() + LY * viewport_w);
-  }
+  rg::rotate_copy(buffer.begin(), buffer.begin() + SCX, buffer.begin() + viewport_w,
+                  m_framebuffer.begin() + LY * viewport_w);
 }
 
 void PPU::fetchWindow() const noexcept {
