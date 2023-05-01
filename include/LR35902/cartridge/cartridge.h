@@ -4,6 +4,7 @@
 #include <LR35902/cartridge/kind/mbc1_128kb.h>
 #include <LR35902/cartridge/kind/mbc1_1mb.h>
 #include <LR35902/cartridge/kind/mbc1_2mb.h>
+#include <LR35902/cartridge/kind/mbc1_32kb.h>
 #include <LR35902/cartridge/kind/mbc1_64kb.h>
 #include <LR35902/cartridge/kind/mbc1_ram.h>
 #include <LR35902/cartridge/kind/mbc2.h>
@@ -21,7 +22,8 @@ namespace LR35902 {
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge final {
   header_t header;
-  std::variant<rom_only, rom_ram, mbc1_64kb, mbc1_128kb, mbc1_1mb, mbc1_2mb, mbc1_ram, mbc2, mbc5> m_cart;
+  std::variant<rom_only, rom_ram, mbc1_32kb, mbc1_64kb, mbc1_128kb, mbc1_1mb, mbc1_2mb, mbc1_ram, mbc2, mbc5>
+      m_cart;
 
 public:
   void load(const char *const romfile) noexcept;

@@ -3,6 +3,7 @@
 #include <LR35902/cartridge/kind/mbc1_128kb.h>
 #include <LR35902/cartridge/kind/mbc1_1mb.h>
 #include <LR35902/cartridge/kind/mbc1_2mb.h>
+#include <LR35902/cartridge/kind/mbc1_32kb.h>
 #include <LR35902/cartridge/kind/mbc1_64kb.h>
 #include <LR35902/cartridge/kind/mbc2.h>
 #include <LR35902/cartridge/kind/mbc5.h>
@@ -32,6 +33,8 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0x00: m_cart = rom_only(dumpedGamePak); break;
   case 0x01:
     switch(std::size(dumpedGamePak)) {
+    default: assert(false);
+    case(32_KiB): m_cart = mbc1_32kb(dumpedGamePak); break;
     case(64_KiB): m_cart = mbc1_64kb(dumpedGamePak); break;
     case(128_KiB): m_cart = mbc1_128kb(dumpedGamePak); break;
     case(1_MiB): m_cart = mbc1_1mb(dumpedGamePak); break;
@@ -75,6 +78,7 @@ byte Cartridge::readROM(const std::size_t index) const noexcept {
   return std::visit(overloaded { 
                                  [&](const rom_only &rom)   { return rom.read(index);    },
                                  [&](const rom_ram &rom)    { return rom.readROM(index); },
+                                 [&](const mbc1_32kb &rom)  { return rom.readROM(index); },
                                  [&](const mbc1_64kb &rom)  { return rom.readROM(index); },
                                  [&](const mbc1_128kb &rom) { return rom.readROM(index); },
                                  [&](const mbc1_1mb &rom)   { return rom.readROM(index); },
@@ -89,6 +93,7 @@ void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
     std::visit(overloaded { 
                             [&](rom_only &rom)   { rom.write(index, b);    },
                             [&](rom_ram &rom)    { rom.writeROM(index, b); },
+                            [&](mbc1_32kb &rom)  { rom.writeROM(index, b); },
                             [&](mbc1_64kb &rom)  { rom.writeROM(index, b); },
                             [&](mbc1_128kb &rom) { rom.writeROM(index, b); },
                             [&](mbc1_1mb &rom)   { rom.writeROM(index, b); },
@@ -103,6 +108,7 @@ byte Cartridge::readSRAM(const std::size_t index) const noexcept {
   return std::visit(overloaded { 
                                  [&](const rom_only &)    { return random_byte();       },
                                  [&](const rom_ram &rom)  { return rom.readSRAM(index); },
+                                 [&](const mbc1_32kb &)   { return random_byte();       },
                                  [&](const mbc1_64kb &)   { return random_byte();       },
                                  [&](const mbc1_128kb &)  { return random_byte();       },
                                  [&](const mbc1_1mb &)    { return random_byte();       },
@@ -118,6 +124,7 @@ void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
   std::visit(overloaded { 
                           [&](rom_only &)    {    /* do nothing */      }, // no ram in rom only carts
                           [&](rom_ram &rom)  { rom.writeSRAM(index, b); },
+                          [&](mbc1_32kb &)   {    /* do nothing */      } ,
                           [&](mbc1_64kb &)   {    /* do nothing */      } ,
                           [&](mbc1_128kb &)  {    /* do nothing */      } ,
                           [&](mbc1_1mb &)    {    /* do nothing */      } ,
@@ -132,6 +139,7 @@ const byte *Cartridge::data() const noexcept {
   return std::visit(overloaded { 
                                  [&](const rom_only &rom)   { return rom.m_rom.data(); },
                                  [&](const rom_ram &rom)    { return rom.m_rom.data(); },
+                                 [&](const mbc1_32kb &rom)  { return rom.m_rom.data(); },
                                  [&](const mbc1_64kb &rom)  { return rom.m_rom.data(); },
                                  [&](const mbc1_128kb &rom) { return rom.m_rom.data(); },
                                  [&](const mbc1_1mb &rom)   { return rom.m_rom.data(); },
@@ -146,6 +154,7 @@ std::size_t Cartridge::size() const noexcept {
   return std::visit(overloaded { 
                                  [&](const rom_only &rom)   { return rom.m_rom.size(); },
                                  [&](const rom_ram &rom)    { return rom.m_rom.size(); },
+                                 [&](const mbc1_32kb &rom)  { return rom.m_rom.size(); },
                                  [&](const mbc1_64kb &rom)  { return rom.m_rom.size(); },
                                  [&](const mbc1_128kb &rom) { return rom.m_rom.size(); },
                                  [&](const mbc1_1mb &rom)   { return rom.m_rom.size(); },
@@ -187,6 +196,7 @@ void Cartridge::reset() noexcept { // only resets SRAM
   std::visit(overloaded { 
                           [&](rom_only &)    {      /* no sram */                     },
                           [&](rom_ram &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
+                          [&](mbc1_32kb &)   {      /* no sram */                     },
                           [&](mbc1_64kb &)   {      /* no sram */                     },
                           [&](mbc1_128kb &)  {      /* no sram */                     },
                           [&](mbc1_1mb &)    {      /* no sram */                     },
