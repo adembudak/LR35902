@@ -30,18 +30,18 @@ add_library(
   src/bus/bus.cpp
   src/cartridge/cartridge.cpp
   src/cartridge/header/header.cpp
-  src/cartridge/kind/rom_only.cpp
-  src/cartridge/kind/rom_ram.cpp
-  src/cartridge/kind/mbc1_32kb.cpp
-  src/cartridge/kind/mbc1_64kb.cpp
-  src/cartridge/kind/mbc1_128kb.cpp
-  src/cartridge/kind/mbc1_256kb.cpp
-  src/cartridge/kind/mbc1_512kb.cpp
-  src/cartridge/kind/mbc1_1mb.cpp
-  src/cartridge/kind/mbc1_2mb.cpp
-  src/cartridge/kind/mbc1_ram.cpp
-  src/cartridge/kind/mbc2.cpp
-  src/cartridge/kind/mbc5.cpp
+  src/cartridge/kind/rom_only/rom_only.cpp
+  src/cartridge/kind/rom_ram/rom_ram.cpp
+  src/cartridge/kind/mbc1/mbc1_32kb.cpp
+  src/cartridge/kind/mbc1/mbc1_64kb.cpp
+  src/cartridge/kind/mbc1/mbc1_128kb.cpp
+  src/cartridge/kind/mbc1/mbc1_256kb.cpp
+  src/cartridge/kind/mbc1/mbc1_512kb.cpp
+  src/cartridge/kind/mbc1/mbc1_1mb.cpp
+  src/cartridge/kind/mbc1/mbc1_2mb.cpp
+  src/cartridge/kind/mbc1_ram/mbc1_ram.cpp
+  src/cartridge/kind/mbc2/mbc2.cpp
+  src/cartridge/kind/mbc5/mbc5.cpp
   src/bootrom/bootrom.cpp
   src/ppu/ppu.cpp
   src/builtin/builtin.cpp

@@ -1,4 +1,4 @@
-#include <LR35902/cartridge/kind/mbc1_32kb.h>
+#include <LR35902/cartridge/kind/mbc1/mbc1_256kb.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -13,10 +13,10 @@ namespace LR35902 {
 
 constexpr std::size_t rom_bank_size = 16_KiB;
 
-mbc1_32kb::mbc1_32kb(std::vector<byte> other) :
+mbc1_256kb::mbc1_256kb(std::vector<byte> other) :
     m_rom{std::move(other)} {}
 
-byte mbc1_32kb::readROM(const std::size_t index) const noexcept {
+byte mbc1_256kb::readROM(const std::size_t index) const noexcept {
   if(index < mmap::rom0_end) {
     return m_rom[index];
   }
@@ -31,15 +31,15 @@ byte mbc1_32kb::readROM(const std::size_t index) const noexcept {
   }
 }
 
-void mbc1_32kb::writeROM(const std::size_t index, const byte b) noexcept {
-  if(index < 0x2000) { // ram gate
+void mbc1_256kb::writeROM(const std::size_t index, const byte b) noexcept {
+  if(index < 0x2000) { // ram gate, not usable, no ram
     register_0 = b == 0x0A;
   }
 
-  else if(index < 0x4000) { // rom bank code, possible values [1]
+  else if(index < 0x4000) { // rom bank code, possible values [1,15]
     int bank = b;
     if(bank == 0x00) ++bank;
-    register_1 = bank & 0x01;
+    register_1 = bank & 0x0f;
   }
 
   else if(index < 0x6000) { // behavior depends on register_3, not usable

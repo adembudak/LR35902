@@ -1,18 +1,7 @@
 #pragma once
 
 #include <LR35902/cartridge/header/header.h>
-#include <LR35902/cartridge/kind/mbc1_128kb.h>
-#include <LR35902/cartridge/kind/mbc1_1mb.h>
-#include <LR35902/cartridge/kind/mbc1_256kb.h>
-#include <LR35902/cartridge/kind/mbc1_2mb.h>
-#include <LR35902/cartridge/kind/mbc1_32kb.h>
-#include <LR35902/cartridge/kind/mbc1_512kb.h>
-#include <LR35902/cartridge/kind/mbc1_64kb.h>
-#include <LR35902/cartridge/kind/mbc1_ram.h>
-#include <LR35902/cartridge/kind/mbc2.h>
-#include <LR35902/cartridge/kind/mbc5.h>
-#include <LR35902/cartridge/kind/rom_only.h>
-#include <LR35902/cartridge/kind/rom_ram.h>
+#include <LR35902/cartridge/kind/all.h>
 #include <LR35902/config.h>
 
 #include <cstdint>

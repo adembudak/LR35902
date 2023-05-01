@@ -1,4 +1,4 @@
-#include <LR35902/cartridge/kind/mbc1_2mb.h>
+#include <LR35902/cartridge/kind/mbc1/mbc1_1mb.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -18,10 +18,10 @@ constexpr std::size_t rom_bank_size = 16_KiB;
 constexpr std::size_t upper_bank_increment = 32;
 static_assert(32 * 16_KiB == 512_KiB);
 
-mbc1_2mb::mbc1_2mb(std::vector<byte> other) :
+mbc1_1mb::mbc1_1mb(std::vector<byte> other) :
     m_rom{std::move(other)} {}
 
-byte mbc1_2mb::readROM(const std::size_t index) const noexcept {
+byte mbc1_1mb::readROM(const std::size_t index) const noexcept {
   if(index < mmap::rom0_end) {
     return m_rom[index];
   }
@@ -39,7 +39,7 @@ byte mbc1_2mb::readROM(const std::size_t index) const noexcept {
   }
 }
 
-void mbc1_2mb::writeROM(const std::size_t index, const byte b) noexcept {
+void mbc1_1mb::writeROM(const std::size_t index, const byte b) noexcept {
   if(index < 0x2000) { // ram gate
     register_0 = b == 0x0A;
   }
@@ -50,8 +50,8 @@ void mbc1_2mb::writeROM(const std::size_t index, const byte b) noexcept {
     register_1 = bank & 0x1f;
   }
 
-  else if(index < 0x6000) { // behavior depends on register_3, possible values [0, 1, 2, 3]
-    register_2 = b & 0x3;
+  else if(index < 0x6000) { // behavior depends on register_3, possible values [0, 1]
+    register_2 = b & 0x1;
   }
 
   else if(index < 0x8000) { // possible values [0, 1]. When 0, register_2 is used for rom banking, when 1,
