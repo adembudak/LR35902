@@ -14,12 +14,12 @@ int main(int argc, const char *const argv[]) {
 
   try {
     std::string rom_file;
-    const auto rom = app.add_option("rom.gb", rom_file)->required(true)->check(CLI::ExistingFile);
-
-    const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
-
     std::string title;
+
+    const auto rom = app.add_option("rom.gb", rom_file)->required(true)->check(CLI::ExistingFile);
+    const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
     const auto set_title = app.add_option("--set-title", title, "Set rom title");
+    const auto fix_csum = app.add_flag("--fix-csum", "Fix checksum");
 
     app.parse(argc, argv);
 
@@ -37,6 +37,19 @@ int main(int argc, const char *const argv[]) {
       title.resize(mmap::title_end - mmap::title_begin);
       stream.seekg(mmap::title_begin);
       stream.write(reinterpret_cast<const char *>(title.data()), title.size());
+    }
+
+    if(*fix_csum) {
+      std::array<byte, mmap::csum_end - mmap::csum_begin> buf;
+
+      stream.seekg(mmap::csum_begin);
+      stream.read(reinterpret_cast<char *>(data(buf)), size(buf));
+
+      const auto csum_result =
+          std::accumulate(cbegin(buf), cend(buf), byte{0}, [](byte a, byte b) { return a - b - 1; });
+
+      stream.seekg(mmap::csum_result);
+      stream.write(reinterpret_cast<const char *>(&csum_result), sizeof(csum_result));
     }
 
     //
