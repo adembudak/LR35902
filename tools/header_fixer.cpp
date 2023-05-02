@@ -1,3 +1,4 @@
+#include <LR35902/cartridge/header/header.h>
 #include <LR35902/memory_map.h>
 
 #include <CLI/App.hpp>
@@ -29,11 +30,12 @@ int main(int argc, const char *const argv[]) {
 
     if(*fix_logo) {
       stream.seekg(mmap::logo_begin);
+      stream.write(reinterpret_cast<const char *>(nintendo_logo.data()), nintendo_logo.size());
     }
 
     if(*set_title) {
       title.resize(mmap::title_end - mmap::title_begin);
-      stream.seekp(mmap::title_begin);
+      stream.seekg(mmap::title_begin);
       stream.write(reinterpret_cast<const char *>(title.data()), title.size());
     }
 
