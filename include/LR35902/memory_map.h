@@ -33,7 +33,7 @@ inline constexpr std::size_t rom0 =          0x0000; // 32KB      Cartridge
     inline constexpr std::size_t logo_end =      0x0134;
   
     inline constexpr std::size_t title_begin =   0x0134;
-    inline constexpr std::size_t title_end =     0x0144;
+    inline constexpr std::size_t title_end =     0x013f;
   
     inline constexpr std::size_t mfr_begin =     0x013f; // manufacturer
     inline constexpr std::size_t mfr_end =       0x0143;
