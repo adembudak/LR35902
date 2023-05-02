@@ -13,16 +13,6 @@ int main(int argc, const char *const argv[]) {
 
   std::fstream stream;
 
-  // manufacturarer
-  // cgb-support
-  // new licensee code
-  // sgb support
-  // mbc code
-  // rom code
-  // ram code
-  // destination
-  // old licensee
-
   try {
     std::string rom_file;
     std::string title;
