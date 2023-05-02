@@ -4,6 +4,7 @@
 #include <CLI/App.hpp>
 #include <CLI/CLI.hpp>
 
+#include <array>
 #include <string>
 
 int main(int argc, const char *const argv[]) {
@@ -11,6 +12,16 @@ int main(int argc, const char *const argv[]) {
   CLI::App app;
 
   std::fstream stream;
+
+  // manufacturarer
+  // cgb-support
+  // new licensee code
+  // sgb support
+  // mbc code
+  // rom code
+  // ram code
+  // destination
+  // old licensee
 
   try {
     std::string rom_file;
@@ -32,13 +43,13 @@ int main(int argc, const char *const argv[]) {
 
     if(*fix_logo) {
       stream.seekg(mmap::logo_begin);
-      stream.write(reinterpret_cast<const char *>(nintendo_logo.data()), nintendo_logo.size());
+      stream.write(reinterpret_cast<const char *>(data(nintendo_logo)), size(nintendo_logo));
     }
 
     if(*set_title) {
       title.resize(mmap::title_end - mmap::title_begin);
       stream.seekg(mmap::title_begin);
-      stream.write(reinterpret_cast<const char *>(title.data()), title.size());
+      stream.write(reinterpret_cast<const char *>(data(title)), size(title));
     }
 
     if(*fix_csum) {
