@@ -15,11 +15,13 @@ int main(int argc, const char *const argv[]) {
   try {
     std::string rom_file;
     std::string title;
+    byte version;
 
     const auto rom = app.add_option("rom.gb", rom_file)->required(true)->check(CLI::ExistingFile);
     const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
     const auto set_title = app.add_option("--set-title", title, "Set rom title");
     const auto fix_csum = app.add_flag("--fix-csum", "Fix checksum");
+    const auto set_version = app.add_option("--set-ver", version, "Set version")->check(CLI::Range(0x00, 0xff));
 
     app.parse(argc, argv);
 
@@ -50,6 +52,11 @@ int main(int argc, const char *const argv[]) {
 
       stream.seekg(mmap::csum_result);
       stream.write(reinterpret_cast<const char *>(&csum_result), sizeof(csum_result));
+    }
+
+    if(*set_version) {
+      stream.seekg(mmap::game_version);
+      stream.write(reinterpret_cast<const char *>(&version), sizeof(version));
     }
 
     //
