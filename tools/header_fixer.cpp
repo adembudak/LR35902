@@ -49,7 +49,7 @@ struct MBCKindValidator : public CLI::Validator {
   MBCKindValidator() {
     name_ = "mbc kind validator";
 
-    func_ = [](const std::string &str) -> std::string {
+    func_ = [&](const std::string &str) -> std::string {
       if(!kind.contains(str)) return "Not a valid MBC type";
       return std::string{};
     };
@@ -71,14 +71,18 @@ int main(int argc, const char *const argv[]) {
     std::string title;
     std::string mbc_type;
     byte version;
+    byte rom_size;
 
     const auto rom = app.add_option("rom.gb", rom_file)->required(true)->check(CLI::ExistingFile);
     const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
     const auto set_title = app.add_option("--set-title", title, "Set rom title");
     const auto fix_csum = app.add_flag("--fix-csum", "Fix checksum");
     const auto set_version = app.add_option("--set-ver", version, "Set version")->check(CLI::Range(0x00, 0xff));
+    const auto set_rom =
+        app.add_option("--set-rom", rom_size, "Set cartridge ROM size")->check(CLI::Range(0x00, 0x08));
     const auto set_mbc = app.add_option("--set-mbc", mbc_type)->check(mbc_kind_validator)->description([&]() {
       std::ostringstream sout;
+      sout << "Set memory bank controller type. ";
       sout << "Valid values: " << '\n';
       sout << (kind | ranges::views::keys | ranges::views::intersperse("\n") | ranges::views::join |
                ranges::to<std::string>);
@@ -126,6 +130,11 @@ int main(int argc, const char *const argv[]) {
       stream.seekg(mmap::mbc_code);
       const byte code = kind.find(mbc_type)->second;
       stream.write(reinterpret_cast<const char *>(&code), sizeof(decltype(code)));
+    }
+
+    if(*set_rom) {
+      stream.seekg(mmap::rom_code);
+      stream.write(reinterpret_cast<const char *>(&rom_size), sizeof(decltype(rom_size)));
     }
   }
   catch(const CLI::ParseError &e) {
