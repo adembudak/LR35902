@@ -72,23 +72,36 @@ int main(int argc, const char *const argv[]) {
     std::string mbc_type;
     byte version;
     byte rom_size;
+    byte ram_size;
 
-    const auto rom = app.add_option("rom.gb", rom_file)->required(true)->check(CLI::ExistingFile);
+    const auto rom = app.add_option("rom.gb", rom_file) //
+                         ->check(CLI::ExistingFile)
+                         ->required(true);
+
     const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
     const auto set_title = app.add_option("--set-title", title, "Set rom title");
     const auto fix_csum = app.add_flag("--fix-csum", "Fix checksum");
-    const auto set_version = app.add_option("--set-ver", version, "Set version")->check(CLI::Range(0x00, 0xff));
-    const auto set_rom =
-        app.add_option("--set-rom", rom_size, "Set cartridge ROM size")->check(CLI::Range(0x00, 0x08));
-    const auto set_mbc = app.add_option("--set-mbc", mbc_type)->check(mbc_kind_validator)->description([&]() {
-      std::ostringstream sout;
-      sout << "Set memory bank controller type. ";
-      sout << "Valid values: " << '\n';
-      sout << (kind | ranges::views::keys | ranges::views::intersperse("\n") | ranges::views::join |
-               ranges::to<std::string>);
 
-      return sout.str();
-    }());
+    const auto set_version = app.add_option("--set-ver", version, "Set version") //
+                                 ->check(CLI::Range(0x00, 0xff));
+
+    const auto set_rom = app.add_option("--set-rom", rom_size, "Set cartridge ROM size") //
+                             ->check(CLI::Range(0x00, 0x08));
+
+    const auto set_ram = app.add_option("--set-ram", ram_size, "Set cartridge RAM size") //
+                             ->check(CLI::Range(0x00, 0x05));
+
+    const auto set_mbc = app.add_option("--set-mbc", mbc_type)
+                             ->check(mbc_kind_validator) //
+                             ->description([&]() {
+                               std::ostringstream sout;
+                               sout << "Set memory bank controller type. ";
+                               sout << "Valid values: " << '\n';
+                               sout << (kind | ranges::views::keys | ranges::views::intersperse("\n") |
+                                        ranges::views::join | ranges::to<std::string>);
+
+                               return sout.str();
+                             }());
 
     app.parse(argc, argv);
 
@@ -135,6 +148,11 @@ int main(int argc, const char *const argv[]) {
     if(*set_rom) {
       stream.seekg(mmap::rom_code);
       stream.write(reinterpret_cast<const char *>(&rom_size), sizeof(decltype(rom_size)));
+    }
+
+    if(*set_ram) {
+      stream.seekg(mmap::ram_code);
+      stream.write(reinterpret_cast<const char *>(&ram_size), sizeof(decltype(ram_size)));
     }
   }
   catch(const CLI::ParseError &e) {
