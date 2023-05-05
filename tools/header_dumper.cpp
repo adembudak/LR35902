@@ -13,6 +13,7 @@ int main(int argc, const char *const argv[]) {
   using namespace LR35902;
 
   CLI::App app;
+  app.get_formatter()->column_width(20);
 
   std::vector<std::filesystem::directory_entry> romEntries;
   app.add_option("rom.gb", romEntries, "rom files");
