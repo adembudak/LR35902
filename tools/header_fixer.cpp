@@ -83,10 +83,11 @@ int main(int argc, const char *const argv[]) {
   std::string romFile;
   std::string title;
   std::string mbc;
+  std::string console;
   byte version;
   byte romSize;
   byte ramSize;
-  std::string console;
+  byte publisher;
 
   const auto rom = app.add_option("rom.file.gb", romFile) //
                        ->check(CLI::ExistingFile)
@@ -132,6 +133,10 @@ int main(int argc, const char *const argv[]) {
 
                                         return sout.str();
                                       }());
+
+  const auto set_pusblisher = app.add_option("--set-publisher", publisher, "Set game publisher") //
+                                  ->default_val(0xf1)
+                                  ->check(CLI::Range(0x00, 0xff));
 
   try {
     app.parse(argc, argv);
@@ -182,6 +187,11 @@ int main(int argc, const char *const argv[]) {
     stream.seekg(mmap::cgb_support);
     const byte code = console_kind.find(console)->second;
     stream.write(reinterpret_cast<const char *>(&code), sizeof(decltype(code)));
+  }
+
+  if(*set_pusblisher) {
+    stream.seekg(mmap::old_licensee);
+    stream.write(reinterpret_cast<const char *>(&publisher), sizeof(decltype(publisher)));
   }
 
   if(*fix_csum) {

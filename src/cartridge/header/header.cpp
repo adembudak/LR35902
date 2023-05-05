@@ -332,9 +332,14 @@ std::string header_t::decode_licensee_name() const noexcept {
     case 0xec: return "Epic/sony records";
     case 0xee: return "Igs";
     case 0xf0: return "A wave";
+    case 0xf1: return "Adem on the wheel (zzz)";
     case 0xf3: return "Extreme entertainment";
     case 0xff: return "Ljn";
-    default: return "unknown value: "s.append(std::to_string(a));
+    default:
+      auto str = std::to_string(a);
+      std::ranges::replace_if(
+          str, [](char c) { return !std::isprint(c); }, ' ');
+      return "unknown value: "s.append(str);
     }
   }
 }
