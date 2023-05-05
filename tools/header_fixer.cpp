@@ -79,6 +79,7 @@ int main(int argc, const char *const argv[]) {
   using namespace LR35902;
 
   CLI::App app;
+  app.get_formatter()->column_width(40);
 
   std::string romFile;
   std::string title;
@@ -88,6 +89,11 @@ int main(int argc, const char *const argv[]) {
   byte romSize;
   byte ramSize;
   byte publisher;
+
+  const auto keys_to_str = [](const std::map<std::string, byte> &m) {
+    using namespace ranges;
+    return (m | views::keys | views::intersperse("\n") | views::join | to<std::string>);
+  };
 
   const auto rom = app.add_option("rom.file.gb", romFile) //
                        ->check(CLI::ExistingFile)
@@ -106,37 +112,26 @@ int main(int argc, const char *const argv[]) {
   const auto set_ram = app.add_option("--set-ram", ramSize, "Set cartridge RAM size") //
                            ->check(CLI::Range(0x00, 0x05));
 
-  const auto set_mbc = app.add_option("--set-mbc", mbc)
-                           ->check(MBCKindValidator{}) //
-                           ->description([&]() {
-                             std::ostringstream sout;
-                             sout << "Set memory bank controller type. Valid values: \n"
-                                  << (mbc_kind                           //
-                                      | ranges::views::keys              //
-                                      | ranges::views::intersperse("\n") //
-                                      | ranges::views::join              //
-                                      | ranges::to<std::string>);
-
-                             return sout.str();
-                           }());
+  const auto set_publisher = app.add_option("--set-publisher", publisher, "Set game publisher") //
+                                 ->check(CLI::Range(0x00, 0xff));
 
   const auto set_target_console = app.add_option("--set-console", console) //
                                       ->check(ConsoleKindValidator{})
                                       ->description([&]() {
                                         std::ostringstream sout;
                                         sout << "Set the console type game target. Valid values: \n"
-                                             << (console_kind                       //
-                                                 | ranges::views::keys              //
-                                                 | ranges::views::intersperse("\n") //
-                                                 | ranges::views::join              //
-                                                 | ranges::to<std::string>);
+                                             << keys_to_str(console_kind);
 
                                         return sout.str();
                                       }());
 
-  const auto set_pusblisher = app.add_option("--set-publisher", publisher, "Set game publisher") //
-                                  ->default_val(0xf1)
-                                  ->check(CLI::Range(0x00, 0xff));
+  const auto set_mbc = app.add_option("--set-mbc", mbc)
+                           ->check(MBCKindValidator{}) //
+                           ->description([&]() {
+                             std::ostringstream sout;
+                             sout << "Set memory bank controller type. Valid values: \n" << keys_to_str(mbc_kind);
+                             return sout.str();
+                           }());
 
   try {
     app.parse(argc, argv);
@@ -189,7 +184,7 @@ int main(int argc, const char *const argv[]) {
     stream.write(reinterpret_cast<const char *>(&code), sizeof(decltype(code)));
   }
 
-  if(*set_pusblisher) {
+  if(*set_publisher) {
     stream.seekg(mmap::old_licensee);
     stream.write(reinterpret_cast<const char *>(&publisher), sizeof(decltype(publisher)));
   }
