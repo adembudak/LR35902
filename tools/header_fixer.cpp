@@ -90,6 +90,7 @@ int main(int argc, const char *const argv[]) {
   byte romSize;
   byte ramSize;
   byte publisher;
+  bool sgb;
 
   const auto keys_to_str = [](const std::map<std::string, byte> &m) {
     using namespace ranges;
@@ -102,9 +103,9 @@ int main(int argc, const char *const argv[]) {
 
   const auto fix_logo = app.add_flag("--fix-logo", "Fix logo");
   const auto set_title = app.add_option("--set-title", title, "Set rom title");
-  const auto fix_csum = app.add_flag("--fix-csum", "Fix checksum");
+  const auto fix_csum = app.add_flag("--fix-checksum", "Fix checksum");
 
-  const auto set_version = app.add_option("--set-ver", version, "Set version") //
+  const auto set_version = app.add_option("--set-version", version, "Set version") //
                                ->check(CLI::Range(0x00, 0xff));
 
   const auto set_rom = app.add_option("--set-rom", romSize, "Set cartridge ROM size") //
@@ -118,8 +119,11 @@ int main(int argc, const char *const argv[]) {
 
   const auto set_target_console =
       app.add_option("--set-console", console)->check(ConsoleKindValidator{})->description([&]() {
-        return std::string("Set the console type game target. Valid values: \n").append(keys_to_str(console_kind));
+        return std::string("Set the console type the game will target. Valid values: \n")
+            .append(keys_to_str(console_kind));
       }());
+
+  const auto set_super_gameboy_support = app.add_flag("--sgb, !--no-sgb", sgb, "Set SGB support");
 
   const auto set_mbc = app.add_option("--set-mbc", mbc)->check(MBCKindValidator{})->description([&]() {
     return std::string("Set memory bank controller type. Valid values: \n").append(keys_to_str(mbc_kind));
@@ -173,6 +177,12 @@ int main(int argc, const char *const argv[]) {
   if(*set_target_console) {
     stream.seekg(mmap::cgb_support);
     const byte code = console_kind.find(console)->second;
+    stream.write(reinterpret_cast<const char *>(&code), sizeof(decltype(code)));
+  }
+
+  if(*set_super_gameboy_support) {
+    stream.seekg(mmap::sgb_support);
+    const byte code = sgb ? 0x03 : 0x00;
     stream.write(reinterpret_cast<const char *>(&code), sizeof(decltype(code)));
   }
 
