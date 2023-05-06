@@ -115,23 +115,14 @@ int main(int argc, const char *const argv[]) {
   const auto set_publisher = app.add_option("--set-publisher", publisher, "Set game publisher") //
                                  ->check(CLI::Range(0x00, 0xff));
 
-  const auto set_target_console = app.add_option("--set-console", console) //
-                                      ->check(ConsoleKindValidator{})
-                                      ->description([&]() {
-                                        std::ostringstream sout;
-                                        sout << "Set the console type game target. Valid values: \n"
-                                             << keys_to_str(console_kind);
+  const auto set_target_console =
+      app.add_option("--set-console", console)->check(ConsoleKindValidator{})->description([&]() {
+        return std::string("Set the console type game target. Valid values: \n").append(keys_to_str(console_kind));
+      }());
 
-                                        return sout.str();
-                                      }());
-
-  const auto set_mbc = app.add_option("--set-mbc", mbc)
-                           ->check(MBCKindValidator{}) //
-                           ->description([&]() {
-                             std::ostringstream sout;
-                             sout << "Set memory bank controller type. Valid values: \n" << keys_to_str(mbc_kind);
-                             return sout.str();
-                           }());
+  const auto set_mbc = app.add_option("--set-mbc", mbc)->check(MBCKindValidator{})->description([&]() {
+    return std::string("Set memory bank controller type. Valid values: \n").append(keys_to_str(mbc_kind));
+  }());
 
   try {
     app.parse(argc, argv);
