@@ -507,7 +507,7 @@ void PPU::fetchSprites() const noexcept {
                         | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
                         | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
                         | rg::to<std::vector> 
-                        | ra::sort([](const auto &a, const auto &b) { return a[1] > b[1]; })
+                        | ra::sort(std::ranges::greater{}, [](const auto& o) { return o[1]; })
                         | ra::take(max_sprites_on_viewport_x); 
 
   for(const auto &obj : sprites_on_scanline) { // scan a line from each tiles
