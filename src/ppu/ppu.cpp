@@ -10,6 +10,7 @@
 #include <range/v3/action/transform.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/rotate_copy.hpp>
+#include <range/v3/functional/comparisons.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/counted.hpp>
@@ -507,8 +508,8 @@ void PPU::fetchSprites() const noexcept {
                         | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
                         | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
                         | rg::to<std::vector> 
-                        | ra::sort(std::ranges::greater{}, [](const auto& o) { return o[1]; })
-                        | ra::take(max_sprites_on_viewport_x); 
+                        | ra::sort(rg::greater{}, [](const auto& o) { return o[1]; })
+                        | ra::take(max_sprites_on_viewport_x);
 
   for(const auto &obj : sprites_on_scanline) { // scan a line from each tiles
     const byte y     = obj[0];
