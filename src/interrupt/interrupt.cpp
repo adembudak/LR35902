@@ -6,7 +6,7 @@ namespace LR35902 {
 Interrupt::Interrupt(IO &io) :
     m_io{io} {}
 
-[[nodiscard]] bool Interrupt::isThereAnAwaitingInterrupt() const noexcept {
+bool Interrupt::isThereAnAwaitingInterrupt() const noexcept {
   return _IE & m_io.IF & 0b0001'1111;
 }
 
@@ -18,8 +18,12 @@ void Interrupt::IE(const byte b) noexcept {
   _IE = b;
 }
 
+bool Interrupt::isThereAnEnabledInterrupt() const noexcept {
+  return _IE;
+}
+
 // clang-format off
-[[nodiscard]] Interrupt::kind Interrupt::get() const noexcept {
+Interrupt::kind Interrupt::get() const noexcept {
   if     (_IE & m_io.IF & 0b0000'0001) return kind::vblank;
   else if(_IE & m_io.IF & 0b0000'0010) return kind::lcd_stat;
   else if(_IE & m_io.IF & 0b0000'0100) return kind::timer;

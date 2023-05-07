@@ -24,6 +24,8 @@ public:
   [[nodiscard]] byte IE() const noexcept;
   void IE(const byte b) noexcept;
 
+  [[nodiscard]] bool isThereAnEnabledInterrupt() const noexcept;
+
   [[nodiscard]] kind get() const noexcept;
 
   void request(const kind k) noexcept;
