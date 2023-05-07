@@ -218,6 +218,7 @@ int main(int argc, char *argv[]) {
 
     sprite.setPosition(30, 30);
 
+    window.clear();
     window.draw(sprite);
     ImGui::SFML::Render(window);
     window.display();
