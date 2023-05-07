@@ -29,9 +29,9 @@ byte mbc1_2mb::readROM(const std::size_t index) const noexcept {
   else if(index < mmap::romx_end) {
     const auto portions = m_rom | rv::chunk(rom_bank_size) | rv::chunk(upper_bank_increment);
 
-    if(register_3 == 0) return portions[register_2][register_1][index];
-    else return portions[0][register_1][index];
-
+    const std::size_t normalized_index = index / rom_bank_size;
+    if(register_3 == 0) return portions[register_2][register_1][normalized_index];
+    else return portions[0][register_1][normalized_index];
   }
 
   else {
