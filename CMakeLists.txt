@@ -98,7 +98,10 @@ if(WITH_TOOLS)
   target_link_libraries(gb.hd PRIVATE lr35902 fmt::fmt CLI11::CLI11)
 
   add_executable(gb.hf tools/header_fixer.cpp)
-  target_link_libraries(gb.hf PRIVATE lr35902 fmt::fmt CLI11::CLI11)
+  target_link_libraries(gb.hf PRIVATE lr35902 CLI11::CLI11)
+
+  add_executable(gb.dis tools/disassembler.cpp)
+  target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11)
 endif()
 
 if(ROM_TESTS)
