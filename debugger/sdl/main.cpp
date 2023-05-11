@@ -123,10 +123,6 @@ int main(int argc, char *argv[]) {
   using namespace std::literals::chrono_literals;
   const auto frame_time = 58ms;
 
-  bool show_bg = true;
-  bool show_win = true;
-  bool show_obj = true;
-
   while(attaboy.isPowerOn()) {
     SDL_Event event;
 
@@ -187,20 +183,22 @@ int main(int argc, char *argv[]) {
     debugView.showCPUState();
     debugView.showRegisters();
 
-
+    // clang-format off
     ImGui::Begin("palette");
-    static int selected = 0;
+      static int selected = 0;
 
-    ImGui::SetNextItemWidth(100.0f);
+      ImGui::SetNextItemWidth(100.0f);
 
-    const char *items[]{"Original", "Coco'Cola", "Galata"};
-    ImGui::Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
-    switch(selected) {
-    case 0: palette = original; break;
-    case 1: palette = cococola; break;
-    case 2: palette = galata; break;
-    }
+      const char *items[]{"Original", "Coco'Cola", "Galata"};
+      ImGui::Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
+
+      switch(selected) {
+        case 0: palette = original; break;
+        case 1: palette = cococola; break;
+        case 2: palette = galata; break;
+      }
     ImGui::End();
+    // clang-format on
 
     const auto &framebuffer = attaboy.ppu.getFrameBuffer();
     for(int i = 0; auto e : framebuffer) {
@@ -245,6 +243,11 @@ int main(int argc, char *argv[]) {
     ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
 
     SDL_RenderPresent(my_renderer);
+
+    const auto framerate =
+        fmt::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+
+    SDL_SetWindowTitle(my_window, framerate.c_str());
   }
 
   ImGui_ImplSDLRenderer_Shutdown();
