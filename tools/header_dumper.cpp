@@ -34,7 +34,8 @@ int main(int argc, const char *const argv[]) {
   if(std::ranges::none_of(options, [](bool b) { return b; })) options.fill(true);
 
   auto validEntry = [](const std::filesystem::directory_entry &e) noexcept -> bool {
-    return exists(e.path()) && e.path().extension() == ".gb" && !is_empty(e.path());
+    return exists(e.path()) && (e.path().extension() == ".gb" || e.path().extension() == ".gbc") &&
+           !is_empty(e.path());
   };
 
   for(const auto &e : romEntries | ranges::views::filter(validEntry)) {
