@@ -53,7 +53,7 @@ void DebugView::showMemoryPortions() noexcept {
 
       constexpr std::size_t rom_bank_size = 16_KiB;
       if(im::BeginTabItem("rom0", &_memory_portions_rom)) {
-        memory_editor.DrawContents(std::bit_cast<void *>(gameboy.cart.data()), rom_bank_size, mmap::rom0);
+        memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.cart)), rom_bank_size, mmap::rom0);
         im::EndTabItem();
       }
 
@@ -71,7 +71,6 @@ void DebugView::showMemoryPortions() noexcept {
       if(im::BeginTabItem("vram", &_memory_portions_vram)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.ppu.m_vram)),
                                    std::size(gameboy.ppu.m_vram), mmap::vram);
-
         im::EndTabItem();
       }
 
@@ -95,42 +94,36 @@ void DebugView::showMemoryPortions() noexcept {
       if(im::BeginTabItem("wram", &_memory_portions_wram)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.builtIn.m_wram)),
                                    std::size(gameboy.builtIn.m_wram), mmap::wram0);
-
         im::EndTabItem();
       }
 
       if(im::BeginTabItem("echo", &_memory_portions_echo)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.builtIn.m_echo)),
                                    std::size(gameboy.builtIn.m_echo), mmap::echo);
-
         im::EndTabItem();
       }
 
       if(im::BeginTabItem("oam", &_memory_portions_oam)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.ppu.m_oam)),
                                    std::size(gameboy.ppu.m_oam), mmap::oam);
-
         im::EndTabItem();
       }
 
       if(im::BeginTabItem("noUsable", &_memory_portions_noUsable)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.builtIn.m_noUsable)),
                                    std::size(gameboy.builtIn.m_noUsable), mmap::noUsable);
-
         im::EndTabItem();
       }
 
       if(im::BeginTabItem("io", &_memory_portions_io)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.io.m_data)),
                                    std::size(gameboy.io.m_data), mmap::io);
-
         im::EndTabItem();
       }
 
       if(im::BeginTabItem("hram", &_memory_portions_hram)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.builtIn.m_hram)),
                                    std::size(gameboy.builtIn.m_hram), mmap::hram);
-
         im::EndTabItem();
       }
 
@@ -177,6 +170,12 @@ void DebugView::showCPUState() noexcept {
     im::Begin("CPU State", &_cpu_state);
     const auto &cpu = gameboy.cpu;
 
+    const char *const state = cpu.mode == CPU::mode_t::running  ? "Running"
+                              : cpu.mode == CPU::mode_t::halted ? "Halted"
+                                                                : "Stopped";
+    im::Text("State: %s", state);
+
+    im::NewLine();
     im::Text("Cycles: %llu\nLatest: %llu", cpu.m_clock.m_data, gameboy.clock.m_latest);
 
     im::NewLine();

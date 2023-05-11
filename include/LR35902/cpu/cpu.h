@@ -46,6 +46,9 @@ private:
 
   void handleInterrupts() noexcept;
 
+  enum class mode_t { running, halted, stopped };
+  mode_t mode;
+
 #ifdef WITH_DEBUGGER
   using immediate_t = std::variant<std::monostate, byte, sbyte, word>;
   byte opcode{};
