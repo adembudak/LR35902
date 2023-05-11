@@ -59,6 +59,9 @@ if(WITH_DEBUGGER)
   find_package(imgui CONFIG REQUIRED)
   find_package(fmt QUIET REQUIRED CONFIG)
 
+  set(font_file "${LR35902_SOURCE_DIR}/3rdparty/font/source-code-pro/TTF/SourceCodePro-Regular.ttf")
+  file(COPY ${font_file} DESTINATION ${LR35902_BINARY_DIR})
+
   add_library(imgui_memory_editor INTERFACE)
   target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)

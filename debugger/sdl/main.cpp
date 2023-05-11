@@ -98,10 +98,8 @@ int main(int argc, char *argv[]) {
   ImGuiIO &io = ImGui::GetIO();
   ImGui::StyleColorsDark();
 
-  namespace fs = std::filesystem;
-  if(fs::path font_path{"../../misc/font"}; fs::exists(font_path)) {
-    font_path /= "source-code-pro/TTF/SourceCodePro-Regular.ttf";
-    io.Fonts->AddFontFromFileTTF(font_path.string().c_str(), 14.0f);
+  if(const std::filesystem::path font{"SourceCodePro-Regular.ttf"}; exists(font)) {
+    io.Fonts->AddFontFromFileTTF(font.string().c_str(), 14.0f);
     io.Fonts->Build();
   }
 
@@ -178,7 +176,6 @@ int main(int argc, char *argv[]) {
 
     debugView.showCartHeader();
     debugView.showMemoryPortions();
-
     debugView.showDisassembly();
     debugView.showCPUState();
     debugView.showRegisters();
