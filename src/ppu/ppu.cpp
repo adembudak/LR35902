@@ -8,7 +8,9 @@
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/take.hpp>
 #include <range/v3/action/transform.hpp>
+#include <range/v3/algorithm/copy_n.hpp>
 #include <range/v3/algorithm/fill.hpp>
+#include <range/v3/algorithm/rotate.hpp>
 #include <range/v3/algorithm/rotate_copy.hpp>
 #include <range/v3/functional/comparisons.hpp>
 #include <range/v3/range/conversion.hpp>
@@ -415,8 +417,8 @@ void PPU::fetchBackground() const noexcept {
     }
   }
 
-  rg::rotate_copy(buffer.begin(), buffer.begin() + SCX, buffer.begin() + viewport_w,
-                  m_framebuffer.begin() + LY * viewport_w);
+  rg::rotate(buffer.begin(), buffer.begin() + SCX, buffer.end());
+  rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + LY * viewport_w);
 }
 
 void PPU::fetchWindow() const noexcept {
