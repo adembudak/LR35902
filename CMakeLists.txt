@@ -40,6 +40,7 @@ add_library(
   src/cartridge/kind/mbc1/mbc1_1mb.cpp
   src/cartridge/kind/mbc1/mbc1_2mb.cpp
   src/cartridge/kind/mbc1_ram/mbc1_ram.cpp
+  src/cartridge/kind/mbc1_ram/mbc1_32kb_32kb.cpp
   src/cartridge/kind/mbc2/mbc2.cpp
   src/cartridge/kind/mbc5/mbc5.cpp
   src/bootrom/bootrom.cpp
