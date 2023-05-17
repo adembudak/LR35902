@@ -116,6 +116,8 @@ constexpr std::size_t vblank_start = 144; // when LY in [144, 154)
 constexpr std::size_t vblank_end = vblank_start + vblank_height;
 
 /*
+ * scanline rendering, see: https://youtu.be/3BJU2drrtCM?t=124
+
                                  total 114 cycles
              +-------------------------------------------------------+
                  20 cycles           43 cycles            51 cycles
