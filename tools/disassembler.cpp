@@ -288,7 +288,7 @@ int main(int argc, const char *const argv[]) {
     case 0xd0: return fmt::format("ret nc");
     case 0xd1: return fmt::format("pop de");
     case 0xd2: return fmt::format("jp nc, ${:02x}", fetchWord(offset));
-    case 0xd3: return fmt::format("unused");
+    case 0xd3: return fmt::format("; unused");
     case 0xd4: return fmt::format("call nc, ${:02x}", fetchWord(offset));
     case 0xd5: return fmt::format("push de");
     case 0xd6: return fmt::format("sub a, ${:02x}", fetchByte(offset));
@@ -296,32 +296,32 @@ int main(int argc, const char *const argv[]) {
     case 0xd8: return fmt::format("ret c");
     case 0xd9: return fmt::format("reti");
     case 0xda: return fmt::format("jp c, ${:02x}", fetchWord(offset));
-    case 0xdb: return fmt::format("unused");
+    case 0xdb: return fmt::format("; unused");
     case 0xdc: return fmt::format("call c, ${:02x}", fetchWord(offset));
-    case 0xdd: return fmt::format("unused");
+    case 0xdd: return fmt::format("; unused");
     case 0xde: return fmt::format("sbc a, ${:02x}", fetchByte(offset));
     case 0xdf: return fmt::format("rst 18h");
     case 0xe0: return fmt::format("ld [$ff00 + ${:02x}], a", fetchByte(offset));
     case 0xe1: return fmt::format("pop hl");
     case 0xe2: return fmt::format("ld [$ff00 + c], a");
-    case 0xe3: return fmt::format("unused");
-    case 0xe4: return fmt::format("unused");
+    case 0xe3: return fmt::format("; unused");
+    case 0xe4: return fmt::format("; unused");
     case 0xe5: return fmt::format("push hl");
     case 0xe6: return fmt::format("and a, ${:02x}", fetchByte(offset));
     case 0xe7: return fmt::format("rst $20");
     case 0xe8: return fmt::format("add sp, {:d}", fetchsByte(offset));
     case 0xe9: return fmt::format("jp hl");
     case 0xea: return fmt::format("ld [${:02x}], a", fetchWord(offset));
-    case 0xeb: return fmt::format("unused");
-    case 0xec: return fmt::format("unused");
-    case 0xed: return fmt::format("unused");
+    case 0xeb: return fmt::format("; unused");
+    case 0xec: return fmt::format("; unused");
+    case 0xed: return fmt::format("; unused");
     case 0xee: return fmt::format("xor a, ${:02x}", fetchByte(offset));
     case 0xef: return fmt::format("rst 28h");
     case 0xf0: return fmt::format("ld a, [$ff00 + ${:02x}]", fetchByte(offset));
     case 0xf1: return fmt::format("pop af");
     case 0xf2: return fmt::format("ld a, [$ff00 + c]");
     case 0xf3: return fmt::format("di");
-    case 0xf4: return fmt::format("unused");
+    case 0xf4: return fmt::format("; unused");
     case 0xf5: return fmt::format("push af");
     case 0xf6: return fmt::format("or a, ${:02x}", fetchByte(offset));
     case 0xf7: return fmt::format("rst $30");
@@ -329,15 +329,16 @@ int main(int argc, const char *const argv[]) {
     case 0xf9: return fmt::format("ld sp, hl");
     case 0xfa: return fmt::format("ld a, [${:02x}]", fetchWord(offset));
     case 0xfb: return fmt::format("ei");
-    case 0xfc: return fmt::format("unused");
-    case 0xfd: return fmt::format("unused");
+    case 0xfc: return fmt::format("; unused");
+    case 0xfd: return fmt::format("; unused");
     case 0xfe: return fmt::format("cp a, ${:02x}", fetchByte(offset));
     case 0xff: return fmt::format("rst $38");
     default: return std::string{};
     }
   };
 
-  for(std::size_t offset = 0; offset < dumpedROM.size(); /* */) {
+  fmt::print("; instruction         PC\n");
+  for(std::size_t offset = 0; offset < std::size(dumpedROM); /* */) {
     const auto offset_old = offset;
     const byte opcode = fetchOpcode(offset);
     fmt::print("{0:<20} ; ${1:04x}\n", disassembleInstruction(opcode, offset), offset_old);
