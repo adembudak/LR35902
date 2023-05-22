@@ -1,6 +1,9 @@
 #include <CLI/CLI.hpp>
 #include <fmt/core.h>
 
+#include <range/v3/view/chunk.hpp>
+#include <range/v3/view/enumerate.hpp>
+
 #include <array>
 #include <cstdint>
 #include <fstream>
@@ -65,17 +68,21 @@ int main(int argc, const char *const argv[]) {
   const std::vector<byte> dumpedROM(std::istreambuf_iterator<char>{fin}, {});
   fin.close();
 
-  const auto fetchOpcode = [&](offset_t &offset) -> byte { return dumpedROM[offset++]; };
-  const auto fetchByte = [&](offset_t &offset) -> byte { return dumpedROM[offset++]; };
-  const auto fetchsByte = [&](offset_t &offset) -> sbyte { return dumpedROM[offset++]; };
+  const std::size_t rom_bank_size = 16 * 1024;
+  const auto rom_banks = dumpedROM | ranges::views::chunk(rom_bank_size) | ranges::views::enumerate;
 
-  const auto fetchWord = [&](offset_t &offset) -> word {
-    const byte lo = dumpedROM[offset++];
-    const byte hi = dumpedROM[offset++];
-    return word((hi << 8) | lo);
-  };
+  const auto disassembleInstruction = [&](const auto &bank, byte b, std::size_t &offset) -> std::string {
+    const auto peekOpcode = [&](offset_t offset) -> byte { return bank[offset + 1]; };
+    const auto fetchOpcode = [&](offset_t &offset) -> byte { return bank[offset++]; };
+    const auto fetchByte = [&](offset_t &offset) -> byte { return bank[offset++]; };
+    const auto fetchSignedByte = [&](offset_t &offset) -> sbyte { return bank[offset++]; };
 
-  const auto disassembleInstruction = [&](byte b, std::size_t &offset) {
+    const auto fetchWord = [&](offset_t &offset) -> word {
+      const byte lo = bank[offset++];
+      const byte hi = bank[offset++];
+      return word((hi << 8) | lo);
+    };
+
     switch(b) {
     case 0x00: return fmt::format("nop");
     case 0x01: return fmt::format("ld bc, ${:02x}", fetchWord(offset));
@@ -101,7 +108,7 @@ int main(int argc, const char *const argv[]) {
     case 0x15: return fmt::format("dec d");
     case 0x16: return fmt::format("ld d, ${:02x}", fetchByte(offset));
     case 0x17: return fmt::format("rla");
-    case 0x18: return fmt::format("jr {:d}", fetchsByte(offset));
+    case 0x18: return fmt::format("jr {:d}", fetchSignedByte(offset));
     case 0x19: return fmt::format("add hl, de");
     case 0x1a: return fmt::format("ld a, [de]");
     case 0x1b: return fmt::format("dec de");
@@ -109,7 +116,7 @@ int main(int argc, const char *const argv[]) {
     case 0x1d: return fmt::format("dec e");
     case 0x1e: return fmt::format("ld e, ${:02x}", fetchByte(offset));
     case 0x1f: return fmt::format("rra");
-    case 0x20: return fmt::format("jr nz, {:d}", fetchsByte(offset));
+    case 0x20: return fmt::format("jr nz, {:d}", fetchSignedByte(offset));
     case 0x21: return fmt::format("ld hl, ${:02x}", fetchWord(offset));
     case 0x22: return fmt::format("ld [hl+], a");
     case 0x23: return fmt::format("inc hl");
@@ -117,7 +124,7 @@ int main(int argc, const char *const argv[]) {
     case 0x25: return fmt::format("dec h");
     case 0x26: return fmt::format("ld h, ${:02x}", fetchByte(offset));
     case 0x27: return fmt::format("daa");
-    case 0x28: return fmt::format("jr z, {:d}", fetchsByte(offset));
+    case 0x28: return fmt::format("jr z, {:d}", fetchSignedByte(offset));
     case 0x29: return fmt::format("add hl, hl");
     case 0x2a: return fmt::format("ld a, [hl+]");
     case 0x2b: return fmt::format("dec hl");
@@ -125,7 +132,7 @@ int main(int argc, const char *const argv[]) {
     case 0x2d: return fmt::format("dec l");
     case 0x2e: return fmt::format("ld l, ${:02x}", fetchByte(offset));
     case 0x2f: return fmt::format("cpl");
-    case 0x30: return fmt::format("jr nc, {:d}", fetchsByte(offset));
+    case 0x30: return fmt::format("jr nc, {:d}", fetchSignedByte(offset));
     case 0x31: return fmt::format("ld sp, ${:02x}", fetchWord(offset));
     case 0x32: return fmt::format("ld [hl-], a");
     case 0x33: return fmt::format("inc sp");
@@ -133,7 +140,7 @@ int main(int argc, const char *const argv[]) {
     case 0x35: return fmt::format("dec [hl]");
     case 0x36: return fmt::format("ld [hl], ${:02x}", fetchByte(offset));
     case 0x37: return fmt::format("scf");
-    case 0x38: return fmt::format("jr c, {:d}", fetchsByte(offset));
+    case 0x38: return fmt::format("jr c, {:d}", fetchSignedByte(offset));
     case 0x39: return fmt::format("add hl, sp");
     case 0x3a: return fmt::format("ld a, [hl-]");
     case 0x3b: return fmt::format("dec sp");
@@ -309,7 +316,7 @@ int main(int argc, const char *const argv[]) {
     case 0xe5: return fmt::format("push hl");
     case 0xe6: return fmt::format("and a, ${:02x}", fetchByte(offset));
     case 0xe7: return fmt::format("rst $20");
-    case 0xe8: return fmt::format("add sp, {:d}", fetchsByte(offset));
+    case 0xe8: return fmt::format("add sp, {:d}", fetchSignedByte(offset));
     case 0xe9: return fmt::format("jp hl");
     case 0xea: return fmt::format("ld [${:02x}], a", fetchWord(offset));
     case 0xeb: return fmt::format("; unused");
@@ -325,7 +332,7 @@ int main(int argc, const char *const argv[]) {
     case 0xf5: return fmt::format("push af");
     case 0xf6: return fmt::format("or a, ${:02x}", fetchByte(offset));
     case 0xf7: return fmt::format("rst $30");
-    case 0xf8: return fmt::format("ld hl, sp {:+d}", fetchsByte(offset));
+    case 0xf8: return fmt::format("ld hl, sp {:+d}", fetchSignedByte(offset));
     case 0xf9: return fmt::format("ld sp, hl");
     case 0xfa: return fmt::format("ld a, [${:02x}]", fetchWord(offset));
     case 0xfb: return fmt::format("ei");
@@ -337,10 +344,18 @@ int main(int argc, const char *const argv[]) {
     }
   };
 
-  fmt::print("; instruction         PC\n");
-  for(std::size_t offset = 0; offset < std::size(dumpedROM); /* */) {
-    const auto offset_old = offset;
-    const byte opcode = fetchOpcode(offset);
-    fmt::print("{0:<20} ; ${1:04x}\n", disassembleInstruction(opcode, offset), offset_old);
+  for(const auto &[bankNo, bank] : rom_banks) {
+    if(bankNo == 0) //
+      fmt::print("section \"{}\", rom0\n", bankNo);
+    else //
+      fmt::print("\nsection \"{}\", romx,bank[{}]\n", bankNo, bankNo);
+
+    for(std::size_t offset = 0; offset < std::size(bank); /* */) {
+      const auto instruction_start_address = offset;
+      const byte opcode = bank[offset++];
+      fmt::print("{0:<20} ; ${1:04x}\n", disassembleInstruction(bank, opcode, offset), instruction_start_address);
+    }
   }
+
+  return 0;
 }
