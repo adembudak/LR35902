@@ -35,6 +35,7 @@ namespace ra = rg::actions;
 
 constexpr std::size_t tile_w = 8; // in px
 constexpr std::size_t tile_h = 8;
+constexpr std::size_t double_tile_h = 2 * tile_h;
 
 constexpr std::size_t max_tiles_on_screen_x = 32;
 constexpr std::size_t max_tiles_on_screen_y = 32;
@@ -464,7 +465,6 @@ void PPU::fetchWindow() const noexcept {
                   (tile lines are reversed)           (bytes are reversed)
                   the tile becomes upside down        e.g:    0x93 == reverseBits(0xc9)
                                                        0b1001'0011 == reverseBits(0b1100'1001)
-
 0x7e, 0xff       ▒▒░░░░░░░░░░░░▒▒   |   0x7e, 0xff,  ▒▒░░░░░░░░░░░░▒▒
 0xc9, 0x97,      ░░▓▓██▒▒▓▓▒▒▒▒░░   |   0x93, 0xe9,  ░░▒▒▒▒▓▓▒▒██▓▓░░
 0xa5, 0x8b,      ░░██▓▓██▒▒▓▓▒▒░░   |   0xa5, 0xd1,  ░░▒▒▓▓▒▒██▓▓██░░
@@ -482,10 +482,10 @@ void PPU::fetchSprites() const noexcept {
   const int sprite_starts_visible_x = 1;
   const int sprite_ends_visible_x = 168;
 
-  const int sprite_ends_visible_y = 160;
   const int sprite_starts_visible_y = 9;
+  const int sprite_ends_visible_y = 160;
 
-  const auto spriteHeight = [&] { return isBigSprite() ? (2 * tile_h) : tile_h; };
+  const auto spriteHeight = [&] { return isBigSprite() ? double_tile_h : tile_h; };
   const auto numberOfBytesToFetch = [&] { return spriteHeight() * tileline_size; };
 
   const auto isSpriteOutsideOfTheViewport = [&](const byte x, const byte y) -> bool {
