@@ -27,7 +27,7 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
 
 byte Bus::read(const std::size_t index) const noexcept {
   if(index < mmap::romx_end) {
-    if(bootrom.isBootOnGoing() && index < 0x100) //
+    if(bootrom.isBootOnGoing() && index < mmap::header_start) //
       return bootrom.read(index);
     return m_cart.readROM(index);
   }
