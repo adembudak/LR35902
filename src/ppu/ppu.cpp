@@ -15,6 +15,7 @@
 #include <range/v3/functional/comparisons.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
+#include <range/v3/view/const.hpp>
 #include <range/v3/view/counted.hpp>
 #include <range/v3/view/filter.hpp>
 #include <range/v3/view/iota.hpp>
@@ -398,10 +399,12 @@ struct tile_line_decoder_t {
 
 void PPU::fetchBackground() const noexcept {
   const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
+                       | rv::const_                                                                     //
                        | rv::chunk(tileline_size)                                                       //
                        | rv::chunk(tile_h);
 
   const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
+                       | rv::const_                                                                     //
                        | rv::chunk(max_tiles_on_screen_x);
 
   std::array<palette_index, screen_w> buffer;
@@ -428,10 +431,12 @@ void PPU::fetchWindow() const noexcept {
   if(currentScanline() < window_y()) return;
 
   const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
+                       | rv::const_                                                                 //
                        | rv::chunk(tileline_size)                                                   //
                        | rv::chunk(tile_h);                                                         //
 
   const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
+                       | rv::const_                                                                 //
                        | rv::chunk(max_tiles_on_screen_x);
 
   const std::size_t row = currentScanline() / tile_h;
@@ -508,6 +513,7 @@ void PPU::fetchSprites() const noexcept {
   // clang-format off
   const auto 
   sprites_on_scanline = m_oam
+                        | rv::const_
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
                         | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
                         | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
@@ -532,6 +538,7 @@ void PPU::fetchSprites() const noexcept {
 
     if(yflip)
       sprite = sprite                     //
+               | rv::const_               //
                | rv::chunk(tileline_size) //
                | rv::reverse              //
                | rv::join                 //
