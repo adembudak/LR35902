@@ -10,8 +10,9 @@
 #include <LR35902/cpu/registers/r16.h>
 #include <LR35902/cpu/registers/r8.h>
 
-#include <array>
+#ifdef WITH_DEBUGGER
 #include <variant>
+#endif
 
 namespace LR35902 {
 

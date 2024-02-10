@@ -24,9 +24,8 @@
 #include <range/v3/view/reverse.hpp>
 #include <range/v3/view/transform.hpp>
 
-#include <cassert>
 #include <cstddef>
-#include <functional>
+#include <vector>
 
 namespace LR35902 {
 
