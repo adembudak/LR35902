@@ -2,6 +2,8 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
+#include <cstddef>
+
 namespace LR35902 {
 
 byte rom_ram::readROM(const std::size_t index) const noexcept {

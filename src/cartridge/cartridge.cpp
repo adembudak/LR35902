@@ -5,10 +5,14 @@
 #include <LR35902/memory_map.h>
 
 #include <algorithm>
+#include <array>
 #include <cassert>
-#include <cstdint>
+#include <cstddef>
 #include <fstream>
+#include <iterator>
 #include <optional>
+#include <utility>
+#include <variant>
 #include <vector>
 
 namespace LR35902 {

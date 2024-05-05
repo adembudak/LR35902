@@ -1,4 +1,5 @@
 #include <LR35902/config.h>
+#include <LR35902/cpu/immediate/n8.h>
 #include <LR35902/cpu/registers/r8.h>
 
 #include <cstdint>

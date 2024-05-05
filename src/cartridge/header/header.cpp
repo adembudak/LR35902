@@ -4,9 +4,10 @@
 
 #include <algorithm>
 #include <cctype> // for std::isprint
-#include <cstdint>
+#include <cstddef>
 #include <numeric>
 #include <string>
+#include <utility>
 
 namespace LR35902 {
 
@@ -14,8 +15,7 @@ using namespace std::literals::string_literals;
 
 std::string header_t::decode_title() const noexcept {
   auto title = std::string(&m_data[mmap::title_begin], &m_data[mmap::title_end]);
-  std::ranges::replace_if(
-      title, [](char c) { return !std::isprint(c); }, ' ');
+  std::ranges::replace_if(title, [](char c) { return !std::isprint(c); }, ' ');
   return title;
 }
 
@@ -337,8 +337,7 @@ std::string header_t::decode_licensee_name() const noexcept {
     case 0xff: return "Ljn";
     default:
       auto str = std::to_string(a);
-      std::ranges::replace_if(
-          str, [](char c) { return !std::isprint(c); }, ' ');
+      std::ranges::replace_if(str, [](char c) { return !std::isprint(c); }, ' ');
       return "unknown value: "s.append(str);
     }
   }

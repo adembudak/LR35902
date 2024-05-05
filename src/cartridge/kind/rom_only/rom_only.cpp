@@ -2,7 +2,7 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
-#include <cstdint>
+#include <cstddef>
 
 namespace LR35902 {
 

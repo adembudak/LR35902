@@ -11,6 +11,7 @@
 #include <LR35902/ppu/ppu.h>
 
 #include <cassert>
+#include <cstddef>
 
 namespace LR35902 {
 
