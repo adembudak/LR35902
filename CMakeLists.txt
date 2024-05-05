@@ -5,6 +5,8 @@ project(
   HOMEPAGE_URL https://github.com/adembudak/LR35902
   LANGUAGES CXX)
 
+include(CMakeDependentOption)
+
 set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
@@ -18,7 +20,17 @@ option(WITH_TOOLS "" OFF)
 option(ROM_TESTS "" OFF)
 option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
+
 option(STATIC_ANALYSIS "" OFF)
+option(ANALYSE_WITH_CPPCHECK "" OFF)
+option(ANALYSE_WITH_CLANGTIDY "" OFF)
+option(ANALYSE_WITH_IWYU "" OFF)
+option(ANALYSE_WITH_LWYU "" OFF)
+
+cmake_dependent_option(ANALYSE_WITH_CPPCHECK "" ON STATIC_ANALYSIS ON)
+cmake_dependent_option(ANALYSE_WITH_CLANGTIDY "" ON STATIC_ANALYSIS ON)
+cmake_dependent_option(ANALYSE_WITH_IWYU "" ON STATIC_ANALYSIS ON)
+cmake_dependent_option(ANALYSE_WITH_LWYU "" ON STATIC_ANALYSIS ON)
 
 find_package(range-v3 QUIET REQUIRED CONFIG)
 
@@ -159,6 +171,35 @@ if(CACHE_BUILD)
 endif()
 
 if(STATIC_ANALYSIS)
-  find_program(CLANG_TIDY NAMES clang-tidy-15 clang-tidy-14 clang-tidy-13 clang-tidy REQUIRED)
-  find_program(CPPCHECK cppcheck REQUIRED)
+  set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
+
+  if(ANALYSE_WITH_CPPCHECK)
+    find_program(cppcheck_command cppcheck REQUIRED)
+    set(options --enable=all --inconclusive --verbose)
+
+    set(CMAKE_CXX_CPPCHECK
+        ${cppcheck_command} ${options}
+        CACHE STRING "" FORCE)
+  endif()
+
+  if(ANALYSE_WITH_CLANGTIDY)
+    find_program(clangtidy_command clang-tidy REQUIRED)
+    set(options -checks=*)
+
+    set(CMAKE_CXX_CLANG_TIDY
+        ${clangtidy_command} ${options}
+        CACHE STRING "" FORCE)
+  endif()
+
+  if(ANALYSE_WITH_IWYU)
+    find_program(iwyu_command include-what-you-use REQUIRED)
+    set(options -Xiwyu --cxx17ns --error=100)
+  endif()
+
+  if(ANALYSE_WITH_LWYU)
+    set(CMAKE_LINK_WHAT_YOU_USE
+        ON
+        CACHE BOOL "" FORCE)
+  endif()
+
 endif()
