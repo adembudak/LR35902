@@ -34,35 +34,36 @@ cmake_dependent_option(ANALYSE_WITH_LWYU "" ON STATIC_ANALYSIS ON)
 
 find_package(range-v3 QUIET REQUIRED CONFIG)
 
-add_library(
+add_library(lr35902)
+target_sources(
   lr35902
-  src/cpu/cpu.cpp
-  src/cpu/registers/r16.cpp
-  src/cpu/registers/r8.cpp
-  src/bus/bus.cpp
-  src/cartridge/cartridge.cpp
-  src/cartridge/header/header.cpp
-  src/cartridge/kind/rom_only/rom_only.cpp
-  src/cartridge/kind/rom_ram/rom_ram.cpp
-  src/cartridge/kind/mbc1/mbc1_32kb.cpp
-  src/cartridge/kind/mbc1/mbc1_64kb.cpp
-  src/cartridge/kind/mbc1/mbc1_128kb.cpp
-  src/cartridge/kind/mbc1/mbc1_256kb.cpp
-  src/cartridge/kind/mbc1/mbc1_512kb.cpp
-  src/cartridge/kind/mbc1/mbc1_1mb.cpp
-  src/cartridge/kind/mbc1/mbc1_2mb.cpp
-  src/cartridge/kind/mbc1_ram/mbc1_ram.cpp
-  src/cartridge/kind/mbc1_ram/mbc1_32kb_32kb.cpp
-  src/cartridge/kind/mbc2/mbc2.cpp
-  src/cartridge/kind/mbc5/mbc5.cpp
-  src/bootrom/bootrom.cpp
-  src/ppu/ppu.cpp
-  src/builtin/builtin.cpp
-  src/io/io.cpp
-  src/joypad/joypad.cpp
-  src/dma/dma.cpp
-  src/timer/timer.cpp
-  src/interrupt/interrupt.cpp)
+  PRIVATE src/cpu/cpu.cpp
+          src/cpu/registers/r16.cpp
+          src/cpu/registers/r8.cpp
+          src/bus/bus.cpp
+          src/cartridge/cartridge.cpp
+          src/cartridge/header/header.cpp
+          src/cartridge/kind/rom_only/rom_only.cpp
+          src/cartridge/kind/rom_ram/rom_ram.cpp
+          src/cartridge/kind/mbc1/mbc1_32kb.cpp
+          src/cartridge/kind/mbc1/mbc1_64kb.cpp
+          src/cartridge/kind/mbc1/mbc1_128kb.cpp
+          src/cartridge/kind/mbc1/mbc1_256kb.cpp
+          src/cartridge/kind/mbc1/mbc1_512kb.cpp
+          src/cartridge/kind/mbc1/mbc1_1mb.cpp
+          src/cartridge/kind/mbc1/mbc1_2mb.cpp
+          src/cartridge/kind/mbc1_ram/mbc1_ram.cpp
+          src/cartridge/kind/mbc1_ram/mbc1_32kb_32kb.cpp
+          src/cartridge/kind/mbc2/mbc2.cpp
+          src/cartridge/kind/mbc5/mbc5.cpp
+          src/bootrom/bootrom.cpp
+          src/ppu/ppu.cpp
+          src/builtin/builtin.cpp
+          src/io/io.cpp
+          src/joypad/joypad.cpp
+          src/dma/dma.cpp
+          src/timer/timer.cpp
+          src/interrupt/interrupt.cpp)
 
 target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
@@ -78,7 +79,8 @@ if(WITH_DEBUGGER)
   target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
-  add_library(debugView src/debugView/debugView.cpp)
+  add_library(debugView)
+  target_sources(debugView PRIVATE src/debugView/debugView.cpp)
   target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor lr35902)
 
@@ -88,7 +90,8 @@ if(WITH_DEBUGGER)
     find_package(ImGui-SFML QUIET REQUIRED CONFIG)
     find_package(CLI11 QUIET REQUIRED)
 
-    add_executable(debugger_sfml debugger/sfml/main.cpp debugger/GameBoy.cpp)
+    add_executable(debugger_sfml)
+    target_sources(debugger_sfml PRIVATE debugger/sfml/main.cpp debugger/GameBoy.cpp)
     target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
     target_link_libraries(debugger_sfml PRIVATE debugView fmt::fmt CLI11::CLI11 imgui::imgui sfml-graphics
                                                 ImGui-SFML::ImGui-SFML)
@@ -99,7 +102,8 @@ if(WITH_DEBUGGER)
   if(SDL2_FRONTEND)
     find_package(SDL2 QUIET REQUIRED CONFIG)
 
-    add_executable(debugger_sdl debugger/sdl/main.cpp debugger/GameBoy.cpp)
+    add_executable(debugger_sdl)
+    target_sources(debugger_sdl PRIVATE debugger/sdl/main.cpp debugger/GameBoy.cpp)
     target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
     target_link_libraries(debugger_sdl PRIVATE debugView fmt::fmt imgui::imgui SDL2::SDL2-static SDL2::SDL2main)
 
