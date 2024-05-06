@@ -7,6 +7,9 @@ configure:
 build:
 	cmake --build build
 
+rebuild:
+	cmake --build build --clean-first
+
 fresh-build:
 	cmake -S . -B build --fresh
 	just build
