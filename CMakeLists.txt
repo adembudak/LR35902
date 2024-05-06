@@ -108,16 +108,17 @@ endif()
 
 if(WITH_TOOLS)
   find_package(fmt QUIET REQUIRED)
+  find_package(range-v3 QUIET REQUIRED CONFIG)
   find_package(CLI11 QUIET REQUIRED)
 
   add_executable(gb.hd tools/header_dumper.cpp)
-  target_link_libraries(gb.hd PRIVATE lr35902 fmt::fmt CLI11::CLI11)
+  target_link_libraries(gb.hd PRIVATE lr35902 fmt::fmt CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.hf tools/header_fixer.cpp)
-  target_link_libraries(gb.hf PRIVATE lr35902 CLI11::CLI11)
+  target_link_libraries(gb.hf PRIVATE lr35902 CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.dis tools/disassembler.cpp)
-  target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11)
+  target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11 range-v3::range-v3)
 endif()
 
 if(ROM_TESTS)
