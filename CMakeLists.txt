@@ -86,10 +86,12 @@ if(WITH_DEBUGGER)
   if(SFML_FRONTEND)
     find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
     find_package(ImGui-SFML QUIET REQUIRED CONFIG)
+    find_package(CLI11 QUIET REQUIRED)
 
     add_executable(debugger_sfml debugger/sfml/main.cpp debugger/GameBoy.cpp)
     target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
-    target_link_libraries(debugger_sfml PRIVATE debugView fmt::fmt imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
+    target_link_libraries(debugger_sfml PRIVATE debugView fmt::fmt CLI11::CLI11 imgui::imgui sfml-graphics
+                                                ImGui-SFML::ImGui-SFML)
 
     set_target_properties(debugger_sfml PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   endif()
