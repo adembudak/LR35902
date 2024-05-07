@@ -1,3 +1,6 @@
+default:
+  @just --list
+
 get-dependencies:
 	vcpkg install sdl2 sfml cli11 fmt range-v3 imgui imgui-sfml imgui[sdl2-binding] imgui[sdl2-renderer-binding]
 
