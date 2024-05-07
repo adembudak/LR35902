@@ -182,7 +182,7 @@ if(STATIC_ANALYSIS)
 
   if(ANALYSE_WITH_CPPCHECK)
     find_program(cppcheck_command cppcheck REQUIRED)
-    set(options --enable=all --inconclusive --verbose)
+    set(options --enable=all --inconclusive --language=c++ --std=c++20 --verbose)
 
     set(CMAKE_CXX_CPPCHECK
         ${cppcheck_command} ${options}
@@ -191,7 +191,7 @@ if(STATIC_ANALYSIS)
 
   if(ANALYSE_WITH_CLANGTIDY)
     find_program(clangtidy_command clang-tidy REQUIRED)
-    set(options -checks=*)
+    set(options -checks=-* bugprone-* performance-* portability-*)
 
     set(CMAKE_CXX_CLANG_TIDY
         ${clangtidy_command} ${options}

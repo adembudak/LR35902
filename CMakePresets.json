@@ -1,4 +1,4 @@
-{ 
+{
   "version": 4,
   "cmakeMinimumRequired": {
     "major": 3,
@@ -17,12 +17,10 @@
         "CMAKE_CXX_STANDARD_REQUIRED": "ON"
       }
     },
-
     {
       "name": "gcc_linux",
       "inherits": "linux",
       "binaryDir": "${sourceDir}/build/${presetName}",
-
       "cacheVariables": {
         "CMAKE_CXX_FLAGS": "-fsanitize=address -fsanitize=undefined -fno-sanitize-recover=all -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow -fno-sanitize=null -fno-sanitize=alignment -Wall -Wextra -Waddress -Wuninitialized -Wreorder -Wconversion -Warith-conversion"
       },
@@ -30,18 +28,14 @@
         "CXX": "g++"
       }
     },
-
     {
       "name": "clang_linux",
       "inherits": "linux",
-
       "binaryDir": "${sourceDir}/build/${presetName}",
-
       "environment": {
         "CXX": "clang++"
       }
     },
-
     {
       "name": "msvc",
       "generator": "Visual Studio 17 2022",
@@ -56,37 +50,36 @@
       },
       "vendor": {
         "microsoft.com/VisualStudioSettings/CMake/1.0": {
-          "hostOS": [ "Windows" ]
+          "hostOS": [
+            "Windows"
+          ]
         }
       }
     },
-
     {
-      "name":"cppcheck",
-      "hidden":true,
+      "name": "cppcheck",
+      "hidden": true,
       "inherits": "gcc_linux",
       "binaryDir": "build_static_analysis",
-      "cacheVariables":{
-        "CMAKE_CXX_CPPCHECK":"cppcheck;--language=c++;--std=c++20;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build_static_analysis"
+      "cacheVariables": {
+        "CMAKE_CXX_CPPCHECK": "cppcheck;--language=c++;--std=c++20;--inconclusive;--enable=all;-q;--cppcheck-build-dir=${sourceDir}/build_static_analysis"
       }
     },
-
     {
-      "name":"clang-tidy",
-      "hidden":true,
+      "name": "clang-tidy",
+      "hidden": true,
       "inherits": "gcc_linux",
       "binaryDir": "build_static_analysis",
-      "cacheVariables":{
-        "CMAKE_CXX_CLANG_TIDY":"clang-tidy-14;-checks=-*,bugprone-*,performance-*,portability-*"
+      "cacheVariables": {
+        "CMAKE_CXX_CLANG_TIDY": "clang-tidy-14;--checks=-*,bugprone-*,performance-*,portability-*"
       }
     },
-
     {
-      "name":"static-analysis",
+      "name": "static-analysis",
       "displayName": "cppcheck, clang-tidy",
-      "hidden":false,
-      "generator":"Ninja",
-      "inherits":[
+      "hidden": false,
+      "generator": "Ninja",
+      "inherits": [
         "cppcheck",
         "clang-tidy"
       ],
@@ -94,9 +87,6 @@
         "CMAKE_BUILD_TYPE": "Debug",
         "STATIC_ANALYSIS": "ON"
       }
-
     }
   ]
 }
-
-
