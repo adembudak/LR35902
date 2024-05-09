@@ -154,9 +154,9 @@ private:
   /// drawing
   mutable framebuffer_t m_framebuffer{};
 
-  void fetchBackground() const noexcept;
-  void fetchWindow() const noexcept;
-  void fetchSprites() const noexcept;
+  void fetchBackground() const;
+  void fetchWindow() const;
+  void fetchSprites() const;
 
   friend class DMA;
   friend class DebugView;

@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <variant>
+#include <bit>
 
 namespace LR35902 {
 namespace im = ImGui;

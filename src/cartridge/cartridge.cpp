@@ -29,7 +29,7 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0x00: m_cart = rom_only(dumpedGamePak); break;
   case 0x01:
     switch(std::size(dumpedGamePak)) {
-    default: assert(false);
+    default: assert(false); break;
     case 32_KiB: m_cart = mbc1_32kb(dumpedGamePak); break;
     case 64_KiB: m_cart = mbc1_64kb(dumpedGamePak); break;
     case 128_KiB: m_cart = mbc1_128kb(dumpedGamePak); break;

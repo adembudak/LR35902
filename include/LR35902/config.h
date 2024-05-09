@@ -25,8 +25,8 @@ using word = std::uint16_t;
 
 inline std::mt19937 engine{std::random_device{}()};
 inline std::uniform_int_distribution get{0, 255};
-[[nodiscard]] inline byte random_byte() noexcept {
-  return byte(get(engine));
+[[nodiscard]] inline byte random_byte() {
+  return get(engine);
 }
 
 } // namespace LR35902

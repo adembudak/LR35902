@@ -384,19 +384,19 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 struct tile_line_decoder_t {
   std::array<PPU::palette_index, tile_w> m_data;
 
-  tile_line_decoder_t(byte lo, byte hi) {
+  tile_line_decoder_t(byte lo, byte hi) noexcept {
     for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
       e = (bool(lo & mask) << 1) | bool(hi & mask);
       mask >>= 1;
     }
   }
 
-  const PPU::palette_index operator[](const std::size_t i) const {
+  const PPU::palette_index operator[](const std::size_t i) const noexcept {
     return m_data[i];
   }
 };
 
-void PPU::fetchBackground() const noexcept {
+void PPU::fetchBackground() const {
   const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
                        | rv::const_                                                                     //
                        | rv::chunk(tileline_size)                                                       //
@@ -426,7 +426,7 @@ void PPU::fetchBackground() const noexcept {
   rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + LY * viewport_w);
 }
 
-void PPU::fetchWindow() const noexcept {
+void PPU::fetchWindow() const {
   if(currentScanline() < window_y()) return;
 
   const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
@@ -479,15 +479,15 @@ void PPU::fetchWindow() const noexcept {
 0xff, 0x00,      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   |   0xff, 0x00   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 */
 
-void PPU::fetchSprites() const noexcept {
-  const int sprite_viewport_offset_y = 16;
-  const int sprite_viewport_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
+void PPU::fetchSprites() const {
+  constexpr int sprite_viewport_offset_y = 16;
+  constexpr int sprite_viewport_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
 
-  const int sprite_starts_visible_x = 1;
-  const int sprite_ends_visible_x = 168;
+  constexpr int sprite_starts_visible_x = 1;
+  constexpr int sprite_ends_visible_x = 168;
 
-  const int sprite_starts_visible_y = 9;
-  const int sprite_ends_visible_y = 160;
+  constexpr int sprite_starts_visible_y = 9;
+  constexpr int sprite_ends_visible_y = 160;
 
   const auto spriteHeight = [&] { return isBigSprite() ? double_tile_h : tile_h; };
   const auto numberOfBytesToFetch = [&] { return spriteHeight() * tileline_size; };
