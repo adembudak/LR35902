@@ -193,7 +193,7 @@ if(STATIC_ANALYSIS)
 
   if(ANALYSE_WITH_CLANGTIDY)
     find_program(clangtidy_command clang-tidy REQUIRED)
-    set(options -checks=-* bugprone-* performance-* portability-*)
+    set(options "--checks=-*,bugprone-*,performance-*,portability-*")
 
     set(CMAKE_CXX_CLANG_TIDY
         ${clangtidy_command} ${options}
