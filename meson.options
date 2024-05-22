@@ -1,0 +1,12 @@
+option('with_debugger', type : 'boolean', value : false)
+option('sfml_frontend', type : 'boolean', value : false)
+option('sdl2_frontend', type : 'boolean', value : false)
+
+option('with_tools', type : 'boolean', value : false)
+option('rom_tests', type : 'boolean', value : false)
+option('visualize_targets', type : 'boolean', value : false)
+
+option('static_analysis', type : 'boolean', value : false)
+option('analyse_with_cppcheck', type : 'boolean', value : false)
+option('analyse_with_clangtidy', type : 'boolean', value : false)
+option('analyse_with_iwyu', type : 'boolean', value : false)
