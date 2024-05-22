@@ -1,0 +1,13 @@
+[wrap-file]
+directory = imgui-sfml-2.6
+source_url = https://github.com/eliasdaler/imgui-sfml/archive/refs/tags/v2.6.tar.gz
+source_filename = v2.6.tar.gz
+source_hash = b1195ca1210dd46c8049cfc8cae7f31cd34f1591da7de1c56297b277ac9c5cc0
+patch_filename = imgui-sfml_2.6-1_patch.zip
+patch_url = https://wrapdb.mesonbuild.com/v2/imgui-sfml_2.6-1/get_patch
+patch_hash = a804978cf015af2db13476eefd2ed16e64c2c5142eb4e4a93be5f19e0c7cbdbb
+source_fallback_url = https://github.com/mesonbuild/wrapdb/releases/download/imgui-sfml_2.6-1/v2.6.tar.gz
+wrapdb_version = 2.6-1
+
+[provide]
+imgui-sfml = imgui_sfml_dep

@@ -20,3 +20,7 @@ imgui.ini
 compile_commands.json
 /.vs
 /.cmake
+subprojects/SDL2-2.30.3
+subprojects/imgui-1.89.9
+subprojects/packagecache
+subprojects/range-v3-0.12.0
