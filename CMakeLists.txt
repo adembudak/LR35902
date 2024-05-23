@@ -69,7 +69,7 @@ target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
 target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
 
 if(WITH_DEBUGGER)
-  find_package(imgui CONFIG REQUIRED)
+  find_package(imgui QUIET REQUIRED CONFIG)
   find_package(fmt QUIET REQUIRED CONFIG)
 
   set(font_file "${LR35902_SOURCE_DIR}/3rdparty/font/source-code-pro/TTF/SourceCodePro-Regular.ttf")
