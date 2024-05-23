@@ -11,7 +11,7 @@
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
-#include <imgui_impl_sdlrenderer.h>
+#include <imgui_impl_sdlrenderer2.h>
 
 #include <fmt/core.h>
 
@@ -104,7 +104,7 @@ int main(int argc, char *argv[]) {
   }
 
   ImGui_ImplSDL2_InitForSDLRenderer(my_window, my_renderer);
-  ImGui_ImplSDLRenderer_Init(my_renderer);
+  ImGui_ImplSDLRenderer2_Init(my_renderer);
 
   GameBoy attaboy;
   LR35902::DebugView debugView{attaboy};
@@ -163,7 +163,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
-    ImGui_ImplSDLRenderer_NewFrame();
+    ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
 
@@ -237,7 +237,7 @@ int main(int argc, char *argv[]) {
 
     SDL_SetRenderDrawColor(my_renderer, 0xff, 0xff, 0xff, 0xff);
 
-    ImGui_ImplSDLRenderer_RenderDrawData(ImGui::GetDrawData());
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
 
     SDL_RenderPresent(my_renderer);
 
@@ -247,7 +247,7 @@ int main(int argc, char *argv[]) {
     SDL_SetWindowTitle(my_window, framerate.c_str());
   }
 
-  ImGui_ImplSDLRenderer_Shutdown();
+  ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
 

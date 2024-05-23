@@ -3,6 +3,16 @@ project('LR35902', 'cpp',  default_options : ['cpp_std=c++2a'])
 LR35902_incdir = include_directories('include') 
 
 ranges_dep = dependency('range-v3', required: true)
+sdl2_dep = dependency('sdl2', default_options: {'test': false }, required: true)
+imgui_dep = dependency('imgui', 
+  default_options: {'sdl2': 'enabled', 
+                    'sdl_renderer': 'enabled',
+                    'opengl':'enabled', 
+                    'glfw' : 'disabled'}, 
+  required: true)
+
+cli11_dep = dependency('cli11', default_options: {'tests': false }, required: true)
+fmt_dep = dependency('fmt', required: true)
 
 lr35902_sources = [
          'src/bootrom/bootrom.cpp',
@@ -35,14 +45,23 @@ lr35902_sources = [
 
 lr35902_core = library('lr35902', 
   sources: lr35902_sources, 
-  dependencies : ranges_dep,
+  dependencies : [ranges_dep, imgui_dep],
   include_directories : LR35902_incdir)
 
 if get_option('with_debugger')
+   debugView = library('debugView', 
+                 cpp_args : '-DWITH_DEBUGGER',
+                 sources: 'src/debugView/debugView.cpp', 
+                 link_with: lr35902_core,
+                 dependencies: imgui_dep,
+                 include_directories: [LR35902_incdir, '3rdparty/imgui_club'])
+   
   if get_option('sdl2_frontend')
     executable('debugger_sdl', 
       sources:['debugger/sdl/main.cpp', 'debugger/GameBoy.cpp'],
-      dependencies : [ranges_dep, lr35902_core],
+      cpp_args : '-DWITH_DEBUGGER',
+      link_with: [lr35902_core, debugView], 
+      dependencies : [ranges_dep, sdl2_dep, imgui_dep, cli11_dep, fmt_dep],
       include_directories : LR35902_incdir)
   endif
 endif
