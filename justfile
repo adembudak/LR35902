@@ -1,10 +1,11 @@
-set windows-shell := ["powershell"]
+set windows-shell := ["powershell", "-NoLogo"]
 
 default:
 	@just --list --unsorted
 
 get-dependencies:
 	vcpkg install sdl2 sfml cli11 fmt range-v3 imgui imgui-sfml imgui[sdl2-binding] imgui[sdl2-renderer-binding]
+	vcpkg integrate install
 
 configure:
 	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B build
@@ -29,3 +30,10 @@ lint:
 [linux]
 tui:
 	ccmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B build
+
+gui:
+	cmake-gui -S . -B build
+
+meson builddir:
+	meson setup -Dwith_debugger=true -Dsdl2_frontend=true -Dsfml_frontend=false -Dwith_tools=true --wrap-mode forcefallback --default-library both {{builddir}}
+	meson compile -C {{builddir}}
