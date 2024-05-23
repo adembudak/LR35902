@@ -105,9 +105,8 @@ if(WITH_DEBUGGER)
     add_executable(debugger_sdl)
     target_sources(debugger_sdl PRIVATE debugger/sdl/main.cpp debugger/GameBoy.cpp)
     target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
-    target_link_libraries(debugger_sdl PRIVATE debugView imgui::imgui fmt::fmt  
-        $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-        $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+    target_link_libraries(debugger_sdl PRIVATE debugView imgui::imgui $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+                                               $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
 
     set_target_properties(debugger_sdl PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   endif()

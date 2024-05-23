@@ -80,7 +80,7 @@ if get_option('with_debugger')
             sources: ['debugger/sdl/main.cpp', 'debugger/GameBoy.cpp'],
             cpp_args: '-DWITH_DEBUGGER',
             link_with: [lr35902_core, debugView],
-            dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep, fmt_dep],
+            dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
             include_directories: LR35902_incdir,
         )
     endif

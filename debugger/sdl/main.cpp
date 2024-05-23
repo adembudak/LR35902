@@ -13,12 +13,11 @@
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
 
-#include <fmt/core.h>
-
 #include <CLI/CLI.hpp>
 
 #include <chrono>
 #include <filesystem>
+#include <format>
 #include <ratio>
 #include <string_view>
 #include <thread>
@@ -242,7 +241,7 @@ int main(int argc, char *argv[]) {
     SDL_RenderPresent(my_renderer);
 
     const auto framerate =
-        fmt::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        std::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     SDL_SetWindowTitle(my_window, framerate.c_str());
   }
