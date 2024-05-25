@@ -44,6 +44,7 @@ meson builddir:
 	--default-library both {{builddir}}
 	meson compile -C {{builddir}}
 
+[windows]
 meson builddir:
 	meson setup --backend vs2022 \
 	 -Dwith_debugger=false \
