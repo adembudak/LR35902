@@ -1,25 +1,44 @@
 project(
     'LR35902',
     'cpp',
-    default_options: ['cpp_std=c++2a', 'wrap_mode=forcefallback'],
+    default_options: ['cpp_std=c++20', 'wrap_mode=forcefallback'],
+    license: 'BSL-1.0',
+    license_files: 'license',
     meson_version: '1.4.0',
+    subproject_dir: 'subprojects'
 )
 
 LR35902_incdir = include_directories('include')
 
-ranges_dep = dependency('range-v3', required: true)
-sdl2_dep = dependency('sdl2', default_options: {'test': false}, required: true)
+ranges_dep = dependency('range-v3', default_options: {'range_v3_tests': false}, required: true)
+sdl2_dep = dependency('sdl2', 
+  default_options: {
+    'test': false,
+    'assertions': 'disabled', 
+    'use_render': 'enabled'}, 
+  required: true)
 
 imgui_dep = dependency(
-    'imgui',
-    default_options: {
-        'sdl2': 'enabled',
-        'sdl_renderer': 'enabled',
-        'opengl': 'enabled',
-        'glfw': 'disabled',
-    },
-    required: true,
+  'imgui',
+  default_options: {
+    'sdl2': 'enabled',
+    'sdl_renderer': 'enabled',
+    'opengl': 'enabled',
+    'dx9': 'disabled',
+    'dx10': 'disabled',
+    'dx11': 'disabled',
+    'dx12': 'disabled',
+    'metal': 'disabled',
+    'vulkan': 'disabled',
+    'webgpu': 'disabled',
+    'glfw': 'disabled',
+    'osx': 'disabled',
+    'win': 'disabled',
+    'allegro5': 'disabled'},
+  required: true,
 )
+
+compiler = meson.get_compiler('cpp')
 
 cli11_dep = dependency('cli11', default_options: {'tests': false}, required: true)
 fmt_dep = dependency('fmt', required: true)
