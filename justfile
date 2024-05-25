@@ -34,6 +34,21 @@ tui:
 gui:
 	cmake-gui -S . -B build
 
+[linux]
 meson builddir:
-	meson setup -Dwith_debugger=true -Dsdl2_frontend=true -Dsfml_frontend=false -Dwith_tools=true --wrap-mode forcefallback --default-library both {{builddir}}
+	meson setup -Dwith_debugger=true \
+	-Dsdl2_frontend=true \
+	-Dsfml_frontend=false \
+	-Dwith_tools=true \
+	--wrap-mode forcefallback \
+	--default-library both {{builddir}}
+	meson compile -C {{builddir}}
+
+meson builddir:
+	meson setup --backend vs2022 \
+	 -Dwith_debugger=false \
+	 -Dsdl2_frontend=false \
+	 -Dsfml_frontend=false \
+	 -Dwith_tools=false \
+	 --wrap-mode forcefallback {{builddir}}
 	meson compile -C {{builddir}}
