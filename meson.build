@@ -5,37 +5,38 @@ project(
     license: 'BSL-1.0',
     license_files: 'license',
     meson_version: '1.4.0',
-    subproject_dir: 'subprojects'
+    subproject_dir: 'subprojects',
 )
 
 LR35902_incdir = include_directories('include')
 
 ranges_dep = dependency('range-v3', default_options: {'range_v3_tests': false}, required: true)
-sdl2_dep = dependency('sdl2', 
-  default_options: {
-    'test': false,
-    'assertions': 'disabled', 
-    'use_render': 'enabled'}, 
-  required: true)
+
+sdl2_dep = dependency(
+    'sdl2',
+    default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'},
+    required: true,
+)
 
 imgui_dep = dependency(
-  'imgui',
-  default_options: {
-    'sdl2': 'enabled',
-    'sdl_renderer': 'enabled',
-    'opengl': 'enabled',
-    'dx9': 'disabled',
-    'dx10': 'disabled',
-    'dx11': 'disabled',
-    'dx12': 'disabled',
-    'metal': 'disabled',
-    'vulkan': 'disabled',
-    'webgpu': 'disabled',
-    'glfw': 'disabled',
-    'osx': 'disabled',
-    'win': 'disabled',
-    'allegro5': 'disabled'},
-  required: true,
+    'imgui',
+    default_options: {
+        'sdl2': 'enabled',
+        'sdl_renderer': 'enabled',
+        'opengl': 'enabled',
+        'dx9': 'disabled',
+        'dx10': 'disabled',
+        'dx11': 'disabled',
+        'dx12': 'disabled',
+        'metal': 'disabled',
+        'vulkan': 'disabled',
+        'webgpu': 'disabled',
+        'glfw': 'disabled',
+        'osx': 'disabled',
+        'win': 'disabled',
+        'allegro5': 'disabled',
+    },
+    required: true,
 )
 
 compiler = meson.get_compiler('cpp')
@@ -129,6 +130,7 @@ if get_option('with_tools')
         'gb.hf',
         'tools/header_fixer.cpp',
         include_directories: LR35902_incdir,
+        link_with: lr35902_core,
         dependencies: [cli11_dep, ranges_dep],
     )
 
