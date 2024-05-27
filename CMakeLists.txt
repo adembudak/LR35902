@@ -34,9 +34,9 @@ cmake_dependent_option(ANALYSE_WITH_LWYU "" ON STATIC_ANALYSIS ON)
 
 find_package(range-v3 QUIET REQUIRED CONFIG)
 
-add_library(lr35902)
+add_library(core)
 target_sources(
-  lr35902
+  core
   PRIVATE src/cpu/cpu.cpp
           src/cpu/registers/r16.cpp
           src/cpu/registers/r8.cpp
@@ -65,8 +65,9 @@ target_sources(
           src/timer/timer.cpp
           src/interrupt/interrupt.cpp)
 
-target_link_libraries(lr35902 PRIVATE range-v3::range-v3)
-target_include_directories(lr35902 PUBLIC ${LR35902_INCLUDE_DIR})
+target_link_libraries(core PRIVATE range-v3::range-v3)
+target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
+add_library(lr35902::core ALIAS core)
 
 if(WITH_DEBUGGER)
   find_package(imgui QUIET REQUIRED CONFIG)
@@ -82,9 +83,9 @@ if(WITH_DEBUGGER)
   add_library(debugView)
   target_sources(debugView PRIVATE src/debugView/debugView.cpp)
   target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
-  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor lr35902)
+  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor lr35902::core)
 
-  set_target_properties(lr35902 debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   if(SFML_FRONTEND)
     find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
     find_package(ImGui-SFML QUIET REQUIRED CONFIG)
@@ -119,10 +120,10 @@ if(WITH_TOOLS)
   find_package(CLI11 QUIET REQUIRED)
 
   add_executable(gb.hd tools/header_dumper.cpp)
-  target_link_libraries(gb.hd PRIVATE lr35902 fmt::fmt CLI11::CLI11 range-v3::range-v3)
+  target_link_libraries(gb.hd PRIVATE lr35902::core fmt::fmt CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.hf tools/header_fixer.cpp)
-  target_link_libraries(gb.hf PRIVATE lr35902 CLI11::CLI11 range-v3::range-v3)
+  target_link_libraries(gb.hf PRIVATE lr35902::core CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.dis tools/disassembler.cpp)
   target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11 range-v3::range-v3)
