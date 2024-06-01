@@ -28,3 +28,5 @@ subprojects/CLI11-2.4.1
 subprojects/SFML-2.6.1
 subprojects/fmt-10.2.0
 subprojects/imgui-sfml-2.6
+.xmake/
+.vscode/
