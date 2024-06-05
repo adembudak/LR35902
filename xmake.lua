@@ -1,9 +1,13 @@
-add_rules("mode.debug", "mode.release")
-
-add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
-
 set_languages("c++20")
-add_requires("vcpkg::range-v3", "vcpkg::fmt", "vcpkg::cli11")
+
+add_requires("range-v3")
+add_requires("fmt", "cli11")
+add_requires("imgui", {configs = {sdl2_renderer = true,sdl2 = true}})
+add_requires("imgui-sfml", "cli11", "sfml")
+add_requires("libsdl", {configs = {wayland = false}})
+
+add_rules("mode.debug", "mode.release")
+add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
 
 target("core")
   set_kind("static")
@@ -35,18 +39,60 @@ target("core")
           "src/timer/timer.cpp",
           "src/interrupt/interrupt.cpp")
   add_includedirs("include")
-  add_packages("vcpkg::range-v3")
+  add_packages("range-v3")
+
+  if has_config("with_debugger") then 
+      add_defines("WITH_DEBUGGER")
+  end
 target_end()
 
-option("with debugger")
+option("with_debugger")
     set_default(false)
     set_showmenu(true)
-    --
-    -- getting there 
-    --
+
+    target("debugView")
+       set_kind("static")
+       add_files("src/debugView/debugView.cpp")
+       add_deps("core")
+       add_packages("imgui")
+       add_includedirs("include", "imgui_club")
+       add_defines("WITH_DEBUGGER")
+    target_end()
 option_end()
 
-option("with tools")
+if has_config("with_debugger") then 
+    option("sdl2_frontend")
+       set_default(false)
+       set_showmenu(true)
+
+       target("debugger_sdl")
+         set_kind("binary")
+         add_files("debugger/sdl/main.cpp", "debugger/GameBoy.cpp")
+         add_includedirs("include") 
+         add_packages("fmt", "cli11", "imgui", "libsdl:main", "imgui-sfml")
+         add_deps("core", "debugView")
+         add_defines("WITH_DEBUGGER")
+       target_end()
+    option_end()
+end
+
+if has_config("with_debugger") then 
+    option("sfml_frontend")
+       set_default(false)
+       set_showmenu(true)
+ 
+       target("debugger_sfml")
+         set_kind("binary")
+         add_files("debugger/sfml/main.cpp", "debugger/GameBoy.cpp")
+         add_includedirs("include") 
+         add_packages("fmt", "cli11", "imgui", "sfml/graphics", "imgui-sfml")
+         add_deps("core", "debugView")
+         add_defines("WITH_DEBUGGER")
+       target_end()
+    option_end()
+end
+
+option("with_tools")
     set_default(false)
     set_showmenu(true)
 
@@ -55,7 +101,7 @@ option("with tools")
       add_files("tools/header_dumper.cpp")
       add_includedirs("include")
       add_deps("core")
-      add_packages("vcpkg::range-v3", "vcpkg::fmt", "vcpkg::CLI11")
+      add_packages("range-v3", "fmt", "cli11")
     target_end()
 
     target("gb.hf")
@@ -63,7 +109,7 @@ option("with tools")
       add_files("tools/header_fixer.cpp")
       add_includedirs("include")
       add_deps("core")
-      add_packages("vcpkg::range-v3", "vcpkg::CLI11")
+      add_packages("range-v3", "cli11")
     target_end()
 
     target("gb.dis")
@@ -71,6 +117,6 @@ option("with tools")
       add_files("tools/disassembler.cpp")
       add_includedirs("include")
       add_deps("core")
-      add_packages("vcpkg::range-v3", "vcpkg::fmt", "vcpkg::CLI11")
+      add_packages("range-v3", "fmt", "cli11")
     target_end()
 option_end()

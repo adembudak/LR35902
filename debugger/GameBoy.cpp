@@ -1,8 +1,6 @@
 #include "GameBoy.h"
 #include <LR35902/config.h>
 
-#include <algorithm>
-#include <cassert>
 #include <string_view>
 
 void GameBoy::skipboot(bool b) noexcept {

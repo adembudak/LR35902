@@ -3,7 +3,6 @@
 #include <LR35902/builtin/builtin.h>
 #include <LR35902/cartridge/cartridge.h>
 #include <LR35902/cpu/cpu.h>
-#include <LR35902/debugView/debugView.h>
 #include <LR35902/dma/dma.h>
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
@@ -11,9 +10,11 @@
 #include <LR35902/ppu/ppu.h>
 #include <LR35902/timer/timer.h>
 
-#include <cstdint>
-#include <functional>
 #include <string_view>
+
+namespace LR35902 {
+class DebugView;
+}
 
 namespace lr = LR35902;
 
@@ -49,5 +50,5 @@ public:
   void stop() noexcept;
   bool isPowerOn() const noexcept;
 
-  friend class lr::DebugView;
+  friend class LR35902::DebugView;
 };
