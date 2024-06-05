@@ -67,51 +67,65 @@ target_sources(
 
 target_link_libraries(core PRIVATE range-v3::range-v3)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
-add_library(lr35902::core ALIAS core)
+add_library(LR35902::core ALIAS core)
+
+add_library(attaboy debugger/GameBoy.cpp)
+target_include_directories(attaboy PUBLIC ${LR35902_INCLUDE_DIR})
+target_link_libraries(attaboy PRIVATE LR35902::core)
+add_library(LR35902::attaboy ALIAS attaboy)
 
 if(WITH_DEBUGGER)
   find_package(imgui QUIET REQUIRED CONFIG)
-  find_package(fmt QUIET REQUIRED CONFIG)
 
-  set(font_file "${LR35902_SOURCE_DIR}/3rdparty/font/source-code-pro/TTF/SourceCodePro-Regular.ttf")
-  file(COPY ${font_file} DESTINATION ${LR35902_BINARY_DIR})
+  add_library(debugView)
+  target_sources(debugView PRIVATE src/debugView/debugView.cpp)
+  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
 
   add_library(imgui_memory_editor INTERFACE)
   target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
-  add_library(debugView)
-  target_sources(debugView PRIVATE src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
-  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor lr35902::core)
-
+  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-  if(SFML_FRONTEND)
-    find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
+
+  set(font_file "${LR35902_SOURCE_DIR}/3rdparty/font/source-code-pro/TTF/SourceCodePro-Regular.ttf")
+  file(COPY ${font_file} DESTINATION ${LR35902_BINARY_DIR})
+endif()
+
+if(SFML_FRONTEND)
+  find_package(fmt QUIET REQUIRED CONFIG)
+  find_package(CLI11 QUIET REQUIRED)
+  find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
+
+  add_executable(debugger_sfml)
+  target_sources(debugger_sfml PRIVATE debugger/sfml/main.cpp)
+  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
+  target_link_libraries(debugger_sfml PRIVATE LR35902::core LR35902::attaboy fmt::fmt CLI11::CLI11 sfml-graphics)
+
+  if(WITH_DEBUGGER)
     find_package(ImGui-SFML QUIET REQUIRED CONFIG)
-    find_package(CLI11 QUIET REQUIRED)
 
-    add_executable(debugger_sfml)
-    target_sources(debugger_sfml PRIVATE debugger/sfml/main.cpp debugger/GameBoy.cpp)
-    target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
-    target_link_libraries(debugger_sfml PRIVATE debugView fmt::fmt CLI11::CLI11 imgui::imgui sfml-graphics
-                                                ImGui-SFML::ImGui-SFML)
-
+    target_link_libraries(debugger_sfml PRIVATE debugView imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
     set_target_properties(debugger_sfml PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   endif()
+endif()
 
-  if(SDL2_FRONTEND)
-    find_package(SDL2 QUIET REQUIRED CONFIG)
+if(SDL2_FRONTEND)
+  find_package(SDL2 QUIET REQUIRED CONFIG)
+  find_package(CLI11 QUIET REQUIRED)
 
-    add_executable(debugger_sdl)
-    target_sources(debugger_sdl PRIVATE debugger/sdl/main.cpp debugger/GameBoy.cpp)
-    target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
-    target_link_libraries(debugger_sdl PRIVATE debugView imgui::imgui $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-                                               $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+  add_executable(debugger_sdl)
+  target_sources(debugger_sdl PRIVATE debugger/sdl/main.cpp)
 
+  target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
+  target_link_libraries(
+    debugger_sdl PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+                         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+
+  if(WITH_DEBUGGER)
+    target_link_libraries(debugger_sdl PRIVATE debugView imgui::imgui)
     set_target_properties(debugger_sdl PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   endif()
-
 endif()
 
 if(WITH_TOOLS)
@@ -120,10 +134,10 @@ if(WITH_TOOLS)
   find_package(CLI11 QUIET REQUIRED)
 
   add_executable(gb.hd tools/header_dumper.cpp)
-  target_link_libraries(gb.hd PRIVATE lr35902::core fmt::fmt CLI11::CLI11 range-v3::range-v3)
+  target_link_libraries(gb.hd PRIVATE LR35902::core fmt::fmt CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.hf tools/header_fixer.cpp)
-  target_link_libraries(gb.hf PRIVATE lr35902::core CLI11::CLI11 range-v3::range-v3)
+  target_link_libraries(gb.hf PRIVATE LR35902::core CLI11::CLI11 range-v3::range-v3)
 
   add_executable(gb.dis tools/disassembler.cpp)
   target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11 range-v3::range-v3)
