@@ -60,37 +60,41 @@ option("with_debugger")
     target_end()
 option_end()
 
-if has_config("with_debugger") then 
-    option("sdl2_frontend")
-       set_default(false)
-       set_showmenu(true)
+option("sdl2_frontend")
+   set_default(false)
+   set_showmenu(true)
 
-       target("debugger_sdl")
-         set_kind("binary")
-         add_files("debugger/sdl/main.cpp", "debugger/GameBoy.cpp")
-         add_includedirs("include") 
-         add_packages("fmt", "cli11", "imgui", "libsdl:main", "imgui-sfml")
-         add_deps("core", "debugView")
-         add_defines("WITH_DEBUGGER")
-       target_end()
-    option_end()
-end
+   target("debugger_sdl")
+     set_kind("binary")
+     add_files("debugger/sdl/main.cpp", "debugger/GameBoy.cpp")
+     add_includedirs("include") 
+     add_packages("fmt", "cli11", "libsdl:main")
+     add_deps("core", "debugView")
 
-if has_config("with_debugger") then 
-    option("sfml_frontend")
-       set_default(false)
-       set_showmenu(true)
- 
-       target("debugger_sfml")
-         set_kind("binary")
-         add_files("debugger/sfml/main.cpp", "debugger/GameBoy.cpp")
-         add_includedirs("include") 
-         add_packages("fmt", "cli11", "imgui", "sfml/graphics", "imgui-sfml")
-         add_deps("core", "debugView")
-         add_defines("WITH_DEBUGGER")
-       target_end()
-    option_end()
-end
+     if has_config("with_debugger") then 
+       add_packages("imgui")
+       add_defines("WITH_DEBUGGER")
+     end
+   target_end()
+option_end()
+
+option("sfml_frontend")
+   set_default(false)
+   set_showmenu(true)
+
+   target("debugger_sfml")
+     set_kind("binary")
+     add_files("debugger/sfml/main.cpp", "debugger/GameBoy.cpp")
+     add_includedirs("include") 
+     add_packages("fmt", "cli11", "sfml/graphics", "imgui", "imgui-sfml")
+     add_deps("core", "debugView")
+
+     if has_config("with_debugger") then 
+       add_packages("imgui", "imgui-sfml")
+       add_defines("WITH_DEBUGGER")
+     end
+    target_end()
+option_end()
 
 option("with_tools")
     set_default(false)

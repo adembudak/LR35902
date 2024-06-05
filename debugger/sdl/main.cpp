@@ -1,27 +1,31 @@
-#include "../GameBoy.h"
-#include "palettes.h"
-
-#include <LR35902/debugView/debugView.h>
-
-#include <SDL2/SDL.h>
-
-#if !SDL_VERSION_ATLEAST(2, 0, 17)
-#error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
-#endif
-
+// clang-format off
+#if defined(WITH_DEBUGGER)
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>
 #include <imgui_impl_sdlrenderer2.h>
+#endif
 
+#include <SDL2/SDL.h>
+#if !SDL_VERSION_ATLEAST(2, 0, 17)
+#error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
+#endif
+// clang-fmrmat on
 #include <CLI/CLI.hpp>
 
 #include <chrono>
 #include <filesystem>
 #include <format>
-#include <ratio>
 #include <string_view>
-#include <thread>
 
+#include "palettes.h"
+
+#if defined(WITH_DEBUGGER)
+#include <LR35902/debugView/debugView.h>
+#endif
+
+#include "../GameBoy.h"
+
+#if defined(WITH_DEBUGGER)
 void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
@@ -57,10 +61,10 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
     ImGui::EndMenu();
   }
 }
+#endif
 
 int main(int argc, char *argv[]) {
-
-  CLI::App debugger{"LR35902 debugger", "debugger_sfml"};
+  CLI::App debugger{"LR35902 debugger", "debugger_sdl"};
 
   bool skipboot;
   std::string romFile;
@@ -91,6 +95,7 @@ int main(int argc, char *argv[]) {
   std::array<Uint8, 160 * 144 * 4> pixels;
   palette_t palette = original;
 
+#if defined(WITH_DEBUGGER)
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -104,9 +109,12 @@ int main(int argc, char *argv[]) {
 
   ImGui_ImplSDL2_InitForSDLRenderer(my_window, my_renderer);
   ImGui_ImplSDLRenderer2_Init(my_renderer);
+#endif
 
   GameBoy attaboy;
+#if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
+#endif
 
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
@@ -124,7 +132,9 @@ int main(int argc, char *argv[]) {
     SDL_Event event;
 
     while(SDL_PollEvent(&event)) {
+#if defined(WITH_DEBUGGER)
       ImGui_ImplSDL2_ProcessEvent(&event);
+#endif
       switch(event.type) {
 
       case SDL_EventType::SDL_QUIT:
@@ -162,6 +172,7 @@ int main(int argc, char *argv[]) {
       }
     }
 
+#if defined(WITH_DEBUGGER)
     ImGui_ImplSDLRenderer2_NewFrame();
     ImGui_ImplSDL2_NewFrame();
     ImGui::NewFrame();
@@ -170,9 +181,10 @@ int main(int argc, char *argv[]) {
       putMenuBar(attaboy, debugView);
       ImGui::EndMainMenuBar();
     }
-
+#endif
     attaboy.update();
 
+#if defined(WITH_DEBUGGER)
     debugView.showCartHeader();
     debugView.showMemoryPortions();
     debugView.showDisassembly();
@@ -195,6 +207,7 @@ int main(int argc, char *argv[]) {
       }
     ImGui::End();
     // clang-format on
+#endif
 
     const auto &framebuffer = attaboy.ppu.getFrameBuffer();
     for(int i = 0; auto e : framebuffer) {
@@ -226,7 +239,9 @@ int main(int argc, char *argv[]) {
       }
     }
 
+#if defined(WITH_DEBUGGER)
     ImGui::Render();
+#endif
 
     SDL_UpdateTexture(my_texture, &emuOutput, pixels.data(), emu_w * sizeof(SDL_Colour));
 
@@ -236,19 +251,21 @@ int main(int argc, char *argv[]) {
 
     SDL_SetRenderDrawColor(my_renderer, 0xff, 0xff, 0xff, 0xff);
 
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData());
-
-    SDL_RenderPresent(my_renderer);
-
+#if defined(WITH_DEBUGGER)
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer);
     const auto framerate =
         std::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
     SDL_SetWindowTitle(my_window, framerate.c_str());
+#endif
+    SDL_RenderPresent(my_renderer);
   }
 
+#if defined(WITH_DEBUGGER)
   ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
+#endif
 
   SDL_DestroyTexture(my_texture);
   SDL_DestroyRenderer(my_renderer);

@@ -1,7 +1,9 @@
 #include "../GameBoy.h"
 #include "palettes.h"
 
+#if defined(WITH_DEBUGGER)
 #include <LR35902/debugView/debugView.h>
+#endif
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
@@ -11,8 +13,10 @@
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 
+#if defined(WITH_DEBUGGER)
 #include <imgui-SFML.h>
 #include <imgui.h>
+#endif
 
 #include <CLI/CLI.hpp>
 
@@ -22,6 +26,7 @@
 #include <string_view>
 #include <thread>
 
+#if defined(WITH_DEBUGGER)
 void putMenuBar(GameBoy &gb, LR35902::DebugView &dv) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
@@ -58,6 +63,7 @@ void putMenuBar(GameBoy &gb, LR35902::DebugView &dv) {
     ImGui::EndMenu();
   }
 }
+#endif
 
 int main(int argc, char *argv[]) {
   // command line handling
@@ -77,7 +83,10 @@ int main(int argc, char *argv[]) {
 
   // emu
   GameBoy attaboy;
+
+#if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
+#endif
 
   if(skipboot) attaboy.skipboot();
   else attaboy.skipboot(false);
@@ -86,7 +95,9 @@ int main(int argc, char *argv[]) {
 
   sf::RenderWindow window{sf::VideoMode(1280, 720), "LR35902 debugger"};
 
+#if defined(WITH_DEBUGGER)
   ImGui::SFML::Init(window);
+#endif
 
   palette_t palette = original;
 
@@ -102,7 +113,9 @@ int main(int argc, char *argv[]) {
     // input loop
     sf::Event event;
     while(window.pollEvent(event)) {
+#if defined(WITH_DEBUGGER)
       ImGui::SFML::ProcessEvent(window, event);
+#endif
 
       // clang-format off
       switch(event.type) {
@@ -155,6 +168,9 @@ int main(int argc, char *argv[]) {
     }
 
     attaboy.update();
+
+#if defined(WITH_DEBUGGER)
+
     ImGui::SFML::Update(window, deltaClock.restart());
 
     if(ImGui::BeginMainMenuBar()) {
@@ -212,6 +228,7 @@ int main(int argc, char *argv[]) {
         break;
       }
     }
+#endif
 
     texture.update(pixels.data());
     sf::Sprite sprite(texture);
@@ -220,11 +237,15 @@ int main(int argc, char *argv[]) {
 
     window.clear();
     window.draw(sprite);
+#if defined(WITH_DEBUGGER)
     ImGui::SFML::Render(window);
+#endif
     window.display();
   }
 
+#if defined(WITH_DEBUGGER)
   ImGui::SFML::Shutdown();
+#endif
 
   return 0;
 }
