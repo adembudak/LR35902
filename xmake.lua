@@ -6,14 +6,6 @@ add_requires("fmt")
 add_requires("cli11")
 
 add_requires("libsdl", {configs = {wayland = false}})
--- add_requires("sfml", {configs = {
---   window = true, 
---    graphics = true, 
---    pic = true, 
---  debug = false, 
---   network = false, 
---   audio=true
--- }})
 add_requires("sfml")
 
 add_requires("imgui", {configs = {sdl2_renderer = true,sdl2 = true}})
@@ -99,11 +91,7 @@ option("sfml_frontend", {default = false, showmenu = true})
      add_files("debugger/sfml/main.cpp")
      add_includedirs("include") 
      add_deps("core", "thing")
-     add_packages("fmt", "cli11")
-
-     add_linkdirs("/home/adem/.xmake/packages/s/sfml/2.6.0/da0298c0322f40df9c1cfcb939dcb3f8/lib")
-     add_includedirs("/home/adem/.xmake/packages/s/sfml/2.6.0/da0298c0322f40df9c1cfcb939dcb3f8/include")
-     add_links("sfml-graphics", "sfml-window", "sfml-system")
+     add_packages("fmt", "cli11", "sfml")
 
      if has_config("with_debugger") then 
        add_defines("WITH_DEBUGGER")
