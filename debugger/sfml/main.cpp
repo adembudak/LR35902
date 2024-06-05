@@ -7,11 +7,10 @@
 
 #include <SFML/Graphics/RenderTexture.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
-
-#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
+#include <SFML/Window/WindowBase.hpp>
 
 #if defined(WITH_DEBUGGER)
 #include <imgui-SFML.h>
@@ -112,6 +111,7 @@ int main(int argc, char *argv[]) {
 
     // input loop
     sf::Event event;
+    /*
     while(window.pollEvent(event)) {
 #if defined(WITH_DEBUGGER)
       ImGui::SFML::ProcessEvent(window, event);
@@ -119,7 +119,7 @@ int main(int argc, char *argv[]) {
 
       // clang-format off
       switch(event.type) {
-      default: 
+      default:
         break;
 
       case sf::Event::KeyPressed:
@@ -166,6 +166,7 @@ int main(int argc, char *argv[]) {
       }
       // clang-format on
     }
+    */
 
     attaboy.update();
 

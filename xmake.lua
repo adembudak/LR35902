@@ -1,10 +1,23 @@
 set_languages("c++20")
 
 add_requires("range-v3")
-add_requires("fmt", "cli11")
-add_requires("imgui", {configs = {sdl2_renderer = true,sdl2 = true}})
-add_requires("imgui-sfml", "cli11", "sfml")
+
+add_requires("fmt")
+add_requires("cli11")
+
 add_requires("libsdl", {configs = {wayland = false}})
+-- add_requires("sfml", {configs = {
+--   window = true, 
+--    graphics = true, 
+--    pic = true, 
+--  debug = false, 
+--   network = false, 
+--   audio=true
+-- }})
+add_requires("sfml")
+
+add_requires("imgui", {configs = {sdl2_renderer = true,sdl2 = true}})
+add_requires("imgui-sfml")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
@@ -46,10 +59,14 @@ target("core")
   end
 target_end()
 
-option("with_debugger")
-    set_default(false)
-    set_showmenu(true)
+target("thing")
+   set_kind("static")
+   add_files("debugger/GameBoy.cpp")
+   add_deps("core")
+   add_includedirs("include")
+target_end()
 
+option("with_debugger", {default = false, showmenu = true})
     target("debugView")
        set_kind("static")
        add_files("src/debugView/debugView.cpp")
@@ -60,46 +77,43 @@ option("with_debugger")
     target_end()
 option_end()
 
-option("sdl2_frontend")
-   set_default(false)
-   set_showmenu(true)
-
+option("sdl2_frontend", {default = false, showmenu = true})
    target("debugger_sdl")
      set_kind("binary")
-     add_files("debugger/sdl/main.cpp", "debugger/GameBoy.cpp")
+     add_files("debugger/sdl/main.cpp")
      add_includedirs("include") 
-     add_packages("fmt", "cli11", "libsdl:main")
-     add_deps("core", "debugView")
+     add_deps("core", "thing")
+     add_packages("fmt", "cli11", "libsdl")
 
      if has_config("with_debugger") then 
-       add_packages("imgui")
        add_defines("WITH_DEBUGGER")
+       add_deps("debugView")
+       add_packages("imgui")
      end
    target_end()
 option_end()
 
-option("sfml_frontend")
-   set_default(false)
-   set_showmenu(true)
-
+option("sfml_frontend", {default = false, showmenu = true})
    target("debugger_sfml")
      set_kind("binary")
-     add_files("debugger/sfml/main.cpp", "debugger/GameBoy.cpp")
+     add_files("debugger/sfml/main.cpp")
      add_includedirs("include") 
-     add_packages("fmt", "cli11", "sfml/graphics", "imgui", "imgui-sfml")
-     add_deps("core", "debugView")
+     add_deps("core", "thing")
+     add_packages("fmt", "cli11")
+
+     add_linkdirs("/home/adem/.xmake/packages/s/sfml/2.6.0/da0298c0322f40df9c1cfcb939dcb3f8/lib")
+     add_includedirs("/home/adem/.xmake/packages/s/sfml/2.6.0/da0298c0322f40df9c1cfcb939dcb3f8/include")
+     add_links("sfml-graphics", "sfml-window", "sfml-system")
 
      if has_config("with_debugger") then 
-       add_packages("imgui", "imgui-sfml")
        add_defines("WITH_DEBUGGER")
+       add_deps("debugView")
+       add_packages("imgui", "imgui-sfml")
      end
     target_end()
 option_end()
 
-option("with_tools")
-    set_default(false)
-    set_showmenu(true)
-
+option("with_tools", {default = false, showmenu = true})
     target("gb.hd")
       set_kind("binary")
       add_files("tools/header_dumper.cpp")
