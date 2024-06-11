@@ -91,7 +91,7 @@ if get_option('with_debugger')
     if get_option('sdl2_frontend')
         executable(
             'debugger_sdl',
-            sources: ['debugger/sdl/main.cpp', 'debugger/GameBoy.cpp'],
+            sources: ['debugger/sdl2/main.cpp', 'debugger/GameBoy.cpp'],
             cpp_args: '-DWITH_DEBUGGER',
             link_with: [lr35902_core, debugView],
             dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],

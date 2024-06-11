@@ -116,7 +116,7 @@ if(SDL2_FRONTEND)
   find_package(CLI11 QUIET REQUIRED)
 
   add_executable(debugger_sdl)
-  target_sources(debugger_sdl PRIVATE debugger/sdl/main.cpp)
+  target_sources(debugger_sdl PRIVATE debugger/sdl2/main.cpp)
 
   target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
   target_link_libraries(
