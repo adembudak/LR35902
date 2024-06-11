@@ -78,6 +78,13 @@ lr35902_core = library(
     include_directories: LR35902_incdir,
 )
 
+thing = library(
+    'thing', 
+    sources : 'debugger/GameBoy.cpp', 
+    link_with : lr35902_core,
+    include_directories: LR35902_incdir,
+)
+
 if get_option('with_debugger')
     debugView = library(
         'debugView',
@@ -91,9 +98,9 @@ if get_option('with_debugger')
     if get_option('sdl2_frontend')
         executable(
             'debugger_sdl',
-            sources: ['debugger/sdl2/main.cpp', 'debugger/GameBoy.cpp'],
+            sources: ['debugger/sdl2/main.cpp'],
             cpp_args: '-DWITH_DEBUGGER',
-            link_with: [lr35902_core, debugView],
+            link_with: [lr35902_core, debugView, thing],
             dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
             include_directories: LR35902_incdir,
         )
@@ -101,10 +108,10 @@ if get_option('with_debugger')
 
     # if get_option('sfml_frontend')
     #    executable('debugger_sfml',
-    #      sources: ['debugger/sfml/main.cpp', 'debugger/GameBoy.cpp'],
+    #      sources: ['debugger/sfml/main.cpp'],
     #      cpp_args : '-DWITH_DEBUGGER',
     #      link_args: '-ldl',
-    #      link_with: [lr35902_core, debugView],
+    #      link_with: [lr35902_core, debugView, thing],
     #      dependencies : [ranges_dep, imgui_dep, sfml_dep, imgui_sfml_dep, cli11_dep, fmt_dep],
     #      include_directories : LR35902_incdir)
     #  endif
