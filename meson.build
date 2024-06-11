@@ -12,11 +12,7 @@ LR35902_incdir = include_directories('include')
 
 ranges_dep = dependency('range-v3', default_options: {'range_v3_tests': false}, required: true)
 
-sdl2_dep = dependency(
-    'sdl2',
-    default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'},
-    required: true,
-)
+sdl2_dep = dependency('sdl2', default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'}, required: true,)
 
 imgui_dep = dependency(
     'imgui',
@@ -38,8 +34,6 @@ imgui_dep = dependency(
     },
     required: true,
 )
-
-compiler = meson.get_compiler('cpp')
 
 cli11_dep = dependency('cli11', default_options: {'tests': false}, required: true)
 fmt_dep = dependency('fmt', required: true)
