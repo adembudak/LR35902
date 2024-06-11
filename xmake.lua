@@ -51,7 +51,7 @@ target("core")
   end
 target_end()
 
-target("thing")
+target("attaboy")
    set_kind("static")
    add_files("debugger/GameBoy.cpp")
    add_deps("core")
@@ -74,7 +74,7 @@ option("sdl2_frontend", {default = false, showmenu = true})
      set_kind("binary")
      add_files("debugger/sdl2/main.cpp")
      add_includedirs("include") 
-     add_deps("core", "thing")
+     add_deps("core", "attaboy")
      add_packages("fmt", "cli11", "libsdl")
 
      if has_config("with_debugger") then 
@@ -90,7 +90,7 @@ option("sfml_frontend", {default = false, showmenu = true})
      set_kind("binary")
      add_files("debugger/sfml/main.cpp")
      add_includedirs("include") 
-     add_deps("core", "thing")
+     add_deps("core", "attaboy")
      add_packages("fmt", "cli11", "sfml")
 
      if has_config("with_debugger") then 

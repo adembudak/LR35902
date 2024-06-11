@@ -78,8 +78,8 @@ lr35902_core = library(
     include_directories: LR35902_incdir,
 )
 
-thing = library(
-    'thing', 
+attaboy = library(
+    'attaboy', 
     sources : 'debugger/GameBoy.cpp', 
     link_with : lr35902_core,
     include_directories: LR35902_incdir,
@@ -100,7 +100,7 @@ if get_option('with_debugger')
             'debugger_sdl',
             sources: ['debugger/sdl2/main.cpp'],
             cpp_args: '-DWITH_DEBUGGER',
-            link_with: [lr35902_core, debugView, thing],
+            link_with: [lr35902_core, debugView, attaboy],
             dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
             include_directories: LR35902_incdir,
         )
@@ -111,7 +111,7 @@ if get_option('with_debugger')
     #      sources: ['debugger/sfml/main.cpp'],
     #      cpp_args : '-DWITH_DEBUGGER',
     #      link_args: '-ldl',
-    #      link_with: [lr35902_core, debugView, thing],
+    #      link_with: [lr35902_core, debugView, attaboy],
     #      dependencies : [ranges_dep, imgui_dep, sfml_dep, imgui_sfml_dep, cli11_dep, fmt_dep],
     #      include_directories : LR35902_incdir)
     #  endif
