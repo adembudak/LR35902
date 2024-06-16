@@ -26,15 +26,10 @@ option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 
 option(STATIC_ANALYSIS "" OFF)
-option(ANALYSE_WITH_CPPCHECK "" OFF)
-option(ANALYSE_WITH_CLANGTIDY "" OFF)
-option(ANALYSE_WITH_IWYU "" OFF)
-option(ANALYSE_WITH_LWYU "" OFF)
-
-cmake_dependent_option(ANALYSE_WITH_CPPCHECK "" ON STATIC_ANALYSIS ON)
-cmake_dependent_option(ANALYSE_WITH_CLANGTIDY "" ON STATIC_ANALYSIS ON)
-cmake_dependent_option(ANALYSE_WITH_IWYU "" ON STATIC_ANALYSIS ON)
-cmake_dependent_option(ANALYSE_WITH_LWYU "" ON STATIC_ANALYSIS ON)
+cmake_dependent_option(analyse_with_cppcheck "" OFF STATIC_ANALYSIS OFF)
+cmake_dependent_option(analyse_with_clangtidy "" OFF STATIC_ANALYSIS OFF)
+cmake_dependent_option(analyse_with_iwyu "" OFF STATIC_ANALYSIS OFF)
+cmake_dependent_option(analyse_with_lwyu "" OFF STATIC_ANALYSIS OFF)
 
 find_package(range-v3 QUIET REQUIRED CONFIG)
 
@@ -207,7 +202,7 @@ endif()
 if(STATIC_ANALYSIS)
   set(CMAKE_EXPORT_COMPILE_COMMANDS YES)
 
-  if(ANALYSE_WITH_CPPCHECK)
+  if(analyse_with_cppcheck)
     find_program(cppcheck_command cppcheck REQUIRED)
     set(options --enable=all --inconclusive --language=c++ --std=c++20 --verbose)
 
@@ -216,7 +211,7 @@ if(STATIC_ANALYSIS)
         CACHE STRING "" FORCE)
   endif()
 
-  if(ANALYSE_WITH_CLANGTIDY)
+  if(analyse_with_clangtidy)
     find_program(clangtidy_command clang-tidy REQUIRED)
     set(options "--checks=-*,bugprone-*,performance-*,portability-*")
 
@@ -225,12 +220,12 @@ if(STATIC_ANALYSIS)
         CACHE STRING "" FORCE)
   endif()
 
-  if(ANALYSE_WITH_IWYU)
+  if(analyse_with_iwyu)
     find_program(iwyu_command include-what-you-use REQUIRED)
     set(options -Xiwyu --cxx17ns --error=100)
   endif()
 
-  if(ANALYSE_WITH_LWYU)
+  if(analyse_with_lwyu)
     set(CMAKE_LINK_WHAT_YOU_USE
         ON
         CACHE BOOL "" FORCE)
