@@ -121,7 +121,7 @@ endif
 if get_option('with_tools')
     executable(
         'gb.hd',
-        'tools/headerdumpler/main.cpp',
+        'tools/headerdumper/main.cpp',
         include_directories: LR35902_incdir,
         link_with: lr35902_core,
         dependencies: [fmt_dep, cli11_dep, ranges_dep],
