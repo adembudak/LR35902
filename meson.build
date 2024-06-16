@@ -121,7 +121,7 @@ endif
 if get_option('with_tools')
     executable(
         'gb.hd',
-        'tools/header_dumper.cpp',
+        'tools/headerdumpler/main.cpp',
         include_directories: LR35902_incdir,
         link_with: lr35902_core,
         dependencies: [fmt_dep, cli11_dep, ranges_dep],
@@ -129,7 +129,7 @@ if get_option('with_tools')
 
     executable(
         'gb.hf',
-        'tools/header_fixer.cpp',
+        'tools/headerfixer/main.cpp',
         include_directories: LR35902_incdir,
         link_with: lr35902_core,
         dependencies: [cli11_dep, ranges_dep],
@@ -137,7 +137,7 @@ if get_option('with_tools')
 
     executable(
         'gb.dis',
-        'tools/disassembler.cpp',
+        'tools/disassembler/main.cpp',
         dependencies: [fmt_dep, cli11_dep, ranges_dep],
     )
 endif
