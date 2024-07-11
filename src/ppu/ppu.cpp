@@ -70,17 +70,7 @@ constexpr std::size_t tile_size = tileline_size * tile_h;
 
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
-    LCDC{io.LCDC},
-    STAT{io.STAT},
-    SCY{io.SCY},
-    SCX{io.SCX},
-    LY{io.LY},
-    LYC{io.LYC},
-    BGP{io.BGP},
-    OBP0{io.OBP0},
-    OBP1{io.OBP1},
-    WY{io.WY},
-    WX{io.WX} {}
+    io{io} {}
 
 byte PPU::readVRAM(const std::size_t index) const noexcept {
   if(isVRAMAccessibleToCPU()) return m_vram[index];
@@ -231,7 +221,7 @@ void PPU::reset() noexcept {
 }
 
 PPU::state PPU::mode() const noexcept { // bit0, bit1
-  switch(STAT & 0b0000'0011) {
+  switch(io.STAT & 0b0000'0011) {
   default: break;
   case 0b00: return state::hblanking;
   case 0b01: return state::vblanking;
@@ -242,41 +232,41 @@ PPU::state PPU::mode() const noexcept { // bit0, bit1
 
 // LCDC register related members
 bool PPU::isLCDEnabled() const noexcept { // bit7
-  return LCDC & 0b1000'0000;
+  return io.LCDC & 0b1000'0000;
 }
 
 std::size_t PPU::windowTilemapBaseAddress() const noexcept { // bit6
-  return (LCDC & 0b0100'0000) ? 0x1C00 : 0x1800;
+  return (io.LCDC & 0b0100'0000) ? 0x1C00 : 0x1800;
 }
 
 bool PPU::isWindowEnabled() const noexcept { // bit5
-  return LCDC & 0b0010'0000;
+  return io.LCDC & 0b0010'0000;
 }
 
 std::size_t PPU::backgroundTilesetBaseAddress() const noexcept { // bit4
-  return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
+  return (io.LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
 // window and background share the same memory space, so this member does the
 // same thing above
 std::size_t PPU::windowTilesetBaseAddress() const noexcept { // bit4
-  return (LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
+  return (io.LCDC & 0b0001'0000) ? 0x0000 : 0x0800;
 }
 
 std::size_t PPU::backgroundTilemapBaseAddress() const noexcept { // bit3
-  return (LCDC & 0b0000'1000) ? 0x1C00 : 0x1800;
+  return (io.LCDC & 0b0000'1000) ? 0x1C00 : 0x1800;
 }
 
 bool PPU::isBigSprite() const noexcept { // bit2
-  return LCDC & 0b0000'0100;
+  return io.LCDC & 0b0000'0100;
 }
 
 bool PPU::isSpritesEnabled() const noexcept { // bit1
-  return LCDC & 0b0000'0010;
+  return io.LCDC & 0b0000'0010;
 }
 
 bool PPU::isBackgroundEnabled() const noexcept { // bit0
-  return LCDC & 0b0000'0001;
+  return io.LCDC & 0b0000'0001;
 }
 
 // STAT register related members
@@ -285,81 +275,81 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
 void PPU::mode(const state s) noexcept { // bit0, bit1
   switch(s) {
   default: break;
-  case state::hblanking:  STAT &= 0b1111'1100;          break;
-  case state::vblanking: (STAT &= 0b1111'1100) |= 0b01; break;
-  case state::searching: (STAT &= 0b1111'1100) |= 0b10; break;
-  case state::drawing:    STAT |= 0b0000'0011;          break;
+  case state::hblanking:  io.STAT &= 0b1111'1100;          break;
+  case state::vblanking: (io.STAT &= 0b1111'1100) |= 0b01; break;
+  case state::searching: (io.STAT &= 0b1111'1100) |= 0b10; break;
+  case state::drawing:    io.STAT |= 0b0000'0011;          break;
   }
 }
 
 void PPU::coincidence(const bool b) noexcept {
-  if(b) STAT |= 0b0000'0100;
-  else  STAT &= 0b1111'1011;
+  if(b) io.STAT |= 0b0000'0100;
+  else  io.STAT &= 0b1111'1011;
 }
 
 bool PPU::interruptSourceEnabled(const source s) const noexcept {
   switch(s) {
   default: break;
-  case source::hblank:      return STAT & 0b0000'1000; // bit 3
-  case source::vblank:      return STAT & 0b0001'0000; // bit 4
-  case source::oam:         return STAT & 0b0010'0000; // bit 5
-  case source::coincidence: return STAT & 0b0100'0000; // bit 6
+  case source::hblank:      return io.STAT & 0b0000'1000; // bit 3
+  case source::vblank:      return io.STAT & 0b0001'0000; // bit 4
+  case source::oam:         return io.STAT & 0b0010'0000; // bit 5
+  case source::coincidence: return io.STAT & 0b0100'0000; // bit 6
   }
 }
 // clang-format on
 
 // LY/LYC registers related members
 byte PPU::currentScanline() const noexcept {
-  return LY;
+  return io.LY;
 }
 
 void PPU::updateScanline() noexcept {
-  ++LY;
+  ++io.LY;
 }
 
 void PPU::resetScanline() noexcept {
-  LY = 0;
+  io.LY = 0;
 }
 
 bool PPU::checkCoincidence() const noexcept {
-  return LYC == LY;
+  return io.LYC == io.LY;
 }
 
 // BGP/OBP0/OBP1 palette registers related members
 std::array<PPU::palette_index, 4> PPU::bgp() const noexcept {
-  const palette_index pal_0 = BGP & 0b0000'0011;
-  const palette_index pal_1 = (BGP & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (BGP & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (BGP & 0b1100'0000) >> 6;
+  const palette_index pal_0 = io.BGP & 0b0000'0011;
+  const palette_index pal_1 = (io.BGP & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (io.BGP & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (io.BGP & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
 std::array<PPU::palette_index, 4> PPU::obp0() const noexcept {
-  const palette_index pal_0 = OBP0 & 0b0000'0011;
-  const palette_index pal_1 = (OBP0 & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (OBP0 & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (OBP0 & 0b1100'0000) >> 6;
+  const palette_index pal_0 = io.OBP0 & 0b0000'0011;
+  const palette_index pal_1 = (io.OBP0 & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (io.OBP0 & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (io.OBP0 & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
 std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
-  const palette_index pal_0 = OBP1 & 0b0000'0011;
-  const palette_index pal_1 = (OBP1 & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (OBP1 & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (OBP1 & 0b1100'0000) >> 6;
+  const palette_index pal_0 = io.OBP1 & 0b0000'0011;
+  const palette_index pal_1 = (io.OBP1 & 0b0000'1100) >> 2;
+  const palette_index pal_2 = (io.OBP1 & 0b0011'0000) >> 4;
+  const palette_index pal_3 = (io.OBP1 & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
 // WY/WX palette registers related members
 int PPU::window_y() const noexcept {
-  return WY;
+  return io.WY;
 }
 
 int PPU::window_x() const noexcept {
-  return WX - 7;
+  return io.WX - 7;
 }
 
 /*
@@ -408,7 +398,7 @@ void PPU::fetchBackground() const {
 
   std::array<palette_index, screen_w> buffer;
 
-  const std::size_t dy = (SCY + LY) % screen_h;
+  const std::size_t dy = (io.SCY + io.LY) % screen_h;
   const std::size_t row = dy / tile_h;
   const std::size_t currently_scannline_tileline = dy % tile_h;
 
@@ -422,8 +412,8 @@ void PPU::fetchBackground() const {
     }
   }
 
-  rg::rotate(buffer.begin(), buffer.begin() + SCX, buffer.end());
-  rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + LY * viewport_w);
+  rg::rotate(buffer.begin(), buffer.begin() + io.SCX, buffer.end());
+  rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + io.LY * viewport_w);
 }
 
 void PPU::fetchWindow() const {
@@ -449,7 +439,7 @@ void PPU::fetchWindow() const {
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
-      m_framebuffer[LY * viewport_w + x] = bgp()[decoded[i]];
+      m_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
     }
   }
 }
@@ -502,7 +492,7 @@ void PPU::fetchSprites() const {
   const auto isSpriteVisibleToScanline = [&](const byte y) -> bool {
     const int viewport_y = y - sprite_viewport_offset_y;
 
-    return LY >= viewport_y && LY < (viewport_y + spriteHeight());
+    return io.LY >= viewport_y && io.LY < (viewport_y + spriteHeight());
   };
 
   // No idea how the lambda body works below...
@@ -559,9 +549,9 @@ void PPU::fetchSprites() const {
 
       if(decoded[i] == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
 
-      m_framebuffer[LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
-                                                        : palette     ? obp1()[decoded[i]] //
-                                                                      : obp0()[decoded[i]];
+      m_framebuffer[io.LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
+                                                           : palette     ? obp1()[decoded[i]] //
+                                                                         : obp0()[decoded[i]];
     }
   }
 }

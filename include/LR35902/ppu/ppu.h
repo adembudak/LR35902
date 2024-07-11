@@ -101,9 +101,9 @@ private:
   std::array<byte, 160_B> m_oam{};
 
   Interrupt &intr;
+  IO &io;
 
   /// lcd controller
-  byte &LCDC;
   [[nodiscard]] bool isLCDEnabled() const noexcept;
   [[nodiscard]] std::size_t windowTilemapBaseAddress() const noexcept;
   [[nodiscard]] bool isWindowEnabled() const noexcept;
@@ -117,34 +117,22 @@ private:
   /// lcd status
   enum class source : std::uint8_t;
 
-  byte &STAT;
   void mode(const state s) noexcept;
   void coincidence(const bool b) noexcept;
   bool interruptSourceEnabled(const source s) const noexcept;
 
-  /// scroll viewport by y/x amount
-  byte &SCY;
-  byte &SCX;
-
   /// currently drawing scanline
-  byte &LY;
-  byte &LYC;
   byte currentScanline() const noexcept;
   void updateScanline() noexcept;
   void resetScanline() noexcept;
   bool checkCoincidence() const noexcept;
 
   /// palettes
-  byte &BGP;
-  byte &OBP0;
-  byte &OBP1;
   std::array<palette_index, 4> bgp() const noexcept;
   std::array<palette_index, 4> obp0() const noexcept;
   std::array<palette_index, 4> obp1() const noexcept;
 
   /// window y, x
-  byte &WY;
-  byte &WX;
   int window_y() const noexcept;
   int window_x() const noexcept;
 
