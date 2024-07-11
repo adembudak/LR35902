@@ -3,7 +3,6 @@ debug_gcc_build/*
 release_gcc_build/,
 debug_clang_build/*
 release_clang_build/*
-out/build/${presetName/*
 build_static_analysis/*
 3rdparty/implot/*
 3rdparty/imgui-filebrowser/*
