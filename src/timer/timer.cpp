@@ -15,24 +15,21 @@ namespace LR35902 {
   return result;
 }
 
-#define besure static_assert
 // clang-format off
 constexpr std::size_t base_clock_in_T_cycles = 4'194'304;
 
 constexpr std::size_t base_clock = base_clock_in_T_cycles / 4;
-besure(1'048'576 == base_clock); // in M cycles
+static_assert(1'048'576 == base_clock); // in M cycles
 
-constexpr std::size_t TAC_0 = base_clock / pow(2, 10); besure( 1024 == TAC_0);
-constexpr std::size_t TAC_1 = base_clock / pow(2,  4); besure(65536 == TAC_1);
-constexpr std::size_t TAC_2 = base_clock / pow(2,  6); besure(16384 == TAC_2);
-constexpr std::size_t TAC_3 = base_clock / pow(2,  8); besure( 4096 == TAC_3);
+constexpr std::size_t TAC_0 = base_clock / pow(2, 10); static_assert( 1024 == TAC_0);
+constexpr std::size_t TAC_1 = base_clock / pow(2,  4); static_assert(65536 == TAC_1);
+constexpr std::size_t TAC_2 = base_clock / pow(2,  6); static_assert(16384 == TAC_2);
+constexpr std::size_t TAC_3 = base_clock / pow(2,  8); static_assert( 4096 == TAC_3);
 
-besure(base_clock / TAC_0 == 1024);
-besure(base_clock / TAC_1 ==   16);
-besure(base_clock / TAC_2 ==   64);
-besure(base_clock / TAC_3 ==  256);
-
-#undef besure
+static_assert(base_clock / TAC_0 == 1024);
+static_assert(base_clock / TAC_1 ==   16);
+static_assert(base_clock / TAC_2 ==   64);
+static_assert(base_clock / TAC_3 ==  256);
 
 constexpr std::array<std::size_t, 4>      frequency_select{1024, 16, 64, 256};
 constexpr std::size_t div_increase_rate = frequency_select[2];
