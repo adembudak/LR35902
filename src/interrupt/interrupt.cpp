@@ -1,6 +1,11 @@
 #include <LR35902/interrupt/interrupt.h>
 #include <LR35902/io/io.h>
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#endif
+
 namespace LR35902 {
 
 Interrupt::Interrupt(IO &io) :
@@ -58,3 +63,7 @@ void Interrupt::reset() noexcept {
 }
 
 }
+
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif

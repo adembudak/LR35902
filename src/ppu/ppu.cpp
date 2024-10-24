@@ -27,6 +27,11 @@
 #include <cstddef>
 #include <vector>
 
+#ifdef __clang__
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wreturn-type"
+#endif
+
 namespace LR35902 {
 
 namespace rg = ranges;
@@ -556,3 +561,7 @@ void PPU::fetchSprites() const {
   }
 }
 } // namespace LR35902
+
+#ifdef __clang__
+#pragma GCC diagnostic pop
+#endif
