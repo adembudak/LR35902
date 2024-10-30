@@ -23,7 +23,7 @@ auto CPU::fetchsByte() noexcept -> sbyte {
   return std::get<sbyte>(immediate);
 #endif
   return m_bus.read(PC++);
-};
+}
 
 auto CPU::fetchByte() noexcept -> byte {
 #ifdef WITH_DEBUGGER
@@ -31,7 +31,7 @@ auto CPU::fetchByte() noexcept -> byte {
   return std::get<byte>(immediate);
 #endif
   return m_bus.read(PC++);
-};
+}
 
 auto CPU::fetchWord() noexcept -> word {
   const byte lo = m_bus.read(PC++);
@@ -41,7 +41,7 @@ auto CPU::fetchWord() noexcept -> word {
   return std::get<word>(immediate);
 #endif
   return word(hi << 8 | lo);
-};
+}
 
 // interrupt procedure:
 // ---
