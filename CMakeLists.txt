@@ -7,9 +7,9 @@ project(
 
 include(CMakeDependentOption)
 
-set(CMAKE_CXX_EXTENSIONS        0)
+set(CMAKE_CXX_EXTENSIONS 0)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
-set(CMAKE_CXX_STANDARD         20)
+set(CMAKE_CXX_STANDARD 20)
 
 set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
@@ -236,3 +236,15 @@ if(STATIC_ANALYSIS)
   endif()
 
 endif()
+
+set(CPACK_SOURCE_GENERATOR ZIP)
+
+# cmake-format: off
+set(CPACK_SOURCE_IGNORE_FILES 
+    \.git/ 
+    \.cache/ 
+    .*\.swp$ 
+    ${LR35902_BINARY_DIR}
+)
+# cmake-format: on
+include(CPack)
