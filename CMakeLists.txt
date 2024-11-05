@@ -118,17 +118,17 @@ if(SDL2_FRONTEND)
   find_package(SDL2 QUIET REQUIRED CONFIG)
   find_package(CLI11 QUIET REQUIRED)
 
-  add_executable(debugger_sdl)
-  target_sources(debugger_sdl PRIVATE debugger/sdl2/main.cpp)
+  add_executable(debugger_sdl2)
+  target_sources(debugger_sdl2 PRIVATE debugger/sdl2/main.cpp)
 
-  target_include_directories(debugger_sdl PUBLIC ${LR35902_INCLUDE_DIR})
+  target_include_directories(debugger_sdl2 PUBLIC ${LR35902_INCLUDE_DIR})
   target_link_libraries(
-    debugger_sdl PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-                         $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+    debugger_sdl2 PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+                          $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
 
   if(WITH_DEBUGGER)
-    target_link_libraries(debugger_sdl PRIVATE LR35902::debugView imgui::imgui)
-    set_target_properties(debugger_sdl PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+    target_link_libraries(debugger_sdl2 PRIVATE LR35902::debugView imgui::imgui)
+    set_target_properties(debugger_sdl2 PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
   endif()
 endif()
 
