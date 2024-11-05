@@ -247,4 +247,34 @@ set(CPACK_SOURCE_IGNORE_FILES
     ${LR35902_BINARY_DIR}
 )
 # cmake-format: on
+
+set(CPACK_GENERATOR TGZ ZIP)
+
+set(targets_to_package)
+if(TARGET debugger_sdl2)
+  list(APPEND targets_to_package debugger_sdl2)
+endif()
+
+if(TARGET debugger_sfml)
+  list(APPEND targets_to_package debugger_sfml)
+endif()
+
+if(WITH_TOOLS)
+  if(TARGET gb.hd)
+    list(APPEND targets_to_package gb.hd)
+  endif()
+
+  if(TARGET gb.hf)
+    list(APPEND targets_to_package gb.hf)
+  endif()
+
+  if(TARGET gb.dis)
+    list(APPEND targets_to_package gb.dis)
+  endif()
+endif()
+
+if(targets_to_package)
+  install(TARGETS ${targets_to_package})
+endif()
+
 include(CPack)

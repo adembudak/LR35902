@@ -23,14 +23,21 @@ fresh-build:
 	just reconfigure
 	just build
 
-package-source:
+package-sources:
 	cmake --build build --target package_source
+
+package-binaries:
+	cmake --build build --target package
+
+package:
+	just package-sources
+	just package-binaries
 
 lint:
 	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -DCMAKE_BUILD_TYPE:STRING="Debug" -DANALYSE_WITH_CPPCHECK:BOOL=1 -DSTATIC_ANALYSIS:BOOL=1 -DANALYSE_WITH_CLANGTIDY:BOOL=1 -DANALYSE_WITH_IWYU:BOOL=1 -DANALYSE_WITH_LWYU:BOOL=1 -S . -B build_static_analysis --fresh
 	cmake --build build_static_analysis
 
-[linux]
+[linux, unix]
 tui:
 	ccmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B build
 
