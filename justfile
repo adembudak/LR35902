@@ -13,8 +13,9 @@ configure:
 reconfigure: 
 	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B build --fresh
 
-build:
-	cmake --build build
+tgt := 'all'
+build target = tgt:
+	cmake --build build --target {{target}}
 
 rebuild:
 	cmake --build build --clean-first
