@@ -28,8 +28,8 @@
 #include <vector>
 
 #ifdef __clang__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wreturn-type"
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wreturn-type"
 #endif
 
 namespace LR35902 {
@@ -563,5 +563,5 @@ void PPU::fetchSprites() const {
 } // namespace LR35902
 
 #ifdef __clang__
-#pragma GCC diagnostic pop
+  #pragma GCC diagnostic pop
 #endif
