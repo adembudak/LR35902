@@ -12,9 +12,11 @@
 
 #include <string_view>
 
+#if defined(WITH_DEBUGGER)
 namespace LR35902 {
 class DebugView;
 }
+#endif
 
 namespace lr = LR35902;
 
@@ -50,5 +52,7 @@ public:
   void stop() noexcept;
   bool isPowerOn() const noexcept;
 
+#if defined(WITH_DEBUGGER)
   friend class LR35902::DebugView;
+#endif
 };
