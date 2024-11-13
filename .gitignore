@@ -29,3 +29,5 @@ subprojects/fmt-10.2.0
 subprojects/imgui-sfml-2.6
 .xmake/
 .vscode/
+3rdparty/fonts/
+3rdparty/imgui_club/
