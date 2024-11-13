@@ -1,14 +1,15 @@
-cmake_minimum_required(VERSION 3.24.1)
+cmake_minimum_required(VERSION 3.31.0)
 
 project(
   LR35902
+  VERSION 0.1.0
   HOMEPAGE_URL https://github.com/adembudak/LR35902
   LANGUAGES CXX)
 
 include(CMakeDependentOption)
 include(FetchContent)
-include(ExternalProject)
 
+set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 set(CMAKE_CXX_EXTENSIONS 0)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
 set(CMAKE_CXX_STANDARD 20)
@@ -113,7 +114,6 @@ if(WITH_DEBUGGER)
 
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-
 endif()
 
 if(SFML_FRONTEND)
