@@ -1,37 +1,37 @@
-// clang-format off
 #if defined(WITH_DEBUGGER)
-#include <imgui.h>
-#include <imgui_impl_sdl2.h>
-#include <imgui_impl_sdlrenderer2.h>
+  #include <imgui.h>
+  #include <imgui_impl_sdl2.h>
+  #include <imgui_impl_sdlrenderer2.h>
 #endif
 
 #include <SDL2/SDL.h>
 #if !SDL_VERSION_ATLEAST(2, 0, 17)
-#error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
+  #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
 #endif
-// clang-fmrmat on
+
 #include <CLI/CLI.hpp>
 
 #include <chrono>
 #include <filesystem>
 #include <format>
+#include <memory>
 #include <string_view>
 
 #include "palettes.h"
 
 #if defined(WITH_DEBUGGER)
-#include <LR35902/debugView/debugView.h>
+  #include <LR35902/debugView/debugView.h>
 #endif
 
 #include "../GameBoy.h"
 
 #if defined(WITH_DEBUGGER)
-void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
+static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
     }
     if(ImGui::MenuItem("Close", "Alt-<F4>")) {
-      attaboy.stop();
+      gb.stop();
     }
     ImGui::EndMenu();
   }
@@ -64,7 +64,7 @@ void putMenuBar(GameBoy &attaboy, LR35902::DebugView &debugView) {
 #endif
 
 int main(int argc, char *argv[]) {
-  CLI::App debugger{"LR35902 debugger", "debugger_sdl"};
+  CLI::App debugger{"LR35902", "debugger_sdl2"};
 
   bool skipboot;
   std::string romFile;
@@ -78,24 +78,32 @@ int main(int argc, char *argv[]) {
     return debugger.exit(e);
   }
 
+  if(const int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); ret != 0) {
+    return ret;
+  }
+
   const auto w_win = 1280;
   const auto h_win = 720;
 
-  const auto flags_win = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
-  SDL_Window *my_window = SDL_CreateWindow("LR35902 debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
-                                           w_win, h_win, flags_win);
+  // clang-format off
+  const auto flags_window = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+  std::unique_ptr<SDL_Window, decltype([](SDL_Window *w) { SDL_DestroyWindow(w); })> my_window{ //
+    SDL_CreateWindow("LR35902", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
 
   const auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
-  SDL_Renderer *my_renderer = SDL_CreateRenderer(my_window, -1, flags_renderer);
+  std::unique_ptr<SDL_Renderer, decltype([](SDL_Renderer *r) { SDL_DestroyRenderer(r); })> my_renderer{
+    SDL_CreateRenderer(my_window.get(), -1, flags_renderer)};
 
   const auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
-  SDL_Texture *my_texture =
-      SDL_CreateTexture(my_renderer, SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win);
+  std::unique_ptr<SDL_Texture, decltype([](SDL_Texture *t) { SDL_DestroyTexture(t); })> my_texture{
+    SDL_CreateTexture(my_renderer.get(), SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win)};
+  // clang-format on
 
   std::array<Uint8, 160 * 144 * 4> pixels;
   palette_t palette = original;
 
 #if defined(WITH_DEBUGGER)
+  SDL_SetWindowTitle(my_window.get(), "LR35902 + Debugger");
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -107,8 +115,8 @@ int main(int argc, char *argv[]) {
     io.Fonts->Build();
   }
 
-  ImGui_ImplSDL2_InitForSDLRenderer(my_window, my_renderer);
-  ImGui_ImplSDLRenderer2_Init(my_renderer);
+  ImGui_ImplSDL2_InitForSDLRenderer(my_window.get(), my_renderer.get());
+  ImGui_ImplSDLRenderer2_Init(my_renderer.get());
 #endif
 
   GameBoy attaboy;
@@ -135,41 +143,43 @@ int main(int argc, char *argv[]) {
 #if defined(WITH_DEBUGGER)
       ImGui_ImplSDL2_ProcessEvent(&event);
 #endif
+      // clang-format off
       switch(event.type) {
-
       case SDL_EventType::SDL_QUIT:
         attaboy.stop();
         break;
 
-        // clang-format off
       case SDL_EventType::SDL_KEYDOWN: {
         switch(event.key.keysym.sym) {
-        case SDL_KeyCode::SDLK_a:      attaboy.joypad.update(lr::button::a,      lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_d:      attaboy.joypad.update(lr::button::b,      lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_s:      attaboy.joypad.update(lr::button::select, lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_w:      attaboy.joypad.update(lr::button::start,  lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_a:     attaboy.joypad.update(lr::button::a,      lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_d:     attaboy.joypad.update(lr::button::b,      lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_s:     attaboy.joypad.update(lr::button::select, lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_w:     attaboy.joypad.update(lr::button::start,  lr::keystatus::pressed); break;
 
-        case SDL_KeyCode::SDLK_UP:     attaboy.joypad.update(lr::button::up,     lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_RIGHT:  attaboy.joypad.update(lr::button::right,  lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_DOWN:   attaboy.joypad.update(lr::button::down,   lr::keystatus::pressed); break;
-        case SDL_KeyCode::SDLK_LEFT:   attaboy.joypad.update(lr::button::left,   lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_UP:    attaboy.joypad.update(lr::button::up,     lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_RIGHT: attaboy.joypad.update(lr::button::right,  lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_DOWN:  attaboy.joypad.update(lr::button::down,   lr::keystatus::pressed); break;
+        case SDL_KeyCode::SDLK_LEFT:  attaboy.joypad.update(lr::button::left,   lr::keystatus::pressed); break;
         }
-      } break;
+      } 
+        break;
 
       case SDL_EventType::SDL_KEYUP: {
         switch(event.key.keysym.sym) {
-        case SDL_KeyCode::SDLK_a:      attaboy.joypad.update(lr::button::a,      lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_b:      attaboy.joypad.update(lr::button::b,      lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_s:      attaboy.joypad.update(lr::button::select, lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_w:      attaboy.joypad.update(lr::button::start,  lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_a:     attaboy.joypad.update(lr::button::a,      lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_b:     attaboy.joypad.update(lr::button::b,      lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_s:     attaboy.joypad.update(lr::button::select, lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_w:     attaboy.joypad.update(lr::button::start,  lr::keystatus::released); break;
 
-        case SDL_KeyCode::SDLK_UP:     attaboy.joypad.update(lr::button::up,     lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_RIGHT:  attaboy.joypad.update(lr::button::right,  lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_DOWN:   attaboy.joypad.update(lr::button::down,   lr::keystatus::released); break;
-        case SDL_KeyCode::SDLK_LEFT:   attaboy.joypad.update(lr::button::left,   lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_UP:    attaboy.joypad.update(lr::button::up,     lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_RIGHT: attaboy.joypad.update(lr::button::right,  lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_DOWN:  attaboy.joypad.update(lr::button::down,   lr::keystatus::released); break;
+        case SDL_KeyCode::SDLK_LEFT:  attaboy.joypad.update(lr::button::left,   lr::keystatus::released); break;
         }
-      } break;
+      } 
+        break;
       }
+      // clang-format on
     }
 
 #if defined(WITH_DEBUGGER)
@@ -243,22 +253,24 @@ int main(int argc, char *argv[]) {
     ImGui::Render();
 #endif
 
-    SDL_UpdateTexture(my_texture, &emuOutput, pixels.data(), emu_w * sizeof(SDL_Colour));
+    SDL_UpdateTexture(my_texture.get(), &emuOutput, pixels.data(), emu_w * sizeof(SDL_Color));
 
-    SDL_RenderClear(my_renderer);
+    SDL_RenderClear(my_renderer.get());
 
-    SDL_RenderCopy(my_renderer, my_texture, nullptr, nullptr);
+    SDL_RenderCopy(my_renderer.get(), my_texture.get(), nullptr, nullptr);
 
-    SDL_SetRenderDrawColor(my_renderer, 0xff, 0xff, 0xff, 0xff);
+    SDL_SetRenderDrawColor(my_renderer.get(), 0xff, 0xff, 0xff, 0xff);
 
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer.get());
+    /*
 #if defined(WITH_DEBUGGER)
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer);
     const auto framerate =
         std::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 
-    SDL_SetWindowTitle(my_window, framerate.c_str());
+    SDL_SetWindowTitle(my_window.get(), framerate.c_str());
 #endif
-    SDL_RenderPresent(my_renderer);
+*/
+    SDL_RenderPresent(my_renderer.get());
   }
 
 #if defined(WITH_DEBUGGER)
@@ -267,9 +279,6 @@ int main(int argc, char *argv[]) {
   ImGui::DestroyContext();
 #endif
 
-  SDL_DestroyTexture(my_texture);
-  SDL_DestroyRenderer(my_renderer);
-  SDL_DestroyWindow(my_window);
   SDL_Quit();
 
   return 0;
