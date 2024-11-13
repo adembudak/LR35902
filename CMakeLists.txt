@@ -6,6 +6,8 @@ project(
   LANGUAGES CXX)
 
 include(CMakeDependentOption)
+include(FetchContent)
+include(ExternalProject)
 
 set(CMAKE_CXX_EXTENSIONS 0)
 set(CMAKE_CXX_STANDARD_REQUIRED 1)
@@ -15,6 +17,7 @@ set(LR35902_SOURCE_DIR ${PROJECT_SOURCE_DIR})
 set(LR35902_BINARY_DIR ${PROJECT_BINARY_DIR})
 set(LR35902_INCLUDE_DIR ${LR35902_SOURCE_DIR}/include)
 set(LR35902_TEST_DIR ${LR35902_SOURCE_DIR}/tests)
+set(LR35902_3RDPARTY_DIR ${LR35902_SOURCE_DIR}/3rdparty)
 
 option(WITH_DEBUGGER "" OFF)
 option(SFML_FRONTEND "" OFF)
@@ -80,20 +83,44 @@ add_library(LR35902::attaboy ALIAS attaboy)
 if(WITH_DEBUGGER)
   find_package(imgui QUIET REQUIRED CONFIG)
 
+  FetchContent_Declare(
+    imgui_club
+    GIT_REPOSITORY https://github.com/ocornut/imgui_club
+    GIT_TAG main
+    GIT_SHALLOW 1
+    SOURCE_DIR ${LR35902_3RDPARTY_DIR}/imgui_club)
+
+  FetchContent_MakeAvailable(imgui_club)
+
+  FetchContent_Declare(
+    FiraCode
+    URL https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
+        CONFIGURE_COMMAND
+        ""
+        BUILD_COMMAND
+        ""
+        INSTALL_COMMAND
+        ""
+        SOURCE_DIR
+        ${LR35902_3RDPARTY_DIR}/fonts/FiraCode
+        BUILD_IN_SOURCE)
+
+  FetchContent_MakeAvailable(FiraCode)
+
   add_library(debugView)
   target_sources(debugView PRIVATE src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_3RDPARTY_DIR}/imgui_club)
   add_library(LR35902::debugView ALIAS debugView)
 
   add_library(imgui_memory_editor INTERFACE)
-  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_SOURCE_DIR}/3rdparty/imgui_club)
+  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_3RDPARTY_DIR}/imgui_club)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 
-  set(font_file "${LR35902_SOURCE_DIR}/3rdparty/font/source-code-pro/TTF/SourceCodePro-Regular.ttf")
-  file(COPY ${font_file} DESTINATION ${LR35902_BINARY_DIR})
+  # set(font_file "${LR35902_3RDPARTY_DIR}/fonts/source-code-pro/TTF/SourceCodePro-Regular.ttf") file(COPY ${font_file}
+  # DESTINATION ${LR35902_BINARY_DIR})
 endif()
 
 if(SFML_FRONTEND)
@@ -107,6 +134,8 @@ if(SFML_FRONTEND)
   target_link_libraries(debugger_sfml PRIVATE LR35902::core LR35902::attaboy fmt::fmt CLI11::CLI11 sfml-graphics)
 
   if(WITH_DEBUGGER)
+    # set_target_properties(emu_sfml PROPERTIES NAME emu_sfml_with_debugger)
+
     find_package(ImGui-SFML QUIET REQUIRED CONFIG)
 
     target_link_libraries(debugger_sfml PRIVATE LR35902::debugView imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
