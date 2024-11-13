@@ -7,9 +7,14 @@
 #include <imgui_memory_editor/imgui_memory_editor.h>
 
 #include <algorithm>
+#include <bit>
 #include <cstdint>
 #include <variant>
-#include <bit>
+
+#ifdef __clang__
+  #pragma GCC diagnostic push
+  #pragma GCC diagnostic ignored "-Wformat"
+#endif
 
 namespace LR35902 {
 namespace im = ImGui;
@@ -406,3 +411,7 @@ void DebugView::showRegisters() noexcept {
   }
 }
 }
+
+#ifdef __clang__
+  #pragma GCC diagnostic pop
+#endif
