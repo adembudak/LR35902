@@ -162,12 +162,14 @@ endif()
 
 if(WITH_TOOLS)
   find_package(fmt QUIET REQUIRED)
-  find_package(range-v3 QUIET REQUIRED CONFIG)
   find_package(CLI11 QUIET REQUIRED)
 
   if(tool_headerdumper)
+    find_package(nlohmann_json QUIET REQUIRED CONFIG)
+
     add_executable(gb.hd tools/headerdumper/main.cpp)
-    target_link_libraries(gb.hd PRIVATE LR35902::core fmt::fmt CLI11::CLI11 range-v3::range-v3)
+    target_link_libraries(gb.hd PRIVATE fmt::fmt CLI11::CLI11 nlohmann_json::nlohmann_json)
+    target_include_directories(gb.hd PRIVATE ${LR35902_INCLUDE_DIR})
   endif()
 
   if(tool_headerfixer)
