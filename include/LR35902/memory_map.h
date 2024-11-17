@@ -8,7 +8,7 @@ namespace LR35902::mmap {
 // GameBoy memory layout                    [half closed range)
 //                                          address |  size  |   located in
 // -------------------------------------------------------------------------
-inline constexpr std::size_t rom0 =          0x0000; // 32KB      Cartridge
+inline constexpr std::size_t rom0 =          0x0000; // 16KB      Cartridge
 
   inline constexpr std::size_t rst_00 =        0x0000; // reset vectors
   inline constexpr std::size_t rst_08 =        0x0008;
@@ -61,7 +61,7 @@ inline constexpr std::size_t rom0 =          0x0000; // 32KB      Cartridge
 
 inline constexpr std::size_t rom0_end =      0x4000;
 
-inline constexpr std::size_t romx =          0x4000;
+inline constexpr std::size_t romx =          0x4000; // 16KB
 inline constexpr std::size_t romx_end =      0x8000;
 
 inline constexpr std::size_t vram =          0x8000; // 8KB       PPU
