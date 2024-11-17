@@ -31,7 +31,12 @@ int main(int argc, const char *const argv[]) {
   app.add_flag("--publisher", options[7], "Print cart publisher");
   app.add_flag("--version", options[8], "Print cart version");
 
-  CLI11_PARSE(app, argc, argv);
+  try {
+    app.parse(argc, argv);
+  }
+  catch(const CLI::ParseError &pe) {
+    return app.exit(pe);
+  }
 
   if(std::ranges::none_of(options, [](bool b) { return b; })) options.fill(true);
 
