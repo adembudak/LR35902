@@ -110,11 +110,6 @@ int main(int argc, char *argv[]) {
   ImGuiIO &io = ImGui::GetIO();
   ImGui::StyleColorsDark();
 
-  if(const std::filesystem::path font{"SourceCodePro-Regular.ttf"}; exists(font)) {
-    io.Fonts->AddFontFromFileTTF(font.string().c_str(), 14.0f);
-    io.Fonts->Build();
-  }
-
   ImGui_ImplSDL2_InitForSDLRenderer(my_window.get(), my_renderer.get());
   ImGui_ImplSDLRenderer2_Init(my_renderer.get());
 #endif

@@ -84,24 +84,13 @@ add_library(LR35902::attaboy ALIAS attaboy)
 if(WITH_DEBUGGER)
   find_package(imgui QUIET REQUIRED CONFIG)
 
-  # cmake-format: off
   FetchContent_Declare(
     imgui_club
     GIT_REPOSITORY https://github.com/ocornut/imgui_club
     GIT_TAG main
     GIT_SHALLOW 1
     SOURCE_DIR ${LR35902_3RDPARTY_DIR}/imgui_club)
-
-  FetchContent_Declare(
-    FiraCode
-    URL https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND ""
-    SOURCE_DIR ${LR35902_3RDPARTY_DIR}/fonts/FiraCode
-    BUILD_IN_SOURCE)
-  # cmake-format: on
-  FetchContent_MakeAvailable(imgui_club FiraCode)
+  FetchContent_MakeAvailable(imgui_club)
 
   add_library(debugView)
   target_sources(debugView PRIVATE src/debugView/debugView.cpp)
@@ -131,10 +120,6 @@ if(SFML_FRONTEND)
 
     target_link_libraries(debugger_sfml PRIVATE LR35902::debugView imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
     set_target_properties(debugger_sfml PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-
-    get_target_property(b debugger_sfml BINARY_DIR)
-    set(font_file "${LR35902_3RDPARTY_DIR}/fonts/FiraCode/ttf/FiraCode-Regular.ttf")
-    file(COPY ${font_file} DESTINATION ${b})
   endif()
 endif()
 
@@ -153,10 +138,6 @@ if(SDL2_FRONTEND)
   if(WITH_DEBUGGER)
     target_link_libraries(debugger_sdl2 PRIVATE LR35902::debugView imgui::imgui)
     set_target_properties(debugger_sdl2 PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-
-    get_target_property(b debugger_sdl2 BINARY_DIR)
-    set(font_file "${LR35902_3RDPARTY_DIR}/fonts/FiraCode/ttf/FiraCode-Regular.ttf")
-    file(COPY ${font_file} DESTINATION ${b})
   endif()
 endif()
 
