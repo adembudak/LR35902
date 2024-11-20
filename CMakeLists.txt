@@ -52,7 +52,7 @@ target_sources(
           src/cartridge/header/header.cpp
           src/cartridge/kind/rom_only/rom_only.cpp
           src/cartridge/kind/rom_ram/rom_ram.cpp
-          src/cartridge/kind/mbc1/mbc1_generic.cpp
+          src/cartridge/kind/mbc1/mbc1.cpp
           src/cartridge/kind/mbc2/mbc2.cpp
           src/cartridge/kind/mbc5/mbc5.cpp
           src/bootrom/bootrom.cpp

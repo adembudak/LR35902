@@ -7,7 +7,7 @@
 
 namespace LR35902 {
 
-class mbc1_generic final {
+class mbc1 final {
   std::vector<byte> m_rom;
   std::vector<byte> m_sram;
   bool has_sram;
@@ -19,7 +19,7 @@ class mbc1_generic final {
   byte register_3 = 0;
 
 public:
-  explicit mbc1_generic(std::vector<byte> other, const std::size_t RAM_size, const bool has_battery);
+  explicit mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_battery);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

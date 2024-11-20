@@ -13,7 +13,7 @@ namespace LR35902 {
 // this things: https://en.wikipedia.org/wiki/ROM_cartridge#/media/File:PokemonSilverBoard.jpg
 class Cartridge final {
   header_t header;
-  using cart_t = std::variant<rom_only, rom_ram, mbc1_generic, mbc2, mbc5>;
+  using cart_t = std::variant<rom_only, rom_ram, mbc1, mbc2, mbc5>;
   cart_t m_cart;
 
 public:

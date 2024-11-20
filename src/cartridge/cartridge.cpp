@@ -27,9 +27,9 @@ void Cartridge::load(const char *romfile) noexcept {
 
   switch(header.decode_mbc_type().second) {
   case 0x00: m_cart = rom_only(dumpedGamePak); break;
-  case 0x01: m_cart = mbc1_generic(dumpedGamePak, 0, false); break;
-  case 0x02: m_cart = mbc1_generic(dumpedGamePak, header.decode_ram_size().second, false); break;
-  case 0x03: m_cart = mbc1_generic(dumpedGamePak, header.decode_ram_size().second, true); break;
+  case 0x01: m_cart = mbc1(dumpedGamePak, 0, false); break;
+  case 0x02: m_cart = mbc1(dumpedGamePak, header.decode_ram_size().second, false); break;
+  case 0x03: m_cart = mbc1(dumpedGamePak, header.decode_ram_size().second, true); break;
   case 0x05: m_cart = mbc2(dumpedGamePak); break;
   case 0x06: m_cart = mbc2(dumpedGamePak); break;
   case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
@@ -98,7 +98,7 @@ std::size_t Cartridge::size() const noexcept {
 std::optional<const byte *> Cartridge::SRAMData() const noexcept {
   if(std::holds_alternative<rom_only>(m_cart))        { return std::nullopt;                             }
   else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.data();  }
-  else if(std::holds_alternative<mbc1_generic>(m_cart)) { return std::get<mbc1_generic>(m_cart).m_sram.data(); }
+  else if(std::holds_alternative<mbc1>(m_cart)) { return std::get<mbc1>(m_cart).m_sram.data(); }
   else if(std::holds_alternative<mbc2>(m_cart))       { return std::get<mbc2>(m_cart).m_sram.data();     }
   else if(std::holds_alternative<mbc5>(m_cart))       { return std::nullopt;                             }
   else                                                { return std::nullopt;                             }
@@ -107,7 +107,7 @@ std::optional<const byte *> Cartridge::SRAMData() const noexcept {
 std::optional<std::size_t> Cartridge::SRAMSize() const noexcept {
   if(std::holds_alternative<rom_only>(m_cart))        { return std::nullopt;                             }
   else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.size();  }
-  else if(std::holds_alternative<mbc1_generic>(m_cart))   { return std::get<mbc1_generic>(m_cart).m_sram.size(); }
+  else if(std::holds_alternative<mbc1>(m_cart))   { return std::get<mbc1>(m_cart).m_sram.size(); }
   else if(std::holds_alternative<mbc2>(m_cart))       { return std::get<mbc2>(m_cart).m_sram.size();     }
   else if(std::holds_alternative<mbc5>(m_cart))       { return std::nullopt;                             }
   else                                                { return std::nullopt;                             }
@@ -118,7 +118,7 @@ void Cartridge::reset() noexcept { // only resets SRAM
   std::visit(overloaded { 
                           [&](rom_only &)    {      /* no sram */                     },
                           [&](rom_ram &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
-                          [&](mbc1_generic&) {      /* no sram */                     },
+                          [&](mbc1 &rom)     { std::ranges::fill(rom.m_sram, byte{}); },
                           [&](mbc2 &rom)     { std::ranges::fill(rom.m_sram, byte{}); },
                           [&](mbc5 &)        {      /* no sram */                     }
                         }, m_cart);
