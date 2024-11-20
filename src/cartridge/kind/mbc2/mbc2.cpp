@@ -7,9 +7,6 @@
 
 namespace LR35902 {
 
-constexpr std::size_t rom_bank_size = 0x4000;
-constexpr std::size_t ram_bank_size = 0x2000;
-
 void mbc2::bank_t::setPrimaryBank(const byte b) noexcept {
   primary = b & primary_bank_mask;
   if(primary == 0) ++primary;
