@@ -96,10 +96,10 @@ inline constexpr std::size_t IE =            0xffff; // 1B        Interrupts
                                              // Total:  64KB
 }
 
-inline constexpr std::size_t ram_bank_size = mmap::sram_end - mmap::sram;
+inline constexpr std::size_t sram_bank_size = mmap::sram_end - mmap::sram;
 inline constexpr std::size_t rom_bank_size = mmap::romx_end - mmap::romx;
 
-static_assert(ram_bank_size == 8 * 1024); // 8KiB
+static_assert(sram_bank_size == 8 * 1024); // 8KiB
 static_assert(rom_bank_size == 16 * 1024); // 16 KiB
 }
 

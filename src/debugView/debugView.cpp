@@ -57,7 +57,6 @@ void DebugView::showMemoryPortions() noexcept {
     if(static MemoryEditor memory_editor; im::BeginTabBar("Tab Bar")) {
       memory_editor.ReadOnly = true;
 
-      constexpr std::size_t rom_bank_size = 16_KiB;
       if(im::BeginTabItem("rom0", &_memory_portions_rom)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.cart)), rom_bank_size, mmap::rom0);
         im::EndTabItem();
@@ -81,7 +80,6 @@ void DebugView::showMemoryPortions() noexcept {
       }
 
       if(gameboy.cart.SRAMSize()) {
-        constexpr std::size_t sram_bank_size = 8_KiB;
         const int number_of_banks = *gameboy.cart.SRAMSize() / sram_bank_size;
 
         for(int i = 0; i < number_of_banks; ++i) {

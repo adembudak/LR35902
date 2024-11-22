@@ -96,21 +96,21 @@ std::size_t Cartridge::size() const noexcept {
 
 
 std::optional<const byte *> Cartridge::SRAMData() const noexcept {
-  if(std::holds_alternative<rom_only>(m_cart))        { return std::nullopt;                             }
-  else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.data();  }
-  else if(std::holds_alternative<mbc1>(m_cart)) { return std::get<mbc1>(m_cart).m_sram.data(); }
-  else if(std::holds_alternative<mbc2>(m_cart))       { return std::get<mbc2>(m_cart).m_sram.data();     }
-  else if(std::holds_alternative<mbc5>(m_cart))       { return std::nullopt;                             }
-  else                                                { return std::nullopt;                             }
+  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                             }
+  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).m_sram.data();  }
+  else if(std::holds_alternative<mbc1>(m_cart))    { return std::get<mbc1>(m_cart).m_sram.data(); }
+  else if(std::holds_alternative<mbc2>(m_cart))    { return std::get<mbc2>(m_cart).m_sram.data();     }
+  else if(std::holds_alternative<mbc5>(m_cart))    { return std::nullopt;                             }
+  else                                             { return std::nullopt;                             }
 }
 
 std::optional<std::size_t> Cartridge::SRAMSize() const noexcept {
-  if(std::holds_alternative<rom_only>(m_cart))        { return std::nullopt;                             }
-  else if(std::holds_alternative<rom_ram>(m_cart))    { return std::get<rom_ram>(m_cart).m_sram.size();  }
-  else if(std::holds_alternative<mbc1>(m_cart))   { return std::get<mbc1>(m_cart).m_sram.size(); }
-  else if(std::holds_alternative<mbc2>(m_cart))       { return std::get<mbc2>(m_cart).m_sram.size();     }
-  else if(std::holds_alternative<mbc5>(m_cart))       { return std::nullopt;                             }
-  else                                                { return std::nullopt;                             }
+  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                             }
+  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).m_sram.size();  }
+  else if(std::holds_alternative<mbc1>(m_cart))    { return std::get<mbc1>(m_cart).m_sram.size(); }
+  else if(std::holds_alternative<mbc2>(m_cart))    { return std::get<mbc2>(m_cart).m_sram.size();     }
+  else if(std::holds_alternative<mbc5>(m_cart))    { return std::nullopt;                             }
+  else                                             { return std::nullopt;                             }
 }
 
 
