@@ -31,3 +31,5 @@ subprojects/imgui-sfml-2.6
 .vscode/
 3rdparty/fonts/
 3rdparty/imgui_club/
+subprojects/CLI11-2.4.2
+subprojects/SDL2-2.30.6
