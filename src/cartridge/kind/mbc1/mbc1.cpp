@@ -16,16 +16,16 @@ MBC1 Registers
 ---
  The term "register" might be misleading, these are not byte adressed registers,
 instead an attempt to write certain ranges of the read only memory, which will be
-interpreted as numerical value and will be used as an indicator or a numerical value to be used.
-e.g. a bank number.
+interpreted as numerical value and will be used as an indicator for addressing behavior.
+e.g. a bank number, whether RAM enabled
 
 Register 0:
    7   6   5   4   3   2   1   0
  ┌───┬───┬───┬───┬───┬───┬───┬───┐ Memory range:
  │*x │ x │ x │ x │   │   │   │   │ [0x0000, 0x2000)
  └───┴───┴───┴───┴───┴───┴───┴───┘
- RAM enable register. RAM enabled only when lower nibble of the written byte is 0x0A.
- Disabled otherwise. Effectively a boolean.
+ RAM enable register. RAM enabled only when lower nibble of the written byte is 0x0A,
+ otherwise disabled. Effectively a boolean.
 
 Register 1:
  ┌───┬───┬───┬───┬───┬───┬───┬───┐
@@ -50,19 +50,18 @@ Register 3:
  │ x │ x │ x │ x │ x │ x │ x │   │ [0x6000, 0x8000]
  └───┴───┴───┴───┴───┴───┴───┴───┘
  Possible values:
-  0 : Upper ROM banking enabled.
-  1 : RAM banking enabled, Upper ROM banking disabled and only Register 1 will be used when ROM bank selected.
+  0 : Upper ROM banking enabled, RAM banking disabled.
+  1 : RAM banking enabled, Upper ROM banking disabled. Only Register 1 will be used when ROM bank selected.
  The value of Register 2 will be used as RAM bank number when reading/writing from/to RAM.
 
-  If Upper ROM banking enabled, the 2 bit Register 2 will be used as
-most significant two bits to construct a 7 bit integer along with 5 bit Register 1 which will be the effective bank
-number that is selected:
-const effective_bank_number = (register_2 << 5) | register_1
+  If Upper ROM banking enabled, the 2 bit Register 2 will be used as most significant two bits to
+ construct a 7 bit integer along with 5 bit Register 1 which will be the effective bank number that is selected:
+ const effective_bank_number = (register_2 << 5) | register_1
 
 All four registers are write only and their default values are 0.
 
-  * 'x' means these bits are ignored, so register 1 is a 5 bit register)
- ** This means this register can represent 32 different values. Each ROM banks are 16KB:
+  * 'x' means these bits are ignored, so register 1 is a 5 bit register
+ ** This means this register can represent 32 different values. Each ROM banks is 16KB:
 16KB * 32 == 512KB
 This implies if the game cartridge ROM size less than or equal to 512KB then
 no need to use Register 2 for "upper banking"
@@ -141,7 +140,7 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
 
 byte mbc1::readSRAM(const std::size_t index) const noexcept {
   if(register_0) {
-    static const auto portion = m_sram | rv::chunk(ram_bank_size);
+    static const auto portion = m_sram | rv::chunk(sram_bank_size);
 
     if(register_3 == 1) return portion[register_2][index];
     else return portion[0][index];
@@ -154,7 +153,7 @@ byte mbc1::readSRAM(const std::size_t index) const noexcept {
 
 void mbc1::writeSRAM(const std::size_t index, const byte b) noexcept {
   if(register_0) {
-    static const auto portion = m_sram | rv::chunk(ram_bank_size);
+    static const auto portion = m_sram | rv::chunk(sram_bank_size);
     if(register_3 == 1) portion[register_2][index] = b;
     else portion[0][index] = b;
   }
