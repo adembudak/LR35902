@@ -4,15 +4,16 @@ project(
     default_options: ['cpp_std=c++20', 'wrap_mode=forcefallback'],
     license: 'BSL-1.0',
     license_files: 'license',
-    meson_version: '1.4.0',
     subproject_dir: 'subprojects',
 )
 
 LR35902_incdir = include_directories('include')
 
-ranges_dep = dependency('range-v3', default_options: {'tests': false}, required: true)
+ranges_dep = dependency('range-v3', required: true)
 
 sdl2_dep = dependency('sdl2', default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'}, required: true,)
+
+nlohmann_json_dep = dependency('nlohmann_json')
 
 imgui_dep = dependency(
     'imgui',
@@ -47,15 +48,7 @@ lr35902_sources = [
     'src/bus/bus.cpp',
     'src/cartridge/cartridge.cpp',
     'src/cartridge/header/header.cpp',
-    'src/cartridge/kind/mbc1/mbc1_128kb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_1mb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_256kb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_2mb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_32kb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_512kb.cpp',
-    'src/cartridge/kind/mbc1/mbc1_64kb.cpp',
-    'src/cartridge/kind/mbc1_ram/mbc1_32kb_32kb.cpp',
-    'src/cartridge/kind/mbc1_ram/mbc1_ram.cpp',
+    'src/cartridge/kind/mbc1/mbc1.cpp',
     'src/cartridge/kind/mbc2/mbc2.cpp',
     'src/cartridge/kind/mbc5/mbc5.cpp',
     'src/cartridge/kind/rom_only/rom_only.cpp',
@@ -123,8 +116,7 @@ if get_option('with_tools')
         'gb.hd',
         'tools/headerdumper/main.cpp',
         include_directories: LR35902_incdir,
-        link_with: lr35902_core,
-        dependencies: [fmt_dep, cli11_dep, ranges_dep],
+        dependencies: [fmt_dep, cli11_dep, nlohmann_json_dep],
     )
 
     executable(
