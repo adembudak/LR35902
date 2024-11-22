@@ -82,10 +82,19 @@ void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
   std::visit(overloaded { 
                           [&](auto &rom)  { rom.writeSRAM(index, b); },
                           [&](rom_only &) {    /* do nothing */      },
-                          [&](mbc5 &)     {    /* do nothing */      },
+                          [&](mbc5 &)     {    /* do nothing */      }
                         }, m_cart);
 }
 
+void Cartridge::reset() noexcept { // only resets SRAM
+  std::visit(overloaded { 
+                          [&](auto &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
+                          [&](rom_only &) {      /* no sram */                     },
+                          [&](mbc5 &)     {      /* no sram */                     }
+                        }, m_cart);
+}
+
+#if defined(WITH_DEBUGGER)
 const byte *Cartridge::data() const noexcept {
   return std::visit([&](const auto &cart) { return cart.m_rom.data(); }, m_cart);
 }
@@ -104,24 +113,12 @@ std::optional<const byte *> Cartridge::SRAMData() const noexcept {
   else                                             { return std::nullopt;                             }
 }
 
-std::optional<std::size_t> Cartridge::SRAMSize() const noexcept {
-  if(std::holds_alternative<rom_only>(m_cart))     { return std::nullopt;                             }
-  else if(std::holds_alternative<rom_ram>(m_cart)) { return std::get<rom_ram>(m_cart).m_sram.size();  }
-  else if(std::holds_alternative<mbc1>(m_cart))    { return std::get<mbc1>(m_cart).m_sram.size(); }
-  else if(std::holds_alternative<mbc2>(m_cart))    { return std::get<mbc2>(m_cart).m_sram.size();     }
-  else if(std::holds_alternative<mbc5>(m_cart))    { return std::nullopt;                             }
-  else                                             { return std::nullopt;                             }
+std::size_t Cartridge::SRAMSize() const noexcept{
+      return std::visit(overloaded { 
+                      [&](const auto &rom)  { return std::size(rom.m_sram); },
+                      [&](const rom_only &) { return std::size_t{0};        },
+                      [&](const mbc5 &)     { return std::size_t{0};        }
+                    }, m_cart);
 }
-
-
-void Cartridge::reset() noexcept { // only resets SRAM
-  std::visit(overloaded { 
-                          [&](rom_only &)    {      /* no sram */                     },
-                          [&](rom_ram &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
-                          [&](mbc1 &rom)     { std::ranges::fill(rom.m_sram, byte{}); },
-                          [&](mbc2 &rom)     { std::ranges::fill(rom.m_sram, byte{}); },
-                          [&](mbc5 &)        {      /* no sram */                     }
-                        }, m_cart);
-}
-
+#endif
 }

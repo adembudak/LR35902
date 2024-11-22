@@ -21,7 +21,7 @@ namespace im = ImGui;
 
 DebugView::DebugView(const GameBoy &gameboy) :
     gameboy{gameboy} {
-  _memory_portions_sram = gameboy.cart.SRAMSize().has_value();
+  _memory_portions_sram = gameboy.cart.SRAMSize() > 0;
 }
 
 void DebugView::showCartHeader() noexcept {
@@ -80,7 +80,7 @@ void DebugView::showMemoryPortions() noexcept {
       }
 
       if(gameboy.cart.SRAMSize()) {
-        const int number_of_banks = *gameboy.cart.SRAMSize() / sram_bank_size;
+        const int number_of_banks = gameboy.cart.SRAMSize() / sram_bank_size;
 
         for(int i = 0; i < number_of_banks; ++i) {
           const std::string label = "sram" + std::to_string(i);
