@@ -6,7 +6,8 @@
 #include <range/v3/view/const.hpp>
 
 #include <cstddef>
-#include <vector>
+
+namespace rv = ranges::views;
 
 // Verbatim implementation of:
 // https://gbdev.io/pandocs/MBC1.html
@@ -71,8 +72,6 @@ This implies mbc1 cartridges can hold at most 16KB * 128 == 2048KB == 2MB of byt
 */
 
 namespace LR35902 {
-namespace rg = ranges;
-namespace rv = rg::views;
 
 constexpr std::size_t upper_bank_increment = 32;
 static_assert(32 * 16_KiB == 512_KiB);
@@ -84,27 +83,16 @@ mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_b
     has_battery{has_battery} {}
 
 byte mbc1::readROM(const std::size_t index) const noexcept {
-  /*
-const rg::chunk_view<rg::chunk_view<
-rg::const_view<rg::ref_view<const std::vector<unsigned char, std::allocator<unsigned char>>>>>>
-portions = m_rom                      //
-           | rv::const_               //
-           | rv::chunk(rom_bank_size) //
-           | rv::chunk(upper_bank_increment);
-           */
+  static auto banked_rom_view = m_rom | ranges::views::const_ | ranges::views::chunk(rom_bank_size);
 
   if(index < mmap::rom0_end) {
     return m_rom[index];
   }
 
   else if(index < mmap::romx_end) {
-    static const auto portions = m_rom                      //
-                                 | rv::const_               //
-                                 | rv::chunk(rom_bank_size) //
-                                 | rv::chunk(upper_bank_increment);
-
-    if(register_3 == 0) return portions[0][register_1][index];
-    else return portions[register_2][register_1][index];
+    const auto index_normalized = index % rom_bank_size;
+    if(register_3 == 1) return banked_rom_view[register_1][index_normalized];
+    return banked_rom_view[((register_2 << 5) | register_1)][index_normalized];
   }
 
   else {
@@ -118,9 +106,9 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
   }
 
   else if(index < 0x4000) {
-    byte bank = b;
+    byte bank = b & 0x1f;
     if(bank == 0x00) ++bank;
-    register_1 = bank & 0x1f;
+    register_1 = bank;
   }
 
   else if(index < 0x6000) {
@@ -154,6 +142,7 @@ byte mbc1::readSRAM(const std::size_t index) const noexcept {
 void mbc1::writeSRAM(const std::size_t index, const byte b) noexcept {
   if(register_0) {
     static const auto portion = m_sram | rv::chunk(sram_bank_size);
+
     if(register_3 == 1) portion[register_2][index] = b;
     else portion[0][index] = b;
   }

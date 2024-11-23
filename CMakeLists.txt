@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.31.0)
-
 project(
   LR35902
   VERSION 0.1.0
@@ -7,6 +6,7 @@ project(
   LANGUAGES CXX)
 
 include(CMakeDependentOption)
+include(CTest)
 include(FetchContent)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES 0)
@@ -29,7 +29,9 @@ cmake_dependent_option(tool_headerdumper "" OFF WITH_TOOLS ON)
 cmake_dependent_option(tool_headerfixer "" OFF WITH_TOOLS ON)
 cmake_dependent_option(tool_disassembler "" OFF WITH_TOOLS ON)
 
-option(ROM_TESTS "" OFF)
+cmake_dependent_option(UNIT_TESTS "" OFF BUILD_TESTING OFF)
+cmake_dependent_option(ROM_TESTS "" OFF BUILD_TESTING OFF)
+
 option(VISUALIZE_TARGETS "" OFF)
 option(CACHE_BUILD "" OFF)
 
@@ -193,6 +195,16 @@ if(ROM_TESTS)
 
   file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
   add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
+endif()
+
+if(UNIT_TESTS)
+  find_package(Catch2 3 QUIET REQUIRED CONFIG)
+
+  add_executable(mbc1.test)
+  target_sources(mbc1.test PUBLIC ${LR35902_TEST_DIR}/unit/mbc1.test.cpp)
+  target_sources(mbc1.test PUBLIC FILE_SET set TYPE HEADERS BASE_DIRS ${LR35902_INCLUDE_DIR})
+  target_link_libraries(mbc1.test PRIVATE LR35902::core Catch2::Catch2WithMain)
+  add_test(NAME mbc1 COMMAND mbc1.test)
 endif()
 
 if(VISUALIZE_TARGETS)
