@@ -3,27 +3,12 @@
 #include <LR35902/memory_map.h>
 
 #include <cassert>
-#include <cstdint>
+#include <cstddef>
 
 namespace LR35902 {
 
-void mbc2::bank_t::setPrimaryBank(const byte b) noexcept {
-  primary = b & primary_bank_mask;
-  if(primary == 0) ++primary;
-}
-
-std::size_t mbc2::bank_t::value() const noexcept {
-  return primary * rom_bank_size;
-}
-
 mbc2::mbc2(std::vector<byte> rom) :
-    m_rom(std::move(rom)) {
-  switch(std::size(m_rom)) {
-  case 256_KiB: break;
-  case 128_KiB: bank.primary_bank_mask >>= 1; break;
-  case 64_KiB: bank.primary_bank_mask >>= 2; break;
-  }
-}
+    m_rom(std::move(rom)) {}
 
 byte mbc2::readROM(const std::size_t index) const noexcept {
   if(index < mmap::rom0_end) {
@@ -32,16 +17,7 @@ byte mbc2::readROM(const std::size_t index) const noexcept {
 
   else if(index < mmap::romx_end) {
     const std::size_t normalized_index = index % rom_bank_size;
-    return m_rom[bank.value() + normalized_index];
-  }
-
-  else if(index >= mmap::sram && index < mmap::sram_end) {
-    if(bank.ramg) {
-      const std::size_t normalized_index = (index % rom_bank_size) % 0x200;
-      return m_sram[normalized_index];
-    }
-
-    return random_byte();
+    return m_rom[upper_rom_bank * rom_bank_size + normalized_index];
   }
 
   else {
@@ -52,14 +28,13 @@ byte mbc2::readROM(const std::size_t index) const noexcept {
 void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
   if(index < mmap::rom0_end) {
     if(index & 0b1'0000'0000) //
-      bank.setPrimaryBank(b);
+      upper_rom_bank = b;
     else //
-      bank.ramg = (b & 0x0f) == 0x0a;
-
+      ram_enabled = (b & 0x0f) == 0x0a;
   }
 
   else if(index >= mmap::sram && index < mmap::sram_end) {
-    if(bank.ramg) {
+    if(ram_enabled) {
       const std::size_t normalized_index = (index % rom_bank_size) % 0x200;
       const byte normalized_value = b & 0b0000'1111;
       m_sram[normalized_index] = normalized_value;
@@ -78,7 +53,15 @@ void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
 }
 
 byte mbc2::readSRAM(const std::size_t index) const noexcept {
-  return readROM(index);
+  static_assert((mmap::sram_end - mmap::sram) == sram_bank_size);
+  static_assert((0xa200 - mmap::sram) == 512_B);
+  static_assert(512_B * 16 == sram_bank_size);
+
+  if(index < 0xa200) { // first 512_B is used
+  }
+
+  else if(index < mmap::sram_end) { // rest 15 * 512_B is used as "echo"
+  }
 }
 
 void mbc2::writeSRAM(const std::size_t index, const byte b) noexcept {

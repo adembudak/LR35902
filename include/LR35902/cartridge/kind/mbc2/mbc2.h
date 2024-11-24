@@ -3,27 +3,17 @@
 #include <LR35902/config.h>
 
 #include <array>
-#include <cstdint>
+#include <cstddef>
 #include <vector>
 
 namespace LR35902 {
 
 class mbc2 final {
   std::vector<byte> m_rom;
-  std::array<byte, 512_KiB> m_sram{};
+  std::array<byte, 8_KiB> m_sram{};
 
-  struct bank_t {
-    void setPrimaryBank(const byte b) noexcept;
-    [[nodiscard]] std::size_t value() const noexcept;
-
-  private:
-    std::size_t primary = 1;
-    bool ramg = false;
-
-    std::size_t primary_bank_mask = 0b1111;
-
-    friend class mbc2;
-  } bank;
+  byte upper_rom_bank = 1;
+  bool ram_enabled = false;
 
 public:
   explicit mbc2(std::vector<byte> rom);
