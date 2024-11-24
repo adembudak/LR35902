@@ -4,8 +4,8 @@ default:
 	@just --list --unsorted
 
 get-dependencies:
-	vcpkg install sdl2 sfml cli11 fmt range-v3 imgui imgui-sfml imgui[sdl2-binding] imgui[sdl2-renderer-binding] nlohmann-json
 	vcpkg integrate install
+	vcpkg install sdl2 sfml cli11 fmt range-v3 imgui imgui-sfml imgui[sdl2-binding] imgui[sdl2-renderer-binding] nlohmann-json catch2
 
 builddir := 'build'
 configure dir = builddir:
@@ -50,13 +50,13 @@ tui dir = builddir:
 gui dir = builddir:
 	cmake-gui -S . -B {{dir}}
 
-[linux]
+[linux, unix]
 meson builddir:
 	meson setup -Dwith_debugger=true \
-	-Dsdl2_frontend=true \
+	-Dsdl2_frontend=false \
 	-Dsfml_frontend=false \
 	-Dwith_tools=true \
-	--wrap-mode forcefallback \
+	--wrap-mode default \
 	--default-library both {{builddir}}
 	meson compile -C {{builddir}}
 
@@ -66,6 +66,6 @@ meson builddir:
 	 -Dwith_debugger=false \
 	 -Dsdl2_frontend=false \
 	 -Dsfml_frontend=false \
-	 -Dwith_tools=false \
+	 -Dwith_tools=true \
 	 --wrap-mode forcefallback {{builddir}}
 	meson compile -C {{builddir}}
