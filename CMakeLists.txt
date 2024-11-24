@@ -167,7 +167,7 @@ if(ROM_TESTS)
   find_program(RGBLINK rgblink REQUIRED)
   find_program(RGBFIX rgbfix REQUIRED)
 
-  function(add_test_rom)
+  function(LR35902_add_rom_test)
     cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE"
                           ${ARGN})
 
@@ -191,20 +191,26 @@ if(ROM_TESTS)
   endfunction()
 
   file(GLOB instructions CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/instructions/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE ${instructions})
+  lr35902_add_rom_test(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE
+                       ${instructions})
 
   file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
-  add_test_rom(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
+  lr35902_add_rom_test(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})
 endif()
 
 if(UNIT_TESTS)
   find_package(Catch2 3 QUIET REQUIRED CONFIG)
 
-  add_executable(mbc1.test)
-  target_sources(mbc1.test PUBLIC ${LR35902_TEST_DIR}/unit/mbc1.test.cpp)
-  target_sources(mbc1.test PUBLIC FILE_SET set TYPE HEADERS BASE_DIRS ${LR35902_INCLUDE_DIR})
-  target_link_libraries(mbc1.test PRIVATE LR35902::core Catch2::Catch2WithMain)
-  add_test(NAME mbc1 COMMAND mbc1.test)
+  # Usage: LR35902_add_unit_test(<target> <source>)
+  function(LR35902_add_unit_test tgt src)
+    add_executable(${tgt})
+    target_sources(${tgt} PUBLIC ${src})
+    target_sources(${tgt} PUBLIC FILE_SET HEADERS BASE_DIRS ${LR35902_INCLUDE_DIR})
+    target_link_libraries(${tgt} PRIVATE LR35902::core Catch2::Catch2WithMain)
+    add_test(NAME ${tgt} COMMAND ${tgt})
+  endfunction()
+
+  lr35902_add_unit_test(mbc1.test ${LR35902_TEST_DIR}/unit/mbc1.test.cpp)
 endif()
 
 if(VISUALIZE_TARGETS)
