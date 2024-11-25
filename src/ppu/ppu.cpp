@@ -392,14 +392,14 @@ struct tile_line_decoder_t {
 };
 
 void PPU::fetchBackground() const {
-  const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
-                       | rv::const_                                                                     //
-                       | rv::chunk(tileline_size)                                                       //
-                       | rv::chunk(tile_h);
+  static const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
+                              | rv::const_                                                                     //
+                              | rv::chunk(tileline_size)                                                       //
+                              | rv::chunk(tile_h);
 
-  const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
-                       | rv::const_                                                                     //
-                       | rv::chunk(max_tiles_on_screen_x);
+  static const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
+                              | rv::const_                                                                     //
+                              | rv::chunk(max_tiles_on_screen_x);
 
   std::array<palette_index, screen_w> buffer;
 
@@ -424,14 +424,14 @@ void PPU::fetchBackground() const {
 void PPU::fetchWindow() const {
   if(currentScanline() < window_y()) return;
 
-  const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
-                       | rv::const_                                                                 //
-                       | rv::chunk(tileline_size)                                                   //
-                       | rv::chunk(tile_h);                                                         //
+  static const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
+                              | rv::const_                                                                 //
+                              | rv::chunk(tileline_size)                                                   //
+                              | rv::chunk(tile_h);                                                         //
 
-  const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
-                       | rv::const_                                                                 //
-                       | rv::chunk(max_tiles_on_screen_x);
+  static const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
+                              | rv::const_                                                                 //
+                              | rv::chunk(max_tiles_on_screen_x);
 
   const std::size_t row = currentScanline() / tile_h;
   const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
