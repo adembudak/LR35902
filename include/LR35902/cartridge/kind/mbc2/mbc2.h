@@ -10,9 +10,9 @@ namespace LR35902 {
 
 class mbc2 final {
   std::vector<byte> m_rom;
-  std::array<byte, 8_KiB> m_sram{};
+  std::array<byte, 512_B> m_sram{};
 
-  byte upper_rom_bank = 1;
+  byte rom_bank = 1;
   bool ram_enabled = false;
 
 public:
