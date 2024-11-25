@@ -25,6 +25,9 @@ fresh-build dir = builddir:
 	just reconfigure {{dir}}
 	just build {{dir}}
 
+test dir = builddir:
+	ctest --test-dir {{dir}}
+
 package-sources dir = builddir:
 	cmake --build {{dir}} --target package_source
 
