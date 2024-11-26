@@ -201,7 +201,6 @@ endif()
 if(UNIT_TESTS)
   find_package(Catch2 3 QUIET REQUIRED CONFIG)
 
-  # Usage: LR35902_add_unit_test(<target> <source>)
   function(LR35902_add_unit_test tgt src)
     add_executable(${tgt})
     target_sources(${tgt} PUBLIC ${src})
@@ -211,6 +210,7 @@ if(UNIT_TESTS)
   endfunction()
 
   lr35902_add_unit_test(mbc1.test ${LR35902_TEST_DIR}/unit/mbc1.test.cpp)
+  lr35902_add_unit_test(mbc2.test ${LR35902_TEST_DIR}/unit/mbc2.test.cpp)
 endif()
 
 if(VISUALIZE_TARGETS)
