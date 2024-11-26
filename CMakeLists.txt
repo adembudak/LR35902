@@ -56,6 +56,7 @@ target_sources(
           src/cartridge/kind/rom_ram/rom_ram.cpp
           src/cartridge/kind/mbc1/mbc1.cpp
           src/cartridge/kind/mbc2/mbc2.cpp
+          src/cartridge/kind/mbc3/mbc3.cpp
           src/cartridge/kind/mbc5/mbc5.cpp
           src/bootrom/bootrom.cpp
           src/ppu/ppu.cpp
