@@ -256,15 +256,9 @@ int main(int argc, char *argv[]) {
 
     SDL_SetRenderDrawColor(my_renderer.get(), 0xff, 0xff, 0xff, 0xff);
 
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer.get());
-    /*
 #if defined(WITH_DEBUGGER)
-    const auto framerate =
-        std::format("{:.3f} ms/frame ({:.3f} FPS)", 1.0 / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-    SDL_SetWindowTitle(my_window.get(), framerate.c_str());
+    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer.get());
 #endif
-*/
     SDL_RenderPresent(my_renderer.get());
   }
 
