@@ -9,9 +9,9 @@ namespace LR35902 {
 
 constexpr std::size_t bootrom_size = 0x100;
 
-void bootROM::load() noexcept {
-  std::ifstream fin{"bootrom.gb"};
-  assert(fin.is_open() && "boot rom (bootrom.gb) not found\n");
+void bootROM::load() {
+  std::ifstream fin{"bootrom.gb", std::ios::binary};
+  if(!fin) throw std::runtime_error{"boot rom (bootrom.gb) not found\n"};
 
   m_data.assign(std::istreambuf_iterator<char>{fin}, {});
   m_data.resize(bootrom_size);

@@ -31,6 +31,6 @@ public:
   void write(const std::size_t index, const byte b) noexcept;
 
   void setPostBootValues() noexcept;
-  void loadBootROM() noexcept;
+  void loadBootROM();
 };
 }

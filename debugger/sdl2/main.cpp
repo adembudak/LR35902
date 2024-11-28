@@ -64,18 +64,16 @@ static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
 #endif
 
 int main(int argc, char *argv[]) {
-  CLI::App debugger{"LR35902", "debugger_sdl2"};
+  CLI::App app{"LR35902", "debugger_sdl2"};
 
-  bool skipboot;
   std::string romFile;
-  debugger.add_flag("-s,--skipboot", skipboot, "Skip boot");
-  debugger.add_option("[rom].gb", romFile)->required()->check(CLI::ExistingFile);
+  app.add_option("[rom].gb", romFile)->required()->check(CLI::ExistingFile);
 
   try {
-    debugger.parse(argc, argv);
+    app.parse(argc, argv);
   }
   catch(const CLI::ParseError &e) {
-    return debugger.exit(e);
+    return app.exit(e);
   }
 
   if(const int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); ret != 0) {
@@ -123,10 +121,14 @@ int main(int argc, char *argv[]) {
   constexpr int emu_h = 144;
   const SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
 
-  if(skipboot) attaboy.skipboot();
-  else attaboy.skipboot(false);
-
   attaboy.plug(romFile.data());
+
+  try {
+    attaboy.boot();
+  }
+  catch(const std::runtime_error &e) {
+    attaboy.skipboot();
+  }
 
   using namespace std::literals::chrono_literals;
   const auto frame_time = 58ms;

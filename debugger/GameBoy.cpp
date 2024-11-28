@@ -3,15 +3,13 @@
 
 #include <string_view>
 
-void GameBoy::skipboot(bool b) noexcept {
-  m_isRunning = true;
+void GameBoy::boot() {
+  bus.loadBootROM();
+}
 
-  if(b) {
-    cpu.setPostBootValues();
-    bus.setPostBootValues();
-  } else {
-    bus.loadBootROM();
-  }
+void GameBoy::skipboot() noexcept {
+  cpu.setPostBootValues();
+  bus.setPostBootValues();
 }
 
 void GameBoy::plug(const std::string_view rom) noexcept {

@@ -10,7 +10,7 @@ class bootROM {
   std::vector<byte> m_data{};
 
 public:
-  void load() noexcept;
+  void load();
   byte read(const std::size_t index) const noexcept;
   bool isBootOnGoing() const noexcept;
   void unmap() noexcept;
