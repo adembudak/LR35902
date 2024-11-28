@@ -2,7 +2,7 @@
 #include "palettes.h"
 
 #if defined(WITH_DEBUGGER)
-#include <LR35902/debugView/debugView.h>
+  #include <LR35902/debugView/debugView.h>
 #endif
 
 #include <SFML/Graphics/RenderTexture.hpp>
@@ -13,8 +13,8 @@
 #include <SFML/Window/WindowBase.hpp>
 
 #if defined(WITH_DEBUGGER)
-#include <imgui-SFML.h>
-#include <imgui.h>
+  #include <imgui-SFML.h>
+  #include <imgui.h>
 #endif
 
 #include <CLI/CLI.hpp>
@@ -66,18 +66,16 @@ void putMenuBar(GameBoy &gb, LR35902::DebugView &dv) {
 
 int main(int argc, char *argv[]) {
   // command line handling
-  CLI::App debugger{"LR35902 debugger", "debugger_sfml"};
+  CLI::App app{"LR35902 debugger", "debugger_sfml"};
 
-  bool skipboot;
   std::string romFile;
-  debugger.add_flag("-s,--skipboot", skipboot, "Skip boot");
-  debugger.add_option("[rom].gb", romFile)->required()->check(CLI::ExistingFile);
+  app.add_option("[rom].gb", romFile)->required()->check(CLI::ExistingFile);
 
   try {
-    debugger.parse(argc, argv);
+    app.parse(argc, argv);
   }
   catch(const CLI::ParseError &e) {
-    return debugger.exit(e);
+    return app.exit(e);
   }
 
   // emu
@@ -87,10 +85,13 @@ int main(int argc, char *argv[]) {
   LR35902::DebugView debugView{attaboy};
 #endif
 
-  if(skipboot) attaboy.skipboot();
-  else attaboy.skipboot(false);
-
   attaboy.plug(romFile);
+  try {
+    attaboy.boot();
+  }
+  catch(const std::runtime_error &e) {
+    attaboy.skipboot();
+  }
 
   sf::RenderWindow window{sf::VideoMode(1280, 720), "LR35902 debugger"};
 
