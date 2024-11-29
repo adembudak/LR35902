@@ -86,10 +86,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   attaboy.plug(romFile);
-  try {
-    attaboy.boot();
-  }
-  catch(const std::runtime_error &e) {
+  if(bool ret = attaboy.tryBoot(); !ret) {
     attaboy.skipboot();
   }
 

@@ -39,7 +39,7 @@ public:
   mutable bool m_paused = false;
   mutable bool m_isRunning = false;
 
-  void boot();
+  bool tryBoot() noexcept;
   void skipboot() noexcept;
   void plug(const std::string_view rom) noexcept;
 

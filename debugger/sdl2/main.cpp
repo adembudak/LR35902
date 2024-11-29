@@ -123,10 +123,8 @@ int main(int argc, char *argv[]) {
 
   attaboy.plug(romFile.data());
 
-  try {
-    attaboy.boot();
-  }
-  catch(const std::runtime_error &e) {
+  attaboy.plug(romFile);
+  if(bool ret = attaboy.tryBoot(); !ret) {
     attaboy.skipboot();
   }
 

@@ -3,8 +3,8 @@
 
 #include <string_view>
 
-void GameBoy::boot() {
-  bus.loadBootROM();
+bool GameBoy::tryBoot() noexcept {
+  return bus.loadBootROM();
 }
 
 void GameBoy::skipboot() noexcept {
