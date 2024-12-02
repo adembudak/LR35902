@@ -16,6 +16,12 @@
 namespace LR35902 {
 namespace rv = ranges::views;
 
+mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery) :
+    m_rom(std::move(rom)),
+    m_sram(ram_size),
+    has_timer{has_timer},
+    has_battery{has_battery} {}
+
 byte mbc3::readROM(const std::size_t index) const noexcept {
   if(index < mmap::rom0_end) {
     return m_rom[index];

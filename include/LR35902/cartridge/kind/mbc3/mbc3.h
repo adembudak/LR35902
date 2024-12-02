@@ -9,8 +9,12 @@ namespace LR35902 {
 
 class mbc3 final {
   std::vector<byte> m_rom;
-  std::vector<byte> m_sram{};
+  std::vector<byte> m_sram;
 
+  bool has_timer;
+  bool has_battery;
+
+  // registers
   byte RAM_enabled = 0;
   byte ROM_bank = 1;
   byte SRAM_bank = 0;
@@ -27,7 +31,7 @@ class mbc3 final {
   RTC_t RTC;
 
 public:
-  explicit mbc3(std::vector<byte> rom);
+  mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;
