@@ -1,4 +1,3 @@
-
 #include <LR35902/cartridge/kind/mbc3/mbc3.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
@@ -7,6 +6,7 @@
 #include <range/v3/view/const.hpp>
 
 #include <cassert>
+#include <chrono>
 #include <cstddef>
 
 // Verbatim implementation of
@@ -20,7 +20,27 @@ mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_tim
     m_rom(std::move(rom)),
     m_sram(ram_size),
     has_timer{has_timer},
-    has_battery{has_battery} {}
+    has_battery{has_battery} {
+  if(has_timer) {
+    using namespace std::chrono;
+
+    const auto now = system_clock::now();
+    const auto here_and_now = zoned_time{current_zone(), now};
+    const auto local_time_ = here_and_now.get_local_time();
+    const auto local_days_ = local_days{floor<std::chrono::days>(local_time_)};
+    const auto wall_clock = hh_mm_ss{local_time_ - local_days_};
+    const auto ymd = year_month_day{local_days_};
+    const auto day_of_year = (local_days_ - local_days{year{ymd.year()} / January / day{0}}).count();
+
+    RTC.seconds = wall_clock.seconds().count();
+    RTC.minutes = wall_clock.minutes().count();
+    RTC.hours = wall_clock.hours().count();
+    RTC.days_lo = day_of_year & 0xff;
+    RTC.days_hi = (day_of_year & 0x0100) >> 8;
+  } else {
+    RTC = {{}, {}, {}, {}, {}};
+  }
+}
 
 byte mbc3::readROM(const std::size_t index) const noexcept {
   if(index < mmap::rom0_end) {
