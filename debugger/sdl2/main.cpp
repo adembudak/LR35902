@@ -1,7 +1,13 @@
+#include "palettes.h"
+
+#include "../GameBoy.h"
+
 #if defined(WITH_DEBUGGER)
   #include <imgui.h>
   #include <imgui_impl_sdl2.h>
   #include <imgui_impl_sdlrenderer2.h>
+
+  #include <LR35902/debugView/debugView.h>
 #endif
 
 #include <SDL2/SDL.h>
@@ -16,14 +22,6 @@
 #include <format>
 #include <memory>
 #include <string_view>
-
-#include "palettes.h"
-
-#if defined(WITH_DEBUGGER)
-  #include <LR35902/debugView/debugView.h>
-#endif
-
-#include "../GameBoy.h"
 
 #if defined(WITH_DEBUGGER)
 static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
@@ -97,10 +95,14 @@ int main(int argc, char *argv[]) {
     SDL_CreateTexture(my_renderer.get(), SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win)};
   // clang-format on
 
+  GameBoy attaboy;
+
   std::array<Uint8, 160 * 144 * 4> pixels;
   palette_t palette = original;
 
 #if defined(WITH_DEBUGGER)
+  LR35902::DebugView debugView{attaboy};
+
   SDL_SetWindowTitle(my_window.get(), "LR35902 + Debugger");
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
@@ -112,11 +114,6 @@ int main(int argc, char *argv[]) {
   ImGui_ImplSDLRenderer2_Init(my_renderer.get());
 #endif
 
-  GameBoy attaboy;
-#if defined(WITH_DEBUGGER)
-  LR35902::DebugView debugView{attaboy};
-#endif
-
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
   const SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
@@ -124,7 +121,7 @@ int main(int argc, char *argv[]) {
   attaboy.plug(romFile.data());
 
   attaboy.plug(romFile);
-  if(bool ret = attaboy.tryBoot(); !ret) {
+  if(const bool ret = attaboy.tryBoot(); !ret) {
     attaboy.skipboot();
   }
 
