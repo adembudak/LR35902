@@ -109,7 +109,7 @@ if(SFML_FRONTEND)
 
   add_executable(debugger_sfml)
   target_sources(debugger_sfml PRIVATE debugger/sfml/main.cpp)
-  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR})
+  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
   target_link_libraries(debugger_sfml PRIVATE LR35902::core LR35902::attaboy fmt::fmt CLI11::CLI11 sfml-graphics)
 
   if(WITH_DEBUGGER)
@@ -127,7 +127,7 @@ if(SDL2_FRONTEND)
   add_executable(debugger_sdl2)
   target_sources(debugger_sdl2 PRIVATE debugger/sdl2/main.cpp)
 
-  target_include_directories(debugger_sdl2 PUBLIC ${LR35902_INCLUDE_DIR})
+  target_include_directories(debugger_sdl2 PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
   target_link_libraries(
     debugger_sdl2 PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
                           $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)

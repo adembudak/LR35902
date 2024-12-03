@@ -1,6 +1,5 @@
-#include "palettes.h"
-
-#include "../GameBoy.h"
+#include <debugger/sdl2/palettes.h>
+#include <debugger/GameBoy.h>
 
 #if defined(WITH_DEBUGGER)
   #include <imgui.h>

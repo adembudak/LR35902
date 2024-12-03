@@ -1,5 +1,5 @@
-#include "../GameBoy.h"
-#include "palettes.h"
+#include <debugger/sfml/palettes.h>
+#include <debugger/GameBoy.h>
 
 #if defined(WITH_DEBUGGER)
   #include <LR35902/debugView/debugView.h>
