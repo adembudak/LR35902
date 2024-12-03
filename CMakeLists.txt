@@ -42,6 +42,7 @@ cmake_dependent_option(analyse_with_iwyu "" OFF STATIC_ANALYSIS OFF)
 cmake_dependent_option(analyse_with_lwyu "" OFF STATIC_ANALYSIS OFF)
 
 find_package(range-v3 QUIET REQUIRED CONFIG)
+find_package(mpark_patterns QUIET REQUIRED CONFIG)
 
 add_library(core)
 target_sources(
@@ -67,7 +68,8 @@ target_sources(
           src/timer/timer.cpp
           src/interrupt/interrupt.cpp)
 
-target_link_libraries(core PRIVATE range-v3::range-v3)
+target_compile_options(core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
+target_link_libraries(core PRIVATE range-v3::range-v3 mpark_patterns)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 
