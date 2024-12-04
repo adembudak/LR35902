@@ -17,7 +17,7 @@ class Cartridge final {
   cart_t m_cart;
 
 public:
-  void load(const char *const romfile) noexcept;
+  bool load(const char *const romfile) noexcept;
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;

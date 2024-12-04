@@ -12,8 +12,8 @@ void GameBoy::skipboot() noexcept {
   bus.setPostBootValues();
 }
 
-void GameBoy::plug(const std::string_view rom) noexcept {
-  cart.load(rom.data());
+bool GameBoy::plug(const std::string_view rom) noexcept {
+  return cart.load(rom.data());
 }
 
 constexpr int vblank_period_cycles = 1140;

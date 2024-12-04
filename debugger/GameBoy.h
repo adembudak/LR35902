@@ -41,7 +41,7 @@ public:
 
   bool tryBoot() noexcept;
   void skipboot() noexcept;
-  void plug(const std::string_view rom) noexcept;
+  bool plug(const std::string_view rom) noexcept;
 
   void update() noexcept;
 

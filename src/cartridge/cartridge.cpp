@@ -17,9 +17,12 @@
 
 namespace LR35902 {
 
-void Cartridge::load(const char *romfile) noexcept {
+bool Cartridge::load(const char *romfile) noexcept {
   std::ifstream fin{romfile};
+  if(!fin) return false;
+
   std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
+  if(std::size(dumpedGamePak)) return false;
 
   std::array<byte, mmap::header_end> buf;
   std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
@@ -37,11 +40,13 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0x19: m_cart = mbc5(dumpedGamePak); break;                  /////////////////////
   case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
   case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
+  
   case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
   case 0x10: /* mbc3_timer_ram_battery         */ [[fallthrough]]; //// Implement //////
   case 0x11: /* mbc3                           */ [[fallthrough]]; //// these //////////
   case 0x12: /* mbc3_ram                       */ [[fallthrough]]; //// cartridges /////
   case 0x13: /* mbc3_ram_battery               */ [[fallthrough]]; /////////////////////
+  
   case 0x1a: /* mbc5_ram                       */ [[fallthrough]]; /////////////////////
   case 0x1b: /* mbc5_ram_battery               */ [[fallthrough]]; /////////////////////
   case 0x1c: /* mbc5_rumble                    */ [[fallthrough]]; /////////////////////
@@ -55,6 +60,8 @@ void Cartridge::load(const char *romfile) noexcept {
   case 0xff: /* huc1_ram_battery               */ [[fallthrough]]; /////////////////////
   default: assert(false && "this type of cart not supported (yet)"); break;
   };
+
+  return true;
 }
 
 // clang-format off
