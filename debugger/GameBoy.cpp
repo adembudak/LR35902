@@ -12,7 +12,7 @@ void GameBoy::skipboot() noexcept {
   bus.setPostBootValues();
 }
 
-bool GameBoy::plug(const std::string_view rom) noexcept {
+bool GameBoy::plug(const std::string &rom) noexcept {
   return cart.load(rom.data());
 }
 

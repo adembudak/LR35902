@@ -10,7 +10,7 @@
 #include <LR35902/ppu/ppu.h>
 #include <LR35902/timer/timer.h>
 
-#include <string_view>
+#include <string>
 
 #if defined(WITH_DEBUGGER)
 namespace LR35902 {
@@ -22,13 +22,14 @@ namespace lr = LR35902;
 
 class [[nodiscard]] GameBoy final {
 public:
-  lr::Clock clock;
-  lr::Cartridge cart;
-  lr::BuiltIn builtIn;
   lr::IO io;
   lr::Interrupt intr{io};
   lr::Joypad joypad{io, intr};
   lr::PPU ppu{intr, io};
+
+  lr::Clock clock;
+  lr::Cartridge cart;
+  lr::BuiltIn builtIn;
 
   lr::DMA dma{cart, ppu, builtIn, clock};
   lr::Bus bus{cart, ppu, builtIn, dma, io, intr, joypad};
@@ -41,7 +42,7 @@ public:
 
   bool tryBoot() noexcept;
   void skipboot() noexcept;
-  bool plug(const std::string_view rom) noexcept;
+  bool plug(const std::string& rom) noexcept;
 
   void update() noexcept;
 

@@ -7,9 +7,10 @@ namespace LR35902 {
 
 // https://archive.org/details/GameBoyProgManVer1.1/page/n16/mode/1up
 class IO {
-  std::array<byte, 127_B> m_data;
+  std::array<byte, 127_B> m_data{};
 
 public:
+  IO() = default;
   // joypad
   byte &P1 = m_data[0x00];
 
@@ -49,14 +50,15 @@ public:
   byte &NR51 = m_data[0x25];
   byte &NR52 = m_data[0x26];
 
+#if defined(CGB)
   // infrared (CGB only)
   byte &KEY1 = m_data[0x4d];
   byte &RP = m_data[0x56];
 
   // bank registers (CGB only)
   byte &VBK = m_data[0x4f];
-  byte &SVBK = m_data[0x7f];
-
+  byte &SVBK = m_data[0x70];
+#endif
   // interrupt registers
   byte &IF = m_data[0x0f]; // interrupt request
 
@@ -79,6 +81,7 @@ public:
   byte &WY = m_data[0x4a];
   byte &WX = m_data[0x4b];
 
+#if defined(CGB)
   // DMA (CGB only)
   byte &HDMA1 = m_data[0x51];
   byte &HDMA2 = m_data[0x52];
@@ -91,6 +94,7 @@ public:
   byte &BCPD = m_data[0x69];
   byte &OCPS = m_data[0x6a];
   byte &OCPD = m_data[0x6b];
+#endif
 
   IO &get() noexcept {
     return *this;

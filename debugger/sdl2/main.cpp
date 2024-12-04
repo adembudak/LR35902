@@ -74,7 +74,7 @@ int main(int argc, char *argv[]) {
   }
 
   GameBoy attaboy;
-  if(const bool ret = attaboy.plug(romFile.data()); !ret) {
+  if(const bool ret = attaboy.plug(romFile); !ret) {
     return 1;
   }
 
@@ -122,8 +122,6 @@ int main(int argc, char *argv[]) {
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
   constexpr SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
-
-  constexpr std::chrono::milliseconds frame_time{58};
 
   while(attaboy.isPowerOn()) {
 

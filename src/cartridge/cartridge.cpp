@@ -22,7 +22,9 @@ bool Cartridge::load(const char *romfile) noexcept {
   if(!fin) return false;
 
   std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
-  if(std::size(dumpedGamePak)) return false;
+  dumpedGamePak.shrink_to_fit();
+
+  if(std::size(dumpedGamePak) == 0) return false;
 
   std::array<byte, mmap::header_end> buf;
   std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
