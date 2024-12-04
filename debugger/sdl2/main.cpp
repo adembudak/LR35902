@@ -1,5 +1,5 @@
-#include <debugger/sdl2/palettes.h>
 #include <debugger/GameBoy.h>
+#include <debugger/sdl2/palettes.h>
 
 #if defined(WITH_DEBUGGER)
   #include <imgui.h>
@@ -73,31 +73,37 @@ int main(int argc, char *argv[]) {
     return app.exit(e);
   }
 
+  GameBoy attaboy;
+  if(const bool ret = attaboy.plug(romFile.data()); !ret) {
+    return 1;
+  }
+
+  if(const bool ret = attaboy.tryBoot(); !ret) {
+    attaboy.skipboot();
+  }
+
   if(const int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); ret != 0) {
     return ret;
   }
 
-  const auto w_win = 1280;
-  const auto h_win = 720;
+  constexpr int w_win = 1280;
+  constexpr int h_win = 720;
 
   // clang-format off
-  const auto flags_window = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+  constexpr auto flags_window = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
   std::unique_ptr<SDL_Window, decltype([](SDL_Window *w) { SDL_DestroyWindow(w); })> my_window{ //
     SDL_CreateWindow("LR35902", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
 
-  const auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
+  constexpr auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
   std::unique_ptr<SDL_Renderer, decltype([](SDL_Renderer *r) { SDL_DestroyRenderer(r); })> my_renderer{
     SDL_CreateRenderer(my_window.get(), -1, flags_renderer)};
 
-  const auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
+  constexpr auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
   std::unique_ptr<SDL_Texture, decltype([](SDL_Texture *t) { SDL_DestroyTexture(t); })> my_texture{
     SDL_CreateTexture(my_renderer.get(), SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win)};
   // clang-format on
 
-  GameBoy attaboy;
-
   std::array<Uint8, 160 * 144 * 4> pixels;
-  palette_t palette = original;
 
 #if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
@@ -115,21 +121,13 @@ int main(int argc, char *argv[]) {
 
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
-  const SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
+  constexpr SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
 
-  attaboy.plug(romFile.data());
-
-  attaboy.plug(romFile);
-  if(const bool ret = attaboy.tryBoot(); !ret) {
-    attaboy.skipboot();
-  }
-
-  using namespace std::literals::chrono_literals;
-  const auto frame_time = 58ms;
+  constexpr std::chrono::milliseconds frame_time{58};
 
   while(attaboy.isPowerOn()) {
-    SDL_Event event;
 
+    SDL_Event event;
     while(SDL_PollEvent(&event)) {
 #if defined(WITH_DEBUGGER)
       ImGui_ImplSDL2_ProcessEvent(&event);
@@ -185,6 +183,7 @@ int main(int argc, char *argv[]) {
 #endif
     attaboy.update();
 
+    static palette_t palette;
 #if defined(WITH_DEBUGGER)
     debugView.showCartHeader();
     debugView.showMemoryPortions();
@@ -195,7 +194,6 @@ int main(int argc, char *argv[]) {
     // clang-format off
     ImGui::Begin("palette");
       static int selected = 0;
-
       ImGui::SetNextItemWidth(100.0f);
 
       const char *items[]{"Original", "Coco'Cola", "Galata"};
