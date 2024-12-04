@@ -115,7 +115,7 @@ void DebugView::showMemoryPortions() noexcept {
 
       if(im::BeginTabItem("noUsable", &_memory_portions_noUsable)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(gameboy.builtIn.m_noUsable)),
-                                   std::size(gameboy.builtIn.m_noUsable), mmap::noUsable);
+                                   std::size(gameboy.builtIn.m_noUsable), mmap::noUse);
         im::EndTabItem();
       }
 

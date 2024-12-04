@@ -82,8 +82,8 @@ inline constexpr std::size_t echo_end =      0xfe00;
 inline constexpr std::size_t oam =           0xfe00; // 160B      PPU
 inline constexpr std::size_t oam_end =       0xfea0;
 
-inline constexpr std::size_t noUsable =      0xfea0; // 96B       Built-in
-inline constexpr std::size_t noUsable_end =  0xff00;
+inline constexpr std::size_t noUse =         0xfea0; // 96B       Built-in
+inline constexpr std::size_t noUse_end =     0xff00;
 
 inline constexpr std::size_t io =            0xff00; // 128B      IO
 inline constexpr std::size_t io_end =        0xff80;

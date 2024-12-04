@@ -43,8 +43,7 @@ byte Bus::read(const std::size_t index) const noexcept {
       pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { return m_builtIn.readWRAM(index - mmap::wram0); },
       pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { return m_builtIn.readEcho(index - mmap::echo); },
       pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { return m_ppu.readOAM(index - mmap::oam); },
-      pattern(index >= mmap::noUsable &&
-              index < mmap::noUsable_end) = [&] { return m_builtIn.readNoUsable(index - mmap::noUsable); },
+      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { return m_builtIn.readNoUsable(index - mmap::noUse); },
       pattern(index >= mmap::io &&
               index < mmap::io_end) = [&] { return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index - mmap::io); },
       pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { return m_builtIn.readHRAM(index - mmap::hram); },
@@ -62,8 +61,7 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
       pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { m_builtIn.writeWRAM(index - mmap::wram0, b); },
       pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { m_builtIn.writeEcho(index - mmap::echo, b); },
       pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { m_ppu.writeOAM(index - mmap::oam, b); },
-      pattern(index >= mmap::noUsable &&
-              index < mmap::noUsable_end) = [&] { m_builtIn.writeNoUsable(index - mmap::noUsable, b); },
+      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { m_builtIn.writeNoUsable(index - mmap::noUse, b); },
       pattern(index >= mmap::io && index < mmap::io_end) =
           [&] {
             match(index)(
