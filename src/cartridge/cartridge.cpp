@@ -17,7 +17,7 @@
 
 namespace LR35902 {
 
-bool Cartridge::load(const char *romfile) noexcept {
+bool Cartridge::load(const char *const romfile) noexcept {
   std::ifstream fin{romfile};
   if(!fin) return false;
 
