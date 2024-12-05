@@ -2,9 +2,9 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
+#include <mpark/patterns.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
-#include <mpark/patterns.hpp>
 
 #include <cstddef>
 
@@ -72,6 +72,7 @@ This implies mbc1 cartridges can hold at most 16KB * 128 == 2048KB == 2MB of byt
 
 namespace LR35902 {
 namespace rv = ranges::views;
+namespace mp = mpark::patterns;
 
 mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_battery) :
     m_rom{std::move(other)},
@@ -79,48 +80,30 @@ mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_b
     has_sram{static_cast<bool>(m_sram.size())},
     has_battery{has_battery} {}
 
+// clang-format off
 byte mbc1::readROM(const std::size_t index) const noexcept {
+  using namespace mp;
+
   static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
 
-  static_assert(mmap::rom0_end == mmap::romx);
-  if(index < mmap::romx) {
-    return m_rom[index];
-  }
-
-  else if(index < mmap::romx_end) {
-    const auto index_normalized = index % rom_bank_size;
-    if(register_3 == 1) return banked_rom_view[register_1][index_normalized];
-    return banked_rom_view[((register_2 << 5) | register_1)][index_normalized];
-  }
-
-  else {
-    return random_byte();
-  }
+  return match(index)(
+      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx) = [&](auto index) { return m_rom[index]; },
+      pattern(arg).when(arg >= mmap::romx && arg < mmap::romx_end) = [&](auto index) {
+        const auto index_normalized = index % rom_bank_size;
+        if(register_3 == 1) return banked_rom_view[register_1][index_normalized];
+        return banked_rom_view[((register_2 << 5) | register_1)][index_normalized];
+      });
 }
 
 void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
-  if(index < 0x2000) { // ram gate
-    register_0 = (b & 0x0f) == 0x0A;
-  }
-
-  else if(index < 0x4000) {
-    register_1 = b & 0x1f;
-    if(register_1 == 0) ++register_1;
-  }
-
-  else if(index < 0x6000) {
-    register_2 = b & 0x3;
-  }
-
-  else if(index < 0x8000) { // possible values [0, 1]. When 0, register_2 is used for rom banking, when 1,
-                            // register_2 is used for ram banking
-    register_3 = b & 0x01;
-  }
-
-  else {
-    (void)index;
-    (void)b;
-  }
+  using namespace mp;
+  // clang-format off
+  match(index)(
+      pattern(arg).when(arg >= 0x0000 && arg < 0x2000) = [&](auto) { register_0 = (b & 0x0f) == 0x0A; }, 
+      pattern(arg).when(arg >= 0x2000 && arg < 0x4000) = [&](auto) { register_1 = b & 0x1f; if(register_1 == 0) ++register_1; },
+      pattern(arg).when(arg >= 0x4000 && arg < 0x6000) = [&](auto) { register_2 = b & 0x3; },
+      pattern(arg).when(arg >= 0x6000 && arg < 0x8000) = [&](auto) { register_3 = b & 0x01; }
+  );
 }
 
 byte mbc1::readSRAM(std::size_t index) const noexcept {
