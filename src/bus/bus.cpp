@@ -28,50 +28,45 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
     m_joypad(joypad),
     interruptHandler{interrupt} {}
 
+// clang-format off
 byte Bus::read(const std::size_t index) const noexcept {
   using namespace mpark::patterns;
 
   return match(index)(
-      pattern(index >= mmap::rom0 && index < mmap::romx_end) =
-          [&] {
-            if(bootrom.isBootOnGoing() && index < mmap::header_start) //
+      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx_end) = [&] (auto index) {
+            if(index < mmap::header_start && bootrom.isBootOnGoing()) //
               return bootrom.read(index);
-            return m_cart.readROM(index);
-          },
-      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { return m_ppu.readVRAM(index); },
-      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { return m_cart.readSRAM(index); },
-      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { return m_builtIn.readWRAM(index); },
-      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { return m_builtIn.readEcho(index); },
-      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { return m_ppu.readOAM(index); },
-      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { return m_builtIn.readNoUsable(index); },
-      pattern(index >= mmap::io &&
-              index < mmap::io_end) = [&] { return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index); },
-      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { return m_builtIn.readHRAM(index); },
-      pattern(mmap::IE) = [&] { return interruptHandler.IE(); }, //
-      pattern(_) = [] { return random_byte(); });
+            return m_cart.readROM(index); },
+      pattern(arg).when(arg >= mmap::vram && arg < mmap::vram_end) = [&] (auto index) { return m_ppu.readVRAM(index); },
+      pattern(arg).when(arg >= mmap::sram && arg < mmap::sram_end) = [&] (auto index) { return m_cart.readSRAM(index); },
+      pattern(arg).when(arg >= mmap::wram0 && arg < mmap::wramx_end) = [&] (auto index) { return m_builtIn.readWRAM(index); },
+      pattern(arg).when(arg >= mmap::echo && arg < mmap::echo_end) = [&] (auto index) { return m_builtIn.readEcho(index); },
+      pattern(arg).when(arg >= mmap::oam && arg < mmap::oam_end) = [&] (auto index) { return m_ppu.readOAM(index); },
+      pattern(arg).when(arg >= mmap::noUse && arg < mmap::noUse_end) = [&] (auto index) { return m_builtIn.readNoUsable(index); },
+      pattern(arg).when(arg >= mmap::io && arg < mmap::io_end) = [&] (auto index) { return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index); },
+      pattern(arg).when(arg >= mmap::hram && arg < mmap::hram_end) = [&] (auto index){ return m_builtIn.readHRAM(index); },
+      pattern(mmap::IE) = [&] { return interruptHandler.IE(); }
+      );
 }
 
 void Bus::write(const std::size_t index, const byte b) noexcept {
   using namespace mpark::patterns;
-
+ 
   match(index)(
-      pattern(index >= mmap::rom0 && index < mmap::romx_end) = [&] { m_cart.writeROM(index, b); },
-      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { m_ppu.writeVRAM(index, b); },
-      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { m_cart.writeSRAM(index, b); },
-      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { m_builtIn.writeWRAM(index, b); },
-      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { m_builtIn.writeEcho(index, b); },
-      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { m_ppu.writeOAM(index, b); },
-      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { m_builtIn.writeNoUsable(index, b); },
-      pattern(index >= mmap::io && index < mmap::io_end) =
-          [&] {
-            match(index)(
+      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx_end) = [&] (auto index) { m_cart.writeROM(index, b); },
+      pattern(arg).when(arg >= mmap::vram && arg < mmap::vram_end) = [&] (auto index) { m_ppu.writeVRAM(index, b); },
+      pattern(arg).when(arg >= mmap::sram && arg < mmap::sram_end) = [&] (auto index) { m_cart.writeSRAM(index, b); },
+      pattern(arg).when(arg >= mmap::wram0 && arg < mmap::wramx_end) = [&] (auto index) { m_builtIn.writeWRAM(index, b); },
+      pattern(arg).when(arg >= mmap::echo && arg < mmap::echo_end) = [&] (auto index) { m_builtIn.writeEcho(index, b); },
+      pattern(arg).when(arg >= mmap::oam && arg < mmap::oam_end) = [&] (auto index) { m_ppu.writeOAM(index, b); },
+      pattern(arg).when(arg >= mmap::noUse && arg < mmap::noUse_end) = [&] (auto index) { m_builtIn.writeNoUsable(index, b); },
+      pattern(arg).when(arg >= mmap::io && arg < mmap::io_end) = [&] (auto index) { 
+          match(index)(
                 pattern(0xff46) = [&] { m_dma.action(b); }, //
                 pattern(0xff50) = [&] { bootrom.unmap(); }, //
-                pattern(_) = [&] { m_io.writeIO(index, b); });
-          },
-      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { m_builtIn.writeHRAM(index, b); },
-      pattern(mmap::IE) = [&] { interruptHandler.IE(b); }, //
-      pattern(_) = [] {});
+                pattern(_) = [&] { m_io.writeIO(index, b); }); },
+      pattern(arg).when(arg >= mmap::hram && arg < mmap::hram_end) = [&] (auto index){ m_builtIn.writeHRAM(index, b); },
+      pattern(mmap::IE) = [&] { interruptHandler.IE(b); });
 }
 
 // https://gbdev.io/pandocs/Power_Up_Sequence.html#hardware-registers
