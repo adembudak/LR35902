@@ -440,6 +440,8 @@ void PPU::fetchWindow() const {
   const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
   const std::size_t window_x_ = (window_x() < 0) ? 0 : window_x();
 
+  if(std::size_t{window_x_ / tile_w} > max_tiles_on_viewport_x) return; // REVISIT: fix what creates this case
+
   for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
     const std::size_t tile_index = tilemap[row][tile_nth];
     const auto tileline = tileset[tile_index][currently_scanning_tileline];
