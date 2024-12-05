@@ -100,8 +100,8 @@ public:
     return *this;
   }
 
-  [[nodiscard]] byte readIO(const std::size_t index) const noexcept;
-  void writeIO(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readIO(std::size_t index) const noexcept;
+  void writeIO(std::size_t index, const byte b) noexcept;
 
   [[nodiscard]] auto data() const noexcept -> decltype(m_data);
   void reset() noexcept;

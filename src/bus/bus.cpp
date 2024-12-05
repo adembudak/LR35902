@@ -38,15 +38,15 @@ byte Bus::read(const std::size_t index) const noexcept {
               return bootrom.read(index);
             return m_cart.readROM(index);
           },
-      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { return m_ppu.readVRAM(index - mmap::vram); },
-      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { return m_cart.readSRAM(index - mmap::sram); },
-      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { return m_builtIn.readWRAM(index - mmap::wram0); },
-      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { return m_builtIn.readEcho(index - mmap::echo); },
-      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { return m_ppu.readOAM(index - mmap::oam); },
-      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { return m_builtIn.readNoUsable(index - mmap::noUse); },
+      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { return m_ppu.readVRAM(index); },
+      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { return m_cart.readSRAM(index); },
+      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { return m_builtIn.readWRAM(index); },
+      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { return m_builtIn.readEcho(index); },
+      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { return m_ppu.readOAM(index); },
+      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { return m_builtIn.readNoUsable(index); },
       pattern(index >= mmap::io &&
-              index < mmap::io_end) = [&] { return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index - mmap::io); },
-      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { return m_builtIn.readHRAM(index - mmap::hram); },
+              index < mmap::io_end) = [&] { return (index == 0xff00) ? m_joypad.read() : m_io.readIO(index); },
+      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { return m_builtIn.readHRAM(index); },
       pattern(mmap::IE) = [&] { return interruptHandler.IE(); }, //
       pattern(_) = [] { return random_byte(); });
 }
@@ -56,20 +56,20 @@ void Bus::write(const std::size_t index, const byte b) noexcept {
 
   match(index)(
       pattern(index >= mmap::rom0 && index < mmap::romx_end) = [&] { m_cart.writeROM(index, b); },
-      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { m_ppu.writeVRAM(index - mmap::vram, b); },
-      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { m_cart.writeSRAM(index - mmap::sram, b); },
-      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { m_builtIn.writeWRAM(index - mmap::wram0, b); },
-      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { m_builtIn.writeEcho(index - mmap::echo, b); },
-      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { m_ppu.writeOAM(index - mmap::oam, b); },
-      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { m_builtIn.writeNoUsable(index - mmap::noUse, b); },
+      pattern(index >= mmap::vram && index < mmap::vram_end) = [&] { m_ppu.writeVRAM(index, b); },
+      pattern(index >= mmap::sram && index < mmap::sram_end) = [&] { m_cart.writeSRAM(index, b); },
+      pattern(index >= mmap::wram0 && index < mmap::wramx_end) = [&] { m_builtIn.writeWRAM(index, b); },
+      pattern(index >= mmap::echo && index < mmap::echo_end) = [&] { m_builtIn.writeEcho(index, b); },
+      pattern(index >= mmap::oam && index < mmap::oam_end) = [&] { m_ppu.writeOAM(index, b); },
+      pattern(index >= mmap::noUse && index < mmap::noUse_end) = [&] { m_builtIn.writeNoUsable(index, b); },
       pattern(index >= mmap::io && index < mmap::io_end) =
           [&] {
             match(index)(
                 pattern(0xff46) = [&] { m_dma.action(b); }, //
                 pattern(0xff50) = [&] { bootrom.unmap(); }, //
-                pattern(_) = [&] { m_io.writeIO(index - mmap::io, b); });
+                pattern(_) = [&] { m_io.writeIO(index, b); });
           },
-      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { m_builtIn.writeHRAM(index - mmap::hram, b); },
+      pattern(index >= mmap::hram && index < mmap::hram_end) = [&] { m_builtIn.writeHRAM(index, b); },
       pattern(mmap::IE) = [&] { interruptHandler.IE(b); }, //
       pattern(_) = [] {});
 }

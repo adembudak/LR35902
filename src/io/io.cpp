@@ -4,11 +4,14 @@
 
 namespace LR35902 {
 
-[[nodiscard]] byte IO::readIO(const std::size_t index) const noexcept {
+[[nodiscard]] byte IO::readIO(std::size_t index) const noexcept {
+  index = normalize_index(index, mmap::io);
   return m_data[index];
 }
 
-void IO::writeIO(const std::size_t index, const byte b) noexcept {
+void IO::writeIO(std::size_t index, const byte b) noexcept {
+  index = normalize_index(index, mmap::io);
+
   if(index == 0x04) { // writes to DIV resets it to 0
     DIV = 0x00;
     return;

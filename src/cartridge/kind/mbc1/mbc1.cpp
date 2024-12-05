@@ -4,6 +4,7 @@
 
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
+#include <mpark/patterns.hpp>
 
 #include <cstddef>
 
@@ -72,9 +73,6 @@ This implies mbc1 cartridges can hold at most 16KB * 128 == 2048KB == 2MB of byt
 namespace LR35902 {
 namespace rv = ranges::views;
 
-constexpr std::size_t upper_bank_increment = 32;
-static_assert(32 * 16_KiB == 512_KiB);
-
 mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_battery) :
     m_rom{std::move(other)},
     m_sram(RAM_size, byte{}),
@@ -84,7 +82,8 @@ mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_b
 byte mbc1::readROM(const std::size_t index) const noexcept {
   static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
 
-  if(index < mmap::rom0_end) {
+  static_assert(mmap::rom0_end == mmap::romx);
+  if(index < mmap::romx) {
     return m_rom[index];
   }
 
@@ -124,7 +123,8 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-byte mbc1::readSRAM(const std::size_t index) const noexcept {
+byte mbc1::readSRAM(std::size_t index) const noexcept {
+  index = normalize_index(index, mmap::sram);
   if(register_0) {
     static const auto portion = m_sram | rv::chunk(sram_bank_size);
 
@@ -137,7 +137,8 @@ byte mbc1::readSRAM(const std::size_t index) const noexcept {
   }
 }
 
-void mbc1::writeSRAM(const std::size_t index, const byte b) noexcept {
+void mbc1::writeSRAM(std::size_t index, const byte b) noexcept {
+  index = normalize_index(index, mmap::sram);
   if(register_0) {
     static const auto portion = m_sram | rv::chunk(sram_bank_size);
 

@@ -48,18 +48,18 @@ void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-byte mbc2::readSRAM(const std::size_t index) const noexcept {
+byte mbc2::readSRAM(std::size_t index) const noexcept {
   if(ram_enabled) {
-    const std::size_t index_normalized = index % 512_B;
-    return m_sram[index_normalized];
+    index = index % 512_B;
+    return m_sram[index];
   }
   return random_byte();
 }
 
-void mbc2::writeSRAM(const std::size_t index, const byte b) noexcept {
+void mbc2::writeSRAM(std::size_t index, const byte b) noexcept {
   if(ram_enabled) {
-    const std::size_t index_normalized = index % 512_B;
-    m_sram[index_normalized] = b & 0x0f;
+    index = index % 512_B;
+    m_sram[index] = b & 0x0f;
   }
 }
 

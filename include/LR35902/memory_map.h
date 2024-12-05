@@ -96,6 +96,11 @@ inline constexpr std::size_t IE =            0xffff; // 1B        Interrupts
                                              // Total:  64KB
 }
 
+[[nodiscard]] 
+inline std::size_t normalize_index(const std::size_t index, const std::size_t mem) {
+  return index % mem;
+}
+
 inline constexpr std::size_t sram_bank_size = mmap::sram_end - mmap::sram;
 inline constexpr std::size_t rom_bank_size = mmap::romx_end - mmap::romx;
 

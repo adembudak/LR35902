@@ -77,21 +77,25 @@ PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     io{io} {}
 
-byte PPU::readVRAM(const std::size_t index) const noexcept {
+byte PPU::readVRAM(std::size_t index) const noexcept {
+  index = normalize_index(index, mmap::vram);
   if(isVRAMAccessibleToCPU()) return m_vram[index];
   return 0xff;
 }
 
-void PPU::writeVRAM(const std::size_t index, const byte b) noexcept {
+void PPU::writeVRAM(std::size_t index, const byte b) noexcept {
+  index = normalize_index(index, mmap::vram);
   if(isVRAMAccessibleToCPU()) m_vram[index] = b;
 }
 
-byte PPU::readOAM(const std::size_t index) const noexcept {
+byte PPU::readOAM(std::size_t index) const noexcept {
+  index = normalize_index(index, mmap::oam);
   if(isOAMAccessibleToCPU()) return m_oam[index];
   return 0xff;
 }
 
-void PPU::writeOAM(const std::size_t index, const byte b) noexcept {
+void PPU::writeOAM(std::size_t index, const byte b) noexcept {
+  index = normalize_index(index, mmap::oam);
   if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
 
@@ -199,8 +203,7 @@ void PPU::update(const std::size_t cycles) noexcept {
       updateScanline();
 
       coincidence(checkCoincidence());
-      if(checkCoincidence() && interruptSourceEnabled(source::coincidence))
-        intr.request(Interrupt::kind::lcd_stat);
+      if(checkCoincidence() && interruptSourceEnabled(source::coincidence)) intr.request(Interrupt::kind::lcd_stat);
 
       if(currentScanline() >= vblank_end) {
         resetScanline();
