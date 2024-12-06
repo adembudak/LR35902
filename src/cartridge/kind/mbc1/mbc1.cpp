@@ -2,7 +2,9 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
-#include <mpark/patterns.hpp>
+#include <mpark/patterns/match.hpp>
+#include <mpark/patterns/when.hpp>
+
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
 

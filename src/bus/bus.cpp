@@ -10,7 +10,8 @@
 #include <LR35902/memory_map.h>
 #include <LR35902/ppu/ppu.h>
 
-#include <mpark/patterns.hpp>
+#include <mpark/patterns/match.hpp>
+#include <mpark/patterns/when.hpp>
 
 #include <cassert>
 #include <cstddef>
