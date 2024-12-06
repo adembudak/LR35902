@@ -3,8 +3,13 @@
 #include <LR35902/memory_map.h>
 
 #include <cstddef>
+#include <utility>
 
 namespace LR35902 {
+
+rom_ram::rom_ram(std::vector<byte> rom, bool has_battery) :
+    m_rom{std::move(rom)},
+    has_battery{has_battery} {}
 
 byte rom_ram::readROM(const std::size_t index) const noexcept {
   return m_rom[index];

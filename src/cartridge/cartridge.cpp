@@ -4,6 +4,8 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
+#include <mpark/patterns.hpp>
+
 #include <algorithm>
 #include <array>
 #include <cassert>
@@ -11,6 +13,7 @@
 #include <fstream>
 #include <iterator>
 #include <optional>
+#include <string>
 #include <utility>
 #include <variant>
 #include <vector>
@@ -30,37 +33,31 @@ bool Cartridge::load(const char *const romfile) noexcept {
   std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
   this->header.assign(std::move(buf));
 
+  using namespace mpark::patterns;
   const auto RAM_size = header.decode_ram_size().second;
-  switch(header.decode_mbc_type().second) {
-  case 0x00: m_cart = rom_only(dumpedGamePak); break;
-  case 0x01: m_cart = mbc1(dumpedGamePak, 0, false); break;
-  case 0x02: m_cart = mbc1(dumpedGamePak, RAM_size, false); break;
-  case 0x03: m_cart = mbc1(dumpedGamePak, RAM_size, true); break;
-  case 0x05: m_cart = mbc2(dumpedGamePak, false); break;
-  case 0x06: m_cart = mbc2(dumpedGamePak, true); break;
-  case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
-  case 0x09: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
-  case 0x19: m_cart = mbc5(dumpedGamePak, 0, false, false); break;
-  case 0x1a: m_cart = mbc5(dumpedGamePak, RAM_size, false, false); break;
-  case 0x1b: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break;
-  case 0x1c: m_cart = mbc5(dumpedGamePak, 0, false, true); break;
-  case 0x1d: m_cart = mbc5(dumpedGamePak, RAM_size, false, true); break;
-  case 0x1e: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break;
-  case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
-  case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
-  case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
-  case 0x10: /* mbc3_timer_ram_battery         */ [[fallthrough]]; //// Implement //////
-  case 0x11: /* mbc3                           */ [[fallthrough]]; //// these //////////
-  case 0x12: /* mbc3_ram                       */ [[fallthrough]]; //// cartridges /////
-  case 0x13: /* mbc3_ram_battery               */ [[fallthrough]]; /////////////////////
-  case 0x20: /* mbc6                           */ [[fallthrough]];
-  case 0x22: /* mbc7_sensor_rumble_ram_battery */ [[fallthrough]];
-  case 0xfc: /* pocketCamera                   */ [[fallthrough]];
-  case 0xfd: /* bandaiTama5                    */ [[fallthrough]];
-  case 0xfe: /* huc3                           */ [[fallthrough]];
-  case 0xff: /* huc1_ram_battery               */ [[fallthrough]];
-  default: assert(false && "this type of cart not supported (yet)"); break;
-  };
+  match(header.decode_mbc_type().second)(
+      pattern(0x00) = [&] { m_cart = rom_only(dumpedGamePak); },
+      pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, 0, false); },
+      pattern(0x02) = [&] { m_cart = mbc1(dumpedGamePak, RAM_size, false); },
+      pattern(0x03) = [&] { m_cart = mbc1(dumpedGamePak, RAM_size, true); },
+      pattern(0x05) = [&] { m_cart = mbc2(dumpedGamePak, false); },
+      pattern(0x06) = [&] { m_cart = mbc2(dumpedGamePak, true); },
+      pattern(0x08) = [&] { m_cart = rom_ram(dumpedGamePak, false); }, 
+      pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, true); },
+      pattern(0x19) = [&] { m_cart = mbc5(dumpedGamePak, 0, false, false); },
+      pattern(0x1a) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, false, false); },
+      pattern(0x1b) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, true, false); },
+      pattern(0x1c) = [&] { m_cart = mbc5(dumpedGamePak, 0, false, true); },
+      pattern(0x1d) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, false, true); },
+      pattern(0x1e) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, true, false); },
+      pattern(_) = [&] {
+            const std::string msg =                       //
+                "this type of cart not suppported (yet) " //
+                + header.decode_mbc_type().first + " "     //
+                + std::to_string(header.decode_mbc_type().second);
+            assert(false && msg.c_str());
+          }
+  );
 
   return true;
 }
