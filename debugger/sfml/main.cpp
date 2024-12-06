@@ -109,7 +109,7 @@ int main(int argc, char *argv[]) {
 
     // input loop
     sf::Event event;
-    /*
+
     while(window.pollEvent(event)) {
 #if defined(WITH_DEBUGGER)
       ImGui::SFML::ProcessEvent(window, event);
@@ -164,7 +164,7 @@ int main(int argc, char *argv[]) {
       }
       // clang-format on
     }
-    */
+
 
     attaboy.update();
 
