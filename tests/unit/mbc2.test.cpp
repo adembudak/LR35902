@@ -25,7 +25,7 @@ TEST_CASE("Memory bank controller type 2", "ROM banking behavior") {
   REQUIRE(ROM[3 * 16_KiB] == 34 + 3);
   REQUIRE(ROM[15 * 16_KiB] == 34 + 15);
 
-  mbc2 cart{std::move(ROM)};
+  mbc2 cart{std::move(ROM), /*has_battery*/ false};
 
   SECTION("ROM Operations") {
     REQUIRE(cart.readROM(0) == 34);

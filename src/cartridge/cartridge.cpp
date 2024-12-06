@@ -36,8 +36,8 @@ bool Cartridge::load(const char *const romfile) noexcept {
   case 0x01: m_cart = mbc1(dumpedGamePak, 0, false); break;
   case 0x02: m_cart = mbc1(dumpedGamePak, RAM_size, false); break;
   case 0x03: m_cart = mbc1(dumpedGamePak, RAM_size, true); break;
-  case 0x05: m_cart = mbc2(dumpedGamePak); break;
-  case 0x06: m_cart = mbc2(dumpedGamePak); break;
+  case 0x05: m_cart = mbc2(dumpedGamePak, false); break;
+  case 0x06: m_cart = mbc2(dumpedGamePak, true); break;
   case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
   case 0x09: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
   case 0x19: m_cart = mbc5(dumpedGamePak, 0, false, false); break;
