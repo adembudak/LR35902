@@ -14,7 +14,8 @@ configure dir = builddir:
 reconfigure dir = builddir:
 	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B {{dir}} --fresh
 
-tgt := 'all'
+tgt := if os_family() == "windows" { 'ALL_BUILD' } else { 'all' }
+
 build dir = builddir target = tgt:
 	cmake --build {{dir}} --target {{target}}
 
