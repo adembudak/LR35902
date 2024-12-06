@@ -41,6 +41,11 @@ bool Cartridge::load(const char *const romfile) noexcept {
   case 0x08: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
   case 0x09: m_cart = rom_ram(begin(dumpedGamePak), end(dumpedGamePak)); break;
   case 0x19: m_cart = mbc5(dumpedGamePak, 0, false, false); break;
+  case 0x1a: m_cart = mbc5(dumpedGamePak, RAM_size, false, false); break;
+  case 0x1b: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break;
+  case 0x1c: m_cart = mbc5(dumpedGamePak, 0, false, true); break;
+  case 0x1d: m_cart = mbc5(dumpedGamePak, RAM_size, false, true); break;
+  case 0x1e: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break;
   case 0x0c: /* mmm01_ram                      */ [[fallthrough]]; /////////////////////
   case 0x0d: /* mmm01_ram_battery              */ [[fallthrough]]; /////////////////////
   case 0x0f: /* mbc3_timer_battery             */ [[fallthrough]]; ////  TODO: /////////
@@ -48,11 +53,6 @@ bool Cartridge::load(const char *const romfile) noexcept {
   case 0x11: /* mbc3                           */ [[fallthrough]]; //// these //////////
   case 0x12: /* mbc3_ram                       */ [[fallthrough]]; //// cartridges /////
   case 0x13: /* mbc3_ram_battery               */ [[fallthrough]]; /////////////////////
-  case 0x1a: m_cart = mbc5(dumpedGamePak, RAM_size, false, false); break;
-  case 0x1b: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break; 
-  case 0x1c: m_cart = mbc5(dumpedGamePak, 0, false, true); break;        
-  case 0x1d: m_cart = mbc5(dumpedGamePak, RAM_size, false, true); break;      
-  case 0x1e: m_cart = mbc5(dumpedGamePak, RAM_size, true, false); break;   
   case 0x20: /* mbc6                           */ [[fallthrough]];
   case 0x22: /* mbc7_sensor_rumble_ram_battery */ [[fallthrough]];
   case 0xfc: /* pocketCamera                   */ [[fallthrough]];
@@ -78,7 +78,7 @@ void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
 }
 
 byte Cartridge::readSRAM(const std::size_t index) const noexcept {
-  return std::visit(overloaded { 
+  return std::visit(overloaded {
                                  [&](const auto &rom)  { return rom.readSRAM(index); },
                                  [&](const rom_only &) { return random_byte();       },
                                  [&](const mbc5 &)     { return random_byte();       }
@@ -87,7 +87,7 @@ byte Cartridge::readSRAM(const std::size_t index) const noexcept {
 
 
 void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
-  std::visit(overloaded { 
+  std::visit(overloaded {
                           [&](auto &rom)  { rom.writeSRAM(index, b); },
                           [&](rom_only &) {    /* do nothing */      },
                           [&](mbc5 &)     {    /* do nothing */      }
@@ -95,7 +95,7 @@ void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
 }
 
 void Cartridge::reset() noexcept { // only resets SRAM
-  std::visit(overloaded { 
+  std::visit(overloaded {
                           [&](auto &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
                           [&](rom_only &) {      /* no sram */                     },
                           [&](mbc5 &)     {      /* no sram */                     }
@@ -122,7 +122,7 @@ std::optional<const byte *> Cartridge::SRAMData() const noexcept {
 }
 
 std::size_t Cartridge::SRAMSize() const noexcept{
-      return std::visit(overloaded { 
+      return std::visit(overloaded {
                       [&](const auto &rom)  { return std::size(rom.m_sram); },
                       [&](const rom_only &) { return std::size_t{0};        },
                       [&](const mbc5 &)     { return std::size_t{0};        }
