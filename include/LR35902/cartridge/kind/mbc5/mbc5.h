@@ -10,14 +10,14 @@ namespace LR35902 {
 class mbc5 final {
   std::vector<byte> m_rom;
   std::vector<byte> m_sram;
-
-  byte ramg;
-  byte romb_0;
-  byte romb_1;
-  byte ramb;
-
   bool has_battery;
   bool has_rumble;
+
+  // REVISIT: Are these correct default values for the registers?
+  byte ramg = 0;
+  byte romb_0 = 0;
+  byte romb_1 = 0;
+  byte ramb = 0;
 
 public:
   mbc5(std::vector<byte> other, std::size_t RAM_size, bool has_battery, bool has_rumble);

@@ -14,6 +14,7 @@
 // Verbatim implementation of:
 // https://archive.org/details/GameBoyProgManVer1.1/page/n223/mode/1up
 // https://gbdev.io/pandocs/MBC5.html
+// https://gekkio.fi/files/gb-docs/gbctr.pdf
 
 namespace LR35902 {
 namespace rv = ranges::views;
@@ -27,41 +28,45 @@ mbc5::mbc5(std::vector<byte> other, std::size_t RAM_size, bool has_battery, bool
 
 static_assert((0b1 << 8) == 0b1'0000'0000);
 
+// clang-format off
 byte mbc5::readROM(const std::size_t index) const noexcept {
   using namespace mp;
   static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
 
   return match(index)(
       pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx) = [&](auto index) { return m_rom[index]; },
-      pattern(arg).when(arg >= mmap::romx && arg < mmap::romx_end) =
-          [&](auto index) {
+      pattern(arg).when(arg >= mmap::romx && arg < mmap::romx_end) = [&](auto index) {
             index = normalize_index(index, mmap::romx);
-            return banked_rom_view[((romb_1 << 8) | romb_0)][index];
-          });
+            return banked_rom_view[((romb_1 << 8) | romb_0)][index]; }
+      );
 }
 
 void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
   using namespace mp;
 
   match(index)(
-      pattern(arg).when(arg >= 0x0000 && arg < 0x2000) = [&](auto index) { ramg = (b & 0x0f) == 0x0A; },
+      pattern(arg).when(arg >= 0x0000 && arg < 0x2000) = [&](auto index) { ramg = has_rumble ? (b == 0x0A) : ((b & 0x0f) == 0x0A); },
       pattern(arg).when(arg >= 0x2000 && arg < 0x3000) = [&](auto index) { romb_0 = b; },
       pattern(arg).when(arg >= 0x3000 && arg < 0x4000) = [&](auto index) { romb_1 = b & 0x01; },
       pattern(arg).when(arg >= 0x4000 && arg < 0x6000) = [&](auto index) { ramb = b & 0x0f; });
 }
+// clang-format on
 
 [[nodiscard]] byte mbc5::readSRAM(std::size_t index) const noexcept {
-  static const auto portion = m_sram | rv::chunk(sram_bank_size);
-
+  index = normalize_index(index, mmap::sram);
+  static const auto banked_ram_view = m_sram | rv::const_ | rv::chunk(sram_bank_size);
   if(ramg) {
-
+    return banked_ram_view[ramb][index];
   } else {
     return random_byte();
   }
 }
 
 void mbc5::writeSRAM(std::size_t index, const byte b) noexcept {
+  index = normalize_index(index, mmap::sram);
+  static const auto banked_ram_view = m_sram | rv::chunk(sram_bank_size);
   if(ramg) {
+    banked_ram_view[ramb][index] = b;
   }
 }
 
