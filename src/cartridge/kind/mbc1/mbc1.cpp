@@ -111,10 +111,10 @@ void mbc1::writeROM(const std::size_t index, const byte b) noexcept {
 byte mbc1::readSRAM(std::size_t index) const noexcept {
   index = normalize_index(index, mmap::sram);
   if(register_0) {
-    static const auto portion = m_sram | rv::chunk(sram_bank_size);
+    static const auto banked_ram_view = m_sram | rv::const_ | rv::chunk(sram_bank_size);
 
-    if(register_3 == 1) return portion[register_2][index];
-    else return portion[0][index];
+    if(register_3 == 1) return banked_ram_view[register_2][index];
+    else return banked_ram_view[0][index];
   }
 
   else {
@@ -125,10 +125,10 @@ byte mbc1::readSRAM(std::size_t index) const noexcept {
 void mbc1::writeSRAM(std::size_t index, const byte b) noexcept {
   index = normalize_index(index, mmap::sram);
   if(register_0) {
-    static const auto portion = m_sram | rv::chunk(sram_bank_size);
+    static const auto banked_ram_view = m_sram | rv::chunk(sram_bank_size);
 
-    if(register_3 == 1) portion[register_2][index] = b;
-    else portion[0][index] = b;
+    if(register_3 == 1) banked_ram_view[register_2][index] = b;
+    else banked_ram_view[0][index] = b;
   }
 }
 

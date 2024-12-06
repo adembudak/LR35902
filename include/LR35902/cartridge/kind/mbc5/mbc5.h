@@ -9,27 +9,25 @@ namespace LR35902 {
 
 class mbc5 final {
   std::vector<byte> m_rom;
+  std::vector<byte> m_sram;
 
-  struct bank_t {
-    void setPrimaryBank(const byte b) noexcept;
-    void setSecondaryBank(const byte b) noexcept;
-    [[nodiscard]] std::size_t value() const noexcept;
+  byte ramg;
+  byte romb_0;
+  byte romb_1;
+  byte ramb;
 
-  private:
-    std::size_t primary = 1;
-    std::size_t secondary = 0;
-
-    std::size_t primary_bank_mask = 0b1111'1111;
-    std::size_t secondary_bank_mask = 0b1;
-
-    friend class mbc5;
-  } bank;
+  bool has_battery;
+  bool has_rumble;
 
 public:
-  explicit mbc5(std::vector<byte> other);
+  mbc5(std::vector<byte> other, std::size_t RAM_size, bool has_battery, bool has_rumble);
 
   [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
   void writeROM(const std::size_t index, const byte b) noexcept;
+
+  [[nodiscard]] byte readSRAM(std::size_t index) const noexcept;
+  void writeSRAM(std::size_t index, const byte b) noexcept;
+
 
   friend class Cartridge;
 };
