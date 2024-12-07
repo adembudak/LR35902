@@ -45,10 +45,12 @@ void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
   using namespace mp;
 
   match(index)(
-      pattern(arg).when(arg >= 0x0000 && arg < 0x2000) = [&](auto index) { ramg = has_rumble ? (b == 0x0A) : ((b & 0x0f) == 0x0A); },
-      pattern(arg).when(arg >= 0x2000 && arg < 0x3000) = [&](auto index) { romb_0 = b; },
-      pattern(arg).when(arg >= 0x3000 && arg < 0x4000) = [&](auto index) { romb_1 = b & 0x01; },
-      pattern(arg).when(arg >= 0x4000 && arg < 0x6000) = [&](auto index) { ramb = b & 0x0f; });
+      pattern(_).when(_ >= 0x0000 && _ < 0x2000) = [&] { ramg = has_rumble ? (b == 0x0A) : ((b & 0x0f) == 0x0A); },
+      pattern(_).when(_ >= 0x2000 && _ < 0x3000) = [&] { romb_0 = b; },
+      pattern(_).when(_ >= 0x3000 && _ < 0x4000) = [&] { romb_1 = b & 0x01; },
+      pattern(_).when(_ >= 0x4000 && _ < 0x6000) = [&] { ramb = b & 0x0f; },
+      pattern(_) = [] {}
+      );
 }
 // clang-format on
 
