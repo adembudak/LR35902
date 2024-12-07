@@ -139,10 +139,9 @@ if(SDL2_FRONTEND)
 endif()
 
 if(WITH_TOOLS)
-  find_package(fmt QUIET REQUIRED)
-  find_package(CLI11 QUIET REQUIRED)
-
   if(tool_headerdumper)
+    find_package(fmt QUIET REQUIRED)
+    find_package(CLI11 QUIET REQUIRED)
     find_package(nlohmann_json QUIET REQUIRED CONFIG)
 
     add_executable(gb.hd tools/headerdumper/main.cpp)
@@ -153,12 +152,17 @@ if(WITH_TOOLS)
   endif()
 
   if(tool_headerfixer)
+    find_package(CLI11 QUIET REQUIRED)
+
     add_executable(gb.hf tools/headerfixer/main.cpp)
     target_link_libraries(gb.hf PRIVATE LR35902::core CLI11::CLI11 range-v3::range-v3)
     set_target_properties(gb.hf PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${LR35902_BINARY_DIR}/tools)
   endif()
 
   if(tool_disassembler)
+    find_package(fmt QUIET REQUIRED)
+    find_package(CLI11 QUIET REQUIRED)
+
     add_executable(gb.dis tools/disassembler/main.cpp)
     target_link_libraries(gb.dis PRIVATE fmt::fmt CLI11::CLI11 range-v3::range-v3)
     set_target_properties(gb.dis PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${LR35902_BINARY_DIR}/tools)
