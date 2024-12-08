@@ -24,6 +24,8 @@
 #include <range/v3/view/reverse.hpp>
 #include <range/v3/view/transform.hpp>
 
+#include <mpark/patterns/match.hpp>
+
 #include <cstddef>
 #include <vector>
 
@@ -37,6 +39,7 @@ namespace LR35902 {
 namespace rg = ranges;
 namespace rv = rg::views;
 namespace ra = rg::actions;
+namespace mp = mpark::patterns;
 
 constexpr std::size_t tile_w = 8; // in px
 constexpr std::size_t tile_h = 8;
@@ -229,13 +232,14 @@ void PPU::reset() noexcept {
 }
 
 PPU::state PPU::mode() const noexcept { // bit0, bit1
-  switch(io.STAT & 0b0000'0011) {
-  default: break;
-  case 0b00: return state::hblanking;
-  case 0b01: return state::vblanking;
-  case 0b10: return state::searching;
-  case 0b11: return state::drawing;
-  }
+  using namespace mp;
+
+  return match(io.STAT & 0b0000'0011) (
+    pattern(0b00) = [] { return state::hblanking; },
+    pattern(0b01) = [] { return state::vblanking; },
+    pattern(0b10) = [] { return state::searching; },
+    pattern(0b11) = [] { return state::drawing; }
+  );
 }
 
 // LCDC register related members
@@ -281,13 +285,13 @@ bool PPU::isBackgroundEnabled() const noexcept { // bit0
 
 // clang-format off
 void PPU::mode(const state s) noexcept { // bit0, bit1
-  switch(s) {
-  default: break;
-  case state::hblanking:  io.STAT &= 0b1111'1100;          break;
-  case state::vblanking: (io.STAT &= 0b1111'1100) |= 0b01; break;
-  case state::searching: (io.STAT &= 0b1111'1100) |= 0b10; break;
-  case state::drawing:    io.STAT |= 0b0000'0011;          break;
-  }
+  using namespace mp;
+  match(s) (
+    pattern(state::hblanking) = [&] {  io.STAT &= 0b1111'1100;          },
+    pattern(state::vblanking) = [&] { (io.STAT &= 0b1111'1100) |= 0b01; },
+    pattern(state::searching) = [&] { (io.STAT &= 0b1111'1100) |= 0b10; },
+    pattern(state::drawing)   = [&] {  io.STAT |= 0b0000'0011;          }
+  );
 }
 
 void PPU::coincidence(const bool b) noexcept {
@@ -296,13 +300,13 @@ void PPU::coincidence(const bool b) noexcept {
 }
 
 bool PPU::interruptSourceEnabled(const source s) const noexcept {
-  switch(s) {
-  default: break;
-  case source::hblank:      return io.STAT & 0b0000'1000; // bit 3
-  case source::vblank:      return io.STAT & 0b0001'0000; // bit 4
-  case source::oam:         return io.STAT & 0b0010'0000; // bit 5
-  case source::coincidence: return io.STAT & 0b0100'0000; // bit 6
-  }
+  using namespace mp;
+  return match(s) (
+    pattern(source::hblank) = [&] { return io.STAT & 0b0000'1000; }, // bit 3
+    pattern(source::vblank) = [&] { return io.STAT & 0b0001'0000; }, // bit 4
+    pattern(source::oam)    = [&] { return io.STAT & 0b0010'0000; }, // bit 5
+    pattern(source::coincidence) = [&] { return io.STAT & 0b0100'0000; }  // bit 6
+  );
 }
 // clang-format on
 

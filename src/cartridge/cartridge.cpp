@@ -4,7 +4,7 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
-#include <mpark/patterns.hpp>
+#include <mpark/patterns/match.hpp>
 
 #include <algorithm>
 #include <array>
