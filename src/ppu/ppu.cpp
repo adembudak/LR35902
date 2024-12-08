@@ -144,7 +144,7 @@ constexpr std::size_t vblank_end = vblank_start + vblank_height;
    LY = 0
 */
 
-std::size_t ppu_cycles = 0;
+static std::size_t ppu_cycles = 0;
 void PPU::update(const std::size_t cycles) noexcept {
   ppu_cycles += cycles;
 
@@ -160,7 +160,7 @@ void PPU::update(const std::size_t cycles) noexcept {
   switch(mode()) {
   case state::searching:
     if(ppu_cycles >= oam_search_period) {
-      ppu_cycles -= oam_search_period;
+      ppu_cycles %= oam_search_period;
 
       if(isBackgroundEnabled()) fetchBackground();
       if(isWindowEnabled()) fetchWindow();
@@ -172,7 +172,7 @@ void PPU::update(const std::size_t cycles) noexcept {
 
   case state::drawing:
     if(ppu_cycles >= draw_period) {
-      ppu_cycles -= draw_period;
+      ppu_cycles %= draw_period;
 
       mode(state::hblanking);
 
@@ -183,7 +183,7 @@ void PPU::update(const std::size_t cycles) noexcept {
 
   case state::hblanking:
     if(ppu_cycles >= hblank_period) {
-      ppu_cycles -= cycles;
+      ppu_cycles %= hblank_period;
 
       updateScanline();
 
@@ -202,7 +202,7 @@ void PPU::update(const std::size_t cycles) noexcept {
 
   case state::vblanking:
     if(ppu_cycles >= scanline_period) {
-      ppu_cycles -= scanline_period;
+      ppu_cycles %= scanline_period;
       updateScanline();
 
       coincidence(checkCoincidence());
