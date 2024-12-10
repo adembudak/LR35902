@@ -20,7 +20,7 @@
 #include <filesystem>
 #include <format>
 #include <memory>
-#include <string_view>
+#include <algorithm>
 
 #if defined(WITH_DEBUGGER)
 static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
@@ -117,7 +117,7 @@ int main(int argc, char *argv[]) {
     return 3;
   }
 
-  std::array<Uint8, 160 * 144 * 4> pixels;
+  std::vector<SDL_Color> pixels(160 * 144);
 #if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
 
@@ -220,34 +220,9 @@ int main(int argc, char *argv[]) {
 #endif
 
     const auto &framebuffer = attaboy.ppu.getFrameBuffer();
-    for(int i = 0; auto e : framebuffer) {
-      switch(e) {
-      case 0:
-        pixels[i++] = palette[0].r;
-        pixels[i++] = palette[0].g;
-        pixels[i++] = palette[0].b;
-        pixels[i++] = palette[0].a;
-        break;
-      case 1:
-        pixels[i++] = palette[1].r;
-        pixels[i++] = palette[1].g;
-        pixels[i++] = palette[1].b;
-        pixels[i++] = palette[1].a;
-        break;
-      case 2:
-        pixels[i++] = palette[2].r;
-        pixels[i++] = palette[2].g;
-        pixels[i++] = palette[2].b;
-        pixels[i++] = palette[2].a;
-        break;
-      case 3:
-        pixels[i++] = palette[3].r;
-        pixels[i++] = palette[3].g;
-        pixels[i++] = palette[3].b;
-        pixels[i++] = palette[3].a;
-        break;
-      }
-    }
+    std::ranges::transform(framebuffer, pixels.begin(), [&](auto e) {
+      return SDL_Color{palette[e].r, palette[e].g, palette[e].b, palette[e].a};
+    });
 
 #if defined(WITH_DEBUGGER)
     ImGui::Render();
