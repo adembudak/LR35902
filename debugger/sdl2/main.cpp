@@ -94,17 +94,30 @@ int main(int argc, char *argv[]) {
   std::unique_ptr<SDL_Window, decltype([](SDL_Window *w) { SDL_DestroyWindow(w); })> my_window{ //
     SDL_CreateWindow("LR35902", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
 
+  if (!my_window) {
+      SDL_Log("%s\n", SDL_GetError());
+      return 1;
+  }
+
   constexpr auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
   std::unique_ptr<SDL_Renderer, decltype([](SDL_Renderer *r) { SDL_DestroyRenderer(r); })> my_renderer{
     SDL_CreateRenderer(my_window.get(), -1, flags_renderer)};
 
+  if (!my_renderer) {
+      SDL_Log("%s\n", SDL_GetError());
+      return 2;
+  }
   constexpr auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
   std::unique_ptr<SDL_Texture, decltype([](SDL_Texture *t) { SDL_DestroyTexture(t); })> my_texture{
     SDL_CreateTexture(my_renderer.get(), SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win)};
   // clang-format on
 
-  std::array<Uint8, 160 * 144 * 4> pixels;
+  if(!my_texture) {
+    SDL_Log("%s\n", SDL_GetError());
+    return 3;
+  }
 
+  std::array<Uint8, 160 * 144 * 4> pixels;
 #if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
 
