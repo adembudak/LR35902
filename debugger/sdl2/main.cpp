@@ -82,7 +82,7 @@ int main(int argc, char *argv[]) {
     attaboy.skipboot();
   }
 
-  if(const int ret = SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS); ret != 0) {
+  if(const int ret = SDL_InitSubSystem(SDL_INIT_VIDEO); ret != 0) {
     return ret;
   }
 
@@ -260,7 +260,7 @@ int main(int argc, char *argv[]) {
   ImGui::DestroyContext();
 #endif
 
-  SDL_Quit();
+  SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
   return 0;
 }
