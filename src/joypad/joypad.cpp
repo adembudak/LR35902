@@ -13,15 +13,15 @@ Joypad::Joypad(IO &io, Interrupt &intr) noexcept :
     m_intr{intr} {}
 
 // clang-format off
-/*
+/* 0xFF00
   Bit 7 - Not used
   Bit 6 - Not used
   Bit 5 - P15 Select Button Keys     (0=Select)
   Bit 4 - P14 Select Direction Keys  (0=Select)
-  Bit 3 - P13 Input  Down  or Start  (0=Pressed) (Read Only)
-  Bit 2 - P12 Input  Up    or Select (0=Pressed) (Read Only)
-  Bit 1 - P11 Input  Left  or B      (0=Pressed) (Read Only)
-  Bit 0 - P10 Input  Right or A      (0=Pressed) (Read Only)
+  Bit 3 - P13 Input  Down  or Start  (0=Pressed, 1=Released)
+  Bit 2 - P12 Input  Up    or Select (0=Pressed, 1=Released)
+  Bit 1 - P11 Input  Left  or B      (0=Pressed, 1=Released)
+  Bit 0 - P10 Input  Right or A      (0=Pressed, 1=Released)
 */
 
 void Joypad::update(button btn, keystatus status) noexcept {
