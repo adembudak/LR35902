@@ -29,11 +29,11 @@ bool Interrupt::isThereAnEnabledInterrupt() const noexcept {
 
 // clang-format off
 Interrupt::kind Interrupt::get() const noexcept {
-  if     (_IE & m_io.IF & 0b0000'0001) return kind::vblank;
-  else if(_IE & m_io.IF & 0b0000'0010) return kind::lcd_stat;
-  else if(_IE & m_io.IF & 0b0000'0100) return kind::timer;
-  else if(_IE & m_io.IF & 0b0000'1000) return kind::serial;
-  else if(_IE & m_io.IF & 0b0001'0000) return kind::joypad;
+  if(_IE & m_io.IF & 0b0000'0001) return kind::vblank;
+  if(_IE & m_io.IF & 0b0000'0010) return kind::lcd_stat;
+  if(_IE & m_io.IF & 0b0000'0100) return kind::timer;
+  if(_IE & m_io.IF & 0b0000'1000) return kind::serial;
+  if(_IE & m_io.IF & 0b0001'0000) return kind::joypad;
 }
 
 void Interrupt::request(const kind k) noexcept {
