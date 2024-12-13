@@ -18,7 +18,7 @@ mbc2::mbc2(std::vector<byte> rom, bool has_battery) :
     m_rom(std::move(rom)),
     has_battery{has_battery} {}
 
-byte mbc2::readROM(const std::size_t index) const noexcept {
+byte mbc2::readROM(const address_t index) const noexcept {
   if(index < mmap::rom0_end) {
     return m_rom[index];
   }
@@ -34,7 +34,7 @@ byte mbc2::readROM(const std::size_t index) const noexcept {
   }
 }
 
-void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
+void mbc2::writeROM(const address_t index, const byte b) noexcept {
   if(index < mmap::rom0_end) {
     if(index & 0b1'0000'0000) {
       rom_bank = b & 0x0f;
@@ -49,7 +49,7 @@ void mbc2::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-byte mbc2::readSRAM(std::size_t index) const noexcept {
+byte mbc2::readSRAM(address_t index) const noexcept {
   if(ram_enabled) {
     index = index % 512_B;
     return m_sram[index];
@@ -57,7 +57,7 @@ byte mbc2::readSRAM(std::size_t index) const noexcept {
   return random_byte();
 }
 
-void mbc2::writeSRAM(std::size_t index, const byte b) noexcept {
+void mbc2::writeSRAM(address_t index, const byte b) noexcept {
   if(ram_enabled) {
     index = index % 512_B;
     m_sram[index] = b & 0x0f;

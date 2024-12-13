@@ -42,7 +42,7 @@ mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_tim
   }
 }
 
-byte mbc3::readROM(const std::size_t index) const noexcept {
+byte mbc3::readROM(const address_t index) const noexcept {
   if(index < mmap::rom0_end) {
     return m_rom[index];
   }
@@ -58,7 +58,7 @@ byte mbc3::readROM(const std::size_t index) const noexcept {
   }
 }
 
-void mbc3::writeROM(const std::size_t index, const byte b) noexcept {
+void mbc3::writeROM(const address_t index, const byte b) noexcept {
   if(index < 0x2000) {
     RAM_enabled = b == 0x0A;
   }
@@ -81,7 +81,7 @@ void mbc3::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-byte mbc3::readSRAM(const std::size_t index) const noexcept {
+byte mbc3::readSRAM(const address_t index) const noexcept {
   if(RAM_enabled) {
     if(SRAM_bank >= 0 || SRAM_bank <= 3) {
       return m_sram[(SRAM_bank * sram_bank_size) + index];
@@ -104,7 +104,7 @@ byte mbc3::readSRAM(const std::size_t index) const noexcept {
   return random_byte();
 }
 
-void mbc3::writeSRAM(const std::size_t index, const byte b) noexcept {
+void mbc3::writeSRAM(const address_t index, const byte b) noexcept {
   if(RAM_enabled) {
     if(SRAM_bank >= 0 || SRAM_bank <= 3) {
       m_sram[(SRAM_bank * sram_bank_size) + index] = b;

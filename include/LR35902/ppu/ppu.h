@@ -76,11 +76,11 @@ public:
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
 
-  [[nodiscard]] byte readVRAM(std::size_t index) const noexcept;
-  void writeVRAM(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readVRAM(address_t index) const noexcept;
+  void writeVRAM(address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readOAM(std::size_t index) const noexcept;
-  void writeOAM(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readOAM(address_t index) const noexcept;
+  void writeOAM(address_t index, const byte b) noexcept;
 
   void update(const std::size_t cycles) noexcept;
 

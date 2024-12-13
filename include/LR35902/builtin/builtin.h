@@ -14,17 +14,17 @@ class BuiltIn {
 
 public:
 
-  [[nodiscard]] byte readWRAM(std::size_t index) const noexcept;
-  void writeWRAM(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readWRAM(address_t index) const noexcept;
+  void writeWRAM(address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readEcho(std::size_t index) const noexcept;
-  void writeEcho(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readEcho(address_t index) const noexcept;
+  void writeEcho(address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readNoUsable(const std::size_t index) const noexcept;
-  void writeNoUsable(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readNoUsable(address_t index) const noexcept;
+  void writeNoUsable(address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readHRAM(std::size_t index) const noexcept;
-  void writeHRAM(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readHRAM(address_t index) const noexcept;
+  void writeHRAM(address_t index, const byte b) noexcept;
 
   void reset() noexcept;
 

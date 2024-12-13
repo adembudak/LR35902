@@ -33,11 +33,11 @@ class mbc3 final {
 public:
   mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery);
 
-  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
-  void writeROM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readROM(const address_t index) const noexcept;
+  void writeROM(const address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readSRAM(const std::size_t index) const noexcept;
-  void writeSRAM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readSRAM(const address_t index) const noexcept;
+  void writeSRAM(const address_t index, const byte b) noexcept;
 
   friend class Cartridge;
 };

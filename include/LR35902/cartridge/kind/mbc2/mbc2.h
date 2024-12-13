@@ -19,11 +19,11 @@ class mbc2 final {
 public:
    mbc2(std::vector<byte> rom, bool has_battery);
 
-  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
-  void writeROM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readROM(const address_t index) const noexcept;
+   void writeROM(const address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readSRAM(std::size_t index) const noexcept;
-  void writeSRAM(std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readSRAM(address_t index) const noexcept;
+   void writeSRAM(address_t index, const byte b) noexcept;
 
   friend class Cartridge;
 };

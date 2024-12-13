@@ -30,7 +30,7 @@ Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrup
     interruptHandler{interrupt} {}
 
 // clang-format off
-byte Bus::read(const std::size_t index) const noexcept {
+byte Bus::read(const address_t index) const noexcept {
   using namespace mpark::patterns;
 
   return match(index)(
@@ -50,7 +50,7 @@ byte Bus::read(const std::size_t index) const noexcept {
       );
 }
 
-void Bus::write(const std::size_t index, const byte b) noexcept {
+void Bus::write(const address_t index, const byte b) noexcept {
   using namespace mpark::patterns;
  
   match(index)(

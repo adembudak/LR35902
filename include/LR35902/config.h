@@ -10,6 +10,7 @@ using flag = bool;
 using byte = std::uint8_t;
 using sbyte = std::int8_t;
 using word = std::uint16_t;
+using address_t = std::uint16_t;
 
 [[nodiscard]] consteval unsigned long long operator"" _B(const unsigned long long l) noexcept {
   return l;

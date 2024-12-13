@@ -27,8 +27,8 @@ public:
   [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt,
                     Joypad &joypad);
 
-  [[nodiscard]] byte read(const std::size_t index) const noexcept;
-  void write(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte read(const address_t index) const noexcept;
+  void write(const address_t index, const byte b) noexcept;
 
   void setPostBootValues() noexcept;
   bool loadBootROM() noexcept;

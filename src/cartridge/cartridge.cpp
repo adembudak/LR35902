@@ -66,15 +66,15 @@ bool Cartridge::load(const char *const romfile) noexcept {
 template <typename... Ts> struct overloaded : Ts... { using Ts::operator()...; };
 template <typename... Ts> overloaded(Ts...) -> overloaded<Ts...>;
 
-byte Cartridge::readROM(const std::size_t index) const noexcept {
+byte Cartridge::readROM(const address_t index) const noexcept {
   return std::visit([&](const auto &cart) { return cart.readROM(index); }, m_cart);
 }
 
-void Cartridge::writeROM(const std::size_t index, const byte b) noexcept {
+void Cartridge::writeROM(const address_t index, const byte b) noexcept {
     std::visit([&](auto &cart) { return cart.writeROM(index, b); }, m_cart);
 }
 
-byte Cartridge::readSRAM(const std::size_t index) const noexcept {
+byte Cartridge::readSRAM(const address_t index) const noexcept {
   return std::visit(overloaded {
                                  [&](const auto &rom)  { return rom.readSRAM(index); },
                                  [&](const rom_only &) { return random_byte();       },
@@ -83,7 +83,7 @@ byte Cartridge::readSRAM(const std::size_t index) const noexcept {
 }
 
 
-void Cartridge::writeSRAM(const std::size_t index, const byte b) noexcept {
+void Cartridge::writeSRAM(const address_t index, const byte b) noexcept {
   std::visit(overloaded {
                           [&](auto &rom)  { rom.writeSRAM(index, b); },
                           [&](rom_only &) {    /* do nothing */      },

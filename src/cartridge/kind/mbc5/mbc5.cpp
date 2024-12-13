@@ -29,7 +29,7 @@ mbc5::mbc5(std::vector<byte> other, std::size_t RAM_size, bool has_battery, bool
 static_assert((0b1 << 8) == 0b1'0000'0000);
 
 // clang-format off
-byte mbc5::readROM(const std::size_t index) const noexcept {
+byte mbc5::readROM(const address_t index) const noexcept {
   using namespace mp;
   static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
 
@@ -41,7 +41,7 @@ byte mbc5::readROM(const std::size_t index) const noexcept {
       );
 }
 
-void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
+void mbc5::writeROM(const address_t index, const byte b) noexcept {
   using namespace mp;
 
   match(index)(
@@ -54,7 +54,7 @@ void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
 }
 // clang-format on
 
-[[nodiscard]] byte mbc5::readSRAM(std::size_t index) const noexcept {
+[[nodiscard]] byte mbc5::readSRAM(address_t index) const noexcept {
   index = normalize_index(index, mmap::sram);
   static const auto banked_ram_view = m_sram | rv::const_ | rv::chunk(sram_bank_size);
   if(ramg) {
@@ -64,7 +64,7 @@ void mbc5::writeROM(const std::size_t index, const byte b) noexcept {
   }
 }
 
-void mbc5::writeSRAM(std::size_t index, const byte b) noexcept {
+void mbc5::writeSRAM(address_t index, const byte b) noexcept {
   index = normalize_index(index, mmap::sram);
   static const auto banked_ram_view = m_sram | rv::chunk(sram_bank_size);
   if(ramg) {

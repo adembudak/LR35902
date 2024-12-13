@@ -19,11 +19,11 @@ class Cartridge final {
 public:
   bool load(const char *const romfile) noexcept;
 
-  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
-  void writeROM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readROM(const address_t index) const noexcept;
+  void writeROM(const address_t index, const byte b) noexcept;
 
-  [[nodiscard]] byte readSRAM(const std::size_t index) const noexcept;
-  void writeSRAM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readSRAM(const address_t index) const noexcept;
+  void writeSRAM(const address_t index, const byte b) noexcept;
 
   void reset() noexcept;
 

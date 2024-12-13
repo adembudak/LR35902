@@ -16,8 +16,8 @@ public:
   explicit rom_only(std::vector<byte> rom) :
       m_rom(std::move(rom)) {}
 
-  [[nodiscard]] byte readROM(const std::size_t index) const noexcept;
-  void writeROM(const std::size_t index, const byte b) noexcept;
+  [[nodiscard]] byte readROM(const address_t index) const noexcept;
+  void writeROM(const address_t index, const byte b) noexcept;
 
   friend class Cartridge;
 };

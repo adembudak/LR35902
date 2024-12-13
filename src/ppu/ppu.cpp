@@ -80,24 +80,24 @@ PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     io{io} {}
 
-byte PPU::readVRAM(std::size_t index) const noexcept {
+byte PPU::readVRAM(address_t index) const noexcept {
   index = normalize_index(index, mmap::vram);
   if(isVRAMAccessibleToCPU()) return m_vram[index];
   return 0xff;
 }
 
-void PPU::writeVRAM(std::size_t index, const byte b) noexcept {
+void PPU::writeVRAM(address_t index, const byte b) noexcept {
   index = normalize_index(index, mmap::vram);
   if(isVRAMAccessibleToCPU()) m_vram[index] = b;
 }
 
-byte PPU::readOAM(std::size_t index) const noexcept {
+byte PPU::readOAM(address_t index) const noexcept {
   index = normalize_index(index, mmap::oam);
   if(isOAMAccessibleToCPU()) return m_oam[index];
   return 0xff;
 }
 
-void PPU::writeOAM(std::size_t index, const byte b) noexcept {
+void PPU::writeOAM(address_t index, const byte b) noexcept {
   index = normalize_index(index, mmap::oam);
   if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
