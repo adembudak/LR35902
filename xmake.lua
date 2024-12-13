@@ -6,10 +6,13 @@ add_requires("fmt")
 add_requires("cli11")
 
 add_requires("libsdl", {configs = {wayland = false}})
-add_requires("sfml")
+add_requires("catch2")
+add_requires("nlohmann_json")
 
-add_requires("imgui", {configs = {sdl2_renderer = true,sdl2 = true}})
+add_requires("imgui", {configs = {sdl2_renderer = true, sdl2 = true}})
 add_requires("imgui-sfml")
+
+add_requires("sfml")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
@@ -22,11 +25,12 @@ target("core")
           "src/bus/bus.cpp",
           "src/cartridge/cartridge.cpp",
           "src/cartridge/header/header.cpp",
-          "src/cartridge/kind/rom_only/rom_only.cpp",
-          "src/cartridge/kind/rom_ram/rom_ram.cpp",
-          "src/cartridge/kind/mbc1/mbc1.cpp",
-          "src/cartridge/kind/mbc2/mbc2.cpp",
-          "src/cartridge/kind/mbc5/mbc5.cpp",
+          "src/cartridge/kind/rom_only.cpp",
+          "src/cartridge/kind/rom_ram.cpp",
+          "src/cartridge/kind/mbc1.cpp",
+          "src/cartridge/kind/mbc2.cpp",
+          "src/cartridge/kind/mbc3.cpp",
+          "src/cartridge/kind/mbc5.cpp",
           "src/bootrom/bootrom.cpp",
           "src/ppu/ppu.cpp",
           "src/builtin/builtin.cpp",

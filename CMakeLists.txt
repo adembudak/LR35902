@@ -53,12 +53,12 @@ target_sources(
           src/bus/bus.cpp
           src/cartridge/cartridge.cpp
           src/cartridge/header/header.cpp
-          src/cartridge/kind/rom_only/rom_only.cpp
-          src/cartridge/kind/rom_ram/rom_ram.cpp
-          src/cartridge/kind/mbc1/mbc1.cpp
-          src/cartridge/kind/mbc2/mbc2.cpp
-          src/cartridge/kind/mbc3/mbc3.cpp
-          src/cartridge/kind/mbc5/mbc5.cpp
+          src/cartridge/kind/rom_only.cpp
+          src/cartridge/kind/rom_ram.cpp
+          src/cartridge/kind/mbc1.cpp
+          src/cartridge/kind/mbc2.cpp
+          src/cartridge/kind/mbc3.cpp
+          src/cartridge/kind/mbc5.cpp
           src/bootrom/bootrom.cpp
           src/ppu/ppu.cpp
           src/builtin/builtin.cpp
@@ -68,8 +68,8 @@ target_sources(
           src/timer/timer.cpp
           src/interrupt/interrupt.cpp)
 
-target_compile_options(core PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
-target_link_libraries(core PRIVATE range-v3::range-v3 mpark_patterns)
+target_compile_options(core PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
+target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 

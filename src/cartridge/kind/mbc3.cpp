@@ -1,4 +1,4 @@
-#include <LR35902/cartridge/kind/mbc3/mbc3.h>
+#include <LR35902/cartridge/kind/mbc3.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 

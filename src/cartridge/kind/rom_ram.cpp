@@ -1,4 +1,4 @@
-#include <LR35902/cartridge/kind/rom_ram/rom_ram.h>
+#include <LR35902/cartridge/kind/rom_ram.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
