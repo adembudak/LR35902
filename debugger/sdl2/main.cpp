@@ -1,13 +1,11 @@
 #include <debugger/GameBoy.h>
 #include <debugger/sdl2/palettes.h>
 
-#if defined(WITH_DEBUGGER)
-  #include <imgui.h>
-  #include <imgui_impl_sdl2.h>
-  #include <imgui_impl_sdlrenderer2.h>
+#include <imgui.h>
+#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdlrenderer2.h>
 
-  #include <LR35902/debugView/debugView.h>
-#endif
+#include <LR35902/debugView/debugView.h>
 
 #include <SDL2/SDL.h>
 #if !SDL_VERSION_ATLEAST(2, 0, 17)
@@ -16,19 +14,17 @@
 
 #include <CLI/CLI.hpp>
 
-#include <chrono>
+#include <algorithm>
 #include <filesystem>
 #include <format>
 #include <memory>
-#include <algorithm>
 
-#if defined(WITH_DEBUGGER)
-static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
+static void putMenuBar(LR35902::DebugView &debugView, bool &isDone) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
     }
     if(ImGui::MenuItem("Close", "Alt-<F4>")) {
-      gb.stop();
+      isDone = true;
     }
     ImGui::EndMenu();
   }
@@ -58,7 +54,6 @@ static void putMenuBar(GameBoy &gb, LR35902::DebugView &debugView) {
     ImGui::EndMenu();
   }
 }
-#endif
 
 int main(int argc, char *argv[]) {
   CLI::App app{"LR35902", "debugger_sdl2"};
@@ -74,9 +69,7 @@ int main(int argc, char *argv[]) {
   }
 
   GameBoy attaboy;
-  if(const bool ret = attaboy.plug(romFile); !ret) {
-    return 1;
-  }
+  const bool isCartridgePlugged = attaboy.plug(romFile);
 
   if(const bool ret = attaboy.tryBoot(); !ret) {
     attaboy.skipboot();
@@ -92,7 +85,7 @@ int main(int argc, char *argv[]) {
   // clang-format off
   constexpr auto flags_window = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
   std::unique_ptr<SDL_Window, decltype([](SDL_Window *w) { SDL_DestroyWindow(w); })> my_window{ //
-    SDL_CreateWindow("LR35902", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
+    SDL_CreateWindow("LR35902 + Debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
 
   if (!my_window) {
       SDL_Log("%s\n", SDL_GetError());
@@ -117,11 +110,7 @@ int main(int argc, char *argv[]) {
     return 3;
   }
 
-  std::vector<SDL_Color> pixels(160 * 144);
-#if defined(WITH_DEBUGGER)
   LR35902::DebugView debugView{attaboy};
-
-  SDL_SetWindowTitle(my_window.get(), "LR35902 + Debugger");
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
@@ -130,23 +119,34 @@ int main(int argc, char *argv[]) {
 
   ImGui_ImplSDL2_InitForSDLRenderer(my_window.get(), my_renderer.get());
   ImGui_ImplSDLRenderer2_Init(my_renderer.get());
-#endif
 
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
   constexpr SDL_Rect emuOutput{.x = 50, .y = 50, .w = emu_w, .h = emu_h};
 
-  while(attaboy.isPowerOn()) {
+  std::vector<SDL_Color> pixels(emu_w * emu_h);
+
+  bool isDone = false;
+  while(!isDone) {
+
+    ImGui_ImplSDLRenderer2_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    if(ImGui::BeginMainMenuBar()) {
+      putMenuBar(debugView, isDone);
+      ImGui::EndMainMenuBar();
+    }
 
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
-#if defined(WITH_DEBUGGER)
       ImGui_ImplSDL2_ProcessEvent(&event);
-#endif
+
       // clang-format off
       switch(event.type) {
       case SDL_EventType::SDL_QUIT:
-        attaboy.stop();
+        isDone = true;
+        attaboy.shutdown();
         break;
 
       case SDL_EventType::SDL_KEYDOWN: {
@@ -182,28 +182,18 @@ int main(int argc, char *argv[]) {
       // clang-format on
     }
 
-#if defined(WITH_DEBUGGER)
-    ImGui_ImplSDLRenderer2_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
+    while(attaboy.isPowerOn()) {
 
-    if(ImGui::BeginMainMenuBar()) {
-      putMenuBar(attaboy, debugView);
-      ImGui::EndMainMenuBar();
-    }
-#endif
-    attaboy.update();
+      attaboy.update();
 
-    static palette_t palette;
-#if defined(WITH_DEBUGGER)
-    debugView.showCartHeader();
-    debugView.showMemoryPortions();
-    debugView.showDisassembly();
-    debugView.showCPUState();
-    debugView.showRegisters();
+      static palette_t palette;
+      debugView.showCartHeader();
+      debugView.showMemoryPortions();
+      debugView.showDisassembly();
+      debugView.showCPUState();
+      debugView.showRegisters();
 
-    // clang-format off
-    ImGui::Begin("palette");
+      ImGui::Begin("palette");
       static int selected = 0;
       ImGui::SetNextItemWidth(100.0f);
 
@@ -211,22 +201,18 @@ int main(int argc, char *argv[]) {
       ImGui::Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
 
       switch(selected) {
-        case 0: palette = original; break;
-        case 1: palette = cococola; break;
-        case 2: palette = galata; break;
+      case 0: palette = original; break;
+      case 1: palette = cococola; break;
+      case 2: palette = galata; break;
       }
-    ImGui::End();
-    // clang-format on
-#endif
+      ImGui::End();
 
-    const auto &framebuffer = attaboy.ppu.getFrameBuffer();
-    std::ranges::transform(framebuffer, pixels.begin(), [&](auto e) {
-      return SDL_Color{palette[e].r, palette[e].g, palette[e].b, palette[e].a};
-    });
+      const auto &framebuffer = attaboy.ppu.getFrameBuffer();
+      std::ranges::transform(framebuffer, pixels.begin(),
+                             [&](auto e) { return SDL_Color{palette[e].r, palette[e].g, palette[e].b, palette[e].a}; });
+    }
 
-#if defined(WITH_DEBUGGER)
     ImGui::Render();
-#endif
 
     SDL_UpdateTexture(my_texture.get(), &emuOutput, pixels.data(), emu_w * sizeof(SDL_Color));
 
@@ -236,17 +222,13 @@ int main(int argc, char *argv[]) {
 
     SDL_SetRenderDrawColor(my_renderer.get(), 0xff, 0xff, 0xff, 0xff);
 
-#if defined(WITH_DEBUGGER)
     ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer.get());
-#endif
     SDL_RenderPresent(my_renderer.get());
   }
 
-#if defined(WITH_DEBUGGER)
   ImGui_ImplSDLRenderer2_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
-#endif
 
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
