@@ -5,6 +5,7 @@ project(
     license: 'BSL-1.0',
     license_files: 'license',
     subproject_dir: 'subprojects',
+    version: '1.6.1',
 )
 
 LR35902_incdir = include_directories('include')
@@ -18,7 +19,7 @@ imgui_dep = dependency(
     'imgui',
     default_options: {
         'sdl2': 'enabled',
-        'sdl_renderer': 'enabled',
+        'sdl2_renderer': 'enabled',
         'opengl': 'enabled',
         'dx9': 'disabled',
         'dx10': 'disabled',
