@@ -21,8 +21,6 @@ set(LR35902_TEST_DIR ${LR35902_SOURCE_DIR}/tests)
 set(LR35902_3RDPARTY_DIR ${LR35902_SOURCE_DIR}/3rdparty)
 
 option(WITH_DEBUGGER "" OFF)
-option(SFML_FRONTEND "" OFF)
-option(SDL2_FRONTEND "" OFF)
 
 option(WITH_TOOLS "" OFF)
 cmake_dependent_option(tool_headerdumper "" OFF WITH_TOOLS ON)
@@ -73,13 +71,15 @@ target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 
-add_library(attaboy debugger/GameBoy.cpp)
-target_include_directories(attaboy PUBLIC ${LR35902_INCLUDE_DIR})
+add_library(attaboy backend/GameBoy.cpp)
+target_include_directories(attaboy PUBLIC ${PROJECT_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
 target_link_libraries(attaboy PRIVATE LR35902::core)
 add_library(LR35902::attaboy ALIAS attaboy)
 
 if(WITH_DEBUGGER)
   find_package(imgui QUIET REQUIRED CONFIG)
+  find_package(SDL2 QUIET REQUIRED CONFIG)
+  find_package(CLI11 QUIET REQUIRED)
 
   FetchContent_Declare(
     imgui_club
@@ -91,7 +91,7 @@ if(WITH_DEBUGGER)
 
   add_library(debugView)
   target_sources(debugView PRIVATE src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_3RDPARTY_DIR}/imgui_club)
+  target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR} ${LR35902_3RDPARTY_DIR}/imgui_club)
   add_library(LR35902::debugView ALIAS debugView)
 
   add_library(imgui_memory_editor INTERFACE)
@@ -100,29 +100,6 @@ if(WITH_DEBUGGER)
 
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-endif()
-
-if(SFML_FRONTEND)
-  find_package(fmt QUIET REQUIRED CONFIG)
-  find_package(CLI11 QUIET REQUIRED)
-  find_package(SFML QUIET REQUIRED COMPONENTS graphics CONFIG)
-
-  add_executable(debugger_sfml)
-  target_sources(debugger_sfml PRIVATE debugger/sfml/main.cpp)
-  target_include_directories(debugger_sfml PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
-  target_link_libraries(debugger_sfml PRIVATE LR35902::core LR35902::attaboy fmt::fmt CLI11::CLI11 sfml-graphics)
-
-  if(WITH_DEBUGGER)
-    find_package(ImGui-SFML QUIET REQUIRED CONFIG)
-
-    target_link_libraries(debugger_sfml PRIVATE LR35902::debugView imgui::imgui sfml-graphics ImGui-SFML::ImGui-SFML)
-    set_target_properties(debugger_sfml PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-  endif()
-endif()
-
-if(SDL2_FRONTEND)
-  find_package(SDL2 QUIET REQUIRED CONFIG)
-  find_package(CLI11 QUIET REQUIRED)
 
   add_executable(debugger_sdl2)
   target_sources(debugger_sdl2 PRIVATE debugger/sdl2/main.cpp)
@@ -132,10 +109,8 @@ if(SDL2_FRONTEND)
     debugger_sdl2 PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
                           $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
 
-  if(WITH_DEBUGGER)
-    target_link_libraries(debugger_sdl2 PRIVATE LR35902::debugView imgui::imgui)
-    set_target_properties(debugger_sdl2 PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
-  endif()
+  target_link_libraries(debugger_sdl2 PRIVATE LR35902::debugView imgui::imgui)
+  set_target_properties(debugger_sdl2 PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 endif()
 
 if(WITH_TOOLS)
@@ -286,10 +261,6 @@ set(CPACK_GENERATOR TGZ ZIP)
 set(targets_to_package)
 if(TARGET debugger_sdl2)
   list(APPEND targets_to_package debugger_sdl2)
-endif()
-
-if(TARGET debugger_sfml)
-  list(APPEND targets_to_package debugger_sfml)
 endif()
 
 if(WITH_TOOLS)

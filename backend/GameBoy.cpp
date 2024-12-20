@@ -1,4 +1,4 @@
-#include "GameBoy.h"
+#include <backend/GameBoy.h>
 #include <LR35902/config.h>
 
 #include <string_view>

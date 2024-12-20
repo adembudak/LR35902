@@ -8,6 +8,7 @@ project(
 )
 
 LR35902_incdir = include_directories('include')
+LR35902_sourcedir = include_directories('.')
 
 ranges_dep = dependency('range-v3', required: true)
 
@@ -73,9 +74,9 @@ lr35902_core = library(
 
 attaboy = library(
     'attaboy', 
-    sources : 'debugger/GameBoy.cpp', 
+    sources : 'backend/GameBoy.cpp', 
     link_with : lr35902_core,
-    include_directories: LR35902_incdir,
+    include_directories: [LR35902_sourcedir, LR35902_incdir]
 )
 
 if get_option('with_debugger')

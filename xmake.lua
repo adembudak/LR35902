@@ -49,9 +49,10 @@ target_end()
 
 target("attaboy")
    set_kind("static")
-   add_files("debugger/GameBoy.cpp")
+   add_files("backend/GameBoy.cpp")
    add_deps("core")
    add_includedirs("include")
+   add_includedirs(".") 
 target_end()
 
 option("with_debugger", {default = false, showmenu = true})

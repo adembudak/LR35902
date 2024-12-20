@@ -1,4 +1,4 @@
-#include <debugger/GameBoy.h>
+#include <backend/GameBoy.h>
 #include <debugger/sdl2/palettes.h>
 
 #include <imgui.h>

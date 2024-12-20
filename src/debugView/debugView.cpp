@@ -1,4 +1,4 @@
-#include "../../debugger/GameBoy.h"
+#include <backend/GameBoy.h>
 
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>
