@@ -12,8 +12,6 @@ add_requires("nlohmann_json")
 add_requires("imgui", {configs = {sdl2_renderer = true, sdl2 = true}})
 add_requires("imgui-sfml")
 
-add_requires("sfml")
-
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
 
@@ -64,38 +62,18 @@ option("with_debugger", {default = false, showmenu = true})
        add_includedirs("include", "imgui_club")
        add_defines("WITH_DEBUGGER")
     target_end()
-option_end()
 
-option("sdl2_frontend", {default = false, showmenu = true})
-   target("debugger_sdl")
-     set_kind("binary")
-     add_files("debugger/sdl2/main.cpp")
-     add_includedirs("include") 
-     add_deps("core", "attaboy")
-     add_packages("fmt", "cli11", "libsdl")
-
-     if has_config("with_debugger") then 
-       add_defines("WITH_DEBUGGER")
-       add_deps("debugView")
-       add_packages("imgui")
-     end
-   target_end()
-option_end()
-
-option("sfml_frontend", {default = false, showmenu = true})
-   target("debugger_sfml")
-     set_kind("binary")
-     add_files("debugger/sfml/main.cpp")
-     add_includedirs("include") 
-     add_deps("core", "attaboy")
-     add_packages("fmt", "cli11", "sfml")
-
-     if has_config("with_debugger") then 
-       add_defines("WITH_DEBUGGER")
-       add_deps("debugView")
-       add_packages("imgui", "imgui-sfml")
-     end
-    target_end()
+    target("debugger_sdl")
+      set_kind("binary")
+      add_files("debugger/sdl2/main.cpp")
+      add_includedirs("include") 
+      add_deps("core", "attaboy")
+      add_packages("fmt", "cli11", "libsdl"
+      if has_config("with_debugger") then 
+        add_defines("WITH_DEBUGGER")
+        add_deps("debugView")
+        add_packages("imgui")
+      end
 option_end()
 
 option("with_tools", {default = false, showmenu = true})

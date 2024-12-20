@@ -11,9 +11,7 @@ LR35902_incdir = include_directories('include')
 LR35902_sourcedir = include_directories('.')
 
 ranges_dep = dependency('range-v3', required: true)
-
 sdl2_dep = dependency('sdl2', default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'}, required: true,)
-
 nlohmann_json_dep = dependency('nlohmann_json')
 
 imgui_dep = dependency(
@@ -39,9 +37,6 @@ imgui_dep = dependency(
 
 cli11_dep = dependency('cli11', default_options: {'tests': false}, required: true)
 fmt_dep = dependency('fmt', required: true)
-
-#sfml_dep = dependency('sfml', required: true)
-#imgui_sfml_dep = dependency('imgui-sfml', required: true)
 
 lr35902_sources = [
     'src/bootrom/bootrom.cpp',
@@ -89,27 +84,14 @@ if get_option('with_debugger')
         include_directories: [LR35902_incdir, '3rdparty/imgui_club'],
     )
 
-    if get_option('sdl2_frontend')
-        executable(
-            'debugger_sdl',
-            sources: ['debugger/sdl2/main.cpp'],
-            cpp_args: '-DWITH_DEBUGGER',
-            link_with: [lr35902_core, debugView, attaboy],
-            dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
-            include_directories: LR35902_incdir,
-        )
-    endif
-
-    # if get_option('sfml_frontend')
-    #    executable('debugger_sfml',
-    #      sources: ['debugger/sfml/main.cpp'],
-    #      cpp_args : '-DWITH_DEBUGGER',
-    #      link_args: '-ldl',
-    #      link_with: [lr35902_core, debugView, attaboy],
-    #      dependencies : [ranges_dep, imgui_dep, sfml_dep, imgui_sfml_dep, cli11_dep, fmt_dep],
-    #      include_directories : LR35902_incdir)
-    #  endif
-
+    executable(
+        'debugger_sdl',
+        sources: ['debugger/sdl2/main.cpp'],
+        cpp_args: '-DWITH_DEBUGGER',
+        link_with: [lr35902_core, debugView, attaboy],
+        dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
+        include_directories: LR35902_incdir,
+    )
 endif
 
 if get_option('with_tools')
