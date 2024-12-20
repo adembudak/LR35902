@@ -146,7 +146,7 @@ int main(int argc, char *argv[]) {
       switch(event.type) {
       case SDL_EventType::SDL_QUIT:
         isDone = true;
-        attaboy.shutdown();
+        attaboy.stop();
         break;
 
       case SDL_EventType::SDL_KEYDOWN: {

@@ -19,7 +19,7 @@ bool GameBoy::plug(const std::string &rom) noexcept {
 constexpr int vblank_period_cycles = 1140;
 
 void GameBoy::update() noexcept {
-  if(m_paused) return;
+//  if(m_paused) return;
 
   while(ppu.mode() != lr::PPU::state::vblanking) {
     cpu.run();
