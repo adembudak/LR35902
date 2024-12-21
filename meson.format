@@ -1,0 +1,4 @@
+max_line_length: 120
+indent_by: '  '
+sort_files: true
+use_editor_config: false
