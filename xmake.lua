@@ -61,7 +61,7 @@ option("with_debugger", {default = false, showmenu = true})
        add_defines("WITH_DEBUGGER")
     target_end()
 
-    target("debugger_sdl")
+    target("debugger")
       set_kind("binary")
       add_files("debugger/main.cpp")
       add_includedirs("include") 

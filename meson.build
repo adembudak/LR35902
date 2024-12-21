@@ -90,7 +90,7 @@ if get_option('with_debugger')
   )
 
   executable(
-    'debugger_sdl',
+    'debugger',
     sources: ['debugger/main.cpp'],
     cpp_args: '-DWITH_DEBUGGER',
     link_with: [lr35902_core, debugView, attaboy],

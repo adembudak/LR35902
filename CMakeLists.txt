@@ -101,16 +101,16 @@ if(WITH_DEBUGGER)
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 
-  add_executable(debugger_sdl2)
-  target_sources(debugger_sdl2 PRIVATE debugger/main.cpp)
+  add_executable(debugger)
+  target_sources(debugger PRIVATE debugger/main.cpp)
 
-  target_include_directories(debugger_sdl2 PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
+  target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
   target_link_libraries(
-    debugger_sdl2 PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
+    debugger PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
                           $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
 
-  target_link_libraries(debugger_sdl2 PRIVATE LR35902::debugView imgui::imgui)
-  set_target_properties(debugger_sdl2 PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  target_link_libraries(debugger PRIVATE LR35902::debugView imgui::imgui)
+  set_target_properties(debugger PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 endif()
 
 if(WITH_TOOLS)
@@ -259,8 +259,8 @@ set(CPACK_SOURCE_IGNORE_FILES
 set(CPACK_GENERATOR TGZ ZIP)
 
 set(targets_to_package)
-if(TARGET debugger_sdl2)
-  list(APPEND targets_to_package debugger_sdl2)
+if(TARGET debugger)
+  list(APPEND targets_to_package debugger)
 endif()
 
 if(WITH_TOOLS)
