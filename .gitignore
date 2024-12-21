@@ -19,6 +19,8 @@ imgui.ini
 compile_commands.json
 /.vs
 /.cmake
+.xmake/
+.vscode/
 subprojects/SDL2-2.30.3
 subprojects/imgui-1.89.9
 subprojects/packagecache
@@ -27,9 +29,10 @@ subprojects/CLI11-2.4.1
 subprojects/SFML-2.6.1
 subprojects/fmt-10.2.0
 subprojects/imgui-sfml-2.6
-.xmake/
-.vscode/
 3rdparty/fonts/
 3rdparty/imgui_club/
 subprojects/CLI11-2.4.2
 subprojects/SDL2-2.30.6
+subprojects/fmt-11.0.2
+subprojects/imgui-1.91.3
+subprojects/nlohmann_json-3.11.3
