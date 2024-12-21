@@ -1,5 +1,5 @@
 #include <backend/GameBoy.h>
-#include <debugger/sdl2/palettes.h>
+#include <debugger/palettes.h>
 
 #include <imgui.h>
 #include <imgui_impl_sdl2.h>

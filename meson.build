@@ -91,7 +91,7 @@ if get_option('with_debugger')
 
   executable(
     'debugger_sdl',
-    sources: ['debugger/sdl2/main.cpp'],
+    sources: ['debugger/main.cpp'],
     cpp_args: '-DWITH_DEBUGGER',
     link_with: [lr35902_core, debugView, attaboy],
     dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],

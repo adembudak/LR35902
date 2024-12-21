@@ -8,9 +8,7 @@ add_requires("cli11")
 add_requires("libsdl", {configs = {wayland = false}})
 add_requires("catch2")
 add_requires("nlohmann_json")
-
 add_requires("imgui", {configs = {sdl2_renderer = true, sdl2 = true}})
-add_requires("imgui-sfml")
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
@@ -65,7 +63,7 @@ option("with_debugger", {default = false, showmenu = true})
 
     target("debugger_sdl")
       set_kind("binary")
-      add_files("debugger/sdl2/main.cpp")
+      add_files("debugger/main.cpp")
       add_includedirs("include") 
       add_deps("core", "attaboy")
       add_packages("fmt", "cli11", "libsdl"

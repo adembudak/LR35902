@@ -102,7 +102,7 @@ if(WITH_DEBUGGER)
   set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 
   add_executable(debugger_sdl2)
-  target_sources(debugger_sdl2 PRIVATE debugger/sdl2/main.cpp)
+  target_sources(debugger_sdl2 PRIVATE debugger/main.cpp)
 
   target_include_directories(debugger_sdl2 PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
   target_link_libraries(
