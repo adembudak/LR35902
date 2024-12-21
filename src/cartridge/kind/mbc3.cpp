@@ -2,6 +2,7 @@
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
+#include <mpark/patterns.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
 
@@ -15,6 +16,7 @@
 
 namespace LR35902 {
 namespace rv = ranges::views;
+namespace mp = mpark::patterns;
 
 mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery) :
     m_rom(std::move(rom)),
@@ -43,46 +45,33 @@ mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_tim
   }
 }
 
+  // clang-format off
 byte mbc3::readROM(address_t index) const noexcept {
-  if(index < mmap::rom0_end) {
-    return m_rom[index];
-  }
-
-  else if(index < mmap::romx_end) {
-    index = normalize_index(index, mmap::romx);
-    static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
-    return banked_rom_view[ROM_bank][index];
-  }
-
-  else {
-    assert(false);
-  }
+  using namespace mp;
+  return match(index)(
+      pattern(_).when(_ >= 0 && _ < mmap::romx) = [&] { return m_rom[index]; },
+      pattern(_).when(_ >= mmap::romx && _ < mmap::romx_end) = [&] {
+            index = normalize_index(index, mmap::romx);
+            static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
+            return banked_rom_view[ROM_bank][index];
+      }
+  );
 }
 
 void mbc3::writeROM(const address_t index, const byte b) noexcept {
-  if(index < 0x2000) {
-    RAM_enabled = b == 0x0A;
-  }
-
-  else if(index < mmap::rom0_end) {
-    ROM_bank = b & 0x7F;
-    if(ROM_bank == 0) ++ROM_bank;
-  }
-
-  else if(index < 0x6000) {
-    SRAM_bank = b;
-  }
-
-  else if(index < mmap::romx_end) {
-    latch = b;
-    latch_checker.push_back(b);
-    is_latch_open = (latch_checker[0] == 0 && latch_checker[1] == 1); 
-  }
-
-  else {
-    assert(false);
-  }
+  using namespace mp;
+  match(index)(
+      pattern(_).when(_ >= 0 && _ < 0x2000) = [&] { RAM_enabled = b == 0x0A; },
+      pattern(_).when(_ >= 0x2000 && _ < mmap::romx) = [&] { ROM_bank = b & 0x7F; if(ROM_bank == 0) ++ROM_bank; }, 
+      pattern(_).when(_ >= mmap::romx && _ < 0x6000) = [&] { SRAM_bank = b; }, 
+      pattern(_).when(_ >= 0x6000 && _ < mmap::romx_end) = [&] {
+            latch = b;
+            latch_checker.push_back(b);
+            is_latch_open = (latch_checker[0] == 0 && latch_checker[1] == 1);
+      }
+  );
 }
+  // clang-format on
 
 byte mbc3::readSRAM(address_t index) const noexcept {
   index = normalize_index(index, mmap::sram);
