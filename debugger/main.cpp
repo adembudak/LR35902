@@ -1,25 +1,44 @@
+#include <LR35902/debugView/debugView.h>
 #include <backend/GameBoy.h>
-#include <debugger/palettes.h>
 
 #include <imgui.h>
+#include <imgui_impl_opengl3.h>
 #include <imgui_impl_sdl2.h>
-#include <imgui_impl_sdlrenderer2.h>
-
-#include <LR35902/debugView/debugView.h>
 
 #include <SDL2/SDL.h>
-#if !SDL_VERSION_ATLEAST(2, 0, 17)
-  #error This backend requires SDL 2.0.17+ because of SDL_RenderGeometry() function
-#endif
+#include <SDL2/SDL_opengl.h>
 
 #include <CLI/CLI.hpp>
 
 #include <algorithm>
-#include <filesystem>
-#include <format>
-#include <memory>
+#include <array>
+#include <cstdint>
 
-static void putMenuBar(LR35902::DebugView &debugView, bool &isDone) {
+namespace {
+using palette_t = std::array<SDL_Color, 4>;
+
+constexpr palette_t original = {
+    SDL_Color{107, 166, 74},
+    SDL_Color{67,  122, 99},
+    SDL_Color{37,  89,  85},
+    SDL_Color{18,  66,  76}
+};
+
+constexpr palette_t cococola = {
+    SDL_Color{244, 0, 9},
+    SDL_Color{186, 0, 6},
+    SDL_Color{114, 0, 4},
+    SDL_Color{43,  0, 1}
+};
+
+constexpr palette_t galata = {
+    SDL_Color{117, 148, 166},
+    SDL_Color{101, 130, 144},
+    SDL_Color{32,  46,  72 },
+    SDL_Color{34,  63,  69 }
+};
+
+void putMenuBar(LR35902::DebugView &debugView, bool &isDone) {
   if(ImGui::BeginMenu("File")) {
     if(ImGui::MenuItem("Open", "Ctrl-O")) {
     }
@@ -54,6 +73,7 @@ static void putMenuBar(LR35902::DebugView &debugView, bool &isDone) {
     ImGui::EndMenu();
   }
 }
+}
 
 int main(int argc, char *argv[]) {
   CLI::App app{"LR35902", "debugger_sdl2"};
@@ -69,56 +89,59 @@ int main(int argc, char *argv[]) {
   }
 
   GameBoy attaboy;
+
   const bool isCartridgePlugged = attaboy.plug(romFile);
 
   if(const bool ret = attaboy.tryBoot(); !ret) {
     attaboy.skipboot();
   }
 
+  LR35902::DebugView debugView{attaboy};
+
   if(const int ret = SDL_InitSubSystem(SDL_INIT_VIDEO); ret != 0) {
     return ret;
   }
 
-  constexpr int w_win = 1280;
-  constexpr int h_win = 720;
+  const char *glsl_version = "#version 130";
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 2);
 
-  // clang-format off
-  constexpr auto flags_window = SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
-  std::unique_ptr<SDL_Window, decltype([](SDL_Window *w) { SDL_DestroyWindow(w); })> my_window{ //
-    SDL_CreateWindow("LR35902 + Debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_win, h_win, flags_window)};
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
 
-  if (!my_window) {
-      SDL_Log("%s\n", SDL_GetError());
-      return 1;
-  }
+  constexpr int win_w = 1280;
+  constexpr int win_h = 720;
 
-  constexpr auto flags_renderer = SDL_RENDERER_ACCELERATED | SDL_RENDERER_TARGETTEXTURE;
-  std::unique_ptr<SDL_Renderer, decltype([](SDL_Renderer *r) { SDL_DestroyRenderer(r); })> my_renderer{
-    SDL_CreateRenderer(my_window.get(), -1, flags_renderer)};
+  constexpr auto flags_window = SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI;
+  SDL_Window *my_window =
+      SDL_CreateWindow("LR35902 + Debugger", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, win_w, win_h, flags_window);
 
-  if (!my_renderer) {
-      SDL_Log("%s\n", SDL_GetError());
-      return 2;
-  }
-  constexpr auto flags_texture = SDL_TEXTUREACCESS_STREAMING | SDL_TEXTUREACCESS_TARGET;
-  std::unique_ptr<SDL_Texture, decltype([](SDL_Texture *t) { SDL_DestroyTexture(t); })> my_texture{
-    SDL_CreateTexture(my_renderer.get(), SDL_PixelFormatEnum::SDL_PIXELFORMAT_RGBA32, flags_texture, w_win, h_win)};
-  // clang-format on
-
-  if(!my_texture) {
+  if(my_window == nullptr) {
     SDL_Log("%s\n", SDL_GetError());
-    return 3;
+    return 1;
   }
 
-  LR35902::DebugView debugView{attaboy};
+  SDL_GLContext gl_context = SDL_GL_CreateContext(my_window);
+
+  if(gl_context == nullptr) {
+    SDL_Log("%s\n", SDL_GetError());
+    return 2;
+  }
+
+  SDL_GL_MakeCurrent(my_window, gl_context);
+  SDL_GL_SetSwapInterval(1);
+
   IMGUI_CHECKVERSION();
   ImGui::CreateContext();
 
   ImGuiIO &io = ImGui::GetIO();
   ImGui::StyleColorsDark();
 
-  ImGui_ImplSDL2_InitForSDLRenderer(my_window.get(), my_renderer.get());
-  ImGui_ImplSDLRenderer2_Init(my_renderer.get());
+  ImGui_ImplSDL2_InitForOpenGL(my_window, gl_context);
+  ImGui_ImplOpenGL3_Init(glsl_version);
 
   constexpr int emu_w = 160;
   constexpr int emu_h = 144;
@@ -129,15 +152,6 @@ int main(int argc, char *argv[]) {
   bool isDone = false;
   while(!isDone) {
 
-    ImGui_ImplSDLRenderer2_NewFrame();
-    ImGui_ImplSDL2_NewFrame();
-    ImGui::NewFrame();
-
-    if(ImGui::BeginMainMenuBar()) {
-      putMenuBar(debugView, isDone);
-      ImGui::EndMainMenuBar();
-    }
-
     SDL_Event event;
     while(SDL_PollEvent(&event)) {
       ImGui_ImplSDL2_ProcessEvent(&event);
@@ -146,7 +160,6 @@ int main(int argc, char *argv[]) {
       switch(event.type) {
       case SDL_EventType::SDL_QUIT:
         isDone = true;
-        attaboy.stop();
         break;
 
       case SDL_EventType::SDL_KEYDOWN: {
@@ -182,53 +195,84 @@ int main(int argc, char *argv[]) {
       // clang-format on
     }
 
-    while(attaboy.isPowerOn()) {
+    ImGui_ImplOpenGL3_NewFrame();
+    ImGui_ImplSDL2_NewFrame();
+    ImGui::NewFrame();
+
+    if(ImGui::BeginMainMenuBar()) {
+      putMenuBar(debugView, isDone);
+      ImGui::EndMainMenuBar();
+    }
+
+    {
+      ImGui::Begin("Debugger State");
+
+      if(ImGui::Button("Reset")) {
+        attaboy.reset();
+      }
+
+      if(ImGui::Button("Start")) {
+        // attaboy.start();
+      }
+
+      if(ImGui::Button("Pause")) {
+        attaboy.pause();
+      }
+
+      if(ImGui::Button("Resume")) {
+        attaboy.resume();
+      }
+
+      if(ImGui::Button("Stop")) {
+        attaboy.stop();
+      }
+
+      ImGui::End();
+    }
+
+    if(1) {
 
       attaboy.update();
 
-      static palette_t palette;
       debugView.showCartHeader();
       debugView.showMemoryPortions();
       debugView.showDisassembly();
       debugView.showCPUState();
       debugView.showRegisters();
 
-      ImGui::Begin("palette");
-      static int selected = 0;
-      ImGui::SetNextItemWidth(100.0f);
-
-      const char *items[]{"Original", "Coco'Cola", "Galata"};
-      ImGui::Combo("Palette", &selected, items, IM_ARRAYSIZE(items));
-
-      switch(selected) {
-      case 0: palette = original; break;
-      case 1: palette = cococola; break;
-      case 2: palette = galata; break;
-      }
-      ImGui::End();
-
       const auto &framebuffer = attaboy.ppu.getFrameBuffer();
-      std::ranges::transform(framebuffer, pixels.begin(),
-                             [&](auto e) { return SDL_Color{palette[e].r, palette[e].g, palette[e].b, palette[e].a}; });
+      std::ranges::transform(framebuffer, pixels.begin(), [&](const auto e) {
+        return SDL_Color{original[e].r, original[e].g, original[e].b, original[e].a};
+      });
     }
 
+    static GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, emu_w, emu_h, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                 reinterpret_cast<GLvoid *>(pixels.data()));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+    ImGui::Begin("emu");
+    ImGui::Image(textureID, ImVec2{emu_w, emu_h});
+    ImGui::End();
+
+    glViewport(0, 0, io.DisplaySize.x, io.DisplaySize.y);
+    glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     ImGui::Render();
-
-    SDL_UpdateTexture(my_texture.get(), &emuOutput, pixels.data(), emu_w * sizeof(SDL_Color));
-
-    SDL_RenderClear(my_renderer.get());
-
-    SDL_RenderCopy(my_renderer.get(), my_texture.get(), nullptr, nullptr);
-
-    SDL_SetRenderDrawColor(my_renderer.get(), 0xff, 0xff, 0xff, 0xff);
-
-    ImGui_ImplSDLRenderer2_RenderDrawData(ImGui::GetDrawData(), my_renderer.get());
-    SDL_RenderPresent(my_renderer.get());
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    SDL_GL_SwapWindow(my_window);
   }
 
-  ImGui_ImplSDLRenderer2_Shutdown();
+  ImGui_ImplOpenGL3_Shutdown();
   ImGui_ImplSDL2_Shutdown();
   ImGui::DestroyContext();
+  SDL_GL_DeleteContext(gl_context);
+  SDL_DestroyWindow(my_window);
 
   SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
