@@ -56,8 +56,8 @@ Register 3:
   1 : RAM banking enabled, Upper ROM banking disabled. Only Register 1 will be used when ROM bank selected.
  The value of Register 2 will be used as RAM bank number when reading/writing from/to RAM.
 
-  If Upper ROM banking enabled, the 2 bit Register 2 will be used as most significant two bits to
- construct a 7 bit integer along with 5 bit Register 1 which will be the effective bank number that is selected:
+  If Upper ROM banking enabled, the 2 bits of Register 2 will be used as most significant two bits to
+ construct a 7 bit integer along with the 5 bits of Register 1 which will be the effective bank number that is selected:
  const effective_bank_number = (register_2 << 5) | register_1
 
 All four registers are write only and their default values are 0.

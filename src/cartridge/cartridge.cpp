@@ -83,7 +83,6 @@ byte Cartridge::readSRAM(const address_t index) const noexcept {
   return std::visit(overloaded {
                                  [&](const auto &rom)  { return rom.readSRAM(index); },
                                  [&](const rom_only &) { return random_byte();       },
-                                 [&](const mbc5 &)     { return random_byte();       }
                                }, m_cart);
 }
 
@@ -92,7 +91,6 @@ void Cartridge::writeSRAM(const address_t index, const byte b) noexcept {
   std::visit(overloaded {
                           [&](auto &rom)  { rom.writeSRAM(index, b); },
                           [&](rom_only &) {    /* do nothing */      },
-                          [&](mbc5 &)     {    /* do nothing */      }
                         }, m_cart);
 }
 
@@ -100,7 +98,6 @@ void Cartridge::reset() noexcept { // only resets SRAM
   std::visit(overloaded {
                           [&](auto &rom)  { std::ranges::fill(rom.m_sram, byte{}); },
                           [&](rom_only &) {      /* no sram */                     },
-                          [&](mbc5 &)     {      /* no sram */                     }
                         }, m_cart);
 }
 
@@ -127,7 +124,6 @@ std::size_t Cartridge::SRAMSize() const noexcept{
       return std::visit(overloaded {
                       [&](const auto &rom)  { return std::size(rom.m_sram); },
                       [&](const rom_only &) { return std::size_t{0};        },
-                      [&](const mbc5 &)     { return std::size_t{0};        }
                     }, m_cart);
 }
 #endif
