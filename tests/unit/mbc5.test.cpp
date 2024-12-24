@@ -1,4 +1,4 @@
-#include <LR35902/cartridge/kind/mbc5/mbc5.h>
+#include <LR35902/cartridge/kind/mbc5.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
