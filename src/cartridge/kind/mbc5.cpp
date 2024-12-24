@@ -1,6 +1,7 @@
 #include <LR35902/cartridge/kind/mbc5.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 
 #include <mpark/patterns/match.hpp>
 #include <mpark/patterns/when.hpp>
@@ -20,11 +21,11 @@ namespace LR35902 {
 namespace rv = ranges::views;
 namespace mp = mpark::patterns;
 
-mbc5::mbc5(std::vector<byte> other, std::size_t RAM_size, bool has_battery, bool has_rumble) :
+mbc5::mbc5(std::vector<byte> other, const MBC_config& config) :
     m_rom{std::move(other)},
-    m_sram(RAM_size),
-    has_battery{has_battery},
-    has_rumble{has_rumble} {}
+    m_sram(config.sram_size),
+    has_battery{config.has_battery},
+    has_rumble{config.has_rumble} {}
 
 static_assert((0b1 << 8) == 0b1'0000'0000);
 

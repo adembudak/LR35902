@@ -1,5 +1,6 @@
 #include <LR35902/cartridge/kind/mbc2.h>
 #include <LR35902/config.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/memory_map.h>
 
 #include <range/v3/view/chunk.hpp>
@@ -14,9 +15,9 @@
 namespace LR35902 {
 namespace rv = ranges::views;
 
-mbc2::mbc2(std::vector<byte> rom, bool has_battery) :
+mbc2::mbc2(std::vector<byte> rom, const MBC_config& config) :
     m_rom(std::move(rom)),
-    has_battery{has_battery} {}
+    has_battery{config.has_battery} {}
 
 byte mbc2::readROM(const address_t index) const noexcept {
   if(index < mmap::rom0_end) {

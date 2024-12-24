@@ -7,6 +7,7 @@
 #include <vector>
 
 namespace LR35902 {
+struct MBC_config;
 
 class mbc2 final {
   std::vector<byte> m_rom;
@@ -17,7 +18,7 @@ class mbc2 final {
   bool ram_enabled = false;
 
 public:
-   mbc2(std::vector<byte> rom, bool has_battery);
+   mbc2(std::vector<byte> rom, const MBC_config& config);
 
   [[nodiscard]] byte readROM(const address_t index) const noexcept;
    void writeROM(const address_t index, const byte b) noexcept;

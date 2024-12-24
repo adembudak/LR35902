@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/mbc5.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -35,7 +36,7 @@ TEST_CASE("Memory bank controller cartridge type 5", "Read/Write ROM") {
   REQUIRE(ROM[257_ROMBANK] == 254);
   REQUIRE(ROM[511_ROMBANK] == 0);
 
-  mbc5 cart{std::move(ROM), 16_SRAMBANK, false, false};
+  mbc5 cart{std::move(ROM), {.sram_size = 16_SRAMBANK}};
 
   STATIC_CHECK(16_SRAMBANK == 128_KiB); // [0, 16)
 

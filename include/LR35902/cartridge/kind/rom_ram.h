@@ -6,6 +6,7 @@
 #include <vector>
 
 namespace LR35902 {
+struct MBC_config;
 
 class rom_ram final {
   std::vector<byte> m_rom; // Usually 32KiB
@@ -14,7 +15,7 @@ class rom_ram final {
   bool has_battery;
 
 public:
-  rom_ram(std::vector<byte> rom, bool has_battery);
+  rom_ram(std::vector<byte> rom, const MBC_config& config);
 
   [[nodiscard]] byte readROM(const address_t index) const noexcept;
   void writeROM(const address_t index, const byte b) noexcept;

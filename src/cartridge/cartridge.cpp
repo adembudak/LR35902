@@ -1,6 +1,7 @@
 #include <LR35902/cartridge/cartridge.h>
 #include <LR35902/cartridge/header/header.h>
 #include <LR35902/cartridge/kind/all.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -37,32 +38,32 @@ bool Cartridge::load(const char *const romfile) noexcept {
   const auto RAM_size = header.decode_ram_size().second;
   match(header.decode_mbc_type().second)(
       pattern(0x00) = [&] { m_cart = rom_only(dumpedGamePak); },
-      pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, 0, false); },
-      pattern(0x02) = [&] { m_cart = mbc1(dumpedGamePak, RAM_size, false); },
-      pattern(0x03) = [&] { m_cart = mbc1(dumpedGamePak, RAM_size, true); },
-      pattern(0x05) = [&] { m_cart = mbc2(dumpedGamePak, false); },
-      pattern(0x06) = [&] { m_cart = mbc2(dumpedGamePak, true); },
-      pattern(0x08) = [&] { m_cart = rom_ram(dumpedGamePak, false); }, 
-      pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, true); },
-      pattern(0x0f) = [&] { m_cart = mbc3(dumpedGamePak, 0, true, true); },
-      pattern(0x10) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, true, true); },
-      pattern(0x11) = [&] { m_cart = mbc3(dumpedGamePak, 0, false, false); },
-      pattern(0x12) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, false, false); },
-      pattern(0x13) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, false, true); },
-      pattern(0x19) = [&] { m_cart = mbc5(dumpedGamePak, 0, false, false); },
-      pattern(0x1a) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, false, false); },
-      pattern(0x1b) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, true, false); },
-      pattern(0x1c) = [&] { m_cart = mbc5(dumpedGamePak, 0, false, true); },
-      pattern(0x1d) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, false, true); },
-      pattern(0x1e) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, true, false); },
-      pattern(_) = [&] {
+      pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, {}); },
+      pattern(0x02) = [&] { m_cart = mbc1(dumpedGamePak, {.sram_size = RAM_size}); },
+      pattern(0x03) = [&] { m_cart = mbc1(dumpedGamePak, {.sram_size = RAM_size, .has_battery = true}); },
+      pattern(0x05) = [&] { m_cart = mbc2(dumpedGamePak, {}); },
+      pattern(0x06) = [&] { m_cart = mbc2(dumpedGamePak, {.has_battery = true}); },
+      pattern(0x08) = [&] { m_cart = rom_ram(dumpedGamePak, {}); },
+      pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, { .has_battery = true }); },
+      pattern(0x0f) = [&] { m_cart = mbc3(dumpedGamePak, {.has_timer = true, .has_battery = true}); },
+      pattern(0x10) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = RAM_size, .has_timer = true, .has_battery = true}); },
+      pattern(0x11) = [&] { m_cart = mbc3(dumpedGamePak, {}); },
+      pattern(0x12) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = RAM_size}); },
+      pattern(0x13) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = RAM_size, .has_battery = true}); },
+      pattern(0x19) = [&] { m_cart = mbc5(dumpedGamePak, {}); },
+      pattern(0x1a) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = RAM_size}); },
+      pattern(0x1b) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = RAM_size, .has_battery = true}); },
+      pattern(0x1c) = [&] { m_cart = mbc5(dumpedGamePak, {.has_rumble = true}); },
+      pattern(0x1d) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = RAM_size, .has_rumble = true}); },
+      pattern(0x1e) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = RAM_size, .has_battery = true, .has_rumble = true}); },
+      pattern(_) =
+          [&] {
             const std::string msg =                       //
                 "this type of cart not suppported (yet) " //
                 + header.decode_mbc_type().first + " "    //
                 + std::to_string(header.decode_mbc_type().second);
             assert(false && msg.c_str());
-          }
-  );
+          });
 
   return true;
 }

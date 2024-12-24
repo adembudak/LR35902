@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -76,11 +77,11 @@ namespace LR35902 {
 namespace rv = ranges::views;
 namespace mp = mpark::patterns;
 
-mbc1::mbc1(std::vector<byte> other, const std::size_t RAM_size, const bool has_battery) :
+mbc1::mbc1(std::vector<byte> other, const MBC_config& config) :
     m_rom{std::move(other)},
-    m_sram(RAM_size, byte{}),
+    m_sram(config.sram_size, byte{}),
     has_sram{static_cast<bool>(m_sram.size())},
-    has_battery{has_battery} {}
+    has_battery{config.has_battery} {}
 
 // clang-format off
 byte mbc1::readROM(const address_t index) const noexcept {

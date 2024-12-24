@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/rom_ram.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -7,9 +8,9 @@
 
 namespace LR35902 {
 
-rom_ram::rom_ram(std::vector<byte> rom, bool has_battery) :
+rom_ram::rom_ram(std::vector<byte> rom, const MBC_config& config) :
     m_rom{std::move(rom)},
-    has_battery{has_battery} {}
+    has_battery{config.has_battery} {}
 
 byte rom_ram::readROM(const address_t index) const noexcept {
   return m_rom[index];

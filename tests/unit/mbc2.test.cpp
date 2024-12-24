@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/mbc2.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -25,7 +26,7 @@ TEST_CASE("Memory bank controller type 2", "ROM banking behavior") {
   REQUIRE(ROM[3 * 16_KiB] == 34 + 3);
   REQUIRE(ROM[15 * 16_KiB] == 34 + 15);
 
-  mbc2 cart{std::move(ROM), /*has_battery*/ false};
+  mbc2 cart{std::move(ROM), {.has_battery = false}};
 
   SECTION("ROM Operations") {
     REQUIRE(cart.readROM(0) == 34);

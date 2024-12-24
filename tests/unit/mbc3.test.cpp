@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/mbc3.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -20,7 +21,7 @@ TEST_CASE("Memory bank controller cartridge type 3", "Read/Write ROM") {
   REQUIRE(ROM[127_ROMBANK] == 127);
 
   STATIC_CHECK(32_KiB == 4_SRAMBANK); // [0, 4)
-  mbc3 cart{ROM, 4_SRAMBANK, true, false};
+  mbc3 cart{ROM, {.sram_size = 4_SRAMBANK, .has_timer = true}};
   enum {
     register_0 = 0, // SRAM enable
     register_1,     // ROM bank select
@@ -56,7 +57,7 @@ TEST_CASE("Memory bank controller cartridge type 3", "Read/Write ROM") {
   SECTION("SRAM operations") {
     cart.writeSRAM(mmap::sram, 0xab); // SRAM disabled by default, write should no effect and read should return a random
     REQUIRE_FALSE(cart.readSRAM(mmap::sram) == 0xab);
-    
+
     set_register(register_0, 0x0a); // should be enabled now
     cart.writeSRAM(mmap::sram, 0xab);
     REQUIRE(cart.readSRAM(mmap::sram) == 0xab);
@@ -65,7 +66,7 @@ TEST_CASE("Memory bank controller cartridge type 3", "Read/Write ROM") {
     cart.writeSRAM(mmap::sram, 0xbc);
     REQUIRE(cart.readSRAM(mmap::sram) == 0xbc);
 
-     set_register(register_2, 2);
+    set_register(register_2, 2);
     cart.writeSRAM(mmap::sram, 0xac);
     REQUIRE(cart.readSRAM(mmap::sram) == 0xac);
 

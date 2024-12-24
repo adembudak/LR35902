@@ -1,4 +1,5 @@
 #include <LR35902/cartridge/kind/mbc1.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
@@ -24,7 +25,7 @@ TEST_CASE("Memory bank controller cartridge type 1", "Read/Write ROM") {
   REQUIRE(ROM[3 * 16_KiB] == 13 + 3);
   REQUIRE(ROM[127 * 16_KiB] == 13 + 127);
 
-  mbc1 cart{std::move(ROM), 32_KiB, false};
+  mbc1 cart{std::move(ROM), {.sram_size = 32_KiB}};
   enum : int { reg0 = 0, reg1 = 1, reg2 = 2, reg3 = 3 };
 
   const auto selectRegister = [&cart](const int reg, const byte val) {

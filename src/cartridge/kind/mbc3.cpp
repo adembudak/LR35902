@@ -1,5 +1,6 @@
 #include <LR35902/cartridge/kind/mbc3.h>
 #include <LR35902/config.h>
+#include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/memory_map.h>
 
 #include <mpark/patterns.hpp>
@@ -38,11 +39,12 @@ void mbc3::update_RTC() const noexcept {
   RTC.days_hi = (day_of_year_ & 0x0100) >> 8;
 }
 
-mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery) :
+// mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery) :
+mbc3::mbc3(std::vector<byte> rom, const MBC_config& config) :
     m_rom(std::move(rom)),
-    m_sram(ram_size),
-    has_timer{has_timer},
-    has_battery{has_battery} {
+    m_sram(config.sram_size),
+    has_timer{config.has_timer},
+    has_battery{config.has_battery} {
   if(has_timer) update_RTC();
   else          RTC = {{}, {}, {}, {}, {}};
 }

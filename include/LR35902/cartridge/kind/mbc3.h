@@ -8,6 +8,8 @@
 
 namespace LR35902 {
 
+struct MBC_config;
+
 template <typename T, std::size_t N>
 struct CircularBuffer { // Poor man's circular buffer implementation
   static_assert(N > 0);
@@ -56,7 +58,7 @@ class mbc3 final {
   void update_RTC() const noexcept;
 
 public:
-  mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery);
+  mbc3(std::vector<byte> rom, const MBC_config& config);
 
   [[nodiscard]] byte readROM(address_t index) const noexcept;
   void writeROM(const address_t index, const byte b) noexcept;
