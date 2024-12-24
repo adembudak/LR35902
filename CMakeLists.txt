@@ -194,6 +194,7 @@ if(UNIT_TESTS)
 
   lr35902_add_unit_test(mbc1.test ${LR35902_TEST_DIR}/unit/mbc1.test.cpp)
   lr35902_add_unit_test(mbc2.test ${LR35902_TEST_DIR}/unit/mbc2.test.cpp)
+  lr35902_add_unit_test(mbc3.test ${LR35902_TEST_DIR}/unit/mbc3.test.cpp)
   lr35902_add_unit_test(mbc5.test ${LR35902_TEST_DIR}/unit/mbc5.test.cpp)
 endif()
 
