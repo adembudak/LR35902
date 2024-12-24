@@ -35,7 +35,7 @@ class mbc3 final {
   bool has_battery;
 
   // registers
-  byte RAM_enabled = 0;
+  byte SRAM_enabled = 0;
   byte ROM_bank = 1;
   byte SRAM_bank = 0;
   byte latch = 0;
@@ -48,10 +48,12 @@ class mbc3 final {
     byte days_hi;
   };
 
-  RTC_t RTC;
+  mutable RTC_t RTC;
 
   circularByteBuffer<2> latch_checker;
   bool is_latch_open = false;
+
+  void update_RTC() const noexcept;
 
 public:
   mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery);
