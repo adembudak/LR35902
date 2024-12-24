@@ -9,18 +9,6 @@
 
 using namespace LR35902;
 
-namespace {
-
-[[nodiscard]] consteval unsigned long long operator"" _ROMBANK(const unsigned long long l) noexcept {
-  return rom_bank_size * l;
-}
-
-[[nodiscard]] consteval unsigned long long operator"" _SRAMBANK(const unsigned long long l) noexcept {
-  return sram_bank_size * l;
-}
-
-}
-
 TEST_CASE("Memory bank controller cartridge type 5", "Read/Write ROM") {
 
   std::vector<byte> ROM(512_ROMBANK, byte{});

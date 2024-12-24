@@ -24,6 +24,14 @@ using address_t = std::uint16_t;
   return 1024_KiB * l;
 }
 
+[[nodiscard]] consteval unsigned long long operator"" _ROMBANK(const unsigned long long l) noexcept {
+  return 16_KiB * l;
+}
+
+[[nodiscard]] consteval unsigned long long operator"" _SRAMBANK(const unsigned long long l) noexcept {
+  return 8_KiB * l;
+}
+
 inline std::mt19937 engine{std::random_device{}()};
 inline std::uniform_int_distribution get{0, 255};
 [[nodiscard]] inline byte random_byte() {
