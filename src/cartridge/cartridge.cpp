@@ -44,6 +44,11 @@ bool Cartridge::load(const char *const romfile) noexcept {
       pattern(0x06) = [&] { m_cart = mbc2(dumpedGamePak, true); },
       pattern(0x08) = [&] { m_cart = rom_ram(dumpedGamePak, false); }, 
       pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, true); },
+      pattern(0x0f) = [&] { m_cart = mbc3(dumpedGamePak, 0, true, true); },
+      pattern(0x10) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, true, true); },
+      pattern(0x11) = [&] { m_cart = mbc3(dumpedGamePak, 0, false, false); },
+      pattern(0x12) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, false, false); },
+      pattern(0x13) = [&] { m_cart = mbc3(dumpedGamePak, RAM_size, false, true); },
       pattern(0x19) = [&] { m_cart = mbc5(dumpedGamePak, 0, false, false); },
       pattern(0x1a) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, false, false); },
       pattern(0x1b) = [&] { m_cart = mbc5(dumpedGamePak, RAM_size, true, false); },
@@ -53,7 +58,7 @@ bool Cartridge::load(const char *const romfile) noexcept {
       pattern(_) = [&] {
             const std::string msg =                       //
                 "this type of cart not suppported (yet) " //
-                + header.decode_mbc_type().first + " "     //
+                + header.decode_mbc_type().first + " "    //
                 + std::to_string(header.decode_mbc_type().second);
             assert(false && msg.c_str());
           }
