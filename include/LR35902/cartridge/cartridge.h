@@ -27,7 +27,6 @@ public:
 
   void reset() noexcept;
 
-#if defined(WITH_DEBUGGER)
   [[nodiscard]] const byte *data() const noexcept;
   [[nodiscard]] std::size_t size() const noexcept;
 
@@ -35,6 +34,5 @@ public:
   [[nodiscard]] std::size_t SRAMSize() const noexcept;
 
   friend class DebugView;
-#endif
 };
 }

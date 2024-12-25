@@ -102,7 +102,6 @@ void Cartridge::reset() noexcept { // only resets SRAM
                         }, m_cart);
 }
 
-#if defined(WITH_DEBUGGER)
 const byte *Cartridge::data() const noexcept {
   return std::visit([&](const auto &cart) { return cart.m_rom.data(); }, m_cart);
 }
@@ -127,5 +126,4 @@ std::size_t Cartridge::SRAMSize() const noexcept{
                       [&](const rom_only &) { return std::size_t{0};        },
                     }, m_cart);
 }
-#endif
 }
