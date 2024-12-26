@@ -90,8 +90,8 @@ byte mbc1::readROM(const address_t index) const noexcept {
   static const auto banked_rom_view = m_rom | rv::const_ | rv::chunk(rom_bank_size);
 
   return match(index)(
-      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx) = [&](auto index) { return m_rom[index]; },
-      pattern(arg).when(arg >= mmap::romx && arg < mmap::romx_end) = [&](auto index) {
+      pattern(_).when(_ >= mmap::rom0 && _ < mmap::romx) = [&] { return m_rom[index]; },
+      pattern(_).when(_ >= mmap::romx && _ < mmap::romx_end) = [&] {
         const auto index_normalized = index % rom_bank_size;
         if(register_3 == 1) return banked_rom_view[register_1][index_normalized];
         return banked_rom_view[((register_2 << 5) | register_1)][index_normalized];
@@ -102,10 +102,10 @@ void mbc1::writeROM(const address_t index, const byte b) noexcept {
   using namespace mp;
   // clang-format off
   match(index)(
-      pattern(arg).when(arg >= 0x0000 && arg < 0x2000) = [&](auto) { register_0 = (b & 0x0f) == 0x0A; }, 
-      pattern(arg).when(arg >= 0x2000 && arg < 0x4000) = [&](auto) { register_1 = b & 0x1f; if(register_1 == 0) ++register_1; },
-      pattern(arg).when(arg >= 0x4000 && arg < 0x6000) = [&](auto) { register_2 = b & 0x3; },
-      pattern(arg).when(arg >= 0x6000 && arg < 0x8000) = [&](auto) { register_3 = b & 0x01; }
+      pattern(_).when(_ >= 0x0000 && _ < 0x2000) = [&] { register_0 = (b & 0x0f) == 0x0A; }, 
+      pattern(_).when(_ >= 0x2000 && _ < 0x4000) = [&] { register_1 = b & 0x1f; if(register_1 == 0) ++register_1; },
+      pattern(_).when(_ >= 0x4000 && _ < 0x6000) = [&] { register_2 = b & 0x3; },
+      pattern(_).when(_ >= 0x6000 && _ < 0x8000) = [&] { register_3 = b & 0x01; }
   );
 }
 
