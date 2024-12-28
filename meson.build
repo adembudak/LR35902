@@ -5,18 +5,25 @@ project(
   license: 'BSL-1.0',
   license_files: 'license',
   subproject_dir: 'subprojects',
-  version: '1.6.1',
+  version: '0.1.0',
+  meson_version: '1.6.1',
 )
+
+if meson.get_compiler('cpp').get_id() == 'msvc'
+    add_global_arguments('/Zc:__cplusplus', language: 'cpp')
+endif
 
 LR35902_incdir = include_directories('include')
 LR35902_sourcedir = include_directories('.')
 
 ranges_dep = dependency('range-v3', required: true)
+patterns_dep = dependency('mpark_patterns', required: true)
 sdl2_dep = dependency(
   'sdl2',
   default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'},
   required: true,
 )
+
 nlohmann_json_dep = dependency('nlohmann_json')
 
 imgui_dep = dependency(
@@ -68,7 +75,7 @@ lr35902_sources = files(
 lr35902_core = library(
   'lr35902',
   sources: lr35902_sources,
-  dependencies: [ranges_dep, imgui_dep],
+  dependencies: [ranges_dep, patterns_dep, imgui_dep],
   include_directories: LR35902_incdir,
 )
 
@@ -116,4 +123,12 @@ if get_option('with_tools')
   )
 
   executable('gb.dis', 'tools/disassembler/main.cpp', dependencies: [fmt_dep, cli11_dep, ranges_dep])
+endif
+
+
+if (get_option('unit_tests'))
+  foreach f : ['mbc1.test', 'mbc2.test', 'mbc3.test', 'mbc5.test']
+    test_executable = executable(f, 'tests/unit/' + f + '.cpp', link_with: lr35902_core, dependencies: dependency('catch2'))
+    test(f, test_executable)
+  endforeach
 endif

@@ -36,3 +36,4 @@ subprojects/SDL2-2.30.6
 subprojects/fmt-11.0.2
 subprojects/imgui-1.91.3
 subprojects/nlohmann_json-3.11.3
+subprojects/Catch2-2.13.7

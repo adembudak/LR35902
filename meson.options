@@ -2,6 +2,7 @@ option('with_debugger', type : 'boolean', value : false)
 
 option('with_tools', type : 'boolean', value : false)
 option('rom_tests', type : 'boolean', value : false)
+option('unit_tests', type : 'boolean', value : false)
 option('visualize_targets', type : 'boolean', value : false)
 
 option('static_analysis', type : 'boolean', value : false)

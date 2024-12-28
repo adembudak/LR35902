@@ -57,19 +57,18 @@ gui dir = builddir:
 [linux, unix]
 meson builddir:
 	meson setup -Dwith_debugger=true \
-	-Dsdl2_frontend=false \
-	-Dsfml_frontend=false \
-	-Dwith_tools=true \
+	-D with_debugger=true \
+	-D with_tools=true \
+	-D unit_tests=true \
 	--wrap-mode default \
-	--default-library both {{builddir}}
+	--default-library both . {{builddir}}
 	meson compile -C {{builddir}}
 
 [windows]
 meson builddir:
 	meson setup --backend vs2022 \
-	 -Dwith_debugger=false \
-	 -Dsdl2_frontend=false \
-	 -Dsfml_frontend=false \
-	 -Dwith_tools=true \
-	 --wrap-mode forcefallback {{builddir}}
+	-D with_debugger=true \
+	-D with_tools=true \
+	-D unit_tests=true \
+	--wrap-mode forcefallback . {{builddir}}
 	meson compile -C {{builddir}}
