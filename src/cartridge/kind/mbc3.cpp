@@ -3,6 +3,7 @@
 #include <LR35902/cartridge/kind/mbc_config.h>
 #include <LR35902/memory_map.h>
 
+#include <mpark/patterns/match.hpp>
 #include <mpark/patterns.hpp>
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
@@ -20,7 +21,7 @@ namespace rv = ranges::views;
 namespace mp = mpark::patterns;
 
 void mbc3::update_RTC() const noexcept {
-  if(bool is_halted = 0b0100'0000 & RTC.days_hi; is_halted) return;
+  if(const bool is_halted = 0b0100'0000 & RTC.days_hi; is_halted) return;
 
   using namespace std::chrono;
 
@@ -39,7 +40,6 @@ void mbc3::update_RTC() const noexcept {
   RTC.days_hi = (day_of_year_ & 0x0100) >> 8;
 }
 
-// mbc3::mbc3(std::vector<byte> rom, const std::size_t ram_size, const bool has_timer, const bool has_battery) :
 mbc3::mbc3(std::vector<byte> rom, const MBC_config& config) :
     m_rom(std::move(rom)),
     m_sram(config.sram_size),
@@ -62,8 +62,6 @@ byte mbc3::readROM(address_t index) const noexcept {
       }
   );
 }
-
-
 
 void mbc3::writeROM(const address_t index, const byte b) noexcept {
   using namespace mp;
