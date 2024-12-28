@@ -1,6 +1,4 @@
 option('with_debugger', type : 'boolean', value : false)
-option('sfml_frontend', type : 'boolean', value : false)
-option('sdl2_frontend', type : 'boolean', value : false)
 
 option('with_tools', type : 'boolean', value : false)
 option('rom_tests', type : 'boolean', value : false)
