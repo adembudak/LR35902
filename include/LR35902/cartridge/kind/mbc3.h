@@ -50,12 +50,12 @@ class mbc3 final {
     byte days_hi;
   };
 
-  mutable RTC_t RTC;
+  RTC_t RTC;
 
   circularByteBuffer<2> latch_checker;
   bool is_latch_open = false;
 
-  void update_RTC() const noexcept;
+  void update_RTC() noexcept;
 
 public:
   mbc3(std::vector<byte> rom, const MBC_config& config);

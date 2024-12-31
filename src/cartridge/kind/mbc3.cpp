@@ -1,10 +1,11 @@
 #include <LR35902/cartridge/kind/mbc3.h>
-#include <LR35902/config.h>
 #include <LR35902/cartridge/kind/mbc_config.h>
+#include <LR35902/config.h>
 #include <LR35902/memory_map.h>
 
 #include <mpark/patterns/match.hpp>
-#include <mpark/patterns.hpp>
+#include <mpark/patterns/anyof.hpp>
+
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
 
@@ -20,7 +21,7 @@ namespace LR35902 {
 namespace rv = ranges::views;
 namespace mp = mpark::patterns;
 
-void mbc3::update_RTC() const noexcept {
+void mbc3::update_RTC() noexcept {
   if(const bool is_halted = 0b0100'0000 & RTC.days_hi; is_halted) return;
 
   using namespace std::chrono;
@@ -40,13 +41,13 @@ void mbc3::update_RTC() const noexcept {
   RTC.days_hi = (day_of_year_ & 0x0100) >> 8;
 }
 
-mbc3::mbc3(std::vector<byte> rom, const MBC_config& config) :
+mbc3::mbc3(std::vector<byte> rom, const MBC_config &config) :
     m_rom(std::move(rom)),
     m_sram(config.sram_size),
     has_timer{config.has_timer},
     has_battery{config.has_battery} {
   if(has_timer) update_RTC();
-  else          RTC = {{}, {}, {}, {}, {}};
+  else RTC = {{}, {}, {}, {}, {}};
 }
 
 // clang-format off
@@ -88,8 +89,8 @@ byte mbc3::readSRAM(address_t index) const noexcept {
 
     else {
       if(is_latch_open) {
-        update_RTC();
-
+        const_cast<mbc3 *>(this)->update_RTC();
+       
         switch(SRAM_bank) {
         case 0x08: return RTC.seconds;
         case 0x09: return RTC.minutes;
@@ -106,23 +107,19 @@ byte mbc3::readSRAM(address_t index) const noexcept {
 }
 
 void mbc3::writeSRAM(address_t index, const byte b) noexcept {
+  using namespace mp;
+
   index = normalize_index(index, mmap::sram);
 
   if(SRAM_enabled) {
-    if(SRAM_bank >= 0 || SRAM_bank <= 3) {
-      m_sram[(SRAM_bank * sram_bank_size) + index] = b;
-    }
-
-    else {
-      switch(SRAM_bank) {
-      case 0x08: RTC.seconds = b & 0x3f; break;
-      case 0x09: RTC.minutes = b & 0x3f; break;
-      case 0x0A: RTC.hours = b & 0x1f; break;
-      case 0x0B: RTC.days_lo = b; break;
-      case 0x0C: RTC.days_hi = b & 0xc1; break;
-      default: break;
-      }
-    }
+    match(SRAM_bank)(
+        pattern(anyof(0x00, 0x01, 0x02, 0x03)) = [&] { m_sram[(SRAM_bank * sram_bank_size) + index] = b; },
+        pattern(0x08) = [&] { RTC.seconds = b & 0x3f; }, //
+        pattern(0x09) = [&] { RTC.minutes = b & 0x3f; }, //
+        pattern(0x0A) = [&] { RTC.hours = b & 0x1f; },   //
+        pattern(0x0B) = [&] { RTC.days_lo = b; },        //
+        pattern(0x0C) = [&] { RTC.days_hi = b & 0xc1; }, //
+        pattern(_) = [&] {});                            //
   }
 }
 
