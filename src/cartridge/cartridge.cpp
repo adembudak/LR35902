@@ -6,6 +6,8 @@
 #include <LR35902/memory_map.h>
 
 #include <mpark/patterns/match.hpp>
+#include <range/v3/view/istream.hpp>
+#include <range/v3/range/conversion.hpp>
 
 #include <algorithm>
 #include <array>
@@ -20,12 +22,14 @@
 #include <vector>
 
 namespace LR35902 {
+namespace rg = ranges;
+namespace mp = mpark::patterns;
 
 bool Cartridge::load(const char *const romfile) noexcept {
   std::ifstream fin{romfile};
   if(!fin) return false;
-
-  std::vector<byte> dumpedGamePak(std::istreambuf_iterator<char>{fin}, {});
+  
+  auto dumpedGamePak = rg::istream<char>(fin) | rg::to<std::vector<byte>>;
   dumpedGamePak.shrink_to_fit();
 
   if(std::size(dumpedGamePak) == 0) return false;
@@ -34,9 +38,9 @@ bool Cartridge::load(const char *const romfile) noexcept {
   std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
   this->header.assign(std::move(buf));
 
-  using namespace mpark::patterns;
   const auto SRAM_size = header.decode_ram_size().second;
   const auto MBC_type = header.decode_mbc_type().second;
+  using namespace mp;
   match(MBC_type)(
       pattern(0x00) = [&] { m_cart = rom_only(dumpedGamePak); },
       pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, {}); },
