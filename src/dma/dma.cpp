@@ -44,6 +44,9 @@ void DMA::action(const byte n) noexcept {
     pattern(_).when(_ >= mmap::wram0 && _ < mmap::wramx_end) = [&] {
             offset = normalize_index(offset, mmap::wram0);
             std::ranges::copy_n(m_builtIn.m_wram.begin() + offset, numberOfBytesToTransfer, m_ppu.m_oam.begin());
+      },
+      pattern(_) = [] {
+
       }
   );
 
