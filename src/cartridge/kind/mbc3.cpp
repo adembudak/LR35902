@@ -5,6 +5,7 @@
 
 #include <mpark/patterns/match.hpp>
 #include <mpark/patterns/anyof.hpp>
+#include <mpark/patterns/when.hpp>
 
 #include <range/v3/view/chunk.hpp>
 #include <range/v3/view/const.hpp>
@@ -77,33 +78,21 @@ void mbc3::writeROM(const address_t index, const byte b) noexcept {
       }
   );
 }
-// clang-format on
 
 byte mbc3::readSRAM(address_t index) const noexcept {
+  using namespace mp;
   index = normalize_index(index, mmap::sram);
-
-  if(SRAM_enabled) {
-    if(SRAM_bank >= 0 || SRAM_bank <= 3) {
-      return m_sram[(SRAM_bank * sram_bank_size) + index];
-    }
-
-    else {
-      if(is_latch_open) {
-        const_cast<mbc3 *>(this)->update_RTC();
-       
-        switch(SRAM_bank) {
-        case 0x08: return RTC.seconds;
-        case 0x09: return RTC.minutes;
-        case 0x0A: return RTC.hours;
-        case 0x0B: return RTC.days_lo;
-        case 0x0C: return RTC.days_hi;
-        default: break;
-        }
-      }
-    }
-  }
-
-  return random_byte();
+  const_cast<mbc3 *>(this)->update_RTC();
+ 
+  return match(SRAM_enabled, has_timer, is_latch_open, SRAM_bank)(
+      pattern(true, _ , _, anyof(0x00, 0x01, 0x02, 0x03)) = [&] { return m_sram[(SRAM_bank * sram_bank_size) + index]; },
+      pattern(true, true, true, 0x08) = [&] { return RTC.seconds; },
+      pattern(true, true, true, 0x09) = [&] { return RTC.minutes; },
+      pattern(true, true, true, 0x0A) = [&] { return RTC.hours; },
+      pattern(true, true, true, 0x0B) = [&] { return RTC.days_lo; },
+      pattern(true, true, true, 0x0C) = [&] { return RTC.days_hi; },
+      pattern(true, false, _, _) = [] { return random_byte(); },
+      pattern(false, _, _, _) = [] { return random_byte(); });
 }
 
 void mbc3::writeSRAM(address_t index, const byte b) noexcept {
@@ -111,16 +100,15 @@ void mbc3::writeSRAM(address_t index, const byte b) noexcept {
 
   index = normalize_index(index, mmap::sram);
 
-  if(SRAM_enabled) {
-    match(SRAM_bank)(
-        pattern(anyof(0x00, 0x01, 0x02, 0x03)) = [&] { m_sram[(SRAM_bank * sram_bank_size) + index] = b; },
-        pattern(0x08) = [&] { RTC.seconds = b & 0x3f; }, //
-        pattern(0x09) = [&] { RTC.minutes = b & 0x3f; }, //
-        pattern(0x0A) = [&] { RTC.hours = b & 0x1f; },   //
-        pattern(0x0B) = [&] { RTC.days_lo = b; },        //
-        pattern(0x0C) = [&] { RTC.days_hi = b & 0xc1; }, //
-        pattern(_) = [&] {});                            //
-  }
+  match(SRAM_enabled, has_timer, SRAM_bank)(
+      pattern(true, _, anyof(0x00, 0x01, 0x02, 0x03)) = [&] { m_sram[(SRAM_bank * sram_bank_size) + index] = b; },
+      pattern(true, true, 0x08) = [&] { RTC.seconds = b & 0x3f; },
+      pattern(true, true, 0x09) = [&] { RTC.minutes = b & 0x3f; },
+      pattern(true, true, 0x0A) = [&] { RTC.hours = b & 0x1f; },  
+      pattern(true, true, 0x0B) = [&] { RTC.days_lo = b; },       
+      pattern(true, true, 0x0C) = [&] { RTC.days_hi = b & 0xc1; },
+      pattern(true, _, _) = [] {},
+      pattern(false, _, _) = [] {});                           
 }
-
+// clang-format on
 }
