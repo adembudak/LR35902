@@ -54,6 +54,10 @@ tui dir = builddir:
 gui dir = builddir:
 	cmake-gui -S . -B {{dir}}
 
+[windows]
+hack dir = builddir:
+	cmake --open {{dir}}
+
 [linux, unix]
 meson builddir:
 	meson setup -Dwith_debugger=true \
