@@ -6,7 +6,7 @@ project(
   license_files: 'license',
   subproject_dir: 'subprojects',
   version: '0.1.0',
-  meson_version: '1.6.1',
+  meson_version: '>=1.6.1',
 )
 
 if meson.get_compiler('cpp').get_id() == 'msvc'
