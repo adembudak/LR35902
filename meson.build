@@ -10,7 +10,7 @@ project(
 )
 
 if meson.get_compiler('cpp').get_id() == 'msvc'
-    add_global_arguments('/Zc:__cplusplus', language: 'cpp')
+  add_project_arguments('/Zc:__cplusplus', language: 'cpp')
 endif
 
 LR35902_incdir = include_directories('include')
@@ -18,37 +18,7 @@ LR35902_sourcedir = include_directories('.')
 
 ranges_dep = dependency('range-v3', required: true)
 patterns_dep = dependency('mpark_patterns', required: true)
-sdl2_dep = dependency(
-  'sdl2',
-  default_options: {'test': false, 'assertions': 'disabled', 'use_render': 'enabled'},
-  required: true,
-)
-
-nlohmann_json_dep = dependency('nlohmann_json')
-
-imgui_dep = dependency(
-  'imgui',
-  default_options: {
-    'sdl2': 'enabled',
-    'sdl2_renderer': 'enabled',
-    'opengl': 'enabled',
-    'dx9': 'disabled',
-    'dx10': 'disabled',
-    'dx11': 'disabled',
-    'dx12': 'disabled',
-    'metal': 'disabled',
-    'vulkan': 'disabled',
-    'webgpu': 'disabled',
-    'glfw': 'disabled',
-    'osx': 'disabled',
-    'win': 'disabled',
-    'allegro5': 'disabled',
-  },
-  required: true,
-)
-
-cli11_dep = dependency('cli11', default_options: {'tests': false}, required: true)
-fmt_dep = dependency('fmt', required: true)
+cli11_dep = dependency('cli11', default_options: {'tests': false, 'single-file-header': false}, required: false)
 
 lr35902_sources = files(
   'src/bootrom/bootrom.cpp',
@@ -58,6 +28,7 @@ lr35902_sources = files(
   'src/cartridge/header/header.cpp',
   'src/cartridge/kind/mbc1.cpp',
   'src/cartridge/kind/mbc2.cpp',
+  'src/cartridge/kind/mbc3.cpp',
   'src/cartridge/kind/mbc5.cpp',
   'src/cartridge/kind/rom_only.cpp',
   'src/cartridge/kind/rom_ram.cpp',
@@ -75,7 +46,7 @@ lr35902_sources = files(
 lr35902_core = library(
   'lr35902',
   sources: lr35902_sources,
-  dependencies: [ranges_dep, patterns_dep, imgui_dep],
+  dependencies: [ranges_dep, patterns_dep],
   include_directories: LR35902_incdir,
 )
 
@@ -87,6 +58,21 @@ attaboy = library(
 )
 
 if get_option('with_debugger')
+  sdl2_dep = dependency(
+    'sdl2',
+    default_options: {
+      'test': false,
+      'assertions': 'disabled',
+      'use_joystick': 'disabled',
+      'use_sensor': 'disabled',
+      'use_cpuinfo': 'disabled',
+      'use_video_wayland': 'disabled',
+    },
+    required: true,
+  )
+
+  imgui_dep = dependency('imgui', default_options: {'sdl2': 'enabled', 'opengl': 'enabled'}, required: false)
+
   debugView = library(
     'debugView',
     cpp_args: '-DWITH_DEBUGGER',
@@ -107,6 +93,9 @@ if get_option('with_debugger')
 endif
 
 if get_option('with_tools')
+  nlohmann_json_dep = dependency('nlohmann_json', required: true)
+  fmt_dep = dependency('fmt', required: true)
+
   executable(
     'gb.hd',
     'tools/headerdumper/main.cpp',
@@ -127,8 +116,16 @@ endif
 
 
 if (get_option('unit_tests'))
+  catch2_dep = dependency('catch2-with-main', default_options: {'tests': false}, version: '>=3.8.0', required: true)
+
   foreach f : ['mbc1.test', 'mbc2.test', 'mbc3.test', 'mbc5.test']
-    test_executable = executable(f, 'tests/unit/' + f + '.cpp', link_with: lr35902_core, dependencies: dependency('catch2'))
+    test_executable = executable(
+      f,
+      'tests/unit/' + f + '.cpp',
+      include_directories: LR35902_incdir,
+      link_with: lr35902_core,
+      dependencies: catch2_dep,
+    )
     test(f, test_executable)
   endforeach
 endif
