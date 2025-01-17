@@ -61,10 +61,9 @@ hack dir = builddir:
 [linux, unix]
 meson builddir:
 	meson setup -Dwith_debugger=true \
-	-D with_debugger=true \
-	-D with_tools=true \
+	-D with_tools=false \
 	-D unit_tests=true \
-	--wrap-mode default \
+	--wrap-mode nofallback --force-fallback-for=mpark-patterns,cli11,catch2,imgui \
 	--default-library both . {{builddir}}
 	meson compile -C {{builddir}}
 
