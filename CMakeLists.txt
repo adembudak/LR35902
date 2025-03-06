@@ -261,23 +261,12 @@ set(CPACK_SOURCE_IGNORE_FILES
 set(CPACK_GENERATOR TGZ ZIP)
 
 set(targets_to_package)
-if(TARGET debugger)
-  list(APPEND targets_to_package debugger)
-endif()
 
-if(WITH_TOOLS)
-  if(TARGET gb.hd)
-    list(APPEND targets_to_package gb.hd)
+foreach(tgt IN ITEMS debugger gb.hd gb.hf gb.dis)
+  if(TARGET ${tgt})
+    list(APPEND targets_to_package ${tgt})
   endif()
-
-  if(TARGET gb.hf)
-    list(APPEND targets_to_package gb.hf)
-  endif()
-
-  if(TARGET gb.dis)
-    list(APPEND targets_to_package gb.dis)
-  endif()
-endif()
+endforeach()
 
 if(targets_to_package)
   install(TARGETS ${targets_to_package})
