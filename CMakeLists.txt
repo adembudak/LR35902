@@ -8,6 +8,7 @@ project(
 include(CMakeDependentOption)
 include(CTest)
 include(FetchContent)
+include(CheckCXXSourceCompiles)
 
 set(CMAKE_CXX_SCAN_FOR_MODULES 0)
 set(CMAKE_CXX_EXTENSIONS 0)
@@ -42,6 +43,21 @@ cmake_dependent_option(analyse_with_lwyu "" OFF STATIC_ANALYSIS OFF)
 find_package(range-v3 QUIET REQUIRED CONFIG)
 find_package(mpark_patterns QUIET REQUIRED CONFIG)
 
+check_cxx_source_compiles(
+  "
+  #include <chrono>
+
+  int main() {
+    using namespace std::chrono;
+    auto now = zoned_time{current_zone(), system_clock::now()};
+  }
+  "
+  CHRONO_HAS_TIME_ZONES)
+
+if(NOT CHRONO_HAS_TIME_ZONES)
+  find_package(date QUIET REQUIRED CONFIG)
+endif()
+
 add_library(core)
 target_sources(
   core
@@ -67,7 +83,8 @@ target_sources(
           src/interrupt/interrupt.cpp)
 
 target_compile_options(core PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
-target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns)
+target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns
+                                  $<$<NOT:$<BOOL:${CHRONO_HAS_TIME_ZONES}>>:date::date date::date-tz>)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 
