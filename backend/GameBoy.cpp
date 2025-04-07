@@ -1,13 +1,11 @@
-#include <backend/GameBoy.h>
 #include <LR35902/config.h>
-
-#include <string_view>
+#include <backend/GameBoy.h>
 
 bool GameBoy::tryBoot() noexcept {
   return bus.loadBootROM();
 }
 
-void GameBoy::skipboot() noexcept {
+void GameBoy::skipBoot() noexcept {
   cpu.setPostBootValues();
   bus.setPostBootValues();
 }
@@ -19,7 +17,7 @@ bool GameBoy::plug(const std::string &rom) noexcept {
 constexpr int vblank_period_cycles = 1140;
 
 void GameBoy::update() noexcept {
-//  if(m_paused) return;
+  //  if(m_paused) return;
 
   while(ppu.mode() != lr::PPU::state::vblanking) {
     cpu.run();

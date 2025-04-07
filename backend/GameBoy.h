@@ -41,8 +41,8 @@ public:
   mutable bool m_isRunning = false;
 
   bool tryBoot() noexcept;
-  void skipboot() noexcept;
-  bool plug(const std::string& rom) noexcept;
+  void skipBoot() noexcept;
+  bool plug(const std::string &rom) noexcept;
 
   void update() noexcept;
 
