@@ -4,8 +4,8 @@ default:
 	@just --list --unsorted
 
 get-dependencies:
+	vcpkg install --recurse range-v3 mpark-patterns imgui cli11 fmt nlohmann-json catch2
 	vcpkg integrate install
-	vcpkg install --recurse range-v3 mpark-patterns sdl2 imgui imgui[sdl2-binding] imgui[opengl3-binding] cli11 fmt nlohmann-json catch2
 
 builddir := 'build'
 configure dir = builddir:

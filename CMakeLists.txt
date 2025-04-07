@@ -94,10 +94,7 @@ target_link_libraries(attaboy PRIVATE LR35902::core)
 add_library(LR35902::attaboy ALIAS attaboy)
 
 if(WITH_DEBUGGER)
-  find_package(SDL2 QUIET REQUIRED CONFIG)
   find_package(imgui QUIET REQUIRED CONFIG)
-  find_package(OpenGL QUIET REQUIRED)
-  find_package(CLI11 QUIET REQUIRED CONFIG)
 
   FetchContent_Declare(
     imgui_club
@@ -123,11 +120,8 @@ if(WITH_DEBUGGER)
   target_sources(debugger PRIVATE debugger/main.cpp)
 
   target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
-  target_link_libraries(
-    debugger PRIVATE LR35902::core LR35902::attaboy CLI11::CLI11 OpenGL::GL $<TARGET_NAME_IF_EXISTS:SDL2::SDL2main>
-                          $<IF:$<TARGET_EXISTS:SDL2::SDL2>,SDL2::SDL2,SDL2::SDL2-static>)
+  target_link_libraries(debugger PRIVATE LR35902::core LR35902::attaboy LR35902::debugView)
 
-  target_link_libraries(debugger PRIVATE LR35902::debugView imgui::imgui)
   set_target_properties(debugger PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 endif()
 

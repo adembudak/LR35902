@@ -58,20 +58,7 @@ attaboy = library(
 )
 
 if get_option('with_debugger')
-  sdl2_dep = dependency(
-    'sdl2',
-    default_options: {
-      'test': false,
-      'assertions': 'disabled',
-      'use_joystick': 'disabled',
-      'use_sensor': 'disabled',
-      'use_cpuinfo': 'disabled',
-      'use_video_wayland': 'disabled',
-    },
-    required: true,
-  )
-
-  imgui_dep = dependency('imgui', default_options: {'sdl2': 'enabled', 'opengl': 'enabled'}, required: false)
+  imgui_dep = dependency('imgui', default_options: {'opengl': 'enabled'}, required: false)
 
   debugView = library(
     'debugView',
@@ -87,7 +74,7 @@ if get_option('with_debugger')
     sources: ['debugger/main.cpp'],
     cpp_args: '-DWITH_DEBUGGER',
     link_with: [lr35902_core, debugView, attaboy],
-    dependencies: [ranges_dep, sdl2_dep, imgui_dep, cli11_dep],
+    dependencies: [ranges_dep, imgui_dep, cli11_dep],
     include_directories: LR35902_incdir,
   )
 endif

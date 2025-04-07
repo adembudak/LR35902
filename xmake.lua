@@ -4,11 +4,9 @@ add_requires("range-v3")
 add_requires("vcpkg::mpark-patterns")
 add_requires("fmt")
 add_requires("cli11")
-add_requires("libsdl", {configs = {sdlmain = false, wayland = false}})
 add_requires("catch2")
 add_requires("nlohmann_json")
-add_requires("opengl")
-add_requires("imgui", {configs = {opengl3 = true, sdl2_no_renderer = true, sdl2 = true}})
+add_requires("imgui", {configs = {opengl3 = true}})
 
 add_rules("mode.debug", "mode.release")
 add_rules("plugin.compile_commands.autoupdate", {outputdir = ".vscode"})
@@ -39,7 +37,7 @@ target("core")
   add_cxxflags("cl::/Zc:__cplusplus")
   add_packages("range-v3", "vcpkg::mpark-patterns")
 
-  if has_config("with_debugger") then 
+  if has_config("with_debugger") then
       add_defines("WITH_DEBUGGER")
   end
 target_end()
@@ -49,7 +47,7 @@ target("attaboy")
    add_files("backend/GameBoy.cpp")
    add_deps("core")
    add_includedirs(".", "include")
-   if has_config("with_debugger") then 
+   if has_config("with_debugger") then
      add_defines("WITH_DEBUGGER")
    end
 
@@ -67,9 +65,9 @@ option("with_debugger", {default = false, showmenu = true})
     target("debugger")
       set_kind("binary")
       add_files("debugger/main.cpp")
-      add_includedirs(".","include") 
+      add_includedirs(".","include")
       add_deps("debugView", "attaboy", "core")
-      add_packages("cli11", "libsdl", "opengl", "imgui")
+      add_packages("cli11", "imgui")
       add_defines("WITH_DEBUGGER")
     target_end()
 option_end()
