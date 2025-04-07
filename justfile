@@ -4,15 +4,15 @@ default:
 	@just --list --unsorted
 
 get-dependencies:
-	vcpkg install --recurse range-v3 mpark-patterns imgui cli11 fmt nlohmann-json catch2
+	vcpkg install
 	vcpkg integrate install
 
 builddir := 'build'
 configure dir = builddir:
-	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B {{dir}}
+	cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B {{dir}}
 
 reconfigure dir = builddir:
-	cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B {{dir}} --fresh
+	cmake -DCMAKE_TOOLCHAIN_FILE:FILEPATH=$VCPKG_ROOT/scripts/buildsystems/vcpkg.cmake -DCMAKE_CXX_STANDARD:STRING=20 -DCMAKE_CXX_STANDARD_REQUIRED:BOOL=1 -S . -B {{dir}} --fresh
 
 tgt := if os_family() == "windows" { 'ALL_BUILD' } else { 'all' }
 
