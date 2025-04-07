@@ -135,7 +135,10 @@ if(WITH_TOOLS)
     target_link_libraries(gb.hd PRIVATE fmt::fmt CLI11::CLI11 nlohmann_json::nlohmann_json)
     target_include_directories(gb.hd PRIVATE ${LR35902_INCLUDE_DIR})
     set_target_properties(gb.hd PROPERTIES RUNTIME_OUTPUT_DIRECTORY ${LR35902_BINARY_DIR}/tools)
-    file(COPY ${LR35902_SOURCE_DIR}/tools/headerdumper/metadata.json DESTINATION ${LR35902_BINARY_DIR}/tools)
+    add_custom_command(
+      TARGET gb.hd
+      POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy ${LR35902_SOURCE_DIR}/tools/headerdumper/metadata.json $<TARGET_FILE_DIR:gb.hd>)
   endif()
 
   if(tool_headerfixer)
