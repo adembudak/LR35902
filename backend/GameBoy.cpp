@@ -1,24 +1,22 @@
 #include <LR35902/config.h>
 #include <backend/GameBoy.h>
 
-bool GameBoy::tryBoot() noexcept {
+bool Emu::tryBoot() noexcept {
   return bus.loadBootROM();
 }
 
-void GameBoy::skipBoot() noexcept {
+void Emu::skipBoot() noexcept {
   cpu.setPostBootValues();
   bus.setPostBootValues();
 }
 
-bool GameBoy::plug(const std::string &rom) noexcept {
+bool Emu::plug(const std::string &rom) noexcept {
   return cart.load(rom.data());
 }
 
 constexpr int vblank_period_cycles = 1140;
 
-void GameBoy::update() noexcept {
-  //  if(m_paused) return;
-
+void Emu::update() noexcept {
   while(ppu.mode() != lr::PPU::state::vblanking) {
     cpu.run();
     const int cycles = clock.latest();
@@ -35,7 +33,7 @@ void GameBoy::update() noexcept {
   }
 }
 
-void GameBoy::reset() noexcept {
+void Emu::reset() noexcept {
   cart.reset();
   ppu.reset();
   builtIn.reset();
@@ -43,22 +41,20 @@ void GameBoy::reset() noexcept {
   intr.reset();
 }
 
-bool GameBoy::isPaused() noexcept {
-  return m_paused;
+void Emu::resume() noexcept {
+  m_state = state::running;
 }
 
-void GameBoy::pause() noexcept {
-  m_paused = true;
+void Emu::stop() noexcept {
+  m_state = state::stopped;
 }
 
-void GameBoy::resume() noexcept {
-  m_paused = false;
-}
-
-void GameBoy::stop() noexcept {
-  m_isRunning = false;
-}
-
-bool GameBoy::isPowerOn() const noexcept {
-  return m_isRunning;
-}
+/*
+bool GameBoy::onCreate() {}
+bool GameBoy::onStart() {}
+bool GameBoy::onResume() {}
+bool GameBoy::onPause() {}
+bool GameBoy::onStop() {}
+bool GameBoy::onReset() {}
+bool GameBoy::onDestroy() {}
+*/

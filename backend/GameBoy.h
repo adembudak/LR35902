@@ -13,15 +13,15 @@
 #include <string>
 
 #if defined(WITH_DEBUGGER)
-namespace LR35902 {
-class DebugView;
-}
+class LR35902::DebugView;
 #endif
 
 namespace lr = LR35902;
 
-class [[nodiscard]] GameBoy final {
-public:
+struct Emu {
+  enum state { stopped, running };
+  state m_state;
+
   lr::IO io;
   lr::Interrupt intr{io};
   lr::Joypad joypad{io, intr};
@@ -36,10 +36,6 @@ public:
   lr::Timer timer{io, intr};
   lr::CPU cpu{bus, clock};
 
-  mutable bool m_power = false;
-  mutable bool m_paused = false;
-  mutable bool m_isRunning = false;
-
   bool tryBoot() noexcept;
   void skipBoot() noexcept;
   bool plug(const std::string &rom) noexcept;
@@ -47,12 +43,8 @@ public:
   void update() noexcept;
 
   void reset() noexcept;
-  bool isPaused() noexcept;
-  void pause() noexcept;
   void resume() noexcept;
-
   void stop() noexcept;
-  bool isPowerOn() const noexcept;
 
 #if defined(WITH_DEBUGGER)
   friend class LR35902::DebugView;
