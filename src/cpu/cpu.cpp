@@ -9,7 +9,7 @@
 namespace LR35902 {
 
 auto CPU::fetchOpcode() noexcept -> byte {
-#ifdef WITH_DEBUGGER
+#if defined(WITH_DEBUGGER)
   immediate = std::monostate{};
   opcode = m_bus.read(PC++);
   return opcode;
@@ -18,7 +18,7 @@ auto CPU::fetchOpcode() noexcept -> byte {
 }
 
 auto CPU::fetchsByte() noexcept -> sbyte {
-#ifdef WITH_DEBUGGER
+#if defined(WITH_DEBUGGER)
   immediate = static_cast<std::int8_t>(m_bus.read(PC++));
   return std::get<sbyte>(immediate);
 #endif
@@ -26,7 +26,7 @@ auto CPU::fetchsByte() noexcept -> sbyte {
 }
 
 auto CPU::fetchByte() noexcept -> byte {
-#ifdef WITH_DEBUGGER
+#if defined(WITH_DEBUGGER)
   immediate = m_bus.read(PC++);
   return std::get<byte>(immediate);
 #endif
@@ -36,7 +36,7 @@ auto CPU::fetchByte() noexcept -> byte {
 auto CPU::fetchWord() noexcept -> word {
   const byte lo = m_bus.read(PC++);
   const byte hi = m_bus.read(PC++);
-#ifdef WITH_DEBUGGER
+#if defined(WITH_DEBUGGER)
   immediate = word(hi << 8 | lo);
   return std::get<word>(immediate);
 #endif
@@ -238,8 +238,10 @@ void CPU::run() noexcept {
   case 0x6c: ld(L, H); break;
   case 0x6d: ld(L, L); break;
   case 0x6e: ld(L, *HL); break;
-  case 0x6f: ld(L, A); break;
-  // clang-format off
+  case 0x6f:
+    ld(L, A);
+    break;
+    // clang-format off
   case 0x70: m_bus.write(HL.data(), B.data()); m_clock.cycle(2); break;
   case 0x71: m_bus.write(HL.data(), C.data()); m_clock.cycle(2); break;
   case 0x72: m_bus.write(HL.data(), D.data()); m_clock.cycle(2); break;

@@ -10,8 +10,8 @@
 #include <LR35902/cpu/registers/r16.h>
 #include <LR35902/cpu/registers/r8.h>
 
-#ifdef WITH_DEBUGGER
-#include <variant>
+#if defined(WITH_DEBUGGER)
+  #include <variant>
 #endif
 
 namespace LR35902 {
@@ -50,7 +50,7 @@ private:
   enum class mode_t { running, halted, stopped };
   mode_t mode;
 
-#ifdef WITH_DEBUGGER
+#if defined(WITH_DEBUGGER)
   using immediate_t = std::variant<std::monostate, byte, sbyte, word>;
   byte opcode{};
   immediate_t immediate;
