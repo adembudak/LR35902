@@ -12,6 +12,12 @@
 
 #include <string>
 
+#if defined(WITH_DEBUGGER)
+namespace LR35902 {
+class DebugView;
+}
+#endif
+
 namespace lr = LR35902;
 
 struct Emu {
