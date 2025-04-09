@@ -48,6 +48,8 @@ struct Emu {
   void resume() noexcept;
   void stop() noexcept;
 
+  [[maybe_unused]]
+  int step() noexcept;
 #if defined(WITH_DEBUGGER)
   friend class LR35902::DebugView;
 #endif

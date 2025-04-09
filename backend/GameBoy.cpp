@@ -16,20 +16,23 @@ bool Emu::plug(const std::string &rom) noexcept {
 
 constexpr int vblank_period_cycles = 1140;
 
+int Emu::step() noexcept {
+  cpu.run();
+  const int cycles = clock.latest();
+  ppu.update(cycles);
+  timer.update(cycles);
+
+  return cycles;
+}
+
 void Emu::update() noexcept {
   while(ppu.mode() != lr::PPU::state::vblanking) {
-    cpu.run();
-    const int cycles = clock.latest();
-    ppu.update(cycles);
-    timer.update(cycles);
+    step();
   }
 
-  int cycles = 0;
-  for(int i = 0; i < vblank_period_cycles; i += cycles) {
-    cpu.run();
-    cycles = clock.latest();
-    ppu.update(cycles);
-    timer.update(cycles);
+  int i = 0;
+  while(i < vblank_period_cycles) {
+    i += step();
   }
 }
 
