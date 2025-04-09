@@ -1,26 +1,13 @@
 {
-	"$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
-	"dependencies": [
-		{
-			"name": "catch2"
-		},
-		{
-			"name": "cli11"
-		},
-		{
-			"name": "fmt"
-		},
-		{
-			"name": "mpark-patterns"
-		},
-		{
-			"name": "nlohmann-json"
-		},
-		{
-			"name": "range-v3"
-		},
-		{
-			"name": "imgui"
-		}
-	]
+  "$schema": "https://raw.githubusercontent.com/microsoft/vcpkg-tool/main/docs/vcpkg.schema.json",
+  "dependencies": [
+    "catch2",
+    "cli11",
+    "fmt",
+    "imgui",
+    "mpark-patterns",
+    "nlohmann-json",
+    "range-v3",
+    "date"
+  ]
 }
