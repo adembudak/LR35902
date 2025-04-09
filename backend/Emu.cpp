@@ -1,5 +1,5 @@
 #include <LR35902/config.h>
-#include <backend/GameBoy.h>
+#include <backend/Emu.h>
 
 bool Emu::tryBoot() noexcept {
   return bus.loadBootROM();

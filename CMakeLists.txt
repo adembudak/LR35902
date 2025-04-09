@@ -88,7 +88,7 @@ target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 
-add_library(attaboy backend/GameBoy.cpp)
+add_library(attaboy backend/Emu.cpp)
 target_include_directories(attaboy PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
 target_link_libraries(attaboy PRIVATE LR35902::core)
 add_library(LR35902::attaboy ALIAS attaboy)

@@ -1,4 +1,4 @@
-#include <backend/GameBoy.h>
+#include <backend/Emu.h>
 
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>

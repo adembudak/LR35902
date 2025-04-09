@@ -52,7 +52,7 @@ lr35902_core = library(
 
 attaboy = library(
   'attaboy',
-  sources: 'backend/GameBoy.cpp',
+  sources: 'backend/Emu.cpp',
   link_with: lr35902_core,
   include_directories: [LR35902_sourcedir, LR35902_incdir],
 )

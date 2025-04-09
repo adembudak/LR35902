@@ -44,7 +44,7 @@ target_end()
 
 target("attaboy")
    set_kind("static")
-   add_files("backend/GameBoy.cpp")
+   add_files("backend/Emu.cpp")
    add_deps("core")
    add_includedirs(".", "include")
    if has_config("with_debugger") then
