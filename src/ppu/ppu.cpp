@@ -11,7 +11,6 @@
 #include <range/v3/algorithm/copy_n.hpp>
 #include <range/v3/algorithm/fill.hpp>
 #include <range/v3/algorithm/rotate.hpp>
-#include <range/v3/algorithm/rotate_copy.hpp>
 #include <range/v3/functional/comparisons.hpp>
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/chunk.hpp>
