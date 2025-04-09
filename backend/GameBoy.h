@@ -22,7 +22,7 @@ namespace lr = LR35902;
 
 struct Emu {
   enum state { stopped, running };
-  state m_state;
+  mutable state m_state;
 
   lr::IO io;
   lr::Interrupt intr{io};

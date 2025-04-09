@@ -5,13 +5,13 @@
 #include <cstdint>
 #include <map>
 
-class GameBoy;
+class Emu;
 
 namespace LR35902 {
 
 class DebugView {
   std::map<std::uint16_t, std::pair<byte, CPU::immediate_t>> iv;
-  const GameBoy &gameboy;
+  const Emu &emu;
 
 public:
   bool _memory_portions = true;
@@ -33,7 +33,7 @@ public:
 
 public:
   DebugView() = delete;
-  DebugView(const GameBoy &);
+  DebugView(const Emu &);
 
   ~DebugView() = default;
 
