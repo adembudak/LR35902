@@ -106,7 +106,8 @@ if(WITH_DEBUGGER)
 
   add_library(debugView)
   target_sources(debugView PRIVATE src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR} ${LR35902_3RDPARTY_DIR}/imgui_club)
+  target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR}
+                                              ${LR35902_3RDPARTY_DIR}/imgui_club)
   add_library(LR35902::debugView ALIAS debugView)
 
   add_library(imgui_memory_editor INTERFACE)
@@ -114,15 +115,13 @@ if(WITH_DEBUGGER)
   add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
 
   target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
-  set_target_properties(core debugView PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
 
   add_executable(debugger)
   target_sources(debugger PRIVATE debugger/main.cpp)
 
   target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
   target_link_libraries(debugger PRIVATE LR35902::core LR35902::attaboy LR35902::debugView)
-
-  set_target_properties(debugger PROPERTIES COMPILE_DEFINITIONS WITH_DEBUGGER)
+  add_compile_definitions(WITH_DEBUGGER)
 endif()
 
 if(WITH_TOOLS)
@@ -258,16 +257,15 @@ if(STATIC_ANALYSIS)
         ON
         CACHE BOOL "" FORCE)
   endif()
-
 endif()
 
 set(CPACK_SOURCE_GENERATOR TGZ ZIP)
 
 # cmake-format: off
-set(CPACK_SOURCE_IGNORE_FILES 
-    \.git/ 
-    \.cache/ 
-    .*\.swp$ 
+set(CPACK_SOURCE_IGNORE_FILES
+    \.git/
+    \.cache/
+    .*\.swp$
     ${LR35902_BINARY_DIR}
 )
 # cmake-format: on
