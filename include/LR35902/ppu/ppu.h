@@ -70,8 +70,8 @@ class IO;
 
 class PPU {
 public:
-  using palette_index = std::uint8_t;
-  using framebuffer_t = std::array<palette_index, 144 * 160 * 1_B>;
+  using palette_index_t = std::uint8_t;
+  using framebuffer_t = std::array<palette_index_t, 144 * 160 * 1_B>;
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
@@ -128,9 +128,9 @@ private:
   bool checkCoincidence() const noexcept;
 
   /// palettes
-  std::array<palette_index, 4> bgp() const noexcept;
-  std::array<palette_index, 4> obp0() const noexcept;
-  std::array<palette_index, 4> obp1() const noexcept;
+  std::array<palette_index_t, 4> bgp() const noexcept;
+  std::array<palette_index_t, 4> obp0() const noexcept;
+  std::array<palette_index_t, 4> obp1() const noexcept;
 
   /// window y, x
   int window_y() const noexcept;

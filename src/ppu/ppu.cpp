@@ -227,7 +227,7 @@ auto PPU::getFrameBuffer() noexcept -> const framebuffer_t & {
 void PPU::reset() noexcept {
   rg::fill(m_vram, byte{});
   rg::fill(m_oam, byte{});
-  rg::fill(m_framebuffer, palette_index{});
+  rg::fill(m_framebuffer, palette_index_t{});
 }
 
 PPU::state PPU::mode() const noexcept { // bit0, bit1
@@ -327,29 +327,29 @@ bool PPU::checkCoincidence() const noexcept {
 }
 
 // BGP/OBP0/OBP1 palette registers related members
-std::array<PPU::palette_index, 4> PPU::bgp() const noexcept {
-  const palette_index pal_0 = io.BGP & 0b0000'0011;
-  const palette_index pal_1 = (io.BGP & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (io.BGP & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (io.BGP & 0b1100'0000) >> 6;
+std::array<PPU::palette_index_t, 4> PPU::bgp() const noexcept {
+  const palette_index_t pal_0 = io.BGP & 0b0000'0011;
+  const palette_index_t pal_1 = (io.BGP & 0b0000'1100) >> 2;
+  const palette_index_t pal_2 = (io.BGP & 0b0011'0000) >> 4;
+  const palette_index_t pal_3 = (io.BGP & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
-std::array<PPU::palette_index, 4> PPU::obp0() const noexcept {
-  const palette_index pal_0 = io.OBP0 & 0b0000'0011;
-  const palette_index pal_1 = (io.OBP0 & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (io.OBP0 & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (io.OBP0 & 0b1100'0000) >> 6;
+std::array<PPU::palette_index_t, 4> PPU::obp0() const noexcept {
+  const palette_index_t pal_0 = io.OBP0 & 0b0000'0011;
+  const palette_index_t pal_1 = (io.OBP0 & 0b0000'1100) >> 2;
+  const palette_index_t pal_2 = (io.OBP0 & 0b0011'0000) >> 4;
+  const palette_index_t pal_3 = (io.OBP0 & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
 
-std::array<PPU::palette_index, 4> PPU::obp1() const noexcept {
-  const palette_index pal_0 = io.OBP1 & 0b0000'0011;
-  const palette_index pal_1 = (io.OBP1 & 0b0000'1100) >> 2;
-  const palette_index pal_2 = (io.OBP1 & 0b0011'0000) >> 4;
-  const palette_index pal_3 = (io.OBP1 & 0b1100'0000) >> 6;
+std::array<PPU::palette_index_t, 4> PPU::obp1() const noexcept {
+  const palette_index_t pal_0 = io.OBP1 & 0b0000'0011;
+  const palette_index_t pal_1 = (io.OBP1 & 0b0000'1100) >> 2;
+  const palette_index_t pal_2 = (io.OBP1 & 0b0011'0000) >> 4;
+  const palette_index_t pal_3 = (io.OBP1 & 0b1100'0000) >> 6;
 
   return {pal_0, pal_1, pal_2, pal_3};
 }
@@ -383,7 +383,7 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 }
 
 struct tile_line_decoder_t {
-  std::array<PPU::palette_index, tile_w> m_data;
+  std::array<PPU::palette_index_t, tile_w> m_data;
 
   tile_line_decoder_t(byte tileline_byte_lower, byte tileline_byte_upper) noexcept {
     for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
@@ -394,7 +394,7 @@ struct tile_line_decoder_t {
     }
   }
 
-  const PPU::palette_index operator[](const std::size_t i) const noexcept {
+  const PPU::palette_index_t operator[](const std::size_t i) const noexcept {
     return m_data[i];
   }
 };
@@ -409,7 +409,7 @@ void PPU::fetchBackground() const {
                               | rv::const_                                                                     //
                               | rv::chunk(max_tiles_on_screen_x);
 
-  std::array<palette_index, screen_w> buffer;
+  std::array<palette_index_t, screen_w> buffer;
 
   const std::size_t dy = (io.SCY + io.LY) % screen_h;
   const std::size_t row = dy / tile_h;
