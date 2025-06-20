@@ -83,8 +83,7 @@ target_sources(
           src/interrupt/interrupt.cpp)
 
 target_compile_options(core PUBLIC $<$<CXX_COMPILER_ID:MSVC>:/Zc:__cplusplus>)
-target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns
-                                  $<$<NOT:$<BOOL:${CHRONO_HAS_TIME_ZONES}>>:date::date date::date-tz>)
+target_link_libraries(core PUBLIC range-v3::range-v3 mpark_patterns $<$<NOT:$<BOOL:${CHRONO_HAS_TIME_ZONES}>>:date::date date::date-tz>)
 target_include_directories(core PUBLIC ${LR35902_INCLUDE_DIR})
 add_library(LR35902::core ALIAS core)
 
@@ -94,33 +93,26 @@ target_link_libraries(attaboy PRIVATE LR35902::core)
 add_library(LR35902::attaboy ALIAS attaboy)
 
 if(WITH_DEBUGGER)
-  find_package(imgui QUIET REQUIRED CONFIG)
+  find_package(glfw3 QUIET REQUIRED CONFIG)
+  find_package(OpenGL 3 QUIET REQUIRED)
+  find_package(CMakeForImGui QUIET REQUIRED CONFIG)
+  include(FindGLEW)
 
-  FetchContent_Declare(
-    imgui_club
-    GIT_REPOSITORY https://github.com/ocornut/imgui_club
-    GIT_TAG main
-    GIT_SHALLOW 1
-    SOURCE_DIR ${LR35902_3RDPARTY_DIR}/imgui_club)
-  FetchContent_MakeAvailable(imgui_club)
+  add_library(AppBase debugger/AppBase.cpp)
+  target_link_libraries(AppBase PRIVATE glfw OpenGL::GL GLEW)
 
-  add_library(debugView)
-  target_sources(debugView PRIVATE src/debugView/debugView.cpp)
-  target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR}
-                                              ${LR35902_3RDPARTY_DIR}/imgui_club)
+  add_library(Debugger debugger/Debugger.cpp)
+  target_link_libraries(Debugger PRIVATE AppBase Unofficial::DearImGui::imgui_backend_glfw Unofficial::DearImGui::imgui_backend_opengl3)
+  target_include_directories(Debugger PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
+
+  add_library(debugView src/debugView/debugView.cpp)
+  target_link_libraries(debugView PRIVATE Unofficial::DearImGui::imgui_core Unofficial::imgui_club::imgui_memory_editor LR35902::core)
+  target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
   add_library(LR35902::debugView ALIAS debugView)
 
-  add_library(imgui_memory_editor INTERFACE)
-  target_include_directories(imgui_memory_editor INTERFACE ${LR35902_3RDPARTY_DIR}/imgui_club)
-  add_library(imgui::imgui_memory_editor ALIAS imgui_memory_editor)
+  add_executable(debugger debugger/main.cpp)
+  target_link_libraries(debugger PRIVATE Debugger LR35902::core LR35902::attaboy LR35902::debugView)
 
-  target_link_libraries(debugView PRIVATE imgui::imgui imgui::imgui_memory_editor LR35902::core)
-
-  add_executable(debugger)
-  target_sources(debugger PRIVATE debugger/main.cpp)
-
-  target_include_directories(debugger PUBLIC ${LR35902_INCLUDE_DIR} ${LR35902_SOURCE_DIR})
-  target_link_libraries(debugger PRIVATE LR35902::core LR35902::attaboy LR35902::debugView)
   add_compile_definitions(WITH_DEBUGGER)
 endif()
 
@@ -164,8 +156,7 @@ if(ROM_TESTS)
   find_program(RGBFIX rgbfix REQUIRED)
 
   function(LR35902_add_rom_test)
-    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE"
-                          ${ARGN})
+    cmake_parse_arguments(test "" "OUTPUT_DIRECTORY;DIRECTORY;MBC_TYPE" "COMPILE_FLAGS;LINK_FLAGS;FIX_FLAGS;SOURCE" ${ARGN})
 
     file(MAKE_DIRECTORY ${test_OUTPUT_DIRECTORY})
 
@@ -187,8 +178,7 @@ if(ROM_TESTS)
   endfunction()
 
   file(GLOB instructions CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/instructions/*.asm)
-  lr35902_add_rom_test(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE
-                       ${instructions})
+  lr35902_add_rom_test(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/instructions MBC_TYPE ROM_ONLY SOURCE ${instructions})
 
   file(GLOB timer CONFIGURE_DEPENDS ${LR35902_TEST_DIR}/source/timer/*.asm)
   lr35902_add_rom_test(OUTPUT_DIRECTORY ${LR35902_TEST_DIR}/binary/timer MBC_TYPE ROM_ONLY SOURCE ${timer})

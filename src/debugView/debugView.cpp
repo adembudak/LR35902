@@ -4,7 +4,7 @@
 #include <LR35902/memory_map.h>
 
 #include <imgui.h>
-#include <imgui_memory_editor/imgui_memory_editor.h>
+#include <imgui_memory_editor.h>
 
 #include <bit>
 #include <variant>

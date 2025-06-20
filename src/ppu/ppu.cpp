@@ -385,9 +385,11 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 struct tile_line_decoder_t {
   std::array<PPU::palette_index, tile_w> m_data;
 
-  tile_line_decoder_t(byte lo, byte hi) noexcept {
+  tile_line_decoder_t(byte tileline_byte_lower, byte tileline_byte_upper) noexcept {
     for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
-      e = (bool(lo & mask) << 1) | bool(hi & mask);
+      bool bit0 = bool(tileline_byte_lower & mask);
+      bool bit1 = bool(tileline_byte_upper & mask);
+      e = (bit1 << 1) | bit0;
       mask >>= 1;
     }
   }

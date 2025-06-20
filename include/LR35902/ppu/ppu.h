@@ -7,10 +7,10 @@
 namespace LR35902 {
 
 // clang-format off
-//                                                                                                     
+//
 //  VRAM
 //  |                  (each tile is 16 bytes)                  | (1KB = 32x32 = [0,1024) indexes)
-//  |  2KB = 128 tiles  |  2KB = 128 tiles  |  2KB = 128 tiles  | 1KB      | 1KB      | = 8KB total    
+//  |  2KB = 128 tiles  |  2KB = 128 tiles  |  2KB = 128 tiles  | 1KB      | 1KB      | = 8KB total
 //  |                   |                   |                   |          |          |
 //  |   Block 0         |    Block 1        |    Block 2        |*LCDC.3=0*|*LCDC.3=1*| (Background)
 //  |+++++++++++++++LCDC.4=1++++++++++++++++|                   |          |          |
@@ -36,10 +36,10 @@ namespace LR35902 {
 //              = 16 byte
 //  a pixel
 //    v
-//  |lo |                                                | tile line upper |
-//  |hi | -> specifies palette[(hi<<1) | lo]             | tile line lower |
-//    v  
-//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | <- 2 byte creates a line of the tile                                   
+//  |lo |
+//  |hi | -> specifies palette[(hi<<1) | lo]
+//    v
+//  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | <- 2 byte creates a line of the tile
 //  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | // 0x00  | each pixels of this tileline use palette[0b01] == palette[1]    ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓
 
 //  | 0 | 1 | 1 | 1 | 1 | 1 | 1 | 0 | // 0x7e

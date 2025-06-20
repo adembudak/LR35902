@@ -1,5 +1,7 @@
 #pragma once
 
+#include <LR35902/config.h>
+
 #include <cstddef>
 // clang-format off
 
@@ -18,42 +20,42 @@ inline constexpr address_t rom0 =          0x0000; // 16KB      Cartridge
   inline constexpr address_t rst_28 =        0x0028;
   inline constexpr address_t rst_30 =        0x0030;
   inline constexpr address_t rst_38 =        0x0038;
-  
+
   inline constexpr address_t vblank =        0x0040; // interrupt vectors
   inline constexpr address_t lcd_stat =      0x0048;
   inline constexpr address_t timer =         0x0050;
   inline constexpr address_t serial =        0x0058;
   inline constexpr address_t joypad =        0x0060;
-  
+
   inline constexpr address_t header_start =  0x0100;
     inline constexpr address_t entry_begin =   0x0100; // entry point
     inline constexpr address_t entry_end =     0x0104;
-  
+
     inline constexpr address_t logo_begin =    0x0104;
     inline constexpr address_t logo_end =      0x0134;
-  
+
     inline constexpr address_t title_begin =   0x0134;
     inline constexpr address_t title_end =     0x013f;
-  
+
     inline constexpr address_t mfr_begin =     0x013f; // manufacturer
     inline constexpr address_t mfr_end =       0x0143;
-  
+
     inline constexpr address_t cgb_support =   0x0143;
-  
+
     inline constexpr address_t new_licensee0 = 0x0144;
     inline constexpr address_t new_licensee1 = 0x0145;
-  
+
     inline constexpr address_t sgb_support =   0x0146;
-  
+
     inline constexpr address_t mbc_code =      0x0147;
-  
+
     inline constexpr address_t rom_code =      0x0148;
     inline constexpr address_t ram_code =      0x0149;
-  
+
     inline constexpr address_t destination =   0x014a;
     inline constexpr address_t old_licensee =  0x014b;
     inline constexpr address_t game_version =  0x014c;
-  
+
     inline constexpr address_t csum_begin =    0x0134; // checksum
     inline constexpr address_t csum_end =      0x014d;
     inline constexpr address_t csum_result =   0x014d;
@@ -96,7 +98,7 @@ inline constexpr address_t IE =            0xffff; // 1B        Interrupts
                                              // Total:  64KB
 }
 
-[[nodiscard]] 
+[[nodiscard]]
 inline address_t normalize_index(const address_t index, const address_t mem) {
   return index % mem;
 }
