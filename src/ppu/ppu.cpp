@@ -63,6 +63,7 @@ byte PPU::readOAM(address_t index) const noexcept {
 }
 
 void PPU::writeOAM(address_t index, const byte b) noexcept {
+  is_oam_changed = true;
   index = normalize_index(index, mmap::oam);
   if(isOAMAccessibleToCPU()) m_oam[index] = b;
 }
@@ -488,10 +489,13 @@ void PPU::fetchSprites() {
   const auto reverseBits = [](const byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; };
 
   // clang-format off
+  if(is_oam_changed) {
+    is_oam_changed = false;
+    oam_view = m_oam | rv::chunk(4); // [y, x, tile_index, atrb] x 40
+  }
+
   const auto
-  sprites_on_scanline = m_oam
-                        | rv::const_
-                        | rv::chunk(4) // [y, x, tile_index, atrb] x 40
+  sprites_on_scanline = oam_view
                         | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
                         | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
                         | rg::to<std::vector>

@@ -113,6 +113,7 @@ public:
   using framebuffer_t = std::array<palette_index_t, viewport_h * viewport_w * 1_B>;
   using tileset_view_t = rg::chunk_view<rg::chunk_view<rg::subrange<byte *, byte *, rg::subrange_kind::sized>>>;
   using tilemap_view_t = rg::chunk_view<rg::subrange<byte *, byte *, rg::subrange_kind::sized>>;
+  using oam_view_t = rg::chunk_view<rg::ref_view<std::array<byte, 160_B>>>;
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
@@ -189,7 +190,10 @@ private:
 
   tileset_view_t tileset_view;
   tilemap_view_t tilemap_view;
+  oam_view_t oam_view;
+
   bool is_vram_changed = true;
+  bool is_oam_changed = true;
 
   void fetchBackground();
   void fetchWindow();

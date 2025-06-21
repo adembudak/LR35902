@@ -8,7 +8,6 @@
 
 #include <mpark/patterns/match.hpp>
 
-#include <algorithm>
 #include <cassert>
 #include <cstddef>
 #include <ranges>
@@ -30,22 +29,28 @@ void DMA::action(const byte n) noexcept {
   match(offset)(
     pattern(_).when(_ >= mmap::rom0 && _ < mmap::romx_end) = [&] {
             for(const address_t i : std::views::iota(0u, numberOfBytesToTransfer))
-              m_ppu.m_oam[i] = m_cart.readROM(offset + i);
+              m_ppu.writeOAM(i, m_cart.readROM(offset + i));
       },
     pattern(_).when(_ >= mmap::vram && _ < mmap::vram_end) = [&] {
             offset = normalize_index(offset, mmap::vram);
-            std::ranges::copy_n(m_ppu.m_vram.begin() + offset, numberOfBytesToTransfer, m_ppu.m_oam.begin());
+
+            for(const address_t i : std::views::iota(0u, numberOfBytesToTransfer))
+	       m_ppu.writeOAM(i, m_ppu.readVRAM(offset + i));
+
       },
     pattern(_).when(_ >= mmap::sram && _ < mmap::sram_end) = [&] {
             offset = normalize_index(offset, mmap::sram);
+
             for(const address_t i : std::views::iota(0u, numberOfBytesToTransfer))
-              m_ppu.m_oam[i] = m_cart.readSRAM(offset + i);
+	       m_ppu.writeOAM(i, m_cart.readSRAM(offset + i));
       },
     pattern(_).when(_ >= mmap::wram0 && _ < mmap::wramx_end) = [&] {
             offset = normalize_index(offset, mmap::wram0);
-            std::ranges::copy_n(m_builtIn.m_wram.begin() + offset, numberOfBytesToTransfer, m_ppu.m_oam.begin());
+
+            for(const address_t i : std::views::iota(0u, numberOfBytesToTransfer))
+              m_ppu.writeOAM(i, m_builtIn.readWRAM(offset + i));
       },
-      pattern(_) = [] {
+    pattern(_) = [] {
 
       }
   );
