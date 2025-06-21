@@ -234,12 +234,11 @@ void PPU::reset() noexcept {
 PPU::state PPU::mode() const noexcept { // bit0, bit1
   using namespace mp;
 
-  return match(io.STAT & 0b0000'0011) (
-    pattern(0b00) = [] { return state::hblanking; },
-    pattern(0b01) = [] { return state::vblanking; },
-    pattern(0b10) = [] { return state::searching; },
-    pattern(0b11) = [] { return state::drawing; }
-  );
+  return match(io.STAT & 0b0000'0011)(
+      pattern(0b00) = [] { return state::hblanking; }, //
+      pattern(0b01) = [] { return state::vblanking; }, //
+      pattern(0b10) = [] { return state::searching; }, //
+      pattern(0b11) = [] { return state::drawing; });
 }
 
 // LCDC register related members
@@ -383,22 +382,24 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
   return mode() == state::hblanking || mode() == state::vblanking;
 }
 
-struct tile_line_decoder_t {
+struct tileline_decoder {
   std::array<PPU::palette_index_t, tile_w> m_data;
 
-  tile_line_decoder_t(byte tileline_byte_lower, byte tileline_byte_upper) noexcept {
+  auto decode(byte tileline_byte_lower, byte tileline_byte_upper) noexcept -> decltype(m_data) {
     for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
       bool bit0 = bool(tileline_byte_lower & mask);
       bool bit1 = bool(tileline_byte_upper & mask);
       e = (bit1 << 1) | bit0;
       mask >>= 1;
     }
+    return m_data;
   }
 
   const PPU::palette_index_t operator[](const std::size_t i) const noexcept {
     return m_data[i];
   }
-};
+} tileline_decoder;
+
 void PPU::fetchBackground() {
   if(is_vram_changed) {
     is_vram_changed = false;
@@ -418,9 +419,9 @@ void PPU::fetchBackground() {
   const std::size_t currently_scannline_tileline = dy % tile_h;
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_screen_x)) {
-    const auto decoded = tile_line_decoder_t{tileline[0], tileline[1]};
     const byte index = tilemap_view[row][tile_nth];
     const auto tileline = tileset_view[index][currently_scannline_tileline];
+    const auto decoded = tileline_decoder.decode(tileline[0], tileline[1]);
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       buffer[tile_nth * tile_w + i] = bgp()[decoded[i]];
@@ -452,9 +453,9 @@ void PPU::fetchWindow() {
   if(std::size_t{window_x_ / tile_w} > max_tiles_on_viewport_x) return; // REVISIT: fix what creates this case
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
-    const auto decoded = tile_line_decoder_t{tileline[0], tileline[1]};
     const std::size_t tile_index = tilemap_view[row][tile_nth];
     const auto tileline = tileset_view[tile_index][currently_scanning_tileline];
+    const auto decoded = tileline_decoder.decode(tileline[0], tileline[1]);
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
@@ -519,13 +520,13 @@ void PPU::fetchSprites() {
   const auto reverseBits = [](const byte b) { return (b * 0x0202020202ULL & 0x010884422010ULL) % 1023; };
 
   // clang-format off
-  const auto 
+  const auto
   sprites_on_scanline = m_oam
                         | rv::const_
                         | rv::chunk(4) // [y, x, tile_index, atrb] x 40
                         | rv::remove_if([&](const auto &o) { return isSpriteOutsideOfTheViewport(o[1], o[0]); })
                         | rv::filter([&](const auto &o) { return isSpriteVisibleToScanline(o[0]); })
-                        | rg::to<std::vector> 
+                        | rg::to<std::vector>
                         | ra::sort(rg::greater{}, [](const auto& o) { return o[1]; })
                         | ra::take(max_sprites_on_viewport_x);
 
@@ -560,7 +561,7 @@ void PPU::fetchSprites() {
 
     const auto spriteLines = sprite | rv::chunk(tileline_size);
     const auto spriteLine_to_scan = spriteLines[currently_scanning_spriteline];
-    const auto decoded = tile_line_decoder_t{spriteLine_to_scan[0], spriteLine_to_scan[1]};
+    const auto decoded = tileline_decoder.decode(spriteLine_to_scan[0], spriteLine_to_scan[1]);
 
     for(const int i : rv::iota(std::size_t{0}, tile_w)) {
       if(viewport_x + i < 0) continue;
