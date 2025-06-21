@@ -40,41 +40,6 @@ namespace rv = rg::views;
 namespace ra = rg::actions;
 namespace mp = mpark::patterns;
 
-constexpr std::size_t tile_w = 8; // in px
-constexpr std::size_t tile_h = 8;
-constexpr std::size_t double_tile_h = 2 * tile_h;
-
-constexpr std::size_t max_tiles_on_screen_x = 32;
-constexpr std::size_t max_tiles_on_screen_y = 32;
-
-constexpr std::size_t screen_w = tile_w * max_tiles_on_screen_x; // in px
-constexpr std::size_t screen_h = tile_h * max_tiles_on_screen_y;
-static_assert(screen_w == 256);
-static_assert(screen_h == 256);
-
-constexpr std::size_t max_tiles_on_viewport_x = 20;
-constexpr std::size_t max_tiles_on_viewport_y = 18;
-
-constexpr std::size_t viewport_w = tile_w * max_tiles_on_viewport_x; // in px
-constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
-static_assert(viewport_w == 160);
-static_assert(viewport_h == 144);
-
-constexpr std::size_t max_sprites_on_viewport_x = 10;
-
-constexpr std::size_t tileset_block_size = 4_KiB;
-constexpr std::size_t tileset_size = 2 * tileset_block_size - 2_KiB; // -2_KiB because blocks are overlapping
-static_assert(tileset_size == 6_KiB);
-
-constexpr std::size_t tilemap_block_size = max_tiles_on_screen_x * max_tiles_on_screen_y * 1_B;
-constexpr std::size_t tilemap_size = 2 * tilemap_block_size;
-static_assert(tilemap_size == 2_KiB);
-
-static_assert(tileset_size + tilemap_size == 8_KiB /* == VRAM size */);
-
-constexpr std::size_t tileline_size = 2_B;
-constexpr std::size_t tile_size = tileline_size * tile_h;
-
 PPU::PPU(Interrupt &intr, IO &io) noexcept :
     intr{intr},
     io{io} {}
