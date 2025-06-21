@@ -20,35 +20,8 @@ void Debugger::onKey(int key, int action, int mods) {
   switch(action) {
   case GLFW_PRESS:
     switch(key) {
-    case GLFW_KEY_ESCAPE:
-      AppBase::running = false;
-      break;
-      /*
-      // Translate model
-    case GLFW_KEY_K: my_model.translate({0.0, 0.1, 0.0}); break;
-    case GLFW_KEY_L: my_model.translate({0.1, 0.0, 0.0}); break;
-    case GLFW_KEY_J: my_model.translate({0.0, -0.1, 0.0}); break;
-    case GLFW_KEY_H:
-      my_model.translate({-0.1, 0.0, 0.0});
-      break;
-
-case GLFW_KEY_M: // Scale model
-if(mods & GLFW_MOD_SHIFT) my_model.scale(glm::vec3{1.1, 1.1, 1.1});
-else my_model.scale(glm::vec3{0.9, 0.9, 0.9});
-break;
-
-case GLFW_KEY_X: // Rotate model
-if(mods & GLFW_MOD_SHIFT) my_model.rotate(-rotateAmount, {0.1, 0.0, 0.0});
-else my_model.rotate(rotateAmount, {0.1, 0.0, 0.0});
-break;
-
-case GLFW_KEY_Y: my_model.rotate(rotateAmount, {0.0, 1.0, 0.0}); break;
-case GLFW_KEY_Z: my_model.rotate(rotateAmount, {0.0, 0.0, 1.0}); break;
-
-case GLFW_KEY_SPACE: Model::switchMeshMode(); break;
-*/
-
-    default: break;
+    case GLFW_KEY_ESCAPE: AppBase::running = false; break;
+    default:              break;
     }
 
     break;
@@ -56,14 +29,7 @@ case GLFW_KEY_SPACE: Model::switchMeshMode(); break;
   case GLFW_RELEASE: break;
 
   case GLFW_REPEAT:
-    switch(key) {
-      /*
-case GLFW_KEY_W: camera.moveAround(Camera::direction::front); break;
-case GLFW_KEY_D: camera.moveAround(Camera::direction::right); break;
-case GLFW_KEY_S: camera.moveAround(Camera::direction::back); break;
-case GLFW_KEY_A: camera.moveAround(Camera::direction::left); break;
-*/
-    }
+    switch(key) {}
     break;
 
   default: break;
@@ -72,8 +38,8 @@ case GLFW_KEY_A: camera.moveAround(Camera::direction::left); break;
 
 void Debugger::onMouseWheel(int pos) {
   switch(pos) {
-    //  case 1: camera.eye.z -= 1.0; break;
-    //  case -1: camera.eye.z += 1.0; break;
+  case 1:  break;
+  case -1: break;
   default: break;
   }
 }
@@ -81,7 +47,6 @@ void Debugger::onMouseWheel(int pos) {
 void Debugger::onMouseMove(int x, int y) {
   float x_ = float(x) - (info.windowWidth / 2.0f);
   float y_ = float(y) - (info.windowHeight / 2.0f);
-  //  camera.lookAround(glm::radians(x_), glm::radians(y_), 0.0f);
 }
 
 void Debugger::mainMenu() {
