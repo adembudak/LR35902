@@ -349,14 +349,23 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
 
 std::array<PPU::palette_index_t, tile_w> PPU::decodeTilelinePaletteIndices(byte tileline_byte_lower,
                                                                            byte tileline_byte_upper) {
-  std::array<PPU::palette_index_t, tile_w> temp;
-  for(std::uint8_t mask = 0b1000'0000; auto &e : temp) {
-    bool bit0 = bool(tileline_byte_lower & mask);
-    bool bit1 = bool(tileline_byte_upper & mask);
-    e = (bit1 << 1) | bit0;
-    mask >>= 1;
+  const std::uint16_t hash = (tileline_byte_upper << 8) | tileline_byte_lower;
+
+  if(tileline_cache.contains(hash)) // hit?
+    return tileline_cache[hash];
+
+  else {
+    std::array<PPU::palette_index_t, tile_w> temp;
+    for(std::uint8_t mask = 0b1000'0000; auto &e : temp) {
+      bool bit0 = bool(tileline_byte_lower & mask);
+      bool bit1 = bool(tileline_byte_upper & mask);
+      e = (bit1 << 1) | bit0;
+      mask >>= 1;
+    }
+
+    tileline_cache[hash] = temp;
+    return temp;
   }
-  return temp;
 }
 
 void PPU::fetchBackground() {

@@ -173,6 +173,8 @@ private:
   std::array<palette_index_t, 4> obp0() const noexcept;
   std::array<palette_index_t, 4> obp1() const noexcept;
 
+  std::unordered_map<std::uint16_t, std::array<palette_index_t, tile_w>> tileline_cache;
+
   std::array<palette_index_t, tile_w> decodeTilelinePaletteIndices(byte tileline_byte_lower, byte tileline_byte_upper);
 
   /// window y, x
