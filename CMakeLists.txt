@@ -102,7 +102,7 @@ if(WITH_DEBUGGER)
   target_link_libraries(AppBase PRIVATE glfw OpenGL::GL GLEW)
 
   add_library(Debugger debugger/Debugger.cpp)
-  target_link_libraries(Debugger PRIVATE AppBase Unofficial::DearImGui::imgui_backend_glfw Unofficial::DearImGui::imgui_backend_opengl3)
+  target_link_libraries(Debugger PRIVATE AppBase Unofficial::DearImGui::imgui_demo Unofficial::DearImGui::imgui_backend_glfw Unofficial::DearImGui::imgui_backend_opengl3)
   target_include_directories(Debugger PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
 
   add_library(debugView src/debugView/debugView.cpp)
