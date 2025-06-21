@@ -173,6 +173,8 @@ private:
   std::array<palette_index_t, 4> obp0() const noexcept;
   std::array<palette_index_t, 4> obp1() const noexcept;
 
+  std::array<palette_index_t, tile_w> decode_tileline_indices(byte tileline_byte_lower, byte tileline_byte_upper);
+
   /// window y, x
   int window_y() const noexcept;
   int window_x() const noexcept;

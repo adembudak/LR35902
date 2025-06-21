@@ -347,23 +347,16 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
   return mode() == state::hblanking || mode() == state::vblanking;
 }
 
-struct tileline_decoder {
-  std::array<PPU::palette_index_t, tile_w> m_data;
-
-  auto decode(byte tileline_byte_lower, byte tileline_byte_upper) noexcept -> decltype(m_data) {
-    for(std::uint8_t mask = 0b1000'0000; auto &e : m_data) {
-      bool bit0 = bool(tileline_byte_lower & mask);
-      bool bit1 = bool(tileline_byte_upper & mask);
-      e = (bit1 << 1) | bit0;
-      mask >>= 1;
-    }
-    return m_data;
+std::array<PPU::palette_index_t, tile_w> PPU::decode_tileline_indices(byte tileline_byte_lower, byte tileline_byte_upper) {
+  std::array<PPU::palette_index_t, tile_w> temp;
+  for(std::uint8_t mask = 0b1000'0000; auto &e : temp) {
+    bool bit0 = bool(tileline_byte_lower & mask);
+    bool bit1 = bool(tileline_byte_upper & mask);
+    e = (bit1 << 1) | bit0;
+    mask >>= 1;
   }
-
-  const PPU::palette_index_t operator[](const std::size_t i) const noexcept {
-    return m_data[i];
-  }
-} tileline_decoder;
+  return temp;
+}
 
 void PPU::fetchBackground() {
   if(is_vram_changed) {
@@ -386,7 +379,7 @@ void PPU::fetchBackground() {
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_screen_x)) {
     const byte index = tilemap_view[row][tile_nth];
     const auto tileline = tileset_view[index][currently_scannline_tileline];
-    const auto decoded = tileline_decoder.decode(tileline[0], tileline[1]);
+    const auto decoded = decode_tileline_indices(tileline[0], tileline[1]);
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       buffer[tile_nth * tile_w + i] = bgp()[decoded[i]];
@@ -420,7 +413,7 @@ void PPU::fetchWindow() {
   for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
     const std::size_t tile_index = tilemap_view[row][tile_nth];
     const auto tileline = tileset_view[tile_index][currently_scanning_tileline];
-    const auto decoded = tileline_decoder.decode(tileline[0], tileline[1]);
+    const auto decoded = decode_tileline_indices(tileline[0], tileline[1]);
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
@@ -526,7 +519,7 @@ void PPU::fetchSprites() {
 
     const auto spriteLines = sprite | rv::chunk(tileline_size);
     const auto spriteLine_to_scan = spriteLines[currently_scanning_spriteline];
-    const auto decoded = tileline_decoder.decode(spriteLine_to_scan[0], spriteLine_to_scan[1]);
+    const auto decoded = decode_tileline_indices(spriteLine_to_scan[0], spriteLine_to_scan[1]);
 
     for(const int i : rv::iota(std::size_t{0}, tile_w)) {
       if(viewport_x + i < 0) continue;
