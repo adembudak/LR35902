@@ -2,6 +2,11 @@
 
 #include <LR35902/config.h>
 
+#include <range/v3/view/chunk.hpp>
+#include <range/v3/view/subrange.hpp>
+
+namespace rg = ranges;
+
 #include <array>
 
 namespace LR35902 {
@@ -72,6 +77,8 @@ class PPU {
 public:
   using palette_index_t = std::uint8_t;
   using framebuffer_t = std::array<palette_index_t, 144 * 160 * 1_B>;
+  using tileset_view_t = rg::chunk_view<rg::chunk_view<rg::subrange<byte *, byte *, rg::subrange_kind::sized>>>;
+  using tilemap_view_t = rg::chunk_view<rg::subrange<byte *, byte *, rg::subrange_kind::sized>>;
 
 public:
   PPU(Interrupt &intr, IO &io) noexcept;
@@ -140,11 +147,15 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
   /// drawing
-  mutable framebuffer_t m_framebuffer{};
+  framebuffer_t m_framebuffer{};
 
-  void fetchBackground() const;
-  void fetchWindow() const;
-  void fetchSprites() const;
+  tileset_view_t tileset_view;
+  tilemap_view_t tilemap_view;
+  bool is_vram_changed = true;
+
+  void fetchBackground();
+  void fetchWindow();
+  void fetchSprites();
 
   friend class DMA;
   friend class DebugView;

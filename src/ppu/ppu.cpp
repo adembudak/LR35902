@@ -86,6 +86,7 @@ byte PPU::readVRAM(address_t index) const noexcept {
 }
 
 void PPU::writeVRAM(address_t index, const byte b) noexcept {
+  is_vram_changed = true;
   index = normalize_index(index, mmap::vram);
   if(isVRAMAccessibleToCPU()) m_vram[index] = b;
 }
@@ -398,16 +399,17 @@ struct tile_line_decoder_t {
     return m_data[i];
   }
 };
+void PPU::fetchBackground() {
+  if(is_vram_changed) {
+    is_vram_changed = false;
 
-void PPU::fetchBackground() const {
-  static const auto tileset = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
-                              | rv::const_                                                                     //
-                              | rv::chunk(tileline_size)                                                       //
-                              | rv::chunk(tile_h);
+    tileset_view = rv::counted(m_vram.begin() + backgroundTilesetBaseAddress(), tileset_block_size) //
+                   | rv::chunk(tileline_size)                                                       //
+                   | rv::chunk(tile_h);
 
-  static const auto tilemap = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
-                              | rv::const_                                                                     //
-                              | rv::chunk(max_tiles_on_screen_x);
+    tilemap_view = rv::counted(m_vram.begin() + backgroundTilemapBaseAddress(), tilemap_block_size) //
+                   | rv::chunk(max_tiles_on_screen_x);
+  }
 
   std::array<palette_index_t, screen_w> buffer;
 
@@ -416,9 +418,9 @@ void PPU::fetchBackground() const {
   const std::size_t currently_scannline_tileline = dy % tile_h;
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{0}, max_tiles_on_screen_x)) {
-    const byte index = tilemap[row][tile_nth];
-    const auto tileline = tileset[index][currently_scannline_tileline];
     const auto decoded = tile_line_decoder_t{tileline[0], tileline[1]};
+    const byte index = tilemap_view[row][tile_nth];
+    const auto tileline = tileset_view[index][currently_scannline_tileline];
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       buffer[tile_nth * tile_w + i] = bgp()[decoded[i]];
@@ -429,17 +431,19 @@ void PPU::fetchBackground() const {
   rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + io.LY * viewport_w);
 }
 
-void PPU::fetchWindow() const {
+void PPU::fetchWindow() {
   if(currentScanline() < window_y()) return;
 
-  static const auto tileset = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
-                              | rv::const_                                                                 //
-                              | rv::chunk(tileline_size)                                                   //
-                              | rv::chunk(tile_h);                                                         //
+  if(is_vram_changed) {
+    is_vram_changed = false;
 
-  static const auto tilemap = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
-                              | rv::const_                                                                 //
-                              | rv::chunk(max_tiles_on_screen_x);
+    tileset_view = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
+                   | rv::chunk(tileline_size)                                                   //
+                   | rv::chunk(tile_h);                                                         //
+
+    tilemap_view = rv::counted(m_vram.begin() + windowTilemapBaseAddress(), tilemap_block_size) //
+                   | rv::chunk(max_tiles_on_screen_x);
+  }
 
   const std::size_t row = currentScanline() / tile_h;
   const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
@@ -448,9 +452,9 @@ void PPU::fetchWindow() const {
   if(std::size_t{window_x_ / tile_w} > max_tiles_on_viewport_x) return; // REVISIT: fix what creates this case
 
   for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
-    const std::size_t tile_index = tilemap[row][tile_nth];
-    const auto tileline = tileset[tile_index][currently_scanning_tileline];
     const auto decoded = tile_line_decoder_t{tileline[0], tileline[1]};
+    const std::size_t tile_index = tilemap_view[row][tile_nth];
+    const auto tileline = tileset_view[tile_index][currently_scanning_tileline];
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
@@ -484,7 +488,7 @@ void PPU::fetchWindow() const {
 0xff, 0x00,      ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓   |   0xff, 0x00   ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓
 */
 
-void PPU::fetchSprites() const {
+void PPU::fetchSprites() {
   constexpr int sprite_viewport_offset_y = 16;
   constexpr int sprite_viewport_offset_x = 8; // when a sprite is on (8, 16), it appears on top-left
 
