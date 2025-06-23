@@ -10,40 +10,8 @@
 namespace LR35902 {
 namespace rg = ranges;
 
-constexpr std::size_t tile_w = 8; // in px
-constexpr std::size_t tile_h = 8;
-constexpr std::size_t double_tile_h = 2 * tile_h;
-
-constexpr std::size_t max_tiles_on_screen_x = 32;
-constexpr std::size_t max_tiles_on_screen_y = 32;
-
-constexpr std::size_t screen_w = tile_w * max_tiles_on_screen_x; // in px
-constexpr std::size_t screen_h = tile_h * max_tiles_on_screen_y;
-static_assert(screen_w == 256);
-static_assert(screen_h == 256);
-
-constexpr std::size_t max_tiles_on_viewport_x = 20;
-constexpr std::size_t max_tiles_on_viewport_y = 18;
-
-constexpr std::size_t viewport_w = tile_w * max_tiles_on_viewport_x; // in px
-constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
-static_assert(viewport_w == 160);
-static_assert(viewport_h == 144);
-
-constexpr std::size_t max_sprites_on_viewport_x = 10;
-
-constexpr std::size_t tileset_block_size = 4_KiB;
-constexpr std::size_t tileset_size = 2 * tileset_block_size - 2_KiB; // -2_KiB because blocks are overlapping
-static_assert(tileset_size == 6_KiB);
-
-constexpr std::size_t tilemap_block_size = max_tiles_on_screen_x * max_tiles_on_screen_y * 1_B;
-constexpr std::size_t tilemap_size = 2 * tilemap_block_size;
-static_assert(tilemap_size == 2_KiB);
-
-static_assert(tileset_size + tilemap_size == 8_KiB /* == VRAM size */);
-
-constexpr std::size_t tileline_size = 2_B;
-constexpr std::size_t tile_size = tileline_size * tile_h;
+class Interrupt;
+class IO;
 
 // clang-format off
 //
@@ -104,11 +72,43 @@ constexpr std::size_t tile_size = tileline_size * tile_h;
 
 // clang-format on
 
-class Interrupt;
-class IO;
-
 class PPU {
 public:
+  static constexpr std::size_t tile_w = 8; // in px
+  static constexpr std::size_t tile_h = 8;
+  static constexpr std::size_t double_tile_h = 2 * tile_h;
+
+  static constexpr std::size_t max_tiles_on_screen_x = 32;
+  static constexpr std::size_t max_tiles_on_screen_y = 32;
+
+  static constexpr std::size_t screen_w = tile_w * max_tiles_on_screen_x; // in px
+  static constexpr std::size_t screen_h = tile_h * max_tiles_on_screen_y;
+  static_assert(screen_w == 256);
+  static_assert(screen_h == 256);
+
+  static constexpr std::size_t max_tiles_on_viewport_x = 20;
+  static constexpr std::size_t max_tiles_on_viewport_y = 18;
+
+  static constexpr std::size_t viewport_w = tile_w * max_tiles_on_viewport_x; // in px
+  static constexpr std::size_t viewport_h = tile_h * max_tiles_on_viewport_y;
+  static_assert(viewport_w == 160);
+  static_assert(viewport_h == 144);
+
+  static constexpr std::size_t max_sprites_on_viewport_x = 10;
+
+  static constexpr std::size_t tileset_block_size = 4_KiB;
+  static constexpr std::size_t tileset_size = 2 * tileset_block_size - 2_KiB; // -2_KiB because blocks are overlapping
+  static_assert(tileset_size == 6_KiB);
+
+  static constexpr std::size_t tilemap_block_size = max_tiles_on_screen_x * max_tiles_on_screen_y * 1_B;
+  static constexpr std::size_t tilemap_size = 2 * tilemap_block_size;
+  static_assert(tilemap_size == 2_KiB);
+
+  static_assert(tileset_size + tilemap_size == 8_KiB /* == VRAM size */);
+
+  static constexpr std::size_t tileline_size = 2_B;
+  static constexpr std::size_t tile_size = tileline_size * tile_h;
+
   using palette_index_t = std::uint8_t;
   using framebuffer_t = std::array<palette_index_t, viewport_h * viewport_w * 1_B>;
   using tileset_view_t = rg::chunk_view<rg::chunk_view<rg::subrange<byte *, byte *, rg::subrange_kind::sized>>>;
@@ -126,7 +126,9 @@ public:
 
   void update(const std::size_t cycles) noexcept;
 
-  [[nodiscard]] auto getFrameBuffer() noexcept -> const framebuffer_t &;
+  [[nodiscard]] auto getBackgroundFrame() noexcept -> const framebuffer_t &;
+  [[nodiscard]] auto getWindowFrame() noexcept -> const framebuffer_t &;
+  [[nodiscard]] auto getSpritesFrame() noexcept -> const framebuffer_t &;
   void reset() noexcept;
 
   enum class state : std::uint8_t {
@@ -186,7 +188,9 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
   /// drawing
-  framebuffer_t m_framebuffer{};
+  framebuffer_t m_background_framebuffer{};
+  framebuffer_t m_window_framebuffer{};
+  framebuffer_t m_sprites_framebuffer{};
 
   tileset_view_t tileset_view;
   tilemap_view_t tilemap_view;

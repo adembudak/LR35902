@@ -187,14 +187,24 @@ void PPU::update(const std::size_t cycles) noexcept {
   }
 }
 
-auto PPU::getFrameBuffer() noexcept -> const framebuffer_t & {
-  return m_framebuffer;
+auto PPU::getBackgroundFrame() noexcept -> const framebuffer_t & {
+  return m_background_framebuffer;
+}
+
+auto PPU::getWindowFrame() noexcept -> const framebuffer_t & {
+  return m_window_framebuffer;
+}
+
+auto PPU::getSpritesFrame() noexcept -> const framebuffer_t & {
+  return m_sprites_framebuffer;
 }
 
 void PPU::reset() noexcept {
   rg::fill(m_vram, byte{});
   rg::fill(m_oam, byte{});
-  rg::fill(m_framebuffer, palette_index_t{});
+  rg::fill(m_background_framebuffer, palette_index_t{});
+  rg::fill(m_window_framebuffer, palette_index_t{});
+  rg::fill(m_sprites_framebuffer, palette_index_t{});
 }
 
 PPU::state PPU::mode() const noexcept { // bit0, bit1
@@ -348,15 +358,15 @@ bool PPU::isOAMAccessibleToCPU() const noexcept {
   return mode() == state::hblanking || mode() == state::vblanking;
 }
 
-std::array<PPU::palette_index_t, tile_w> PPU::decodeTilelinePaletteIndices(byte tileline_byte_lower,
-                                                                           byte tileline_byte_upper) {
+std::array<PPU::palette_index_t, PPU::tile_w> PPU::decodeTilelinePaletteIndices(byte tileline_byte_lower,
+                                                                                byte tileline_byte_upper) {
   const std::uint16_t hash = (tileline_byte_upper << 8) | tileline_byte_lower;
 
   if(tileline_cache.contains(hash)) // hit?
     return tileline_cache[hash];
 
   else {
-    std::array<PPU::palette_index_t, tile_w> temp;
+    std::array<PPU::palette_index_t, PPU::tile_w> temp;
     for(std::uint8_t mask = 0b1000'0000; auto &e : temp) {
       bool bit0 = bool(tileline_byte_lower & mask);
       bool bit1 = bool(tileline_byte_upper & mask);
@@ -398,7 +408,7 @@ void PPU::fetchBackground() {
   }
 
   rg::rotate(buffer.begin(), buffer.begin() + io.SCX, buffer.end());
-  rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + io.LY * viewport_w);
+  rg::copy_n(buffer.cbegin(), viewport_w, m_background_framebuffer.begin() + io.LY * viewport_w);
 }
 
 void PPU::fetchWindow() {
@@ -428,7 +438,7 @@ void PPU::fetchWindow() {
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
-      m_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
+      m_window_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
     }
   }
 }
@@ -541,9 +551,9 @@ void PPU::fetchSprites() {
 
       if(decoded[i] == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
 
-      m_framebuffer[io.LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
-                                                           : palette     ? obp1()[decoded[i]] //
-                                                                         : obp0()[decoded[i]];
+      m_sprites_framebuffer[io.LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
+                                                                   : palette     ? obp1()[decoded[i]] //
+                                                                                 : obp0()[decoded[i]];
     }
   }
 }
