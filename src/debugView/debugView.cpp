@@ -375,28 +375,28 @@ void DebugView::showRegisters() noexcept {
                                      | ImGuiTableFlags_Hideable;
 
       const char *const kind[6]{"", "vblank", "lcd_stat", "timer", "serial", "joypad"};
-      if(ImGui::BeginTable("Interrupts", /*columns*/ 6, flags)) {
+      if(im::BeginTable("Interrupts", /*columns*/ 6, flags)) {
         for(int i = 0; i < 6; ++i)
-          ImGui::TableSetupColumn(kind[i]);
-        ImGui::TableHeadersRow();
+          im::TableSetupColumn(kind[i]);
+        im::TableHeadersRow();
 
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::Text("%s", "(IE) Enabled: ");
+        im::TableNextRow();
+        im::TableSetColumnIndex(0);
+        im::Text("%s", "(IE) Enabled: ");
         for(int column = 1; column < 6; ++column) {
-          ImGui::TableSetColumnIndex(column);
-          ImGui::Text("%d", bool(IE & (0b0000'0001 << (column - 1))));
+          im::TableSetColumnIndex(column);
+          im::Text("%d", bool(IE & (0b0000'0001 << (column - 1))));
         }
 
-        ImGui::TableNextRow();
-        ImGui::TableSetColumnIndex(0);
-        ImGui::Text("%s", "(IF) Requested: ");
+        im::TableNextRow();
+        im::TableSetColumnIndex(0);
+        im::Text("%s", "(IF) Requested: ");
         for(int column = 1; column < 6; ++column) {
-          ImGui::TableSetColumnIndex(column);
-          ImGui::Text("%d", bool(IF & (0b0000'0001 << (column - 1))));
+          im::TableSetColumnIndex(column);
+          im::Text("%d", bool(IF & (0b0000'0001 << (column - 1))));
         }
 
-        ImGui::EndTable();
+        im::EndTable();
       }
     }
 
