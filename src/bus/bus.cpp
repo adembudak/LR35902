@@ -18,8 +18,6 @@
 
 namespace LR35902 {
 
-BootROM bootrom;
-
 Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt, Joypad &joypad) :
     m_cart{cart},
     m_ppu{ppu},
@@ -52,7 +50,7 @@ byte Bus::read(const address_t index) const noexcept {
 
 void Bus::write(const address_t index, const byte b) noexcept {
   using namespace mpark::patterns;
- 
+
   match(index)(
       pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx_end) = [&] (auto index) { m_cart.writeROM(index, b); },
       pattern(arg).when(arg >= mmap::vram && arg < mmap::vram_end) = [&] (auto index) { m_ppu.writeVRAM(index, b); },
@@ -61,7 +59,7 @@ void Bus::write(const address_t index, const byte b) noexcept {
       pattern(arg).when(arg >= mmap::echo && arg < mmap::echo_end) = [&] (auto index) { m_builtIn.writeEcho(index, b); },
       pattern(arg).when(arg >= mmap::oam && arg < mmap::oam_end) = [&] (auto index) { m_ppu.writeOAM(index, b); },
       pattern(arg).when(arg >= mmap::noUse && arg < mmap::noUse_end) = [&] (auto index) { m_builtIn.writeNoUsable(index, b); },
-      pattern(arg).when(arg >= mmap::io && arg < mmap::io_end) = [&] (auto index) { 
+      pattern(arg).when(arg >= mmap::io && arg < mmap::io_end) = [&] (auto index) {
           match(index)(
                 pattern(0xff46) = [&] { m_dma.action(b); }, //
                 pattern(0xff50) = [&] { bootrom.unmap(); }, //
