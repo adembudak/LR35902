@@ -6,7 +6,7 @@
 
 namespace LR35902 {
 
-class bootROM {
+class BootROM {
   std::vector<byte> m_data{};
 
 public:

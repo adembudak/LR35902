@@ -18,7 +18,7 @@
 
 namespace LR35902 {
 
-bootROM bootrom;
+BootROM bootrom;
 
 Bus::Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt, Joypad &joypad) :
     m_cart{cart},
