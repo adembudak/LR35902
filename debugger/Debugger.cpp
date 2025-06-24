@@ -173,15 +173,6 @@ void Debugger::render(double currentTime) {
 
   emulator->update();
 
-  /*
-  for(; emulator->ppu.mode() != LR35902::PPU::state::vblanking; emulator->step())
-    ;
-
-  constexpr int vblank_period_cycles = 1140;
-  for(int i = 0; i < vblank_period_cycles; i += emulator->step())
-    ;
-    */
-
   debugview->showCartHeader();
   debugview->showMemoryPortions();
   debugview->showDisassembly();
@@ -192,19 +183,19 @@ void Debugger::render(double currentTime) {
   const auto &windowFrame = emulator->ppu.getWindowFrame();
   const auto &spritesFrame = emulator->ppu.getSpritesFrame();
 
-  struct color {
+  struct rgba8 {
     GLubyte r, g, b, a;
   };
 
-  constexpr std::array<color, 4> pal{
-      color{107, 166, 74, 255},
-      color{67,  122, 99, 255},
-      color{37,  89,  85, 255},
-      color{18,  66,  76, 255}
+  constexpr std::array<rgba8, 4> pal{
+      rgba8{107, 166, 74, 255},
+      rgba8{67,  122, 99, 255},
+      rgba8{37,  89,  85, 255},
+      rgba8{18,  66,  76, 255}
   };
 
   if(show_output_window) {
-    std::array<color, LR::PPU::viewport_h * LR::PPU::viewport_w> buf{};
+    std::array<rgba8, LR::PPU::viewport_h * LR::PPU::viewport_w> buf{};
 
     ImGui::Begin("Emu", &show_output_window);
 
