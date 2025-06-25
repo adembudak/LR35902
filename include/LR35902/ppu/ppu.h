@@ -126,9 +126,14 @@ public:
 
   void update(const std::size_t cycles) noexcept;
 
+  [[nodiscard]] auto getFrameBuffer() noexcept -> const framebuffer_t &;
+
+#if defined(WITH_DEBUGGER)
   [[nodiscard]] auto getBackgroundFrame() noexcept -> const framebuffer_t &;
   [[nodiscard]] auto getWindowFrame() noexcept -> const framebuffer_t &;
   [[nodiscard]] auto getSpritesFrame() noexcept -> const framebuffer_t &;
+#endif
+
   void reset() noexcept;
 
   enum class state : std::uint8_t {
@@ -188,9 +193,12 @@ private:
   bool isOAMAccessibleToCPU() const noexcept;
 
   /// drawing
+#if defined(WITH_DEBUGGER)
   framebuffer_t m_background_framebuffer{};
   framebuffer_t m_window_framebuffer{};
   framebuffer_t m_sprites_framebuffer{};
+#endif
+  framebuffer_t m_framebuffer{};
 
   tileset_view_t tileset_view;
   tilemap_view_t tilemap_view;

@@ -187,6 +187,12 @@ void PPU::update(const std::size_t cycles) noexcept {
   }
 }
 
+auto PPU::getFrameBuffer() noexcept -> const framebuffer_t & {
+  return m_framebuffer;
+}
+
+#if defined(WITH_DEBUGGER)
+
 auto PPU::getBackgroundFrame() noexcept -> const framebuffer_t & {
   return m_background_framebuffer;
 }
@@ -199,12 +205,18 @@ auto PPU::getSpritesFrame() noexcept -> const framebuffer_t & {
   return m_sprites_framebuffer;
 }
 
+#endif
+
 void PPU::reset() noexcept {
   rg::fill(m_vram, byte{});
   rg::fill(m_oam, byte{});
+  rg::fill(m_framebuffer, palette_index_t{});
+
+#if defined(WITH_DEBUGGER)
   rg::fill(m_background_framebuffer, palette_index_t{});
   rg::fill(m_window_framebuffer, palette_index_t{});
   rg::fill(m_sprites_framebuffer, palette_index_t{});
+#endif
 }
 
 PPU::state PPU::mode() const noexcept { // bit0, bit1
@@ -408,7 +420,10 @@ void PPU::fetchBackground() {
   }
 
   rg::rotate(buffer.begin(), buffer.begin() + io.SCX, buffer.end());
+  rg::copy_n(buffer.cbegin(), viewport_w, m_framebuffer.begin() + io.LY * viewport_w);
+#if defined(WITH_DEBUGGER)
   rg::copy_n(buffer.cbegin(), viewport_w, m_background_framebuffer.begin() + io.LY * viewport_w);
+#endif
 }
 
 void PPU::fetchWindow() {
@@ -438,7 +453,10 @@ void PPU::fetchWindow() {
 
     for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
       const std::size_t x = (tile_nth * tile_w) + i;
+      m_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
+#if defined(WITH_DEBUGGER)
       m_window_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
+#endif
     }
   }
 }
@@ -551,9 +569,14 @@ void PPU::fetchSprites() {
 
       if(decoded[i] == 0b00) continue; // "transparent" color, palette index 0 is disallowed for sprites (by spec).
 
+      m_framebuffer[io.LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
+                                                           : palette     ? obp1()[decoded[i]] //
+                                                                         : obp0()[decoded[i]];
+#if defined(WITH_DEBUGGER)
       m_sprites_framebuffer[io.LY * viewport_w + viewport_x + i] = bgHasPriority ? bgp()[decoded[i]]  //
                                                                    : palette     ? obp1()[decoded[i]] //
                                                                                  : obp0()[decoded[i]];
+#endif
     }
   }
 }
