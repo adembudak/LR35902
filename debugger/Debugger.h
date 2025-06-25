@@ -16,20 +16,15 @@ private:
   std::shared_ptr<LR35902::DebugView> debugview;
 
   GLuint programID;
-  GLuint textureIDs[3];
 
-  bool show_background = true;
-  bool show_window = true;
-  bool show_sprites = true;
-
-  GLuint viewMatrixLocation;
-  GLuint projectionMatrixLocation;
+  GLuint textureID;
+  GLuint frameBufferObjectID;
 
   double lastTime = 0;
 
   bool show_output_window = 1;
 
-  bool show_imgui_demo_window = 1;
+  bool show_imgui_demo_window = 0;
   bool show_imgui_metrics_window = 1;
 
 private:

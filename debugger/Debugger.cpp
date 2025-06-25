@@ -122,24 +122,15 @@ void Debugger::startup() {
   ImGui_ImplGlfw_InitForOpenGL(window, true);
   ImGui_ImplOpenGL3_Init("#version 460");
 
-  glCreateTextures(GL_TEXTURE_2D, 3, &textureIDs[0]);
-  assert(glIsTexture(textureIDs[0]));
+  glCreateTextures(GL_TEXTURE_2D, 3, &textureID);
+  glTextureStorage2D(textureID, 1, GL_RGBA8, LR::PPU::viewport_w, LR::PPU::viewport_h);
+  glTextureSubImage2D(textureID, 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 
-  glTextureStorage2D(textureIDs[0], 1, GL_RGBA8, LR::PPU::viewport_w, LR::PPU::viewport_h);
-  glTextureStorage2D(textureIDs[1], 1, GL_RGBA8, LR::PPU::viewport_w, LR::PPU::viewport_h);
-  glTextureStorage2D(textureIDs[2], 1, GL_RGBA8, LR::PPU::viewport_w, LR::PPU::viewport_h);
+  glTextureParameteri(textureID, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTextureParameteri(textureID, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
-  glTextureSubImage2D(textureIDs[0], 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  glTextureSubImage2D(textureIDs[1], 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-  glTextureSubImage2D(textureIDs[2], 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
-
-  glTextureParameteri(textureIDs[0], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTextureParameteri(textureIDs[1], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-  glTextureParameteri(textureIDs[2], GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-
-  glTextureParameteri(textureIDs[0], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTextureParameteri(textureIDs[1], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-  glTextureParameteri(textureIDs[2], GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glCreateFramebuffers(1, &frameBufferObjectID);
+  glNamedFramebufferTexture(frameBufferObjectID, GL_COLOR_ATTACHMENT0, textureID, 0);
 
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
@@ -179,9 +170,7 @@ void Debugger::render(double currentTime) {
   debugview->showCPUState();
   debugview->showRegisters();
 
-  const auto &backgroundFrame = emulator->ppu.getBackgroundFrame();
-  const auto &windowFrame = emulator->ppu.getWindowFrame();
-  const auto &spritesFrame = emulator->ppu.getSpritesFrame();
+  const auto &framebuffer = emulator->ppu.getFrameBuffer();
 
   struct rgba8 {
     GLubyte r, g, b, a;
@@ -195,28 +184,19 @@ void Debugger::render(double currentTime) {
   };
 
   if(show_output_window) {
-    std::array<rgba8, LR::PPU::viewport_h * LR::PPU::viewport_w> buf{};
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBufferObjectID);
 
-    ImGui::Begin("Emu", &show_output_window);
+    std::array<rgba8, LR::PPU::viewport_h * LR::PPU::viewport_w> buf;
 
-    if(ImGui::Checkbox("Sprites", &show_sprites); show_sprites) {
-      std::ranges::transform(spritesFrame, buf.begin(), [&](const auto e) { return pal[e]; });
-    }
+    ImGui::Begin("Screen", &show_output_window);
 
-    if(ImGui::Checkbox("Win", &show_window); show_window) {
-      std::ranges::transform(windowFrame, buf.begin(), [&](const auto e) { return pal[e]; });
-    }
+    std::ranges::transform(framebuffer, buf.begin(), [&](const auto e) { return pal[e]; });
 
-    if(ImGui::Checkbox("Bg", &show_background); show_background) {
-      std::ranges::transform(backgroundFrame, buf.begin(), [&](const auto e) { return pal[e]; });
-    }
+    glTextureSubImage2D(textureID, 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
 
-    glBindTexture(GL_TEXTURE_2D, textureIDs[0]);
-    glTextureSubImage2D(textureIDs[0], 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE,
-                        buf.data());
-    glBindTexture(GL_TEXTURE_2D, 0);
+    ImGui::Image((ImTextureID)(intptr_t)textureID, ImVec2{160.0f, 144.0f});
 
-    ImGui::Image((ImTextureID)(intptr_t)textureIDs[0], ImVec2{160.0f, 144.0f});
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 
     ImGui::End();
   }
