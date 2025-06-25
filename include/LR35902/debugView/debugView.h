@@ -2,6 +2,10 @@
 
 #include <LR35902/cpu/cpu.h>
 
+
+#include <imgui.h>
+#include <imgui_memory_editor.h>
+
 #include <cstdint>
 #include <map>
 
@@ -12,6 +16,8 @@ namespace LR35902 {
 class DebugView {
   std::map<std::uint16_t, std::pair<byte, CPU::immediate_t>> iv;
   const Emu &emu;
+
+  MemoryEditor memory_editor;
 
 public:
   bool _memory_portions = true;

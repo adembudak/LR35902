@@ -20,6 +20,9 @@ namespace im = ImGui;
 DebugView::DebugView(const Emu &gameboy) :
     emu{gameboy} {
   _memory_portions_sram = emu.cart.SRAMSize() > 0;
+
+  memory_editor.ReadOnly = true;
+  memory_editor.PreviewDataType = ImGuiDataType_U8;
 }
 
 void DebugView::showCartHeader() noexcept {
@@ -52,8 +55,7 @@ void DebugView::showMemoryPortions() noexcept {
   if(_memory_portions) {
     im::Begin("Memory Portions", &_memory_portions);
 
-    if(static MemoryEditor memory_editor; im::BeginTabBar("Tab Bar")) {
-      memory_editor.ReadOnly = true;
+    if(im::BeginTabBar("Tab Bar")) {
 
       if(im::BeginTabItem("rom0", &_memory_portions_rom)) {
         memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.cart)), rom_bank_size, mmap::rom0);
