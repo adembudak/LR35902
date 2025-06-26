@@ -3,10 +3,21 @@
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>
 
+#include <iostream>
+#include <range/v3/all.hpp>
+#include <range/v3/view/subrange.hpp>
+
+#include <mpark/patterns/match.hpp>
+
+#include <GL/gl.h>
+#include <GL/glew.h>
+
 #include <imgui.h>
 #include <imgui_memory_editor.h>
 
+#include <algorithm>
 #include <bit>
+#include <limits>
 #include <variant>
 
 #ifdef __clang__
@@ -23,6 +34,17 @@ DebugView::DebugView(const Emu &gameboy) :
 
   memory_editor.ReadOnly = true;
   memory_editor.PreviewDataType = ImGuiDataType_U8;
+
+  glCreateFramebuffers(1, &vram_fbo);
+  glBindFramebuffer(GL_FRAMEBUFFER, vram_fbo);
+  glCreateTextures(GL_TEXTURE_2D, 1, &vram_texture);
+  glNamedFramebufferTexture(vram_fbo, GL_COLOR_ATTACHMENT0, vram_texture, 0);
+  assert(glGetError() == GL_NO_ERROR);
+
+  glTextureStorage2D(vram_texture, 1, GL_RGBA8, PPU::screen_w, PPU::screen_h);
+  glTextureSubImage2D(vram_texture, 0, 0, 0, PPU::screen_w, PPU::screen_h, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 void DebugView::showCartHeader() noexcept {
@@ -403,6 +425,93 @@ void DebugView::showRegisters() noexcept {
     }
 
     im::End();
+  }
+}
+
+/*
+void fetchWindow() {
+    tileset_view = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
+                   | rv::chunk(tileline_size)                                                   //
+                   | rv::chunk(tile_h);                                                         //
+
+  const std::size_t row = currentScanline() / tile_h;
+  const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
+  const std::size_t window_x_ = (window_x() < 0) ? 0 : window_x();
+
+  if(std::size_t{window_x_ / tile_w} > max_tiles_on_viewport_x) return; // REVISIT: fix what creates this case
+
+  for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
+    const std::size_t tile_index = tilemap_view[row][tile_nth];
+    const auto tileline = tileset_view[tile_index][currently_scanning_tileline];
+    const auto decoded = decodeTilelinePaletteIndices(tileline[0], tileline[1]);
+
+    for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
+      const std::size_t x = (tile_nth * tile_w) + i;
+      m_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
+#if defined(WITH_DEBUGGER)
+      m_window_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
+#endif
+    }
+  }
+}
+*/
+void DebugView::showVRAM() noexcept {
+  if(_vram) {
+    glBindFramebuffer(GL_FRAMEBUFFER, vram_fbo);
+    assert(glGetError() == GL_NO_ERROR);
+
+    struct rgba8 {
+      std::uint8_t r, g, b, a;
+    };
+
+    // clang-format off
+      const auto tile_data_view = ranges::subrange(emu.ppu.m_vram.begin(), emu.ppu.m_vram.begin() + PPU::tileset_size)
+                                  | ranges::views::chunk(PPU::tileline_size)
+                                  | ranges::views::chunk(PPU::tile_h)
+                                  | ranges::views::chunk(PPU::max_tiles_on_screen_x);
+
+      for(int tile_row_dy = 0; const auto &tile_row_view : tile_data_view) {
+        for(int tile_n = 0; const auto &tile_view : tile_row_view) {
+          for(int tileline_row_dy = 0; const auto &tileline_view : tile_view) {
+            const byte tileline_byte_lower = tileline_view[0];
+            const byte tileline_byte_upper = tileline_view[1];
+            //          std::cout << int(tileline_byte_lower) << int(tileline_byte_upper) << '\n';
+
+            std::array<rgba8, PPU::tile_w> temp;
+            for(std::uint8_t mask = 0b1000'0000; auto &pixel : temp) {
+              bool bit0 = bool(tileline_byte_lower & mask);
+              bool bit1 = bool(tileline_byte_upper & mask);
+              mask >>= 1;
+              byte index = (bit1 << 1) | bit0;
+              switch(index) {
+              case 0: pixel = rgba8{107, 166, 74, 255}; break;
+              case 1: pixel = rgba8{67, 122, 99, 255}; break;
+              case 2: pixel = rgba8{37, 89, 85, 255}; break;
+              case 3: pixel = rgba8{18, 66, 76, 255}; break;
+              }
+            }
+            glTextureSubImage2D(vram_texture,                                // texture object name
+                                0,                                           // mipmap level (0 is base)
+                                tile_n * PPU::tile_w,                        // x offset in texels
+                                tile_row_dy * PPU::tile_h + tileline_row_dy, // y offset in texels
+                                std::size(temp),                             // subimage width
+                                1,                                           // subimage height
+                                GL_RGBA,                                     // pixel data format (e.g. GL_RGBA)
+                                GL_UNSIGNED_BYTE,                            // data type (e.g. GL_UNSIGNED_BYTE)
+                                std::data(temp)                              // pointer (or buffer offset) to pixel data
+            );
+            ++tileline_row_dy;
+          }
+          ++tile_n;
+        }
+        ++tile_row_dy;
+      }
+
+    ImGui::Begin("VRAM tiledata");
+    im::Image((ImTextureID)(intptr_t)vram_texture, ImVec2(PPU::screen_w, PPU::screen_h));
+    ImGui::End();
+
+    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
   }
 }
 }

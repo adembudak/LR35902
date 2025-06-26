@@ -2,7 +2,7 @@
 
 #include <LR35902/cpu/cpu.h>
 
-
+#include <GL/glew.h>
 #include <imgui.h>
 #include <imgui_memory_editor.h>
 
@@ -35,7 +35,10 @@ public:
   bool _disassembly = true;
   bool _cpu_state = true;
   bool _registers = true;
-  bool _vram = false;
+  bool _vram = true;
+
+  GLuint vram_texture;
+  GLuint vram_fbo;
 
 public:
   DebugView() = delete;
@@ -54,6 +57,7 @@ public:
   void showDisassembly() noexcept;
   void showCPUState() noexcept;
   void showRegisters() noexcept;
+  void showVRAM() noexcept;
 };
 
 }

@@ -85,6 +85,7 @@ void Debugger::mainMenu() {
       ImGui::MenuItem("Disassembly", nullptr, &debugview->_disassembly);
       ImGui::MenuItem("CPU State", nullptr, &debugview->_cpu_state);
       ImGui::MenuItem("Registers", nullptr, &debugview->_registers);
+      ImGui::MenuItem("VRAM", nullptr, &debugview->_vram);
 
       ImGui::EndMenu();
     }
@@ -169,6 +170,7 @@ void Debugger::render(double currentTime) {
   debugview->showDisassembly();
   debugview->showCPUState();
   debugview->showRegisters();
+  debugview->showVRAM();
 
   const auto &framebuffer = emulator->ppu.getFrameBuffer();
 
