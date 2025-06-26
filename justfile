@@ -16,6 +16,7 @@ reconfigure dir = builddir:
 
 tgt := if os_family() == "windows" { 'ALL_BUILD' } else { 'all' }
 
+alias b := build
 build dir = builddir target = tgt:
   cmake --build {{dir}} --target {{target}}
 
