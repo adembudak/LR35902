@@ -43,8 +43,8 @@ class IO;
 //              = 16 byte
 //  a pixel
 //    v
-//  |lo |
-//  |hi | -> specifies palette[(hi<<1) | lo]
+//  |lo |                                      | tileline byte lower |   | tileline (row) upper |
+//  |hi | -> specifies palette[(hi<<1) | lo]   | tileline byte upper |   | tileline (row) lower |
 //    v
 //  | 1 | 1 | 1 | 1 | 1 | 1 | 1 | 1 | // 0xff  | <- 2 byte creates a line of the tile
 //  | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | // 0x00  | each pixels of this tileline use palette[0b01] == palette[1]    ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓ ▓▓
