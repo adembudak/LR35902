@@ -8,12 +8,12 @@
 
 namespace LR35902 {
 
+constexpr std::size_t bootrom_size = mmap::bootrom_end - mmap::bootrom_start;
+static_assert(bootrom_size == 0x100); // Boot ROM mapped to first 256 bytes of the memory, executed and then unmapped
 
 bool BootROM::load() noexcept {
   std::ifstream fin{"bootrom.gb", std::ios::binary};
   if(!fin) return false;
-constexpr std::size_t bootrom_size = mmap::bootrom_end - mmap::bootrom_start;
-static_assert(bootrom_size == 0x100); // Boot ROM mapped to first 256 bytes, executed and then unmapped
 
   m_data.assign(std::istreambuf_iterator<char>{fin}, {});
   m_data.resize(bootrom_size);
