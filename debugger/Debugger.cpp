@@ -59,7 +59,7 @@ void Debugger::mainMenu() {
       }
 
       if(ImGui::MenuItem("Close", "Alt+F4")) {
-        this->running = false;
+        glfwSetWindowShouldClose(AppBase::window, true);
       }
 
       ImGui::EndMenu();
