@@ -32,6 +32,5 @@ public:
   void write(const address_t index, const byte b) noexcept;
 
   void setPostBootValues() noexcept;
-  bool loadBootROM() noexcept;
 };
 }

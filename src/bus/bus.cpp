@@ -127,7 +127,4 @@ void Bus::setPostBootValues() noexcept {
   write(0xffff /* IE */, 0x00);
 }
 
-bool Bus::loadBootROM() noexcept {
-  return bootrom.load();
-}
 }

@@ -2,7 +2,7 @@
 #include <backend/Emu.h>
 
 bool Emu::tryBoot() noexcept {
-  return bus.loadBootROM();
+  return bus.bootrom.load();
 }
 
 void Emu::skipBoot() noexcept {
