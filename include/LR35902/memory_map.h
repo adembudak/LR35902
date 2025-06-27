@@ -10,8 +10,8 @@ namespace LR35902 { namespace mmap {
 // GameBoy memory layout                    [half closed range)
 //                                          address |  size  |   located in
 // -------------------------------------------------------------------------
+inline constexpr address_t bootrom_start = 0x0000; // 256B      BootROM
 inline constexpr address_t rom0 =          0x0000; // 16KB      Cartridge
-
   inline constexpr address_t rst_00 =        0x0000; // reset vectors
   inline constexpr address_t rst_08 =        0x0008;
   inline constexpr address_t rst_10 =        0x0010;
@@ -26,7 +26,7 @@ inline constexpr address_t rom0 =          0x0000; // 16KB      Cartridge
   inline constexpr address_t timer =         0x0050;
   inline constexpr address_t serial =        0x0058;
   inline constexpr address_t joypad =        0x0060;
-
+inline constexpr address_t bootrom_end =  0x0100;
   inline constexpr address_t header_start =  0x0100;
     inline constexpr address_t entry_begin =   0x0100; // entry point
     inline constexpr address_t entry_end =     0x0104;

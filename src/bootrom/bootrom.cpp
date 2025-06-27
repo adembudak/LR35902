@@ -1,5 +1,6 @@
 #include <LR35902/bootrom/bootrom.h>
 #include <LR35902/config.h>
+#include <LR35902/memory_map.h>
 
 #include <cassert>
 #include <cstddef>
@@ -7,11 +8,12 @@
 
 namespace LR35902 {
 
-constexpr std::size_t bootrom_size = 0x100;
 
 bool BootROM::load() noexcept {
   std::ifstream fin{"bootrom.gb", std::ios::binary};
   if(!fin) return false;
+constexpr std::size_t bootrom_size = mmap::bootrom_end - mmap::bootrom_start;
+static_assert(bootrom_size == 0x100); // Boot ROM mapped to first 256 bytes, executed and then unmapped
 
   m_data.assign(std::istreambuf_iterator<char>{fin}, {});
   m_data.resize(bootrom_size);
