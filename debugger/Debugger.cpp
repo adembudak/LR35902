@@ -22,8 +22,22 @@ namespace LR = LR35902;
 void Debugger::onKey(int key, int action, int mods) {
   switch(action) {
   case GLFW_PRESS:
+
+    if(mods & GLFW_MOD_CONTROL) {
+      switch(key) {
+      case GLFW_KEY_D: show_imgui_demo_window = !show_imgui_demo_window; break;
+      case GLFW_KEY_M: show_imgui_metrics_window = !show_imgui_metrics_window; break;
+      }
+    }
+
+    if(mods & GLFW_MOD_ALT) {
+      switch(key) {
+      case GLFW_KEY_F4: glfwWindowShouldClose(window); break;
+      }
+    }
+
     switch(key) {
-    case GLFW_KEY_ESCAPE: AppBase::running = false; break;
+    case GLFW_KEY_ESCAPE: break;
     default:              break;
     }
 
@@ -60,7 +74,7 @@ void Debugger::mainMenu() {
   if(ImGui::BeginMainMenuBar()) {
     if(ImGui::BeginMenu("File")) {
 
-      if(ImGui::MenuItem("Open ROM", "Ctrl+O")) {
+      if(ImGui::MenuItem("Open ROM", "Ctrl-o")) {
       }
 
       if(ImGui::MenuItem("Close", "Alt+F4")) {
@@ -96,8 +110,8 @@ void Debugger::mainMenu() {
     }
 
     if(ImGui::BeginMenu("ImGui")) {
-      ImGui::MenuItem("Demo Window", "d", &show_imgui_demo_window);
-      ImGui::MenuItem("Metrics/Debugger", "m", &show_imgui_metrics_window);
+      ImGui::MenuItem("Demo Window", "Ctrl-d", &show_imgui_demo_window);
+      ImGui::MenuItem("Metrics/Debugger", "Ctrl-m", &show_imgui_metrics_window);
       ImGui::EndMenu();
     }
     ImGui::EndMainMenuBar();
