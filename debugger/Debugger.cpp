@@ -15,6 +15,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 namespace LR = LR35902;
 
@@ -49,6 +50,10 @@ void Debugger::onMouseWheel(int pos) {
 void Debugger::onMouseMove(int x, int y) {
   float x_ = float(x) - (info.windowWidth / 2.0f);
   float y_ = float(y) - (info.windowHeight / 2.0f);
+}
+
+void Debugger::onPathDrop(const std::vector<std::string> &paths) {
+  romFiles = paths;
 }
 
 void Debugger::mainMenu() {
@@ -106,11 +111,6 @@ void Debugger::init() {
 
 void Debugger::startup() {
   emulator = std::make_shared<Emu>();
-
-  emulator->skipBoot();
-  const std::string rom = "/home/adem/Github/LR35902/build/Debug/dmg-acid2.gb";
-  auto _ = emulator->plug(rom);
-
   debugview = std::make_shared<LR::DebugView>(*emulator);
 
   IMGUI_CHECKVERSION();
@@ -136,22 +136,23 @@ void Debugger::startup() {
   glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   glDisable(GL_CULL_FACE);
   glEnable(GL_DEPTH_TEST);
-
   assert(glGetError() == GL_NO_ERROR);
+
+  state = state_t::booting;
 }
 
 void Debugger::render(double currentTime) {
   const double delta = currentTime - lastTime;
   std::exchange(lastTime, currentTime);
 
+  ImGui_ImplOpenGL3_NewFrame();
+  ImGui_ImplGlfw_NewFrame();
+  ImGui::NewFrame();
+
   constexpr GLfloat backgroundColor[] = {0.43, 0.109, 0.203, 1.0}; // Claret violet
   constexpr GLfloat clearDepth = 1.0;
   glClearBufferfv(GL_COLOR, 0, &backgroundColor[0]);
   glClearBufferfv(GL_DEPTH, 0, &clearDepth);
-
-  ImGui_ImplOpenGL3_NewFrame();
-  ImGui_ImplGlfw_NewFrame();
-  ImGui::NewFrame();
 
   mainMenu();
 
@@ -163,27 +164,43 @@ void Debugger::render(double currentTime) {
     ImGui::ShowMetricsWindow(&show_imgui_metrics_window);
   }
 
-  emulator->update();
+  static bool bootrom_is_present_and_successfully_loaded = false;
+  switch(state) {
+  case state_t::booting: {
+    bootrom_is_present_and_successfully_loaded = emulator->tryBoot();
+    if(!bootrom_is_present_and_successfully_loaded) {
+      emulator->skipBoot();
+      state = state_t::seekingROM;
+    }
 
-  debugview->showCartHeader();
-  debugview->showMemoryPortions();
-  debugview->showDisassembly();
-  debugview->showCPUState();
-  debugview->showRegisters();
-  debugview->showVRAM();
+  } break;
+
+  case state_t::seekingROM:
+    for(const auto &rom : romFiles) {
+      if(emulator->plug(rom)) {
+        state = state_t::running;
+        break;
+      }
+    }
+
+    break;
+
+  case state_t::running: {
+    emulator->update();
+
+    debugview->showCartHeader();
+    debugview->showMemoryPortions();
+    debugview->showDisassembly();
+    debugview->showCPUState();
+    debugview->showRegisters();
+    debugview->showVRAM();
+
+  } break;
+
+  default: break;
+  }
 
   const auto &framebuffer = emulator->ppu.getFrameBuffer();
-
-  struct rgba8 {
-    GLubyte r, g, b, a;
-  };
-
-  constexpr std::array<rgba8, 4> pal{
-      rgba8{107, 166, 74, 255},
-      rgba8{67,  122, 99, 255},
-      rgba8{37,  89,  85, 255},
-      rgba8{18,  66,  76, 255}
-  };
 
   if(show_output_window) {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBufferObjectID);
@@ -197,6 +214,11 @@ void Debugger::render(double currentTime) {
     glTextureSubImage2D(textureID, 0, 0, 0, LR::PPU::viewport_w, LR::PPU::viewport_h, GL_RGBA, GL_UNSIGNED_BYTE, buf.data());
 
     ImGui::Image((ImTextureID)(intptr_t)textureID, ImVec2{160.0f, 144.0f});
+
+    if(state != state_t::running) {
+      ImGui::NewLine();
+      ImGui::Text("Drag and drop a ROM file");
+    }
 
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 

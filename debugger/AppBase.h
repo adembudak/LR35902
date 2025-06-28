@@ -5,6 +5,7 @@
 #include <cstdint>
 #include <memory>
 #include <string>
+#include <vector>
 
 struct GLFWwindow;
 
@@ -68,6 +69,7 @@ protected:
   static void glfw_onMouseButton(GLFWwindow *window, int button, int action, int mods);
   static void glfw_onMouseMove(GLFWwindow *window, double x, double y);
   static void glfw_onMouseWheel(GLFWwindow *window, double xoffset, double yoffset);
+  static void glfw_onPathDrop(GLFWwindow *window, int count, const char **paths);
 
   void setVsync(bool enable);
 
@@ -85,6 +87,7 @@ public:
   virtual void onMouseMove(int x, int y);
   virtual void onMouseWheel(int pos);
   virtual void onResize(int w, int h);
+  virtual void onPathDrop(const std::vector<std::string> &paths);
 };
 
 }

@@ -33,20 +33,22 @@ bool Cartridge::load(const char *const romfile) noexcept {
   std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
   this->header.assign(std::move(buf));
 
+  if(!header.is_logocheck_ok()) return false;
+
   const auto SRAM_size = header.decode_ram_size().second;
   const auto MBC_type = header.decode_mbc_type().second;
   using namespace mp;
   match(MBC_type)(
-      pattern(0x00) = [&] { m_cart = rom_only(dumpedGamePak); },
-      pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, {}); },
+      pattern(0x00) = [&] { m_cart = rom_only(dumpedGamePak); }, pattern(0x01) = [&] { m_cart = mbc1(dumpedGamePak, {}); },
       pattern(0x02) = [&] { m_cart = mbc1(dumpedGamePak, {.sram_size = SRAM_size}); },
       pattern(0x03) = [&] { m_cart = mbc1(dumpedGamePak, {.sram_size = SRAM_size, .has_battery = true}); },
       pattern(0x05) = [&] { m_cart = mbc2(dumpedGamePak, {}); },
       pattern(0x06) = [&] { m_cart = mbc2(dumpedGamePak, {.has_battery = true}); },
       pattern(0x08) = [&] { m_cart = rom_ram(dumpedGamePak, {}); },
-      pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, { .has_battery = true }); },
+      pattern(0x09) = [&] { m_cart = rom_ram(dumpedGamePak, {.has_battery = true}); },
       pattern(0x0f) = [&] { m_cart = mbc3(dumpedGamePak, {.has_timer = true, .has_battery = true}); },
-      pattern(0x10) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = SRAM_size, .has_timer = true, .has_battery = true}); },
+      pattern(0x10) =
+          [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = SRAM_size, .has_timer = true, .has_battery = true}); },
       pattern(0x11) = [&] { m_cart = mbc3(dumpedGamePak, {}); },
       pattern(0x12) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = SRAM_size}); },
       pattern(0x13) = [&] { m_cart = mbc3(dumpedGamePak, {.sram_size = SRAM_size, .has_battery = true}); },
@@ -55,7 +57,8 @@ bool Cartridge::load(const char *const romfile) noexcept {
       pattern(0x1b) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = SRAM_size, .has_battery = true}); },
       pattern(0x1c) = [&] { m_cart = mbc5(dumpedGamePak, {.has_rumble = true}); },
       pattern(0x1d) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = SRAM_size, .has_rumble = true}); },
-      pattern(0x1e) = [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = SRAM_size, .has_battery = true, .has_rumble = true}); },
+      pattern(0x1e) =
+          [&] { m_cart = mbc5(dumpedGamePak, {.sram_size = SRAM_size, .has_battery = true, .has_rumble = true}); },
       pattern(_) =
           [&] {
             const std::string msg =                       //

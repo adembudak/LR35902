@@ -6,7 +6,9 @@
 #include <iostream>
 #include <memory>
 #include <sstream>
+#include <string>
 #include <utility>
+#include <vector>
 
 namespace Application {
 std::unique_ptr<AppBase> AppBase::app = nullptr;
@@ -49,6 +51,10 @@ void AppBase::glfw_onMouseMove(GLFWwindow *window, double x, double y) {
 
 void AppBase::glfw_onMouseWheel(GLFWwindow *window, double xoffset, double yoffset) {
   app->onMouseWheel(static_cast<int>(yoffset));
+}
+
+void AppBase::glfw_onPathDrop(GLFWwindow *window, int count, const char **paths) {
+  app->onPathDrop(std::vector<std::string>(paths, paths + count));
 }
 
 void AppBase::setVsync(bool enable) {
@@ -105,6 +111,7 @@ void AppBase::run(std::unique_ptr<AppBase> &&the_app) {
   glfwSetMouseButtonCallback(window, glfw_onMouseButton);
   glfwSetCursorPosCallback(window, glfw_onMouseMove);
   glfwSetScrollCallback(window, glfw_onMouseWheel);
+  glfwSetDropCallback(window, glfw_onPathDrop);
 
   if(!info.flags.cursor) {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
@@ -140,6 +147,7 @@ void AppBase::onResize(int w, int h) {
   info.windowWidth = w;
   info.windowHeight = h;
 }
+void AppBase::onPathDrop(const std::vector<std::string> &paths) {}
 
 void GLAPIENTRY AppBase::MessageCallback(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length,
                                          const GLchar *message, const void *userParam) {
