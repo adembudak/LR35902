@@ -211,7 +211,6 @@ private:
   void fetchWindow();
   void fetchSprites();
 
-  friend class DMA;
   friend class DebugView;
 };
 }
