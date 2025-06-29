@@ -10,6 +10,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+#include <ImGuiFileDialog.h>
+
 #include <algorithm>
 #include <array>
 #include <memory>
@@ -27,12 +29,21 @@ void Debugger::onKey(int key, int action, int mods) {
       switch(key) {
       case GLFW_KEY_D: show_imgui_demo_window = !show_imgui_demo_window; break;
       case GLFW_KEY_M: show_imgui_metrics_window = !show_imgui_metrics_window; break;
+      case GLFW_KEY_O: {
+        IGFD::FileDialogConfig configuration;
+        configuration.countSelectionMax = 1;
+        configuration.path = ".";
+        fileSelector.OpenDialog("ChooseFileDlgKey", "Choose File", ".gb,.gbc", configuration);
+
+      } break;
+      default: break;
       }
     }
 
     if(mods & GLFW_MOD_ALT) {
       switch(key) {
       case GLFW_KEY_F4: glfwWindowShouldClose(window); break;
+      default:          break;
       }
     }
 
@@ -46,7 +57,9 @@ void Debugger::onKey(int key, int action, int mods) {
   case GLFW_RELEASE: break;
 
   case GLFW_REPEAT:
-    switch(key) {}
+    switch(key) {
+    default: break;
+    }
     break;
 
   default: break;
@@ -75,6 +88,10 @@ void Debugger::mainMenu() {
     if(ImGui::BeginMenu("File")) {
 
       if(ImGui::MenuItem("Open ROM", "Ctrl-o")) {
+        IGFD::FileDialogConfig configuration;
+        configuration.countSelectionMax = 1;
+        configuration.path = ".";
+        fileSelector.OpenDialog("ChooseFileDlgKey", "Choose File", ".gb,.gbc", configuration);
       }
 
       if(ImGui::MenuItem("Close", "Alt+F4")) {
@@ -214,9 +231,17 @@ void Debugger::render(double currentTime) {
   default: break;
   }
 
-  const auto &framebuffer = emulator->ppu.getFrameBuffer();
+  if(fileSelector.Display("ChooseFileDlgKey")) {
+    if(fileSelector.IsOk()) {
+      romFiles.push_back(fileSelector.GetFilePathName());
+    }
+
+    fileSelector.Close();
+  }
 
   if(show_emulator_screen) {
+
+    const auto &framebuffer = emulator->ppu.getFrameBuffer();
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBufferObjectID);
 
     std::array<rgba8, LR::PPU::viewport_h * LR::PPU::viewport_w> buf;

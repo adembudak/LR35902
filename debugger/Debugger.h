@@ -2,6 +2,8 @@
 
 #include "AppBase.h"
 
+#include <ImGuiFileDialog.h>
+
 #include <memory>
 
 #include <array>
@@ -47,6 +49,8 @@ private:
 
   bool show_imgui_demo_window = 1;
   bool show_imgui_metrics_window = 1;
+
+  ImGuiFileDialog fileSelector;
 
   state_t state;
 
