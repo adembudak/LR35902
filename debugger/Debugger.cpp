@@ -202,12 +202,12 @@ void Debugger::render(double currentTime) {
   case state_t::running: {
     emulator->update();
 
-    debugview->showCartHeader();
-    debugview->showMemoryPortions();
-    debugview->showDisassembly();
-    debugview->showCPUState();
-    debugview->showRegisters();
-    debugview->showVRAM();
+    if(debugview->_header) debugview->showCartHeader();
+    if(debugview->_memory_portions) debugview->showMemoryPortions();
+    if(debugview->_disassembly) debugview->showDisassembly();
+    if(debugview->_cpu_state) debugview->showCPUState();
+    if(debugview->_registers) debugview->showRegisters();
+    if(debugview->_vram) debugview->showVRAM();
 
   } break;
 
