@@ -416,33 +416,6 @@ void DebugView::showRegisters() noexcept {
   im::End();
 }
 
-/*
-void fetchWindow() {
-    tileset_view = rv::counted(m_vram.begin() + windowTilesetBaseAddress(), tileset_block_size) //
-                   | rv::chunk(tileline_size)                                                   //
-                   | rv::chunk(tile_h);                                                         //
-
-  const std::size_t row = currentScanline() / tile_h;
-  const std::size_t currently_scanning_tileline = currentScanline() % tile_h;
-  const std::size_t window_x_ = (window_x() < 0) ? 0 : window_x();
-
-  if(std::size_t{window_x_ / tile_w} > max_tiles_on_viewport_x) return; // REVISIT: fix what creates this case
-
-  for(const std::size_t tile_nth : rv::iota(std::size_t{window_x_ / tile_w}, max_tiles_on_viewport_x)) {
-    const std::size_t tile_index = tilemap_view[row][tile_nth];
-    const auto tileline = tileset_view[tile_index][currently_scanning_tileline];
-    const auto decoded = decodeTilelinePaletteIndices(tileline[0], tileline[1]);
-
-    for(const std::size_t i : rv::iota(std::size_t{0}, tile_w)) {
-      const std::size_t x = (tile_nth * tile_w) + i;
-      m_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
-#if defined(WITH_DEBUGGER)
-      m_window_framebuffer[io.LY * viewport_w + x] = bgp()[decoded[i]];
-#endif
-    }
-  }
-}
-*/
 void DebugView::showVRAM() noexcept {
   glBindFramebuffer(GL_FRAMEBUFFER, vram_fbo);
   assert(glGetError() == GL_NO_ERROR);
@@ -463,7 +436,6 @@ void DebugView::showVRAM() noexcept {
       for(int tileline_row_dy = 0; const auto &tileline_view : tile_view) {
         const byte tileline_byte_lower = tileline_view[0];
         const byte tileline_byte_upper = tileline_view[1];
-        //          std::cout << int(tileline_byte_lower) << int(tileline_byte_upper) << '\n';
 
         std::array<rgba8, PPU::tile_w> temp;
         for(std::uint8_t mask = 0b1000'0000; auto &pixel : temp) {
