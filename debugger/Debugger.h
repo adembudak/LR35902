@@ -43,7 +43,7 @@ private:
 
   double lastTime = 0;
 
-  bool show_output_window = 1;
+  bool show_emulator_screen = 1;
 
   bool show_imgui_demo_window = 1;
   bool show_imgui_metrics_window = 1;

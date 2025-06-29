@@ -85,7 +85,7 @@ void Debugger::mainMenu() {
     }
 
     if(ImGui::BeginMenu("View")) {
-      ImGui::MenuItem("Output", nullptr, &show_output_window);
+      ImGui::MenuItem("Output", nullptr, &show_emulator_screen);
       ImGui::MenuItem("Cart Header", nullptr, &debugview->_header);
 
       if(ImGui::BeginMenu("Memory Portions")) {
@@ -216,12 +216,12 @@ void Debugger::render(double currentTime) {
 
   const auto &framebuffer = emulator->ppu.getFrameBuffer();
 
-  if(show_output_window) {
+  if(show_emulator_screen) {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, frameBufferObjectID);
 
     std::array<rgba8, LR::PPU::viewport_h * LR::PPU::viewport_w> buf;
 
-    ImGui::Begin("Screen", &show_output_window);
+    ImGui::Begin("Screen", &show_emulator_screen);
 
     std::ranges::transform(framebuffer, buf.begin(), [&](const auto e) { return pal[e]; });
 
