@@ -12,8 +12,9 @@ class Timer {
   IO &m_io;
   Interrupt &m_intr;
 
-  std::size_t counter = 0;
-  std::size_t div_counter = 0;
+  std::uint16_t counter = 0;
+  std::uint16_t previous_counter = 0;
+  std::uint16_t div_counter = 0;
 
 public:
   Timer(IO &io, Interrupt &intr);
