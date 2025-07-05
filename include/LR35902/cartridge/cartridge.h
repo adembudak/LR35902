@@ -16,8 +16,17 @@ class Cartridge final {
   using cart_t = std::variant<rom_only, rom_ram, mbc1, mbc2, mbc3, mbc5>;
   cart_t m_cart;
 
+  bool is_bootROM_successfully_loaded = false;
+  std::vector<byte> bootrom_buf;
+  std::vector<byte> dumpedGamePak;
+
 public:
-  bool load(const char *const romfile) noexcept;
+
+  bool loadBootROM() noexcept;
+  bool loadROM(const char *const romfile) noexcept;
+
+  void mapBootROM() noexcept;
+  void unmapBootROM() noexcept;
 
   [[nodiscard]] byte readROM(const address_t index) const noexcept;
   void writeROM(const address_t index, const byte b) noexcept;

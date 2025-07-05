@@ -2,7 +2,7 @@
 #include <backend/Emu.h>
 
 bool Emu::tryBoot() noexcept {
-  return bus.bootrom.load();
+  return cart.loadBootROM();
 }
 
 void Emu::skipBoot() noexcept {
@@ -11,7 +11,7 @@ void Emu::skipBoot() noexcept {
 }
 
 bool Emu::plug(const std::string &rom) noexcept {
-  return cart.load(rom.data());
+  return cart.loadROM(rom.data());
 }
 
 constexpr int vblank_period_cycles = 1140;

@@ -32,10 +32,7 @@ byte Bus::read(const address_t index) const noexcept {
   using namespace mpark::patterns;
 
   return match(index)(
-      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx_end) = [&] (auto index) {
-            if(index < mmap::header_start && bootrom.isBootOnGoing()) //
-              return bootrom.read(index);
-            return m_cart.readROM(index); },
+      pattern(arg).when(arg >= mmap::rom0 && arg < mmap::romx_end) = [&] (auto index) { return m_cart.readROM(index); },
       pattern(arg).when(arg >= mmap::vram && arg < mmap::vram_end) = [&] (auto index) { return m_ppu.readVRAM(index); },
       pattern(arg).when(arg >= mmap::sram && arg < mmap::sram_end) = [&] (auto index) { return m_cart.readSRAM(index); },
       pattern(arg).when(arg >= mmap::wram0 && arg < mmap::wramx_end) = [&] (auto index) { return m_builtIn.readWRAM(index); },
@@ -62,7 +59,7 @@ void Bus::write(const address_t index, const byte b) noexcept {
       pattern(arg).when(arg >= mmap::io && arg < mmap::io_end) = [&] (auto index) {
           match(index)(
                 pattern(0xff46) = [&] { m_dma.action(b); }, //
-                pattern(0xff50) = [&] { bootrom.unmap(); }, //
+                pattern(0xff50) = [&] { m_cart.unmapBootROM(); }, //
                 pattern(_) = [&] { m_io.writeIO(index, b); }); },
       pattern(arg).when(arg >= mmap::hram && arg < mmap::hram_end) = [&] (auto index){ m_builtIn.writeHRAM(index, b); },
       pattern(mmap::IE) = [&] { interruptHandler.IE(b); });

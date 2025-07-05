@@ -212,18 +212,17 @@ void Debugger::render(double currentTime) {
     ImGui::ShowMetricsWindow(&show_imgui_metrics_window);
   }
 
-  static bool bootrom_is_present_and_successfully_loaded = false;
   switch(state) {
   case state_t::booting: {
-    bootrom_is_present_and_successfully_loaded = emulator->tryBoot();
-    if(!bootrom_is_present_and_successfully_loaded) {
-      emulator->skipBoot();
-      state = state_t::seekingROM;
-    }
+    bool bootROM_loaded = emulator->tryBoot();
+    if(!bootROM_loaded) emulator->skipBoot();
+
+    state = state_t::seekingROM;
 
   } break;
 
-  case state_t::seekingROM:
+  case state_t::seekingROM: {
+
     for(const auto &rom : romFiles) {
       if(emulator->plug(rom)) {
         state = state_t::running;
@@ -231,7 +230,12 @@ void Debugger::render(double currentTime) {
       }
     }
 
-    break;
+    if(state != state_t::running) {
+      emulator->reset();
+      state = state_t::booting;
+    }
+
+  } break;
 
   case state_t::running: {
     emulator->update();
