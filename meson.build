@@ -21,7 +21,6 @@ patterns_dep = dependency('mpark_patterns', required: true)
 cli11_dep = dependency('cli11', default_options: {'tests': false, 'single-file-header': false}, required: false)
 
 lr35902_sources = files(
-  'src/bootrom/bootrom.cpp',
   'src/builtin/builtin.cpp',
   'src/bus/bus.cpp',
   'src/cartridge/cartridge.cpp',

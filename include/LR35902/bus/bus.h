@@ -1,6 +1,5 @@
 #pragma once
 
-#include <LR35902/bootrom/bootrom.h>
 #include <LR35902/config.h>
 
 namespace LR35902 {
@@ -23,7 +22,6 @@ class Bus {
 
 public:
   Interrupt &interruptHandler;
-  BootROM bootrom;
 
 public:
   [[nodiscard]] Bus(Cartridge &cart, PPU &ppu, BuiltIn &builtIn, DMA &dma, IO &io, Interrupt &interrupt, Joypad &joypad);

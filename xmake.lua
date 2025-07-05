@@ -25,7 +25,6 @@ target("core")
           "src/cartridge/kind/mbc2.cpp",
           "src/cartridge/kind/mbc3.cpp",
           "src/cartridge/kind/mbc5.cpp",
-          "src/bootrom/bootrom.cpp",
           "src/ppu/ppu.cpp",
           "src/builtin/builtin.cpp",
           "src/io/io.cpp",

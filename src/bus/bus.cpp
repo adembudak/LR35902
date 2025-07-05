@@ -1,4 +1,3 @@
-#include <LR35902/bootrom/bootrom.h>
 #include <LR35902/builtin/builtin.h>
 #include <LR35902/bus/bus.h>
 #include <LR35902/cartridge/cartridge.h>
