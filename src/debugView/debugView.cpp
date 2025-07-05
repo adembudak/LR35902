@@ -3,7 +3,6 @@
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>
 
-#include <iostream>
 #include <range/v3/all.hpp>
 #include <range/v3/view/subrange.hpp>
 
@@ -15,9 +14,8 @@
 #include <imgui.h>
 #include <imgui_memory_editor.h>
 
-#include <algorithm>
 #include <bit>
-#include <limits>
+#include <utility>
 #include <variant>
 
 #ifdef __clang__
@@ -467,9 +465,9 @@ void DebugView::showVRAM() noexcept {
     ++tile_row_dy;
   }
 
-  ImGui::Begin("VRAM tiledata");
+  im::Begin("VRAM tiledata");
   im::Image((ImTextureID)(intptr_t)vram_texture, ImVec2(PPU::screen_w, PPU::screen_h));
-  ImGui::End();
+  im::End();
 
   glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
