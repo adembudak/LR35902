@@ -47,14 +47,31 @@ void Debugger::onKey(int key, int action, int mods) {
       }
     }
 
-    switch(key) {
-    case GLFW_KEY_ESCAPE: break;
-    default:              break;
-    }
+    if(key == GLFW_KEY_A) emulator->joypad.update(LR35902::button::a, LR35902::keystatus::pressed);
+    if(key == GLFW_KEY_D) emulator->joypad.update(LR35902::button::b, LR35902::keystatus::pressed);
+
+    if(key == GLFW_KEY_SPACE) emulator->joypad.update(LR35902::button::select, LR35902::keystatus::pressed);
+    if(key == GLFW_KEY_ENTER) emulator->joypad.update(LR35902::button::start, LR35902::keystatus::pressed);
+
+    if(key == GLFW_KEY_UP) emulator->joypad.update(LR35902::button::up, LR35902::keystatus::pressed);
+    if(key == GLFW_KEY_RIGHT) emulator->joypad.update(LR35902::button::right, LR35902::keystatus::pressed);
+    if(key == GLFW_KEY_DOWN) emulator->joypad.update(LR35902::button::down, LR35902::keystatus::pressed);
+    if(key == GLFW_KEY_LEFT) emulator->joypad.update(LR35902::button::left, LR35902::keystatus::pressed);
 
     break;
 
-  case GLFW_RELEASE: break;
+  case GLFW_RELEASE:
+    if(key == GLFW_KEY_A) emulator->joypad.update(LR35902::button::a, LR35902::keystatus::released);
+    if(key == GLFW_KEY_D) emulator->joypad.update(LR35902::button::b, LR35902::keystatus::released);
+
+    if(key == GLFW_KEY_SPACE) emulator->joypad.update(LR35902::button::select, LR35902::keystatus::released);
+    if(key == GLFW_KEY_ENTER) emulator->joypad.update(LR35902::button::start, LR35902::keystatus::released);
+
+    if(key == GLFW_KEY_UP) emulator->joypad.update(LR35902::button::up, LR35902::keystatus::released);
+    if(key == GLFW_KEY_RIGHT) emulator->joypad.update(LR35902::button::right, LR35902::keystatus::released);
+    if(key == GLFW_KEY_DOWN) emulator->joypad.update(LR35902::button::down, LR35902::keystatus::released);
+    if(key == GLFW_KEY_LEFT) emulator->joypad.update(LR35902::button::left, LR35902::keystatus::released);
+    break;
 
   case GLFW_REPEAT:
     switch(key) {
@@ -62,7 +79,7 @@ void Debugger::onKey(int key, int action, int mods) {
     }
     break;
 
-  default: break;
+  default: assert(false); break;
   }
 }
 
