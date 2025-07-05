@@ -14,7 +14,6 @@
 #include <imgui.h>
 #include <imgui_memory_editor.h>
 
-#include <bit>
 #include <utility>
 #include <variant>
 
@@ -74,7 +73,7 @@ void DebugView::showMemoryPortions() noexcept {
   if(im::BeginTabBar("Tab Bar")) {
 
     if(im::BeginTabItem("rom0", &_memory_portions_rom)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.cart)), rom_bank_size, mmap::rom0);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.cart))), rom_bank_size, mmap::rom0);
       im::EndTabItem();
     }
 
@@ -83,13 +82,15 @@ void DebugView::showMemoryPortions() noexcept {
       const std::string label = "rom" + std::to_string(i);
 
       if(im::BeginTabItem(label.c_str(), &_memory_portions_rom)) {
-        memory_editor.DrawContents(std::bit_cast<void *>(emu.cart.data() + (i * rom_bank_size)), rom_bank_size, mmap::romx);
+        memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.cart)) + (i * rom_bank_size)),
+                                   rom_bank_size, mmap::romx);
         im::EndTabItem();
       }
     }
 
     if(im::BeginTabItem("vram", &_memory_portions_vram)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.ppu.m_vram)), std::size(emu.ppu.m_vram), mmap::vram);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.ppu.m_vram))),
+                                 std::size(emu.ppu.m_vram), mmap::vram);
       im::EndTabItem();
     }
 
@@ -100,8 +101,9 @@ void DebugView::showMemoryPortions() noexcept {
         const std::string label = "sram" + std::to_string(i);
 
         if(im::BeginTabItem(label.c_str(), &_memory_portions_sram)) {
-          memory_editor.DrawContents(std::bit_cast<void *>(emu.cart.SRAMData().value() + (i * sram_bank_size)),
-                                     sram_bank_size, mmap::sram);
+          memory_editor.DrawContents(
+              static_cast<void *>(const_cast<byte *>(emu.cart.SRAMData().value()) + (i * sram_bank_size)), sram_bank_size,
+              mmap::sram);
 
           im::EndTabItem();
         }
@@ -109,36 +111,38 @@ void DebugView::showMemoryPortions() noexcept {
     }
 
     if(im::BeginTabItem("wram", &_memory_portions_wram)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.builtIn.m_wram)), std::size(emu.builtIn.m_wram),
-                                 mmap::wram0);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.builtIn.m_wram))),
+                                 std::size(emu.builtIn.m_wram), mmap::wram0);
       im::EndTabItem();
     }
 
     if(im::BeginTabItem("echo", &_memory_portions_echo)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.builtIn.m_echo)), std::size(emu.builtIn.m_echo),
-                                 mmap::echo);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.builtIn.m_echo))),
+                                 std::size(emu.builtIn.m_echo), mmap::echo);
       im::EndTabItem();
     }
 
     if(im::BeginTabItem("oam", &_memory_portions_oam)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.ppu.m_oam)), std::size(emu.ppu.m_oam), mmap::oam);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.ppu.m_oam))), std::size(emu.ppu.m_oam),
+                                 mmap::oam);
       im::EndTabItem();
     }
 
     if(im::BeginTabItem("noUsable", &_memory_portions_noUsable)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.builtIn.m_noUsable)), std::size(emu.builtIn.m_noUsable),
-                                 mmap::noUse);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.builtIn.m_noUsable))),
+                                 std::size(emu.builtIn.m_noUsable), mmap::noUse);
       im::EndTabItem();
     }
 
     if(im::BeginTabItem("io", &_memory_portions_io)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.io.m_data)), std::size(emu.io.m_data), mmap::io);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.io.m_data))), std::size(emu.io.m_data),
+                                 mmap::io);
       im::EndTabItem();
     }
 
     if(im::BeginTabItem("hram", &_memory_portions_hram)) {
-      memory_editor.DrawContents(std::bit_cast<void *>(std::data(emu.builtIn.m_hram)), std::size(emu.builtIn.m_hram),
-                                 mmap::hram);
+      memory_editor.DrawContents(static_cast<void *>(const_cast<byte *>(std::data(emu.builtIn.m_hram))),
+                                 std::size(emu.builtIn.m_hram), mmap::hram);
       im::EndTabItem();
     }
 
