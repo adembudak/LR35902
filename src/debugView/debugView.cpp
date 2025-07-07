@@ -3,7 +3,7 @@
 #include <LR35902/debugView/debugView.h>
 #include <LR35902/memory_map.h>
 
-#include <range/v3/all.hpp>
+#include <range/v3/view/chunk.hpp>
 #include <range/v3/view/subrange.hpp>
 
 #include <mpark/patterns/match.hpp>
