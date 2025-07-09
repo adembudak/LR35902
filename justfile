@@ -76,3 +76,8 @@ meson builddir:
   -D unit_tests=true \
   --wrap-mode forcefallback . {{builddir}}
   meson compile -C {{builddir}}
+
+
+run:
+  just build
+  ./build/Debug/debugger

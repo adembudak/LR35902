@@ -4,7 +4,6 @@
     "catch2",
     "cli11",
     "fmt",
-    "imgui",
     "mpark-patterns",
     "nlohmann-json",
     "range-v3",
