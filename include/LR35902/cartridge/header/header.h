@@ -5,6 +5,7 @@
 
 #include <array>
 #include <string>
+#include <vector>
 
 namespace LR35902 {
 
@@ -14,14 +15,14 @@ constexpr std::array<byte, mmap::logo_end - mmap::logo_begin> nintendo_logo{
     0xbb, 0xbb, 0x67, 0x63, 0x6e, 0x0e, 0xec, 0xcc, 0xdd, 0xdc, 0x99, 0x9f, 0xbb, 0xb9, 0x33, 0x3e};
 
 class header_t {
-  std::array<byte, mmap::header_end> m_data;
+  std::vector<byte> m_data;
 
 public:
   header_t() = default;
-  header_t(std::array<byte, mmap::header_end> n) :
+  header_t(std::vector<byte> n) :
       m_data(std::move(n)) {}
 
-  void assign(std::array<byte, mmap::header_end> &&t) {
+  void assign(std::vector<byte> &&t) {
     m_data = std::move(t);
   }
 

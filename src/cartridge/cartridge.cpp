@@ -69,9 +69,8 @@ bool Cartridge::loadROM(const char *const romfile) noexcept {
 
   if(is_bootROM_successfully_loaded) mapBootROM();
 
-  std::array<byte, mmap::header_end> buf;
-  std::copy_n(dumpedGamePak.begin(), mmap::header_end, buf.begin());
-  this->header.assign(std::move(buf));
+  std::vector<byte> chunkThatContainHeaderData(dumpedGamePak.begin(), dumpedGamePak.begin() + mmap::header_end);
+  this->header.assign(std::move(chunkThatContainHeaderData));
 
   if(!header.is_logocheck_ok()) return false;
 
