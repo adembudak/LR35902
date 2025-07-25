@@ -107,7 +107,7 @@ if(WITH_DEBUGGER)
 
   add_library(debugView src/debugView/debugView.cpp)
   target_link_libraries(debugView PRIVATE LR35902::core)
-  target_link_libraries(debugView PRIVATE Unofficial::DearImGui::imgui_core Unofficial::imgui_club::imgui_memory_editor OpenGL::GL GLEW range-v3::range-v3 mpark_patterns)
+  target_link_libraries(debugView PUBLIC Unofficial::DearImGui::imgui_core Unofficial::imgui_club::imgui_memory_editor OpenGL::GL GLEW range-v3::range-v3 mpark_patterns)
   target_include_directories(debugView PUBLIC ${LR35902_SOURCE_DIR} ${LR35902_INCLUDE_DIR})
   add_library(LR35902::debugView ALIAS debugView)
 
