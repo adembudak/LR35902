@@ -58,10 +58,10 @@ void Timer::update(const std::size_t cycles) noexcept {
 
     const std::uint16_t bit_to_check = [&] {
       switch(frequency_index) {
-      case 0: return 8; break;
-      case 1: return 2; break;
-      case 2: return 4; break;
-      case 3: return 6; break;
+      case 0: return 8;
+      case 1: return 2;
+      case 2: return 4;
+      case 3: return 6;
       }
     }();
 
